@@ -29,7 +29,11 @@ export default {
   computed: {
     ...mapState('s3', ['objectList']),
     displayPrefix () {
-      return this.prefix === '' ? '/' : this.prefix.endsWith('/') ? this.prefix.substring(0, this.prefix.length - 1) : this.prefix
+      return this.prefix === ''
+        ? '/'
+        : this.prefix.endsWith('/')
+          ? this.prefix.substring(0, this.prefix.length - 1)
+          : this.prefix
     },
     isNotRoot () {
       return this.prefix !== ''
