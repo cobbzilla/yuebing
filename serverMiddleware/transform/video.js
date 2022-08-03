@@ -15,8 +15,8 @@ export const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
 
 const PROCESSING_TIMEOUT = 1000 * 60 * 60 * 4 // 4 hours
 const PROCESSING_MAX_ERRORS = 3
-const MIN_VALID_TRANSCODE_SIZE = 1024 * 256 // 256k min valid size
-const MIN_VALID_THUMBNAIL_SIZE = 1024 // 1k min valid size
+const MIN_VALID_TRANSCODE_SIZE = 1024 * 128 // 128k min valid size
+const MIN_VALID_THUMBNAIL_SIZE = 64 // 64 bytes min valid size
 
 async function getObject (client, bucketParams) {
   try {
@@ -54,6 +54,13 @@ async function headObject (client, bucketParams) {
 
 async function downloadObject (client, bucketParams, file) {
   try {
+    if (statSize(file) > 0) {
+      console.log('downloadObject: file exists, truncating: ' + file)
+      fs.truncateSync(file, 0)
+      console.log('downloadObject: file exists, AFTER truncating (' + file + '), statSize=' + statSize(file))
+    } else {
+      console.log('downloadObject: file does not exist or size is zero: ' + file)
+    }
     // Create a helper function to convert a ReadableStream to a string.
     const streamToFile = stream =>
       new Promise((resolve, reject) => {
@@ -79,9 +86,19 @@ async function downloadObject (client, bucketParams, file) {
   }
 }
 
-async function putObject (client, bucketParams) {
+async function putObject (bucketParams) {
+  const client = s3cfg.destClient
   try {
-    const data = await client.send(new PutObjectCommand(bucketParams))
+    const destPrefix = s3cfg.destBucketParams.Prefix
+    const origKey = bucketParams.Key
+    const key = origKey.startsWith(destPrefix)
+      ? origKey
+      : destPrefix.endsWith('/')
+        ? destPrefix + origKey
+        : destPrefix + '/' + origKey
+    const params = Object.assign({}, bucketParams, { Bucket: s3cfg.destBucketParams.Bucket, Prefix: '', Key: key })
+    console.log('putObject: params=' + JSON.stringify(params))
+    const data = await client.send(new PutObjectCommand(params))
     console.log('Successfully uploaded object: ' + bucketParams.Bucket + '/' + bucketParams.Key)
     return data // For unit tests.
   } catch (err) {
@@ -103,10 +120,13 @@ function canonicalDestDir (path) {
   const scrubbed = path.replace(/[\W_]+/g, '_')
   // retain the first 20 characters, then add a hash
   const sha = shasum(path)
-  const canonical = sha.substring(0, 2) +
+  const rawPrefix = s3cfg.destBucketParams.Prefix
+  const prefix = rawPrefix.endsWith('/') ? rawPrefix : rawPrefix + '/'
+  const slug = (scrubbed.length < 20 ? scrubbed : scrubbed.substring(0, 20)) + '_' + sha
+  const canonical = prefix + sha.substring(0, 2) +
     '/' + sha.substring(2, 4) +
-    '/' + sha.substring(6, 6) +
-    '/' + (scrubbed.length < 20 ? scrubbed : scrubbed.substring(0, 20)) + '_' + sha +
+    '/' + sha.substring(4, 6) +
+    '/' + slug +
     '/'
   console.log('canonicalDestDir(' + path + ') returning ' + canonical)
   return canonical
@@ -124,12 +144,11 @@ function canonicalSourceFile (path) {
 }
 
 function destPut (bucketParams, errorMessage) {
-  putObject(s3cfg.destClient, bucketParams)
-    .then((result) => {
-      if (typeof result === 'undefined') {
-        console.warn(errorMessage)
-      }
-    })
+  putObject(bucketParams).then((result) => {
+    if (typeof result === 'undefined') {
+      console.warn(errorMessage)
+    }
+  })
 }
 
 function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) {
@@ -148,7 +167,7 @@ function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) 
     const profile = profiles[name]
     const prof = Object.assign(videoDefaults, profile)
     const outfile = path.dirname(localSourceFile) + '/transcode_' + name + '.' + prof.ext
-    const destKey = s3cfg.destBucketParams.Prefix + '/' + canonicalDestDir(sourcePath) + path.basename(outfile)
+    const destKey = canonicalDestDir(sourcePath) + path.basename(outfile)
 
     const args = []
     args.push('-i')
@@ -169,8 +188,9 @@ function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) 
     args.push(prof.audioRate)
     args.push('-b:a')
     args.push(prof.audioBitrate)
+    args.push('-y')
     args.push(outfile)
-    console.log('running ffmpeg transcode with args: ' + JSON.stringify(args))
+    console.log('running ffmpeg transcode: ffmpeg ' + args.join(' '))
     const ffmpeg = spawn('ffmpeg', args)
     let result = ''
     ffmpeg.stdout.on('data', (data) => {
@@ -185,26 +205,29 @@ function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) 
     ffmpeg.on('close', (code) => {
       if (code !== 0) {
         console.warn(`child process exited with code ${code}`)
+        fs.unlink(outfile, () => {})
       } else {
         // stat the outfile -- it should be at least a minimum size
         const outfileSize = statSize(outfile)
         if (outfileSize < MIN_VALID_TRANSCODE_SIZE) {
+          fs.unlink(outfile, () => {})
           // write an error file
           console.warn('outfile had error (min size not met): ' + outfile)
-          const errorKey = path.dirname(destKey) + 'error_' + path.basename(destKey) + '_' + Date.now()
+          const errorKey = canonicalDestDir(sourcePath) + 'error_' + path.basename(destKey) + '_' + Date.now()
           destPut(Object.assign({}, metaBucketParams, { Key: errorKey, Body: '' }),
             'error writing error marker file: ' + errorKey)
         } else {
           // file is OK, we can upload it to dest
           const fileUp = fs.createReadStream(outfile)
+          console.log('starting upload of transcoded file: ' + outfile + ' to destKey=' + destKey)
           destPut(Object.assign({}, metaBucketParams, { Key: destKey, Body: fileUp }),
-            'error uploading transcoded file: ' + outfile)
+            'error uploading transcoded file: ' + outfile + ' to destKey=' + destKey)
           // ensure it was uploaded
           headObject(destClient, metaBucketParams, { Key: destKey }).then((head) => {
             if (head && head.ContentLength && head.ContentLength === outfileSize) {
               // upload success!
             } else {
-              console.error('error uploading thumbnail (size mismatch): ' + outfile)
+              console.error('error uploading transcoded file (size mismatch): ' + outfile + ' head=' + JSON.stringify(head))
             }
           })
         }
@@ -214,16 +237,18 @@ function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) 
 
   for (const name in thumbnails) {
     const profile = thumbnails[name]
-    const outfiles = path.dirname(localSourceFile) + '/thumbnail_' + name + '_%03d.jpg'
+    const outfilePrefix = path.dirname(localSourceFile) + '/thumbnail_' + name + '_'
+    const outfiles = outfilePrefix + '%03d.jpg'
 
     const args = []
     args.push('-i')
     args.push(localSourceFile)
     args.push('-vf')
     args.push('fps=' + profile.fps)
+    args.push('-y')
     args.push(outfiles)
 
-    console.log('running ffmpeg thumbnails with args: ' + JSON.stringify(args))
+    console.log('running ffmpeg thumbnails: ffmpeg ' + args.join(' '))
     const ffmpeg = spawn('ffmpeg', args)
     let result = ''
     ffmpeg.stdout.on('data', (data) => {
@@ -236,58 +261,65 @@ function prepareArtifacts (sourcePath, localSourceFile, meta, metaBucketParams) 
     })
 
     ffmpeg.on('close', (code) => {
-      if (code !== 0) {
-        console.warn(`child process exited with code ${code}`)
+      const deleteFiles = code !== 0
+      if (deleteFiles) {
+        console.warn(`ffmpeg thumbnails for ${name} exited with code ${code}`)
       } else {
-        // find the outfiles -- we should have at least one with size > 16k
-        glob(path.dirname(outfiles), (err, files) => {
-          if (err) {
-            console.error('Error listing thumbnails: ' + err)
-          } else {
-            // Check to see that they are all the right size
-            let allOk = true
+        console.log(`ffmpeg thumbnails for ${name} completed OK`)
+      }
+      // find the outfiles -- we should have at least one with size > 16k
+      glob(outfilePrefix + '*', (err, files) => {
+        console.log(`glob matched:\n${files.join('\n')}`)
+        if (err) {
+          console.error('Error listing thumbnails: ' + err)
+        } else {
+          let allOk = !deleteFiles
+          if (!deleteFiles) {
             files.forEach((file) => {
-              if (statSize(file) < MIN_VALID_THUMBNAIL_SIZE) {
-                console.error('Error, thumbnail file was too small: ' + file)
+              const size = statSize(file)
+              if (size < MIN_VALID_THUMBNAIL_SIZE) {
+                console.error(`Error, thumbnail file was too small (${size}): ${file}`)
                 allOk = false
               }
             })
-            if (allOk) {
-              // OK, upload all the thumbnails
-              files.forEach((file) => {
-                const fileUp = fs.createReadStream(file)
-                const destKey = s3cfg.destBucketParams.Prefix + '/' + canonicalDestDir(sourcePath) + path.basename(file)
-                destPut(Object.assign({}, metaBucketParams, { Key: destKey, Body: fileUp }),
-                  'error uploading thumbnail: ' + file)
-                // ensure it was uploaded
-                headObject(destClient, metaBucketParams, { Key: destKey }).then((head) => {
-                  if (head && head.ContentLength && head.ContentLength === statSize(file)) {
-                    // upload success!
-                  } else {
-                    console.error('error uploading thumbnail (size mismatch): ' + file)
-                  }
-                })
-              })
-            }
           }
-        })
-      }
+          if (allOk) {
+            // OK, upload all the thumbnails
+            files.forEach((file) => {
+              const fileUp = fs.createReadStream(file)
+              const destKey = canonicalDestDir(sourcePath) + path.basename(file)
+              console.log('uploading thumbnail ' + file + ' to destKey=' + destKey)
+              destPut(Object.assign({}, metaBucketParams, { Key: destKey, Body: fileUp }),
+                'error uploading thumbnail: ' + file)
+              // ensure it was uploaded
+              headObject(destClient, metaBucketParams, { Key: destKey }).then((head) => {
+                if (head && head.ContentLength && head.ContentLength === statSize(file)) {
+                  // upload success!
+                } else {
+                  console.error('error uploading thumbnail (size mismatch): ' + file + ' head=' + JSON.stringify(head))
+                }
+              })
+            })
+          } else {
+            console.warn('thumbnails failed for name ' + name + ', deleting files...')
+            files.forEach((file) => {
+              console.warn('Deleting failed thumbnail: ' + file)
+              fs.unlink(file, () => {})
+            })
+          }
+        }
+      })
     })
   }
 }
 
 function statSize (file) {
-  let size
-  fs.stat(file, (err, stats) => {
-    if (err) {
-      size = -1
-    } else if (stats && stats.size) {
-      size = stats.size
-    } else {
-      size = -1
-    }
-  })
-  return size
+  const stats = fs.statSync(file, { throwIfNoEntry: false })
+  if (stats && stats.size) {
+    return stats.size
+  }
+  console.error('statSize error on file ' + file)
+  return -1
 }
 
 async function verifySameMetaMaybeStartProcessing (sourcePath, metaBucketParams) {
@@ -317,6 +349,7 @@ async function verifySameMetaMaybeStartProcessing (sourcePath, metaBucketParams)
       }
 
       if (downloadSource) {
+        console.log('downloading source to file: ' + file)
         fs.mkdirSync(path.dirname(file), { recursive: true })
         await downloadObject(s3cfg.sourceClient, sourceBucketParams, file)
       }
@@ -335,7 +368,7 @@ const transformer = {
   transform: async (sourcePath) => {
     console.log('transform(' + sourcePath + ')')
     const serverId = nuxt.default.privateRuntimeConfig.serverId
-    const metaPath = s3cfg.destBucketParams.Prefix + '/' + canonicalDestDir(sourcePath) + '.meta'
+    const metaPath = canonicalDestDir(sourcePath) + '.meta'
     const metaBucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: metaPath })
     const destMeta = await getObject(s3cfg.destClient, metaBucketParams)
     let meta = null
@@ -387,7 +420,7 @@ const transformer = {
     }
     metaBody = JSON.stringify(meta)
     const putMetaParams = Object.assign({}, metaBucketParams, { Body: metaBody })
-    await putObject(s3cfg.destClient, putMetaParams)
+    destPut(putMetaParams)
 
     // set a timeout to read the file back in 10 seconds,
     // if the file has our same serverId in it, we begin the transformation jobs
