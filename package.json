@@ -14,8 +14,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.141.0",
     "@nuxtjs/axios": "^5.13.6",
+    "bull": "^4.8.5",
     "core-js": "^3.19.3",
     "glob": "^8.0.3",
+    "ioredis": "^5.2.2",
     "nuxt": "^2.15.8",
     "shasum": "^1.0.2",
     "vue": "^2.6.14",

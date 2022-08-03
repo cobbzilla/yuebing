@@ -1,5 +1,5 @@
 // Create service client module using ES6 syntax.
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3'
 
 const sourceCredentials = {
   accessKeyId: process.env.SV_SOURCE_ACCESS,
