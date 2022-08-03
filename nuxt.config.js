@@ -7,19 +7,33 @@ export default {
   },
 
   privateRuntimeConfig: {
-    source: {
-      bucket: process.env.SV_SOURCE_BUCKET,
-      access: process.env.SV_SOURCE_ACCESS,
-      secret: process.env.SV_SOURCE_SECRET
-    },
-    dest: {
-      bucket: process.env.SV_DEST_BUCKET,
-      access: process.env.SV_DEST_ACCESS,
-      secret: process.env.SV_DEST_SECRET
-    },
     admin: {
       username: process.env.SV_ADMIN_USER,
       password: process.env.SV_ADMIN_PASSWORD
+    },
+    serverId: Math.floor(10000000000 * Math.random()),
+    transform: {
+      video: {
+        default: {
+          videoCodec: 'libx264',
+          audioCodec: 'aac',
+          audioChannels: 2,
+          audioRate: 44100,
+          audioBitrate: '128k',
+          ext: 'mp4'
+        },
+        profiles: {
+          high: { videoSize: 'hd1080', frameRate: 30, videoBitrate: '1024k' },
+          mid: { videoSize: 'hd720', frameRate: 24, videoBitrate: '512k' },
+          low: { videoSize: 'vga', frameRate: 24, videoBitrate: '384k', audioChannels: 1, audioBitrate: '64k' },
+          min: { videoSize: 'vga', frameRate: 24, videoBitrate: '128k', audioChannels: 1, audioBitrate: '64k' }
+        },
+        thumbnails: {
+          large: { size: 'hd1080', fps: '1/60' },
+          medium: { size: 'hd720', fps: '1/60' },
+          small: { size: 'vga', fps: '1/60' }
+        }
+      }
     }
   },
 

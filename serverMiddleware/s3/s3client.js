@@ -33,8 +33,6 @@ const destClient = new S3Client({
   credentials: destCredentials
 })
 
-console.log('loaded source creds = ' + JSON.stringify(sourceCredentials))
-
 export {
   sourceBucketParams, destBucketParams, sourceClient, destClient
 }

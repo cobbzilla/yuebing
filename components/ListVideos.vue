@@ -7,7 +7,10 @@
     </div>
     <div v-for="(obj, index) in filteredObjectList" v-bind:key="index">
       <div v-if="obj.type && obj.type === 'dir'">
-        Directory: <button @click="refresh(obj.name)">{{ filterName(obj.name) }}</button>
+        Directory:
+        <button @click="refresh(obj.name)">
+          {{ filterName(obj.name) }}
+        </button>
       </div>
       <div v-else>
         Regular file: {{ filterName(obj.name) }} JSON = {{ JSON.stringify(obj) }}
@@ -54,6 +57,8 @@ export default {
         this.objectList.forEach((obj) => {
           if (obj.name && obj.name !== this.prefix) {
             filtered.push(obj)
+          } else {
+            console.log('filteredObjectList: excluding: ' + obj.name)
           }
         })
       }
