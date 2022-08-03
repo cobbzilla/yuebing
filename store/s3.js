@@ -1,29 +1,56 @@
 import { s3Service } from '~/services/s3service'
 
+const META_EXPIRATION = 1000 * 60 * 15 // 15 minutes
+
 export const state = () => ({
   objectList: [],
-  loading: false,
-  loadError: null
+  loadingObjects: false,
+  loadingObjectsError: null,
+
+  metadata: {},
+  loadingMetadata: false,
+  loadingMetadataError: null
 })
 
 export const getters = {
   getObjectList (state) {
     return state.objectList
+  },
+  getMetaData (state, path) {
+    if (path in state.metadata) {
+      const meta = state.metadata[path]
+      return (meta.ctime && Date.now() - meta.ctime < META_EXPIRATION) ? meta : null
+    }
+    return null
   }
 }
 
 export const mutations = {
   fetchObjectsRequest (state) {
-    state.loading = true
+    state.loadingObjects = true
   },
   fetchObjectsSuccess (state, objects) {
     state.objectList.splice(0, state.objectList.length)
     state.objectList.push(...objects)
-    state.loading = false
+    state.loadingObjectsError = null
+    state.loadingObjects = false
   },
   fetchObjectsFailure (state, error) {
-    state.loading = false
-    state.loadError = error
+    state.loadingObjects = false
+    state.loadingObjectsError = error
+  },
+
+  fetchMetaRequest (state) {
+    state.loadingMetadata = true
+  },
+  fetchMetaSuccess (state, path, meta) {
+    state.metadata[path] = meta
+    state.loadingMetadataError = null
+    state.loadingMetadata = false
+  },
+  fetchMetaFailure (state, error) {
+    state.loadingMetadata = false
+    state.loadingMetadataError = error
   }
 }
 
@@ -35,6 +62,17 @@ export const actions = {
       .then(
         objects => commit('fetchObjectsSuccess', objects),
         error => commit('fetchObjectsFailure', error)
+      )
+  },
+
+  fetchMetadata ({ commit }, { path }) {
+    commit('fetchMetaRequest')
+    console.log(`fetchMetadata: starting for path: ${path}`)
+    s3Service
+      .metadata(path)
+      .then(
+        meta => commit('fetchMetaSuccess', meta),
+        error => commit('fetchMetaFailure', error)
       )
   }
 }

@@ -1,4 +1,4 @@
-const video = require('../video/xform.js')
+const video = require('../video/xform')
 const s3util = require('./s3util')
 
 export default {

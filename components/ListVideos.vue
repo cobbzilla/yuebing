@@ -12,6 +12,14 @@
           {{ filterName(obj.name) }}
         </button>
       </div>
+      <div v-else-if="obj.type && obj.type === 'file' && obj.video">
+        <div v-if="obj.meta && obj.meta.status && obj.meta.status.ready">
+          playable video meta: {{ JSON.stringify(obj.meta) }}
+        </div>
+        <div v-else>
+          unplayable video meta: {{ JSON.stringify(obj.meta) }}
+        </div>
+      </div>
       <div v-else>
         Regular file: {{ filterName(obj.name) }} JSON = {{ JSON.stringify(obj) }}
       </div>
@@ -30,7 +38,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('s3', ['objectList']),
+    ...mapState('s3', ['objectList', 'metadata']),
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -55,8 +63,20 @@ export default {
       const filtered = []
       if (this.objectList && this.objectList.length && this.objectList.length > 0) {
         this.objectList.forEach((obj) => {
-          if (obj.name && obj.name !== this.prefix) {
-            filtered.push(obj)
+          if (obj.name && obj.name !== this.prefix && (obj.video || (obj.type && obj.type === 'dir'))) {
+            if (obj.video) {
+              // try to populate metadata, or request it
+              if (obj.name in this.metadata) {
+                obj.meta = this.metadata[obj.name]
+              } else {
+                const path = obj.name
+                this.fetchMetadata({ path })
+              }
+              filtered.push(obj)
+            } else {
+              // non-video object
+              filtered.push(obj)
+            }
           } else {
             console.log('filteredObjectList: excluding: ' + obj.name)
           }
@@ -70,7 +90,7 @@ export default {
     this.fetchObjects({ prefix })
   },
   methods: {
-    ...mapActions('s3', ['fetchObjects']),
+    ...mapActions('s3', ['fetchObjects', 'fetchMetadata']),
     refresh (prefix) {
       this.prefix = prefix
       // console.log('refreshing ListVideos, prefix: ' + prefix)

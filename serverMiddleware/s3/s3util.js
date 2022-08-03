@@ -7,26 +7,26 @@ const s3cfg = require('./s3client.js')
 async function listDest (prefix) {
   const client = s3cfg.destClient
   const params = s3cfg.destBucketParams
-  return await listObjects(prefix, client, params, false)
+  return await listObjects(prefix, client, params)
 }
 
 async function listSource (prefix) {
   const client = s3cfg.sourceClient
   const params = s3cfg.sourceBucketParams
-  return await listObjects(prefix, client, params, true)
+  return await listObjects(prefix, client, params)
 }
 
-async function listObjects (prefix, client, params, isSource) {
+async function listObjects (prefix, client, params) {
   // Declare truncated as a flag that the while loop is based on.
   let truncated = true
 
-  const fullPrefix = params.Prefix + prefix
+  const fullPrefix = prefix.startsWith(params.Prefix) ? prefix : params.Prefix + prefix
   const bucketParams = Object.assign({}, params, {
     Prefix: fullPrefix,
     Delimiter: '/'
   })
   const objects = []
-  console.log('listing with prefix = ' + prefix + ', fullPrefix = ' + fullPrefix)
+  console.log(`listing with prefix = ${prefix}, fullPrefix = ${fullPrefix}, bucketParams=${JSON.stringify(bucketParams)}`)
 
   // Declare a variable to which the key of the last element is assigned to in the response.
   let pageMarker
@@ -35,6 +35,7 @@ async function listObjects (prefix, client, params, isSource) {
   while (truncated) {
     try {
       const response = await client.send(new ListObjectsCommand(bucketParams))
+      console.log(`>>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
           if (util.isVideo(item.Key)) {
@@ -112,7 +113,7 @@ async function headObject (client, bucketParams) {
   try {
     // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new HeadObjectCommand(bucketParams))
-    console.log('headObject returned: ' + JSON.stringify(data))
+    console.log(`'headObject returned: ${JSON.stringify(data)}`)
     return data
   } catch (err) {
     console.log('Error', err)
@@ -166,9 +167,9 @@ async function putObject (bucketParams) {
       Prefix: '',
       Key: key
     })
-    console.log('putObject: params=' + JSON.stringify(params))
+    console.log(`putObject: params=${JSON.stringify(params)}`)
     const data = await client.send(new PutObjectCommand(params))
-    console.log('Successfully uploaded object: ' + bucketParams.Bucket + '/' + bucketParams.Key)
+    console.log(`Successfully uploaded object: ${bucketParams.Bucket}/${bucketParams.Key}`)
     return data // For unit tests.
   } catch (err) {
     console.log('Error', err)
@@ -186,15 +187,15 @@ function destPut (bucketParams, errorMessage) {
 function touchLastModified (sourcePath) {
   const path = util.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: path, Body: '' + Date.now() })
-  destPut(bucketParams, 'touchLastModified: error writing ' + path)
-  console.log('touchLastModified: touched: ' + path)
+  destPut(bucketParams, `'touchLastModified: error writing ${path}`)
+  console.log(`touchLastModified: touched: ${path}`)
 }
 
 function recordError (sourcePath, type, profile, error) {
   const path = util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + type + '_' + profile + '_' + Date.now()
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: path, Body: error })
-  destPut(bucketParams, 'touchError: error writing ' + path)
-  console.log('touchError: touched: ' + path)
+  destPut(bucketParams, `touchError: error writing ${path}`)
+  console.log(`touchError: touched: ${path}`)
 }
 
 async function countErrors (sourcePath, type, profile) {

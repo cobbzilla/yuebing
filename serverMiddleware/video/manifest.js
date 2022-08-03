@@ -1,5 +1,4 @@
-import path from 'path'
-
+const path = require('path')
 const shasum = require('shasum')
 const redis = require('../redis')
 const nuxt = require('../../nuxt.config')
@@ -37,7 +36,7 @@ async function deriveMetadata (sourcePath) {
       console.log('deriveMetadata recalculating because lastModified file does not exist or is newer than cache for sourcePath: ' + sourcePath)
     }
   } else {
-    console.log('deriveMetadata no data in cache, recalcluating for: ' + sourcePath)
+    console.log('deriveMetadata no data in cache, recalculating for: ' + sourcePath)
   }
 
   const videoConfig = nuxt.default.privateRuntimeConfig.transform.video
@@ -51,8 +50,10 @@ async function deriveMetadata (sourcePath) {
   }
 
   // list all transcodes
-  const transcodes = await s3util.listDest(util.canonicalDestDir(sourcePath) + util.XFORM_TRANSCODE_PREFIX)
-  for (const t in transcodes) {
+  const prefix = util.canonicalDestDir(sourcePath) + util.XFORM_TRANSCODE_PREFIX
+  const transcodes = await s3util.listDest(prefix)
+  console.log(`>>>>>>>>>>>>>>. found transcodes: ${JSON.stringify(transcodes)} under prefix ${prefix}`)
+  transcodes.forEach((t) => {
     const base = path.basename(t.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
@@ -60,7 +61,7 @@ async function deriveMetadata (sourcePath) {
       const foundProfile = base.substring(underscore + 1, dot)
       meta.videos[foundProfile] = t.name
     }
-  }
+  })
 
   let allTranscodesDone = true
   let someTranscodesDone = false
@@ -77,7 +78,7 @@ async function deriveMetadata (sourcePath) {
 
   // list all thumbnails
   const thumbs = await s3util.listDest(util.canonicalDestDir(sourcePath) + util.XFORM_THUMBNAIL_PREFIX)
-  for (const t in thumbs) {
+  thumbs.forEach((t) => {
     const base = path.basename(t.name)
     const underscore = base.indexOf('_')
     const nextUnderscore = (underscore === -1 || underscore === base.length)
@@ -91,7 +92,7 @@ async function deriveMetadata (sourcePath) {
       }
       meta.thumbnails[foundProfile].push(t.name)
     }
-  }
+  })
 
   let allThumbnailsDone = true
   for (const name in thumbnails) {

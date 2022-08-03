@@ -1,5 +1,5 @@
 export const s3Service = {
-  listS3
+  listS3, metadata
 }
 
 function handleResponse (response) {
@@ -16,4 +16,8 @@ function handleResponse (response) {
 
 function listS3 (prefix) {
   return fetch(`/s3/list/${prefix}`, { method: 'GET' }).then(response => handleResponse(response))
+}
+
+function metadata (path) {
+  return fetch(`/s3/meta/${path}`, { method: 'GET' }).then(response => handleResponse(response))
 }
