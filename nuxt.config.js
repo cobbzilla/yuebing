@@ -34,7 +34,8 @@ export default {
   serverMiddleware: [
     { path: '/s3/list', handler: '~/serverMiddleware/s3/list' },
     { path: '/s3/scan', handler: '~/serverMiddleware/s3/scan' },
-    { path: '/s3/meta', handler: '~/serverMiddleware/s3/meta' }
+    { path: '/s3/meta', handler: '~/serverMiddleware/s3/meta' },
+    { path: '/s3/proxy', handler: '~/serverMiddleware/s3/proxy' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

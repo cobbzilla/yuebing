@@ -69,7 +69,7 @@ async function ensureSourceDownloaded (sourcePath) {
   if (downloadSource) {
     console.log('downloading source to file: ' + file)
     fs.mkdirSync(path.dirname(file), { recursive: true })
-    await s3util.downloadObject(s3cfg.sourceClient, sourceBucketParams, file)
+    await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
     const downloadSize = util.statSize(file)
     const head = await s3util.headSourceObject(sourcePath)
     if (head && head.ContentLength && head.ContentLength === downloadSize) {

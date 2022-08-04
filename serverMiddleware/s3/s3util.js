@@ -127,33 +127,48 @@ async function headObject (client, bucketParams) {
   }
 }
 
-async function downloadObject (client, bucketParams, file) {
+async function downloadObjectToFile (client, bucketParams, file) {
   try {
     const size = util.statSize(file)
     if (size > 0) {
       fs.truncateSync(file, 0)
     }
-    // Create a helper function to convert a ReadableStream to a string.
-    const streamToFile = stream =>
-      new Promise((resolve, reject) => {
-        const chunks = []
-        stream.on('data', (chunk) => {
-          fs.appendFile(file, chunk, function (err) {
-            if (err) {
-              throw err
-            }
-          })
-        })
-        stream.on('error', reject)
-        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+    const handler = (chunk) => {
+      fs.appendFile(file, chunk, (err) => {
+        if (err) {
+          throw err
+        }
       })
-
-    // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
-    const data = await client.send(new GetObjectCommand(bucketParams))
-    await streamToFile(data.Body)
-    return true
+    }
+    return await downloadObject(client, bucketParams, handler)
   } catch (err) {
     console.log('Error', err)
+    return false
+  }
+}
+
+async function streamDestObject (key, writeable) {
+  const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: key })
+  const handler = (chunk) => {
+    writeable.write(chunk)
+  }
+  return await downloadObject(s3cfg.destClient, bucketParams, handler)
+}
+
+async function downloadObject (client, bucketParams, dataHandler) {
+  try {
+    // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
+    const data = await client.send(new GetObjectCommand(bucketParams))
+    const streamHandler = stream =>
+      new Promise((resolve, reject) => {
+        stream.on('data', dataHandler)
+        stream.on('error', reject)
+        stream.on('end', () => resolve())
+      })
+    await streamHandler(data.Body)
+    return true
+  } catch (err) {
+    console.error(`downloadObject: ${err}`)
     return false
   }
 }
@@ -225,7 +240,9 @@ async function countErrors (sourcePath, profile) {
 }
 
 export {
-  listObjects, listDest, listSource, getObject, downloadObject,
-  headObject, headSourceObject, headDestObject, putObject, destPut,
-  deleteDestObject, touchLastModified, recordError, countErrors
+  listObjects, listDest, listSource,
+  downloadObject, downloadObjectToFile, streamDestObject,
+  headObject, headSourceObject, headDestObject,
+  putObject, destPut, deleteDestObject,
+  touchLastModified, recordError, countErrors
 }
