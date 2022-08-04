@@ -4,7 +4,7 @@ const Queue = require('bull')
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
 const util = require('../util')
-const c = require('../../util/shared')
+const c = require('../../media')
 const manifest = require('./manifest')
 
 const MAX_XFORM_ERRORS = 3
@@ -26,11 +26,11 @@ async function createArtifacts (sourcePath, localSourceFile) {
 
     // determine which destKey we will check to determine if the transform has completed
     if (profile.multiFile) {
-      const outfilePrefix = path.dirname(localSourceFile) + '/' + util.XFORM_TRANSFORM_PREFIX + name + '_'
+      const outfilePrefix = path.dirname(localSourceFile) + '/' + c.ASSET_PREFIX + name + '_'
       outfile = outfilePrefix + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = util.canonicalDestDir(sourcePath) + util.XFORM_TRANSFORM_PREFIX + name + '_' + util.MULTIFILE_FIRST + '.' + profile.ext
+      completedAssetKey = util.canonicalDestDir(sourcePath) + c.ASSET_PREFIX + name + '_' + util.MULTIFILE_FIRST + '.' + profile.ext
     } else {
-      outfile = path.dirname(localSourceFile) + '/' + util.XFORM_TRANSFORM_PREFIX + name + '.' + profile.ext
+      outfile = path.dirname(localSourceFile) + '/' + c.ASSET_PREFIX + name + '.' + profile.ext
       completedAssetKey = util.canonicalDestDir(sourcePath) + path.basename(outfile)
     }
 

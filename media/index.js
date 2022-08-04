@@ -2,8 +2,6 @@
 // This is the only JS file that both client and server side both reference
 // As such, it should remain very simple. Declarative stuff. Nothing too fancy.
 //
-const nuxt = require('../nuxt.config')
-
 const FILE_TYPE = 'file'
 const DIRECTORY_TYPE = 'dir'
 
@@ -11,13 +9,48 @@ const VIDEO_MEDIA_TYPE = 'video'
 const AUDIO_MEDIA_TYPE = 'audio'
 const UNKNOWN_MEDIA_TYPE = 'binary'
 
+const ASSET_PREFIX = 'asset_'
+
 const EXT_MAP = {}
-const NUXT_CONFIG = nuxt
-const MEDIA = nuxt.default.publicRuntimeConfig.media
+
+const MEDIA = {
+  video: require('./video.js').default
+}
+
+function resolveFrom (profile, profileMap) {
+  if (typeof profile.from !== 'string') {
+    return profile
+  }
+  if (!(profile.from in profileMap)) {
+    throw new TypeError(`resolveFrom: cannot resolve from ${profile.from} for profile ${profile.name}`)
+  }
+  return Object.assign({}, resolveFrom(profileMap[profile.from], profileMap), profile)
+}
+
 for (const type in MEDIA) {
-  if (MEDIA[type].ext && Array.isArray(MEDIA[type].ext)) {
-    MEDIA[type].ext.forEach((e) => {
+  // Build extension map
+  const typeConfig = MEDIA[type]
+  if (typeConfig.ext && Array.isArray(typeConfig.ext)) {
+    typeConfig.ext.forEach((e) => {
       EXT_MAP[e] = type
+    })
+  }
+
+  // Expand the magic 'from' property where found in profiles
+  // We also populate the 'name' property for each profile object
+  if (typeConfig.profiles && Object.keys(typeConfig.profiles).length > 0) {
+    const typeProfiles = []
+    const typeProfileMap = {}
+    // Make a copy to avoid overwrites & simplify resolveFrom work
+    // This loop also assigns the 'name' property
+    Object.keys(typeConfig.profiles).forEach((profileName) => {
+      const profile = typeConfig.profiles[profileName]
+      profile.name = profileName
+      typeProfiles.push(profile)
+      typeProfileMap[profileName] = profile
+    })
+    typeProfiles.forEach((profile) => {
+      typeConfig.profiles[profile.name] = resolveFrom(profile, typeProfileMap)
     })
   }
 }
@@ -90,9 +123,26 @@ function isViewable (obj) {
   return obj.meta && obj.meta.status && obj.meta.status.ready
 }
 
+function profileFromAsset (asset) {
+  if (typeof asset !== 'string') {
+    console.error(`profileFromAsset: expected string argument, got: ${asset}`)
+    return null
+  }
+  const prefix = asset.indexOf(ASSET_PREFIX)
+  const dot = asset.lastIndexOf('.')
+  if (prefix === -1 || dot === -1) {
+    console.error(`profileFromAsset: cannot determine profile from asset with invalid name: ${asset}`)
+    return null
+  }
+  const profile = asset.substring(prefix + ASSET_PREFIX.length, dot)
+  console.log(`profileFromAsset(${asset}) returning '${profile}'`)
+  return profile
+}
+
 export {
   mediaType, mediaProfiles, hasProfiles, minFileSize,
-  hasMediaType, isDirectory, isViewable,
-  NUXT_CONFIG, MEDIA, FILE_TYPE, DIRECTORY_TYPE,
-  VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE
+  hasMediaType, isDirectory, isViewable, profileFromAsset,
+  MEDIA, FILE_TYPE, DIRECTORY_TYPE,
+  VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
+  ASSET_PREFIX
 }

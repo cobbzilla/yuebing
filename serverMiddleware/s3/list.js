@@ -1,5 +1,5 @@
 const manifest = require('../asset/manifest')
-const c = require('../../util/shared')
+const c = require('../../media')
 const s3util = require('./s3util')
 
 export default {

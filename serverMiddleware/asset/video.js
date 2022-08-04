@@ -4,7 +4,7 @@ import path from 'path'
 import glob from 'glob'
 const s3util = require('../s3/s3util')
 const util = require('../util')
-const c = require('../../util/shared')
+const c = require('../../media')
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
 

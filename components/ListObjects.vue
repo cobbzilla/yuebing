@@ -31,7 +31,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { hasMediaType, isDirectory, isViewable } from '~/util/shared'
+import { hasMediaType, isDirectory, isViewable } from '~/media'
 
 export default {
   name: 'ListVideos',

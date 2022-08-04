@@ -9,7 +9,6 @@ const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
   ? process.env.SV_WORK_DIR
   : process.env.SV_WORK_DIR + '/'
 
-const XFORM_TRANSFORM_PREFIX = 'transform_'
 const LAST_MODIFIED_FILE = 'lastModified'
 const ERROR_FILE_PREFIX = '_error_'
 
@@ -73,5 +72,5 @@ export {
   canonicalSourceFile, canonicalWorkingDir, canonicalDestDir, deleteFile, statSize,
   workbenchDir, MAX_CONCURRENT_TRANSFORMS,
   MULTIFILE_PLACEHOLDER, MULTIFILE_FIRST,
-  XFORM_TRANSFORM_PREFIX, LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
+  LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
 }

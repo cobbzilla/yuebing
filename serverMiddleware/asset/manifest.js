@@ -3,7 +3,7 @@ const shasum = require('shasum')
 const redis = require('../redis')
 const s3util = require('../s3/s3util')
 const util = require('../util')
-const c = require('../../util/shared')
+const c = require('../../media')
 
 const MIN_CACHE_PERIOD = 5 * 60 * 1000 // 5 minutes
 
@@ -47,7 +47,7 @@ async function deriveMetadata (sourcePath) {
   }
 
   // find all assets
-  const prefix = util.canonicalDestDir(sourcePath) + util.XFORM_TRANSFORM_PREFIX
+  const prefix = util.canonicalDestDir(sourcePath) + c.ASSET_PREFIX
   const assets = await s3util.listDest(prefix)
   assets.forEach((asset) => {
     const base = path.basename(asset.name)
@@ -70,19 +70,19 @@ async function deriveMetadata (sourcePath) {
 
   // determine if everything is done, and if "enough" is done
   let allAssetsDone = true
-  let sufficientAssetsDone = false
+  let primaryAssetsDone = false
   for (const name in profiles) {
     if (!(name in meta.assets)) {
       allAssetsDone = false
-    } else if (profiles[name].sufficient) {
-      sufficientAssetsDone = true
+    } else if (profiles[name].primary) {
+      primaryAssetsDone = true
     }
   }
 
   if (allAssetsDone) {
     meta.status.complete = true
   }
-  if (sufficientAssetsDone) {
+  if (primaryAssetsDone) {
     meta.status.ready = true
   }
 
