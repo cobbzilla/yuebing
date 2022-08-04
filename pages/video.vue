@@ -1,14 +1,11 @@
 <template>
   <div>
-    <span v-if="object && object.name">
-      The {{ object.name }} video goes here
+    <h4 v-if="object && object.name">
+      Video: {{ name }}
+    </h4>
+    <div v-if="isReady">
       <VideoPlayer></VideoPlayer>
-    </span>
-    <hr/>
-    <div v-if="object && object.meta">
-      {{ JSON.stringify(object.meta) }}
     </div>
-    <hr/>
     <div v-if="error">
       <h3>{{ error }}</h3>
     </div>
@@ -19,6 +16,7 @@
 import { mapState, mapActions } from 'vuex'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '~/media'
 import VideoPlayer from '@/components/VideoPlayer.vue'
+import 'video.js/dist/video-js.min.css'
 
 export default {
   name: 'VideoObject',
@@ -40,6 +38,9 @@ export default {
     ...mapState('s3', ['objectList', 'metadata']),
     hasSources () {
       return this.videoOptions.sources && this.videoOptions.sources.length && this.videoOptions.sources.length > 0
+    },
+    isReady () {
+      return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready
     }
   },
   watch: {
