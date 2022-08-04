@@ -68,7 +68,11 @@ function mediaType (path) {
   return ext in EXT_MAP ? EXT_MAP[ext] : UNKNOWN_MEDIA_TYPE
 }
 
-function mediaProfiles (path) {
+function mediaProfileByName (mediaType, profileName) {
+  return MEDIA[mediaType].profiles[profileName]
+}
+
+function mediaProfilesForSource (path) {
   const type = mediaType(path)
 
   if (!(type in MEDIA)) {
@@ -93,7 +97,7 @@ function mediaProfiles (path) {
 }
 
 function hasProfiles (path) {
-  return mediaProfiles(path) != null
+  return mediaProfilesForSource(path) != null
 }
 
 function minFileSize (path, operation) {
@@ -123,16 +127,18 @@ function isViewable (obj) {
   return obj.meta && obj.meta.status && obj.meta.status.ready
 }
 
-function profileFromAsset (asset) {
+function profileNameFromAsset (asset) {
   if (typeof asset !== 'string') {
-    console.error(`profileFromAsset: expected string argument, got: ${asset}`)
-    return null
+    const message = `profileFromAsset: expected string argument, got: ${asset} (type=${typeof asset})`
+    console.error(message)
+    throw new TypeError(message)
   }
   const prefix = asset.indexOf(ASSET_PREFIX)
   const dot = asset.lastIndexOf('.')
   if (prefix === -1 || dot === -1) {
-    console.error(`profileFromAsset: cannot determine profile from asset with invalid name: ${asset}`)
-    return null
+    const message = `profileFromAsset: cannot determine profile from asset with invalid name: ${asset}`
+    console.error(message)
+    throw new TypeError(message)
   }
   const profile = asset.substring(prefix + ASSET_PREFIX.length, dot)
   console.log(`profileFromAsset(${asset}) returning '${profile}'`)
@@ -140,8 +146,8 @@ function profileFromAsset (asset) {
 }
 
 export {
-  mediaType, mediaProfiles, hasProfiles, minFileSize,
-  hasMediaType, isDirectory, isViewable, profileFromAsset,
+  mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
+  hasMediaType, isDirectory, isViewable, profileNameFromAsset, mediaProfileByName,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX

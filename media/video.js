@@ -58,7 +58,8 @@ export default {
     transcode_min_mp4: {
       from: 'transcode_low_mp4',
       videoSize: 'vga',
-      videoBitrate: '256k'
+      videoBitrate: '192k',
+      audioBitrate: '48k'
     },
 
     // The thumbnails_ profiles produce thumbnail images for the video

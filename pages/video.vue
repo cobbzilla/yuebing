@@ -17,7 +17,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { MEDIA, FILE_TYPE, VIDEO_MEDIA_TYPE, profileFromAsset } from '~/media'
+import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '~/media'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 
 export default {
@@ -93,26 +93,27 @@ export default {
     ...mapActions('s3', ['fetchMetadata']),
 
     refreshMeta () {
-      if (this.object.meta && this.object.meta.status && this.object.meta.status.ready &&
-        this.object.meta.assets && this.object.meta.assets.length && this.object.meta.assets.length > 0 &&
+      if (this.object.meta &&
+        this.object.meta.status &&
+        this.object.meta.status.ready &&
+        typeof this.object.meta.assets === 'object' &&
+        Object.keys(this.object.meta.assets).length > 0 &&
         !this.hasSources) {
         const sources = []
-        this.object.meta.assets.forEach((asset) => {
-          const assetProfile = profileFromAsset(asset)
-          if (assetProfile) {
-            if (assetProfile in Object.keys(MEDIA.video.profiles)) {
-              const mediaProfile = MEDIA.video.profiles[assetProfile]
-              if (mediaProfile.primary) {
-                sources.push({
-                  src: `/s3/proxy/${asset}`,
-                  type: 'video/mp4'
-                })
-              }
-            }
+        Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
+          const asset = this.object.meta.assets[assetProfileName]
+          const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
+          if (mediaProfile.primary) {
+            sources.push({
+              src: `/s3/proxy/${asset}`,
+              type: mediaProfile.contentType
+            })
           }
         })
+        console.log(`refreshMeta: added sources=${JSON.stringify(sources, null, 2)}`)
+        this.videoOptions.sources = sources
       } else {
-        console.log('refreshMeta: sources already loaded for video, not replacing')
+        console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(this.videoOptions.sources, null, 2)}`)
       }
     }
   }

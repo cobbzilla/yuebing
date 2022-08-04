@@ -40,7 +40,7 @@ async function deriveMetadata (sourcePath) {
     status: {}
   }
 
-  const profiles = c.mediaProfiles(sourcePath)
+  const profiles = c.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
     console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return meta

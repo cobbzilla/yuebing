@@ -13,7 +13,7 @@ async function createArtifacts (sourcePath, localSourceFile) {
   console.log('createArtifacts starting with file: ' + localSourceFile)
 
   const mediaType = c.mediaType(sourcePath)
-  const profiles = c.mediaProfiles(sourcePath)
+  const profiles = c.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
     console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return
