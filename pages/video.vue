@@ -4,7 +4,7 @@
       Video: {{ name }}
     </h4>
     <div v-if="isReady">
-      <VideoPlayer></VideoPlayer>
+      <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
     <div v-if="error">
       <h3>{{ error }}</h3>
@@ -18,6 +18,10 @@ import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '~/media'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
+function hasSourceVideos (vid) {
+  return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
+}
+
 export default {
   name: 'VideoObject',
   components: {
@@ -30,17 +34,18 @@ export default {
       error: null,
       videoOptions: {
         autoplay: true,
-        controls: true
+        controls: true,
+        sources: []
       }
     }
   },
   computed: {
     ...mapState('s3', ['objectList', 'metadata']),
     hasSources () {
-      return this.videoOptions.sources && this.videoOptions.sources.length && this.videoOptions.sources.length > 0
+      return hasSourceVideos(this)
     },
     isReady () {
-      return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready
+      return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
     }
   },
   watch: {
@@ -94,13 +99,13 @@ export default {
     ...mapActions('s3', ['fetchMetadata']),
 
     refreshMeta () {
+      const sources = this.videoOptions.sources
       if (this.object.meta &&
         this.object.meta.status &&
         this.object.meta.status.ready &&
         typeof this.object.meta.assets === 'object' &&
         Object.keys(this.object.meta.assets).length > 0 &&
         !this.hasSources) {
-        const sources = []
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
           const asset = this.object.meta.assets[assetProfileName]
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
@@ -112,9 +117,8 @@ export default {
           }
         })
         console.log(`refreshMeta: added sources=${JSON.stringify(sources, null, 2)}`)
-        this.videoOptions.sources = sources
       } else {
-        console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(this.videoOptions.sources, null, 2)}`)
+        console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
       }
     }
   }
