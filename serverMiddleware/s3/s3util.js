@@ -1,7 +1,10 @@
-import { GetObjectCommand, HeadObjectCommand, ListObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import {
+  GetObjectCommand, HeadObjectCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand
+} from '@aws-sdk/client-s3'
 
 const fs = require('fs')
 const util = require('../util')
+const c = require('../../util/shared')
 const s3cfg = require('./s3client.js')
 
 async function listDest (prefix) {
@@ -38,16 +41,18 @@ async function listObjects (prefix, client, params) {
       console.log(`>>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
-          if (util.isVideo(item.Key)) {
+          const type = util.mediaType(item.Key)
+          if (type) {
             objects.push({
               name: item.Key,
               type: 'file',
-              video: true
+              mediaType: type
             })
           } else {
             objects.push({
               name: item.Key,
-              type: item.Key.endsWith('/') ? 'dir' : 'file'
+              type: item.Key.endsWith('/') ? c.DIRECTORY_TYPE : c.FILE_TYPE,
+              mediaType: item.Key.endsWith('/') ? c.DIRECTORY_TYPE : c.UNKNOWN_MEDIA_TYPE
             })
           }
         })
@@ -56,7 +61,8 @@ async function listObjects (prefix, client, params) {
         response.CommonPrefixes.forEach((item) => {
           objects.push({
             name: item.Prefix,
-            type: 'dir'
+            type: c.DIRECTORY_TYPE,
+            mediaType: c.DIRECTORY_TYPE
           })
         })
       }
@@ -113,10 +119,10 @@ async function headObject (client, bucketParams) {
   try {
     // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new HeadObjectCommand(bucketParams))
-    console.log(`'headObject returned: ${JSON.stringify(data)}`)
+    // console.log(`headObject(${bucketParams.Key}) returned: ${JSON.stringify(data)}`)
     return data
   } catch (err) {
-    console.log('Error', err)
+    console.log(`headObject(${bucketParams.Key}) error: ${err}`)
     return null
   }
 }
@@ -154,9 +160,9 @@ async function downloadObject (client, bucketParams, file) {
 
 async function putObject (bucketParams) {
   const client = s3cfg.destClient
+  const origKey = bucketParams.Key
   try {
     const destPrefix = s3cfg.destBucketParams.Prefix
-    const origKey = bucketParams.Key
     const key = origKey.startsWith(destPrefix)
       ? origKey
       : destPrefix.endsWith('/')
@@ -167,12 +173,13 @@ async function putObject (bucketParams) {
       Prefix: '',
       Key: key
     })
-    console.log(`putObject: params=${JSON.stringify(params)}`)
+    console.log(`putObject(${origKey}): params=${JSON.stringify(params)}`)
     const data = await client.send(new PutObjectCommand(params))
-    console.log(`Successfully uploaded object: ${bucketParams.Bucket}/${bucketParams.Key}`)
+    console.log(`putObject(${origKey}): created object: ${bucketParams.Bucket}/${bucketParams.Key}`)
     return data // For unit tests.
   } catch (err) {
-    console.log('Error', err)
+    console.log(`putObject(${origKey}) error: ${err}`)
+    return null
   }
 }
 
@@ -184,6 +191,18 @@ function destPut (bucketParams, errorMessage) {
   })
 }
 
+async function deleteDestObject (destKey) {
+  const key = destKey.startsWith(s3cfg.destBucketParams.Prefix) ? destKey : s3cfg.destBucketParams.Prefix + destKey
+  try {
+    const bucketParams = { Bucket: s3cfg.destBucketParams.Bucket, Key: key }
+    const data = await s3cfg.destClient.send(new DeleteObjectCommand(bucketParams))
+    console.log(`deleteDestObject: Object deleted: ${key} : ${JSON.stringify(data)}`)
+    return data // For unit tests.
+  } catch (err) {
+    console.log(`deleteDestObject: error deleting ${key}: ${err}`)
+  }
+}
+
 function touchLastModified (sourcePath) {
   const path = util.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: path, Body: '' + Date.now() })
@@ -191,20 +210,22 @@ function touchLastModified (sourcePath) {
   console.log(`touchLastModified: touched: ${path}`)
 }
 
-function recordError (sourcePath, type, profile, error) {
-  const path = util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + type + '_' + profile + '_' + Date.now()
+function recordError (sourcePath, profile, error) {
+  const path = util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + profile + '_' + Date.now()
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: path, Body: error })
   destPut(bucketParams, `touchError: error writing ${path}`)
-  console.log(`touchError: touched: ${path}`)
+  console.log(`recordError: recorded: ${path} = ${error}`)
 }
 
-async function countErrors (sourcePath, type, profile) {
-  const files = await listDest(util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + type + '_' + profile)
-  return files && files.length ? files.length : 0
+async function countErrors (sourcePath, profile) {
+  const files = await listDest(util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + profile)
+  const count = files && files.length ? files.length : 0
+  console.log(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
+  return count
 }
 
 export {
   listObjects, listDest, listSource, getObject, downloadObject,
   headObject, headSourceObject, headDestObject, putObject, destPut,
-  touchLastModified, recordError, countErrors
+  deleteDestObject, touchLastModified, recordError, countErrors
 }

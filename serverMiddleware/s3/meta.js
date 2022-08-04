@@ -1,4 +1,4 @@
-const manifest = require('../video/manifest')
+const manifest = require('../asset/manifest')
 
 export default {
   path: '/s3/meta',

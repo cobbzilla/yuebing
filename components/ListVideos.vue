@@ -6,18 +6,18 @@
       <button @click="refresh(parentPrefix)">{{ parentPrefixDisplay }}</button>
     </div>
     <div v-for="(obj, index) in filteredObjectList" v-bind:key="index">
-      <div v-if="obj.type && obj.type === 'dir'">
+      <div v-if="isDir(obj)">
         Directory:
         <button @click="refresh(obj.name)">
           {{ filterName(obj.name) }}
         </button>
       </div>
-      <div v-else-if="obj.type && obj.type === 'file' && obj.video">
-        <div v-if="obj.meta && obj.meta.status && obj.meta.status.ready">
-          playable video meta: {{ JSON.stringify(obj.meta) }}
+      <div v-else-if="hasMedia(obj)">
+        <div v-if="canView(obj)">
+          viewable media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
         <div v-else>
-          unplayable video meta: {{ JSON.stringify(obj.meta) }}
+          not-ready media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
       </div>
       <div v-else>
@@ -29,6 +29,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import { hasMediaType, isDirectory, isViewable } from '~/util/shared'
 
 export default {
   name: 'ListVideos',
@@ -63,8 +64,8 @@ export default {
       const filtered = []
       if (this.objectList && this.objectList.length && this.objectList.length > 0) {
         this.objectList.forEach((obj) => {
-          if (obj.name && obj.name !== this.prefix && (obj.video || (obj.type && obj.type === 'dir'))) {
-            if (obj.video) {
+          if (obj.name && obj.name !== this.prefix && (hasMediaType(obj) || isDirectory(obj))) {
+            if (hasMediaType(obj)) {
               // try to populate metadata, or request it
               if (obj.name in this.metadata) {
                 obj.meta = this.metadata[obj.name]
@@ -98,7 +99,10 @@ export default {
     },
     filterName (name) {
       return name.startsWith(this.prefix) ? name.substring(this.prefix.length) : name
-    }
+    },
+    isDir (obj) { return isDirectory(obj) },
+    hasMedia (obj) { return hasMediaType(obj) },
+    canView (obj) { return isViewable(obj) }
   }
 }
 </script>

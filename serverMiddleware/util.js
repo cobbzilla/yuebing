@@ -1,28 +1,88 @@
 import fs from 'fs'
 
 const shasum = require('shasum')
+const nuxt = require('../nuxt.config')
+const c = require('../util/shared')
 const s3cfg = require('./s3/s3client')
 
 const MAX_CONCURRENT_TRANSFORMS = 2
-
-const VIDEO_EXTS = ['mp4', 'm4v', 'avi', 'mov', 'webm', 'mkv', 'flv', '3gp']
 
 const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
   ? process.env.SV_WORK_DIR
   : process.env.SV_WORK_DIR + '/'
 
-const XFORM_TRANSCODE_PREFIX = 'transform_'
-const XFORM_THUMBNAIL_PREFIX = 'thumbnail_'
+const XFORM_TRANSFORM_PREFIX = 'transform_'
 const LAST_MODIFIED_FILE = 'lastModified'
 const ERROR_FILE_PREFIX = '_error_'
 
-function isVideo (path) {
+const MULTIFILE_PLACEHOLDER = '%03d'
+const MULTIFILE_FIRST = '001'
+
+const EXT_MAP = {}
+const mediaConfig = nuxt.default.privateRuntimeConfig.media
+for (const type in mediaConfig) {
+  if (mediaConfig[type].ext && Array.isArray(mediaConfig[type].ext)) {
+    mediaConfig[type].ext.forEach((e) => {
+      EXT_MAP[e] = type
+    })
+  }
+}
+
+function mediaType (path) {
+  if (typeof path !== 'string') {
+    console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)})`)
+    return c.UNKNOWN_MEDIA_TYPE
+  }
   if (path.endsWith('/')) {
-    return false
+    return c.DIRECTORY_TYPE
   }
   const dotPos = path.lastIndexOf('.')
-  const ext = dotPos === -1 ? '' : path.substring(dotPos + 1)
-  return VIDEO_EXTS.includes(ext.toLowerCase())
+  const ext = (dotPos === -1 ? '' : path.substring(dotPos + 1)).toLowerCase()
+  return ext in EXT_MAP ? EXT_MAP[ext] : c.UNKNOWN_MEDIA_TYPE
+}
+
+function mediaProfiles (path) {
+  const mediaConfig = nuxt.default.privateRuntimeConfig.media
+  const type = mediaType(path)
+
+  if (!(type in mediaConfig)) {
+    console.log(`mediaProfiles: mediaType ${type} does not define any config, path: ${path}`)
+    return null
+  }
+
+  const typeConfig = mediaConfig[type]
+  if (typeof typeConfig.profiles !== 'object' || Object.keys(typeConfig.profiles).length === 0) {
+    console.log(`mediaProfiles: no media profiles exist for mediaType ${type}, path: ${path}`)
+    return null
+  }
+
+  // ensure profile objects have their name as a property
+  Object.keys(typeConfig.profiles).forEach((p) => {
+    if (typeof typeConfig.profiles[p].name === 'undefined') {
+      typeConfig.profiles[p].name = p
+    }
+  })
+
+  return typeConfig.profiles
+}
+
+function hasProfiles (path) {
+  return mediaProfiles(path) != null
+}
+
+function minFileSize (path, operation) {
+  const mediaConfig = nuxt.default.privateRuntimeConfig.media
+  const type = mediaType(path)
+  if (!(type in mediaConfig)) {
+    console.log(`minFileSize: mediaType ${type} does not define any config (returning 0), path: ${path}`)
+    return 0
+  }
+  const typeConfig = mediaConfig[type]
+  if (typeConfig.operations && operation in typeConfig.operations && typeConfig.operations[operation].minFileSize && typeConfig.operations[operation].minFileSize > 0) {
+    return typeConfig.operations[operation].minFileSize
+  }
+  console.log(`getMinFileSize: mediaType ${type} does not define any minFileSize for operation ${operation} (returning 0), path: ${path}`)
+  return 0
 }
 
 function statSize (file) {
@@ -39,7 +99,7 @@ function canonicalWorkingDir (path) {
   const scrubbed = path.replace(/[\W_]+/g, '_')
   // retain the first 20 characters, then add a hash
   const canonical = (scrubbed.length < 20 ? scrubbed : scrubbed.substring(0, 20)) + '_' + shasum(path) + '/'
-  console.log('canonicalWorkingDir(' + path + ') returning ' + canonical)
+  // console.log('canonicalWorkingDir(' + path + ') returning ' + canonical)
   return canonical
 }
 
@@ -56,7 +116,7 @@ function canonicalDestDir (path) {
     '/' + sha.substring(4, 6) +
     '/' + slug +
     '/'
-  console.log('canonicalDestDir(' + path + ') returning ' + canonical)
+  // console.log('canonicalDestDir(' + path + ') returning ' + canonical)
   return canonical
 }
 
@@ -67,7 +127,6 @@ function canonicalSourceFile (path) {
   const dot = file.lastIndexOf('.')
   const ext = dot === -1 || dot === file.length - 1 ? '' : file.substring(dot + 1)
   const canonical = 'source.' + ext
-  console.log('canonicalSourceFile(' + path + ') returning ' + canonical)
   return canonical
 }
 
@@ -80,7 +139,9 @@ function deleteFile (path) {
 }
 
 export {
-  canonicalSourceFile, canonicalWorkingDir, canonicalDestDir, isVideo, deleteFile, statSize,
+  canonicalSourceFile, canonicalWorkingDir, canonicalDestDir,
+  deleteFile, statSize, mediaType, mediaProfiles, hasProfiles, minFileSize,
   workbenchDir, MAX_CONCURRENT_TRANSFORMS,
-  XFORM_TRANSCODE_PREFIX, XFORM_THUMBNAIL_PREFIX, LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
+  MULTIFILE_PLACEHOLDER, MULTIFILE_FIRST,
+  XFORM_TRANSFORM_PREFIX, LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
 }
