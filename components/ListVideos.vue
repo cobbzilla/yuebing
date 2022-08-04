@@ -14,7 +14,9 @@
       </div>
       <div v-else-if="hasMedia(obj)">
         <div v-if="canView(obj)">
-          viewable media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+          <NuxtLink :to="'/'+obj.mediaType">
+            viewable media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+          </NuxtLink>
         </div>
         <div v-else>
           not-ready media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
