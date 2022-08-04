@@ -8,7 +8,12 @@
 </template>
 
 <script>
+const c = require('~/util/shared')
+
 export default {
-  name: 'IndexPage'
+  name: 'IndexPage',
+  created () {
+    console.log(`NUXT = ${JSON.stringify(c.NUXT, null, 2)}`)
+  }
 }
 </script>

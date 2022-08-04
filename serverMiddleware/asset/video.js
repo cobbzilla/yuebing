@@ -4,6 +4,7 @@ import path from 'path'
 import glob from 'glob'
 const s3util = require('../s3/s3util')
 const util = require('../util')
+const c = require('../../util/shared')
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
 
@@ -102,7 +103,7 @@ function handleOutfiles (sourcePath, profile, outfile) {
         console.error(errorMessage)
       }
       if (errorMessage === null) {
-        const minSize = util.minFileSize(sourcePath, profile.operation)
+        const minSize = c.minFileSize(sourcePath, profile.operation)
         multifiles.every((file) => {
           const size = util.statSize(file)
           const sizeOk = size >= minSize
@@ -133,7 +134,7 @@ function handleOutfiles (sourcePath, profile, outfile) {
     } else {
       // stat the outfile -- it should be at least a minimum size
       const outfileSize = util.statSize(outfile)
-      const minAssetSize = util.minFileSize(sourcePath, profile.operation)
+      const minAssetSize = c.minFileSize(sourcePath, profile.operation)
       if (outfileSize < minAssetSize) {
         util.deleteFile(outfile)
         const message = `handleOutfiles(${profile.name}, ${sourcePath}): profile/operation ${profile.name}/${profile.operation} (min size ${minAssetSize} not met) for outfile ${outfile}`

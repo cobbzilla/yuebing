@@ -4,6 +4,7 @@ const Queue = require('bull')
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
 const util = require('../util')
+const c = require('../../util/shared')
 const manifest = require('./manifest')
 
 const MAX_XFORM_ERRORS = 3
@@ -11,8 +12,8 @@ const MAX_XFORM_ERRORS = 3
 async function createArtifacts (sourcePath, localSourceFile) {
   console.log('createArtifacts starting with file: ' + localSourceFile)
 
-  const mediaType = util.mediaType(sourcePath)
-  const profiles = util.mediaProfiles(sourcePath)
+  const mediaType = c.mediaType(sourcePath)
+  const profiles = c.mediaProfiles(sourcePath)
   if (profiles === null) {
     console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return
@@ -96,7 +97,7 @@ jobQueue.process(JOB_QUEUE_NAME, util.MAX_CONCURRENT_TRANSFORMS, (job, done) => 
 })
 
 async function transform (sourcePath) {
-  if (!util.hasProfiles(sourcePath)) {
+  if (!c.hasProfiles(sourcePath)) {
     console.log(`'transform(${sourcePath}): no profiles exist, not transforming`)
     return
   }

@@ -1,5 +1,5 @@
 const video = require('../asset/xform')
-const util = require('../util')
+const c = require('../../util/shared')
 const s3util = require('./s3util')
 
 export default {
@@ -11,7 +11,7 @@ export default {
     const transforms = []
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      if (util.hasProfiles(result.name)) {
+      if (c.hasProfiles(result.name)) {
         console.log(`>>>>> SCAN: queueing source: ${result.name}`)
         transforms.push(result)
         setTimeout(() => {

@@ -3,6 +3,7 @@ const shasum = require('shasum')
 const redis = require('../redis')
 const s3util = require('../s3/s3util')
 const util = require('../util')
+const c = require('../../util/shared')
 
 const MIN_CACHE_PERIOD = 5 * 60 * 1000 // 5 minutes
 
@@ -39,7 +40,7 @@ async function deriveMetadata (sourcePath) {
     status: {}
   }
 
-  const profiles = util.mediaProfiles(sourcePath)
+  const profiles = c.mediaProfiles(sourcePath)
   if (profiles === null) {
     console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return meta

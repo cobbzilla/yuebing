@@ -41,7 +41,7 @@ async function listObjects (prefix, client, params) {
       console.log(`>>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
-          const type = util.mediaType(item.Key)
+          const type = c.mediaType(item.Key)
           if (type) {
             objects.push({
               name: item.Key,

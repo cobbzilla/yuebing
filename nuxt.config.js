@@ -3,15 +3,7 @@ export default {
   ssr: false,
 
   publicRuntimeConfig: {
-    title: process.env.SV_TITLE
-  },
-
-  privateRuntimeConfig: {
-    admin: {
-      username: process.env.SV_ADMIN_USER,
-      password: process.env.SV_ADMIN_PASSWORD
-    },
-    serverId: Math.floor(10000000000 * Math.random()),
+    title: process.env.SV_TITLE,
     media: {
       video: {
         ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp'],
