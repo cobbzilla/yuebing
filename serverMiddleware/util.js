@@ -1,8 +1,6 @@
 import fs from 'fs'
 
 const shasum = require('shasum')
-const nuxt = require('../nuxt.config')
-const c = require('../util/shared')
 const s3cfg = require('./s3/s3client')
 
 const MAX_CONCURRENT_TRANSFORMS = 2
