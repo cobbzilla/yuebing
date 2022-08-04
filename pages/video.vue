@@ -35,6 +35,8 @@ export default {
       videoOptions: {
         autoplay: true,
         controls: true,
+        width: Math.floor(document.documentElement.clientWidth * 0.6),
+        height: Math.floor(document.documentElement.clientHeight * 0.7),
         sources: []
       }
     }

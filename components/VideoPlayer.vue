@@ -24,6 +24,8 @@ export default {
   },
   mounted () {
     this.player = videojs(this.$refs.videoPlayer, this.options, () => {
+      this.player.width(this.options.width)
+      this.player.height(this.options.height)
       this.player.log('onPlayerReady', this)
     })
   },
