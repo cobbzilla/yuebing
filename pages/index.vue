@@ -2,13 +2,12 @@
   <div>
     Welcome to {{ $config.title }}
     <div>
-      <ListVideos/>
+      <ListObjects/>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'IndexPage'
 }

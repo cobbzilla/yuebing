@@ -14,7 +14,7 @@
       </div>
       <div v-else-if="hasMedia(obj)">
         <div v-if="canView(obj)">
-          <NuxtLink :to="'/'+obj.mediaType">
+          <NuxtLink :to="{path: '/'+obj.mediaType, query: {n: obj.name}}">
             viewable media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
           </NuxtLink>
         </div>
@@ -67,21 +67,7 @@ export default {
       if (this.objectList && this.objectList.length && this.objectList.length > 0) {
         this.objectList.forEach((obj) => {
           if (obj.name && obj.name !== this.prefix && (hasMediaType(obj) || isDirectory(obj))) {
-            if (hasMediaType(obj)) {
-              // try to populate metadata, or request it
-              if (obj.name in this.metadata) {
-                obj.meta = this.metadata[obj.name]
-              } else {
-                const path = obj.name
-                this.fetchMetadata({ path })
-              }
-              filtered.push(obj)
-            } else {
-              // non-video object
-              filtered.push(obj)
-            }
-          } else {
-            console.log('filteredObjectList: excluding: ' + obj.name)
+            filtered.push(obj)
           }
         })
       }
@@ -96,7 +82,6 @@ export default {
     ...mapActions('s3', ['fetchObjects', 'fetchMetadata']),
     refresh (prefix) {
       this.prefix = prefix
-      // console.log('refreshing ListVideos, prefix: ' + prefix)
       this.fetchObjects({ prefix })
     },
     filterName (name) {

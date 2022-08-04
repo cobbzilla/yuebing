@@ -3,7 +3,6 @@ export const s3Service = {
 }
 
 function handleResponse (response) {
-  console.log('>>>>>>> handleResponse: received: ' + JSON.stringify(response))
   return response.text().then((text) => {
     const data = typeof text === 'string' ? JSON.parse(text) : 'null'
     if (!response.ok) {

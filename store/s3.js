@@ -41,12 +41,19 @@ export const mutations = {
   },
 
   fetchMetaRequest (state) {
+    console.log('fetchMetaRequest...')
     state.loadingMetadata = true
   },
-  fetchMetaSuccess (state, path, meta) {
-    state.metadata[path] = meta
+  fetchMetaSuccess (state, { path, meta }) {
+    console.log(`fetchMetaSuccess: path=${path}, meta=${JSON.stringify(meta)}, and state=${state}`)
+    // state.metadata[path] = meta
+    state.metadata = Object.assign({}, state.metadata, { path: meta })
     state.loadingMetadataError = null
     state.loadingMetadata = false
+    const found = state.objectList.find(o => o.name === path)
+    if (found) {
+      found.meta = meta
+    }
   },
   fetchMetaFailure (state, error) {
     state.loadingMetadata = false
@@ -71,7 +78,11 @@ export const actions = {
     s3Service
       .metadata(path)
       .then(
-        meta => commit('fetchMetaSuccess', meta),
+        (meta) => {
+          console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
+          meta.path = path
+          commit('fetchMetaSuccess', { path, meta })
+        },
         error => commit('fetchMetaFailure', error)
       )
   }

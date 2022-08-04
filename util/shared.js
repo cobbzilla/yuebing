@@ -1,6 +1,12 @@
-
+//
+// This is the only JS file that both client and server side both reference
+// As such, it should remain very simple. Declarative stuff. Nothing too fancy.
+//
 const FILE_TYPE = 'file'
 const DIRECTORY_TYPE = 'dir'
+
+const VIDEO_MEDIA_TYPE = 'video'
+const AUDIO_MEDIA_TYPE = 'audio'
 const UNKNOWN_MEDIA_TYPE = 'binary'
 
 function hasMediaType (obj) {
@@ -18,5 +24,6 @@ function isViewable (obj) {
 
 export {
   hasMediaType, isDirectory, isViewable,
-  FILE_TYPE, DIRECTORY_TYPE, UNKNOWN_MEDIA_TYPE
+  FILE_TYPE, DIRECTORY_TYPE,
+  VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE
 }
