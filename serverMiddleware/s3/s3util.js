@@ -4,7 +4,7 @@ import {
 
 const fs = require('fs')
 const util = require('../util/file')
-const c = require('../../shared/media')
+const m = require('../../shared/media')
 const s3cfg = require('./s3client.js')
 
 async function listDest (prefix) {
@@ -41,7 +41,7 @@ async function listObjects (prefix, client, params) {
       console.log(`>>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
-          const type = c.mediaType(item.Key)
+          const type = m.mediaType(item.Key)
           if (type) {
             objects.push({
               name: item.Key,
@@ -51,8 +51,8 @@ async function listObjects (prefix, client, params) {
           } else {
             objects.push({
               name: item.Key,
-              type: item.Key.endsWith('/') ? c.DIRECTORY_TYPE : c.FILE_TYPE,
-              mediaType: item.Key.endsWith('/') ? c.DIRECTORY_TYPE : c.UNKNOWN_MEDIA_TYPE
+              type: item.Key.endsWith('/') ? m.DIRECTORY_TYPE : m.FILE_TYPE,
+              mediaType: item.Key.endsWith('/') ? m.DIRECTORY_TYPE : m.UNKNOWN_MEDIA_TYPE
             })
           }
         })
@@ -61,8 +61,8 @@ async function listObjects (prefix, client, params) {
         response.CommonPrefixes.forEach((item) => {
           objects.push({
             name: item.Prefix,
-            type: c.DIRECTORY_TYPE,
-            mediaType: c.DIRECTORY_TYPE
+            type: m.DIRECTORY_TYPE,
+            mediaType: m.DIRECTORY_TYPE
           })
         })
       }
@@ -81,28 +81,6 @@ async function listObjects (prefix, client, params) {
     }
   }
   return objects
-}
-
-async function getObject (client, bucketParams) {
-  try {
-    // Create a helper function to convert a ReadableStream to a string.
-    const streamToString = stream =>
-      new Promise((resolve, reject) => {
-        const chunks = []
-        stream.on('data', chunk => chunks.push(chunk))
-        stream.on('error', reject)
-        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-      })
-
-    // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
-    const data = await client.send(new GetObjectCommand(bucketParams))
-    const bodyContents = await streamToString(data.Body)
-    console.log(bodyContents)
-    return bodyContents
-  } catch (err) {
-    console.log('Error', err)
-    return null
-  }
 }
 
 function normalizeDestKey (origKey) {
@@ -127,7 +105,7 @@ async function headDestObject (key) {
 
 async function headObject (client, bucketParams) {
   try {
-    // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
+    // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new HeadObjectCommand(bucketParams))
     // console.log(`headObject(${bucketParams.Key}) returned: ${JSON.stringify(data)}`)
     return data || true
@@ -143,9 +121,11 @@ async function downloadObjectToFile (client, bucketParams, file) {
     if (size > 0) {
       fs.truncateSync(file, 0)
     }
+    const stream = fs.createWriteStream(file)
     const handler = (chunk) => {
-      fs.appendFile(file, chunk, (err) => {
+      stream.write(chunk, (err) => {
         if (err) {
+          console.log(`downloadObjectToFile: error writing to ${file}: ${err}`)
           throw err
         }
       })
@@ -157,11 +137,13 @@ async function downloadObjectToFile (client, bucketParams, file) {
   }
 }
 
-async function streamDestObject (key, writeable) {
+async function streamDestObject (key, writeable, range = null) {
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: key })
-  const handler = (chunk) => {
-    writeable.write(chunk)
+  if (range) {
+    console.log(`streamDestObject: set bucketParams.Range=${range}`)
+    bucketParams.Range = range
   }
+  const handler = chunk => writeable.write(chunk)
   return await downloadObject(s3cfg.destClient, bucketParams, handler)
 }
 
@@ -175,8 +157,8 @@ async function readDestTextObject (key) {
   return await downloadObject(s3cfg.destClient, bucketParams, handler) ? buffer : null
 }
 
-async function downloadObject (client, bucketParams, dataHandler) {
-  console.log(`downloadObject(${bucketParams.Bucket} / ${bucketParams.Key}, prefix=${bucketParams.Prefix}): STARTING`)
+async function downloadObject (client, bucketParams, dataHandler, closeHandler = null) {
+  // console.log(`downloadObject(${bucketParams.Bucket} / ${bucketParams.Key}, prefix=${bucketParams.Prefix}): STARTING`)
   try {
     // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new GetObjectCommand(bucketParams))
@@ -184,7 +166,12 @@ async function downloadObject (client, bucketParams, dataHandler) {
       new Promise((resolve, reject) => {
         stream.on('data', dataHandler)
         stream.on('error', reject)
-        stream.on('end', () => resolve())
+        stream.on('end', () => {
+          if (closeHandler) {
+            closeHandler()
+          }
+          resolve()
+        })
       })
     await streamHandler(data.Body)
     return true

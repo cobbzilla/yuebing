@@ -18,6 +18,8 @@ import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '@/shared/media'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
+const c = require('../shared')
+
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
 }
@@ -109,14 +111,19 @@ export default {
         Object.keys(this.object.meta.assets).length > 0 &&
         !this.hasSources) {
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
-          const asset = this.object.meta.assets[assetProfileName]
+          const assets = this.object.meta.assets[assetProfileName]
+          console.log(`this.object.meta.assets = ${JSON.stringify(this.object.meta.assets)}`)
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
-          if (mediaProfile.primary) {
-            sources.push({
-              src: `/s3/proxy/${asset}`,
-              type: mediaProfile.contentType
-            })
-          }
+          assets.forEach((asset) => {
+            console.log(`for asset ${asset}, checking enabled/primary on profile ${JSON.stringify(mediaProfile)}`)
+            if (mediaProfile.enabled && mediaProfile.primary && c.getExtension(asset) === mediaProfile.ext) {
+              console.log(`video.vue: pushing src = /s3/proxy/${asset}`)
+              sources.push({
+                src: `/s3/proxy/${asset}`,
+                type: mediaProfile.contentType
+              })
+            }
+          })
         })
         console.log(`refreshMeta: added sources=${JSON.stringify(sources, null, 2)}`)
       } else {

@@ -12,6 +12,9 @@ export default {
     transcode: {
       minFileSize: 1024 * 128 // 128k min valid size
     },
+    dash: {
+      minFileSize: 128 // some m4s files can be small
+    },
     thumbnails: {
       minFileSize: 64 // 64 bytes min valid size
     },
@@ -29,8 +32,22 @@ export default {
     // The various transcode_ profiles create different versions of the video
     // so that the video player can serve up an appropriate selection of choices
     // to the browser
+
+    // The DASH profile supports adaptive streaming based on other profile definitions
+    dash_mp4: {
+      operation: 'dash',
+      enabled: true,
+      // At startup, each element of this array is transformed into the corresponding profile object
+      subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
+      contentType: 'application/dash+xml',
+      ext: 'mpd',
+      primary: true,
+      multiFile: true
+    },
+
     transcode_high_mp4: {
       operation: 'transcode',
+      enabled: false,
       videoCodec: 'libx264',
       videoSize: 'hd1080',
       videoBitrate: '2048k',

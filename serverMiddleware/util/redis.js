@@ -15,4 +15,8 @@ async function set (key, val, expiration = DEFAULT_EXPIRATION) {
   await redisClient.set(key, val, 'EX', expiration)
 }
 
-export { get, set }
+async function del (key) {
+  await redisClient.del(key)
+}
+
+export { get, set, del }

@@ -1,20 +1,19 @@
 const path = require('path')
-const shasum = require('shasum')
-const redis = require('../redis')
+const redis = require('../util/redis')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
-const c = require('../../shared/media')
+const m = require('../../shared/media')
 
 const MIN_CACHE_PERIOD = 5 * 60 * 1000 // 5 minutes
 
 async function deriveMetadata (sourcePath) {
   // Do we have this cached?
-  const cacheKey = 'CACHED_META_' + shasum(sourcePath)
+  const cacheKey = util.redisMetaCacheKey(sourcePath)
   const cachedMeta = JSON.parse(await redis.get(cacheKey))
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
     if (Date.now() - cachedMeta.ctime < MIN_CACHE_PERIOD) {
-      console.log(`'deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
+      // console.log(`'deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
       return cachedMeta
     }
     // check last-modified time on directory
@@ -40,29 +39,37 @@ async function deriveMetadata (sourcePath) {
     status: {}
   }
 
-  const profiles = c.mediaProfilesForSource(sourcePath)
+  const profiles = m.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
     console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return meta
   }
 
   // find all assets
-  const prefix = util.canonicalDestDir(sourcePath) + c.ASSET_PREFIX
+  const prefix = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX
   const assets = await s3util.listDest(prefix)
   assets.forEach((asset) => {
+    console.log(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
+    const at = base.indexOf('@')
     if (underscore !== -1 && dot !== -1 && dot > underscore) {
-      const foundProfile = base.substring(underscore + 1, dot)
+      const foundProfile = (at !== -1 && at > underscore && at < dot)
+        ? base.substring(underscore + 1, at)
+        : base.substring(underscore + 1, dot)
+      console.log(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
       if (foundProfile in profiles) {
-        if (profiles[foundProfile].multiFile) {
-          if (!(foundProfile in meta.assets)) {
-            meta.assets[foundProfile] = []
+        const prof = profiles[foundProfile]
+        if (prof.enabled) {
+          if (prof.multiFile) {
+            if (!(foundProfile in meta.assets)) {
+              meta.assets[foundProfile] = []
+            }
+            meta.assets[foundProfile].push(asset.name)
+          } else {
+            meta.assets[foundProfile] = [asset.name]
           }
-          meta.assets[foundProfile].push(asset.name)
-        } else {
-          meta.assets[foundProfile] = [asset.name]
         }
       }
     }
@@ -72,9 +79,13 @@ async function deriveMetadata (sourcePath) {
   let allAssetsDone = true
   let primaryAssetsDone = false
   for (const name in profiles) {
+    const profile = profiles[name]
+    if (!profile.enabled) {
+      continue
+    }
     if (!(name in meta.assets)) {
       allAssetsDone = false
-    } else if (profiles[name].primary) {
+    } else if (profile.primary) {
       primaryAssetsDone = true
     }
   }

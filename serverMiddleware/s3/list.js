@@ -1,5 +1,5 @@
 const manifest = require('../asset/manifest')
-const c = require('../../shared/media')
+const m = require('../../shared/media')
 const s3util = require('./s3util')
 
 export default {
@@ -10,7 +10,7 @@ export default {
     const results = await s3util.listSource(prefix)
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      if (result.mediaType && result.mediaType !== c.UNKNOWN_MEDIA_TYPE) {
+      if (result.mediaType && result.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
         result.meta = await manifest.deriveMetadata(result.name)
       }
     }

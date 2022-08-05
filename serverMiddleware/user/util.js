@@ -1,6 +1,6 @@
 const uuid = require('uuid')
 const shasum = require('shasum')
-const redis = require('../redis')
+const redis = require('../util/redis')
 const nuxt = require('../../nuxt.config')
 
 const USER_STORE_PREFIX = 'users/'

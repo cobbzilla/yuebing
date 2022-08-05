@@ -4,33 +4,39 @@ const Queue = require('bull')
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
-const c = require('../../shared/media')
+const c = require('../../shared')
+const m = require('../../shared/media')
 const manifest = require('./manifest')
 
 const MAX_XFORM_ERRORS = 3
 
 async function createArtifacts (sourcePath, localSourceFile) {
-  console.log('createArtifacts starting with file: ' + localSourceFile)
+  console.log('createArtifacts: starting with file: ' + localSourceFile)
 
-  const mediaType = c.mediaType(sourcePath)
-  const profiles = c.mediaProfilesForSource(sourcePath)
+  const mediaType = m.mediaType(sourcePath)
+  const profiles = m.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
-    console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
+    console.log(`createArtifacts: no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return
   }
 
   for (const name in profiles) {
     const profile = profiles[name]
+    if (!profile.enabled) {
+      console.log(`createArtifacts: profile disabled, skipping: ${name}`)
+      continue
+    }
+
     let completedAssetKey
     let outfile
 
     // determine which destKey we will check to determine if the transform has completed
     if (profile.multiFile) {
-      const outfilePrefix = path.dirname(localSourceFile) + '/' + c.ASSET_PREFIX + name + '_'
-      outfile = outfilePrefix + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = util.canonicalDestDir(sourcePath) + c.ASSET_PREFIX + name + '_' + util.MULTIFILE_FIRST + '.' + profile.ext
+      const outfilePrefix = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
+      outfile = outfilePrefix + m.ASSET_SUFFIX + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
+      completedAssetKey = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.ASSET_SUFFIX + util.MULTIFILE_FIRST + '.' + profile.ext
     } else {
-      outfile = path.dirname(localSourceFile) + '/' + c.ASSET_PREFIX + name + '.' + profile.ext
+      outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + '.' + profile.ext
       completedAssetKey = util.canonicalDestDir(sourcePath) + path.basename(outfile)
     }
 
@@ -67,20 +73,34 @@ async function ensureSourceDownloaded (sourcePath) {
   }
 
   if (downloadSource) {
-    console.log('downloading source to file: ' + file)
+    console.log(`createArtifacts: downloading source to file: ${file}`)
     fs.mkdirSync(path.dirname(file), { recursive: true })
     await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
-    const downloadSize = util.statSize(file)
-    const head = await s3util.headSourceObject(sourcePath)
-    if (head && head.ContentLength && head.ContentLength === downloadSize) {
-      console.log('successfully downloaded complete source file: ' + file)
-    } else {
-      console.error('downloaded file ' + file + ' (size=' + downloadSize + ') which does not match source size: ' + head.ContentLength)
-      util.deleteFile(file)
-      return null
+    const MAX_TRIES = 10
+    let head = null
+    for (let i = 1; i <= MAX_TRIES; i++) {
+      const downloadSize = util.statSize(file)
+      if (head == null) {
+        head = await s3util.headSourceObject(sourcePath)
+      }
+      if (head && head.ContentLength && head.ContentLength === downloadSize) {
+        console.log(`createArtifacts: successfully downloaded complete source file: ${file}`)
+        return file
+      } else if (i === MAX_TRIES) {
+        if (head && head.ContentLength) {
+          console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`)
+        } else {
+          console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`)
+        }
+        util.deleteFile(file)
+        return null
+      } else {
+        // wait for last few bytes of file to be written
+        console.log(`createArtifacts: downloaded file ${file} (size=${downloadSize}) might still be finishing, waiting for size=${head.ContentLength}`)
+        await c.snooze(100 * i)
+      }
     }
   }
-  return file
 }
 
 const jobQueue = new Queue('xform', 'redis://127.0.0.1:6379')
@@ -97,12 +117,12 @@ jobQueue.process(JOB_QUEUE_NAME, util.MAX_CONCURRENT_TRANSFORMS, (job, done) => 
 })
 
 async function transform (sourcePath) {
-  if (!c.hasProfiles(sourcePath)) {
+  if (!m.hasProfiles(sourcePath)) {
     console.log(`'transform(${sourcePath}): no profiles exist, not transforming`)
     return
   }
 
-  console.log(`'transform(${sourcePath}) fetching metadata`)
+  console.log(`'transform(${sourcePath}): fetching metadata`)
   const derivedMeta = await manifest.deriveMetadata(sourcePath)
   if (derivedMeta && derivedMeta.status && derivedMeta.status.complete) {
     return derivedMeta

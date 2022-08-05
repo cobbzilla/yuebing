@@ -1,6 +1,7 @@
 import fs from 'fs'
 
 const shasum = require('shasum')
+const c = require('../../shared')
 const s3cfg = require('../s3/s3client')
 
 const MAX_CONCURRENT_TRANSFORMS = 2
@@ -21,7 +22,6 @@ function statSize (file) {
   if (stats && stats.size) {
     return stats.size
   }
-  console.error('statSize error on file ' + file)
   return -1
 }
 
@@ -30,9 +30,9 @@ function scrub (path) {
   const scrubbed = path.replace(/[\W_]+/g, '_')
 
   // retain the first several characters, then add a hash
-  return scrubbed.length < INCLUDE_ORIG_FILENAME_CHARS
+  return (scrubbed.length < INCLUDE_ORIG_FILENAME_CHARS
     ? scrubbed
-    : scrubbed.substring(scrubbed.length - INCLUDE_ORIG_FILENAME_CHARS, scrubbed.length) +
+    : scrubbed.substring(scrubbed.length - INCLUDE_ORIG_FILENAME_CHARS, scrubbed.length)) +
     '_' + shasum(path)
 }
 
@@ -58,8 +58,7 @@ function canonicalSourceFile (path) {
   const base = path.endsWith('/') ? path.substring(0, path.length - 1) : path
   const slash = base.lastIndexOf('/')
   const file = slash === -1 ? base : base.substring(slash)
-  const dot = file.lastIndexOf('.')
-  const ext = dot === -1 || dot === file.length - 1 ? '' : file.substring(dot + 1)
+  const ext = c.getExtension(file)
   const canonical = 'source.' + ext
   return canonical
 }
@@ -72,8 +71,15 @@ function deleteFile (path) {
   })
 }
 
+const REDIS_META_PREFIX = 'CACHED_META_'
+
+function redisMetaCacheKey (sourcePath) {
+  return REDIS_META_PREFIX + shasum(sourcePath)
+}
+
 export {
-  canonicalSourceFile, canonicalWorkingDir, canonicalDestDir, deleteFile, statSize,
+  canonicalSourceFile, canonicalWorkingDir, canonicalDestDir,
+  deleteFile, statSize, redisMetaCacheKey,
   workbenchDir, MAX_CONCURRENT_TRANSFORMS,
   MULTIFILE_PLACEHOLDER, MULTIFILE_FIRST,
   LAST_MODIFIED_FILE, ERROR_FILE_PREFIX

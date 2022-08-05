@@ -6,6 +6,7 @@ const AUDIO_MEDIA_TYPE = 'audio'
 const UNKNOWN_MEDIA_TYPE = 'binary'
 
 const ASSET_PREFIX = 'asset_'
+const ASSET_SUFFIX = '@'
 
 const EXT_MAP = {}
 
@@ -32,8 +33,10 @@ for (const type in MEDIA) {
     })
   }
 
-  // Expand the magic 'from' property where found in profiles
-  // We also populate the 'name' property for each profile object
+  // Process profiles to handle a few preparatory tasks:
+  //  * Populate the 'name' property for each profile object
+  //  * Expand the magic 'from' property where found
+  //  * Expand the magic 'subProfiles' property where found
   if (typeConfig.profiles && Object.keys(typeConfig.profiles).length > 0) {
     const typeProfiles = []
     const typeProfileMap = {}
@@ -47,6 +50,16 @@ for (const type in MEDIA) {
     })
     typeProfiles.forEach((profile) => {
       typeConfig.profiles[profile.name] = resolveFrom(profile, typeProfileMap)
+    })
+    typeProfiles.forEach((profile) => {
+      if (Array.isArray(typeConfig.profiles[profile.name].subProfiles)) {
+        const subProfiles = typeConfig.profiles[profile.name].subProfiles
+        const subProfileObjects = []
+        subProfiles.forEach((subProfile) => {
+          subProfileObjects.push(typeConfig.profiles[subProfile])
+        })
+        typeConfig.profiles[profile.name].subProfiles = subProfileObjects
+      }
     })
   }
 }
@@ -146,5 +159,5 @@ export {
   hasMediaType, isDirectory, isViewable, profileNameFromAsset, mediaProfileByName,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
-  ASSET_PREFIX
+  ASSET_PREFIX, ASSET_SUFFIX
 }
