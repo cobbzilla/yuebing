@@ -4,7 +4,7 @@ import {
 
 const fs = require('fs')
 const util = require('../util/file')
-const c = require('../../media')
+const c = require('../../shared/media')
 const s3cfg = require('./s3client.js')
 
 async function listDest (prefix) {

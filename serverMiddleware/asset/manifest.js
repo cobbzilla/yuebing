@@ -3,7 +3,7 @@ const shasum = require('shasum')
 const redis = require('../redis')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
-const c = require('../../media')
+const c = require('../../shared/media')
 
 const MIN_CACHE_PERIOD = 5 * 60 * 1000 // 5 minutes
 

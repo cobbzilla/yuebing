@@ -1,4 +1,3 @@
-
 export const userService = {
   login,
   logout,
@@ -39,8 +38,7 @@ function login (username, password) {
 }
 
 function logout () {
-  // remove user from local storage to log user out
-  localStorage.removeItem('user')
+  // todo: invalidate the session on the server
 }
 
 function register (user) {

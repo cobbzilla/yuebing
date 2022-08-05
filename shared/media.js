@@ -1,7 +1,3 @@
-//
-// This is the only JS file that both client and server side both reference
-// As such, it should remain very simple. Declarative stuff. Nothing too fancy.
-//
 const FILE_TYPE = 'file'
 const DIRECTORY_TYPE = 'dir'
 

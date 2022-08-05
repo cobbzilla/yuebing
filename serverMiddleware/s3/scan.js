@@ -1,5 +1,5 @@
 const video = require('../asset/xform')
-const c = require('../../media')
+const c = require('../../shared/media')
 const s3util = require('./s3util')
 
 export default {

@@ -4,7 +4,7 @@ const Queue = require('bull')
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
-const c = require('../../media')
+const c = require('../../shared/media')
 const manifest = require('./manifest')
 
 const MAX_XFORM_ERRORS = 3

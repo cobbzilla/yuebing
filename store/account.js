@@ -1,10 +1,13 @@
 import { userService } from '~/services/userService'
 
-const user = JSON.parse(localStorage.getItem('user'))
+const USER_LOCAL_STORAGE_KEY = 'user'
 
-export const state = () => user
-  ? { status: { loggedIn: true }, user }
-  : { status: {}, user: null }
+const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
+
+export const state = () => ({
+  user,
+  status: { loggedIn: !!user }
+})
 
 export const actions = {
   login ({ dispatch, commit }, { username, password }) {
@@ -53,6 +56,7 @@ export const mutations = {
   },
   loginSuccess (state, user) {
     state.status = { loggedIn: true }
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
   },
   loginFailure (state) {
@@ -60,6 +64,7 @@ export const mutations = {
     state.user = null
   },
   logout (state) {
+    localStorage.removeItem(USER_LOCAL_STORAGE_KEY)
     state.status = {}
     state.user = null
   },
@@ -67,6 +72,7 @@ export const mutations = {
     state.status = { registering: true }
   },
   registerSuccess (state, user) {
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.status = {}
   },
   registerFailure (state, error) {
