@@ -3,7 +3,7 @@ const path = require('path')
 const Queue = require('bull')
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
-const util = require('../util')
+const util = require('../util/file')
 const c = require('../../media')
 const manifest = require('./manifest')
 

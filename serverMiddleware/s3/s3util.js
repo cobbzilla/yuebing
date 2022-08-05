@@ -3,7 +3,7 @@ import {
 } from '@aws-sdk/client-s3'
 
 const fs = require('fs')
-const util = require('../util')
+const util = require('../util/file')
 const c = require('../../media')
 const s3cfg = require('./s3client.js')
 
@@ -105,13 +105,23 @@ async function getObject (client, bucketParams) {
   }
 }
 
+function normalizeDestKey (origKey) {
+  const destPrefix = s3cfg.destBucketParams.Prefix
+  const key = origKey.startsWith(destPrefix)
+    ? origKey
+    : destPrefix.endsWith('/')
+      ? destPrefix + origKey
+      : destPrefix + '/' + origKey
+  return key
+}
+
 async function headSourceObject (key) {
   const params = Object.assign({}, s3cfg.sourceBucketParams, { Key: key })
   return await headObject(s3cfg.sourceClient, params)
 }
 
 async function headDestObject (key) {
-  const params = Object.assign({}, s3cfg.destBucketParams, { Key: key })
+  const params = Object.assign({}, s3cfg.destBucketParams, { Key: normalizeDestKey(key) })
   return await headObject(s3cfg.destClient, params)
 }
 
@@ -120,10 +130,10 @@ async function headObject (client, bucketParams) {
     // Get the object} from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new HeadObjectCommand(bucketParams))
     // console.log(`headObject(${bucketParams.Key}) returned: ${JSON.stringify(data)}`)
-    return data
+    return data || true
   } catch (err) {
     console.log(`headObject(${bucketParams.Key}) error: ${err}`)
-    return null
+    return false
   }
 }
 
@@ -155,7 +165,18 @@ async function streamDestObject (key, writeable) {
   return await downloadObject(s3cfg.destClient, bucketParams, handler)
 }
 
+async function readDestTextObject (key) {
+  const newKey = normalizeDestKey(key)
+  const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: newKey })
+  let buffer = ''
+  const handler = (chunk) => {
+    buffer += chunk.toString()
+  }
+  return await downloadObject(s3cfg.destClient, bucketParams, handler) ? buffer : null
+}
+
 async function downloadObject (client, bucketParams, dataHandler) {
+  console.log(`downloadObject(${bucketParams.Bucket} / ${bucketParams.Key}, prefix=${bucketParams.Prefix}): STARTING`)
   try {
     // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await client.send(new GetObjectCommand(bucketParams))
@@ -168,7 +189,7 @@ async function downloadObject (client, bucketParams, dataHandler) {
     await streamHandler(data.Body)
     return true
   } catch (err) {
-    console.error(`downloadObject: ${err}`)
+    console.error(`downloadObject(${bucketParams.Key}, prefix=${bucketParams.Prefix}) ERROR: ${err}`)
     return false
   }
 }
@@ -177,12 +198,7 @@ async function putObject (bucketParams) {
   const client = s3cfg.destClient
   const origKey = bucketParams.Key
   try {
-    const destPrefix = s3cfg.destBucketParams.Prefix
-    const key = origKey.startsWith(destPrefix)
-      ? origKey
-      : destPrefix.endsWith('/')
-        ? destPrefix + origKey
-        : destPrefix + '/' + origKey
+    const key = normalizeDestKey(origKey)
     const params = Object.assign({}, bucketParams, {
       Bucket: s3cfg.destBucketParams.Bucket,
       Prefix: '',
@@ -190,8 +206,8 @@ async function putObject (bucketParams) {
     })
     console.log(`putObject(${origKey}): params=${JSON.stringify(params)}`)
     const data = await client.send(new PutObjectCommand(params))
-    console.log(`putObject(${origKey}): created object: ${bucketParams.Bucket}/${bucketParams.Key}`)
-    return data // For unit tests.
+    console.log(`putObject(${origKey}): created object: ${params.Bucket}/${params.Key}`)
+    return data || true // For unit tests.
   } catch (err) {
     console.log(`putObject(${origKey}) error: ${err}`)
     return null
@@ -241,7 +257,7 @@ async function countErrors (sourcePath, profile) {
 
 export {
   listObjects, listDest, listSource,
-  downloadObject, downloadObjectToFile, streamDestObject,
+  downloadObject, downloadObjectToFile, streamDestObject, readDestTextObject,
   headObject, headSourceObject, headDestObject,
   putObject, destPut, deleteDestObject,
   touchLastModified, recordError, countErrors

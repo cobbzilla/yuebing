@@ -1,7 +1,5 @@
 import { s3Service } from '~/services/s3service'
 
-const META_EXPIRATION = 1000 * 60 * 15 // 15 minutes
-
 export const state = () => ({
   objectList: [],
   loadingObjects: false,
@@ -11,19 +9,6 @@ export const state = () => ({
   loadingMetadata: false,
   loadingMetadataError: null
 })
-
-export const getters = {
-  getObjectList (state) {
-    return state.objectList
-  },
-  getMetaData (state, path) {
-    if (path in state.metadata) {
-      const meta = state.metadata[path]
-      return (meta.ctime && Date.now() - meta.ctime < META_EXPIRATION) ? meta : null
-    }
-    return null
-  }
-}
 
 export const mutations = {
   fetchObjectsRequest (state) {

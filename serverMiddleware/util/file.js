@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 const shasum = require('shasum')
-const s3cfg = require('./s3/s3client')
+const s3cfg = require('../s3/s3client')
 
 const MAX_CONCURRENT_TRANSFORMS = 2
 

@@ -3,7 +3,14 @@ export default {
   ssr: false,
 
   publicRuntimeConfig: {
-    title: process.env.SV_TITLE
+    title: process.env.SV_TITLE || 's3vid'
+  },
+
+  privateRuntimeConfig: {
+    // optional, define these to encrypt user data stored on destination bucket
+    userEncryptionKey: process.env.SV_USERDATA_KEY,
+    userEncryptionIV: process.env.SV_USERDATA_IV,
+    sessionExpiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -29,9 +36,13 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/vee-validate.js'
   ],
 
   serverMiddleware: [
+    { path: '/user', handler: '~/serverMiddleware/user' },
+    { path: '/user/authenticate', handler: '~/serverMiddleware/user/authenticate' },
+    { path: '/user/register', handler: '~/serverMiddleware/user/register' },
     { path: '/s3/list', handler: '~/serverMiddleware/s3/list' },
     { path: '/s3/scan', handler: '~/serverMiddleware/s3/scan' },
     { path: '/s3/meta', handler: '~/serverMiddleware/s3/meta' },
@@ -61,5 +72,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    transpile: ['vee-validate/dist/rules']
   }
 }
