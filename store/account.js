@@ -9,12 +9,11 @@ export const state = () => user
 export const actions = {
   login ({ dispatch, commit }, { username, password }) {
     commit('loginRequest', { username })
-    console.log(`login: this.app.$config=${JSON.stringify(this.app.$config)}`)
     userService.login(username, password)
       .then(
         (user) => {
           commit('loginSuccess', user)
-          this.app.$config.router.push('/')
+          this.app.store.$router.push('/')
         },
         (error) => {
           commit('loginFailure', error)
@@ -33,7 +32,7 @@ export const actions = {
       .then(
         (user) => {
           commit('registerSuccess', user)
-          this.app.$config.router.push('/login')
+          this.app.store.$router.push('/')
           setTimeout(() => {
             // display success message after route change completes
             // dispatch('alert/success', 'Registration successful', { root: true })
