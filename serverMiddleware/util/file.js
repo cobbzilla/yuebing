@@ -14,6 +14,7 @@ const ERROR_FILE_PREFIX = '_error_'
 
 const MULTIFILE_PLACEHOLDER = '%03d'
 const MULTIFILE_FIRST = '001'
+const INCLUDE_ORIG_FILENAME_CHARS = 20
 
 function statSize (file) {
   const stats = fs.statSync(file, { throwIfNoEntry: false })
@@ -24,23 +25,26 @@ function statSize (file) {
   return -1
 }
 
-function canonicalWorkingDir (path) {
+function scrub (path) {
   // replace all nonalphanumeric chars with underscores
   const scrubbed = path.replace(/[\W_]+/g, '_')
-  // retain the first 20 characters, then add a hash
-  const canonical = (scrubbed.length < 20 ? scrubbed : scrubbed.substring(0, 20)) + '_' + shasum(path) + '/'
-  // console.log('canonicalWorkingDir(' + path + ') returning ' + canonical)
-  return canonical
+
+  // retain the first several characters, then add a hash
+  return scrubbed.length < INCLUDE_ORIG_FILENAME_CHARS
+    ? scrubbed
+    : scrubbed.substring(scrubbed.length - INCLUDE_ORIG_FILENAME_CHARS, scrubbed.length) +
+    '_' + shasum(path)
+}
+
+function canonicalWorkingDir (path) {
+  return scrub(path) + '/'
 }
 
 function canonicalDestDir (path) {
-  // replace all nonalphanumeric chars with underscores
-  const scrubbed = path.replace(/[\W_]+/g, '_')
-  // retain the first 20 characters, then add a hash
+  const slug = scrub(path)
   const sha = shasum(path)
   const rawPrefix = s3cfg.destBucketParams.Prefix
   const prefix = rawPrefix.endsWith('/') ? rawPrefix : rawPrefix + '/'
-  const slug = (scrubbed.length < 20 ? scrubbed : scrubbed.substring(0, 20)) + '_' + sha
   const canonical = prefix + sha.substring(0, 2) +
     '/' + sha.substring(2, 4) +
     '/' + sha.substring(4, 6) +
