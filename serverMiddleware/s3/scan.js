@@ -50,7 +50,7 @@ if (AUTOSCAN.initialDelay > 0) {
 }
 
 async function scan (prefix, autoscan = false) {
-  const results = await s3util.listSource(prefix, autoscan)
+  const results = await s3util.listSource(prefix, true)
   const transforms = []
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
