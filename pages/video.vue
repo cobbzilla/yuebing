@@ -6,6 +6,10 @@
     <div v-if="isReady">
       <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
+<!--    <div v-if="mediaInfoJson">-->
+      <h5>media info json</h5>
+      {{ JSON.stringify(mediaInfoJson) }}
+<!--    </div>-->
     <div v-if="error">
       <h3>{{ error }}</h3>
     </div>
@@ -24,6 +28,10 @@ function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
 }
 
+function isMediaInfoJsonProfile (profile) {
+  return profile.operation === 'mediainfo' && profile.ext === 'json'
+}
+
 export default {
   name: 'VideoObject',
   components: {
@@ -33,6 +41,8 @@ export default {
     return {
       name: null,
       object: {},
+      mediaInfoJsonPath: null,
+      mediaInfoJson: null,
       error: null,
       videoOptions: {
         autoplay: true,
@@ -44,12 +54,15 @@ export default {
     }
   },
   computed: {
-    ...mapState('s3', ['objectList', 'metadata']),
+    ...mapState('s3', ['objectList', 'metadata', 'assetData']),
     hasSources () {
       return hasSourceVideos(this)
     },
     isReady () {
       return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
+    },
+    hasMediaInfoJsonPath () {
+      return this.object && this.mediaInfoJsonPath
     }
   },
   watch: {
@@ -63,6 +76,15 @@ export default {
       }
       this.object = Object.assign({}, this.object) // force vue refresh
       this.refreshMeta()
+    },
+    assetData (newAssetData, oldAssetData) {
+      console.log(`watch:assets received newAssets=${JSON.stringify(newAssetData, null, 2)}`)
+      if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
+        console.log(`watch:assets: *********** assigning new asset: ${JSON.stringify(newAssetData[this.mediaInfoJsonPath])}`)
+        this.mediaInfoJson = newAssetData[this.mediaInfoJsonPath]
+      } else {
+        console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
+      }
     }
   },
   created () {
@@ -100,7 +122,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('s3', ['fetchMetadata']),
+    ...mapActions('s3', ['fetchMetadata', 'fetchAsset']),
 
     refreshMeta () {
       const sources = this.videoOptions.sources
@@ -112,10 +134,14 @@ export default {
         !this.hasSources) {
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
           const assets = this.object.meta.assets[assetProfileName]
-          console.log(`this.object.meta.assets = ${JSON.stringify(this.object.meta.assets)}`)
+          // console.log(`this.object.meta.assets = ${JSON.stringify(this.object.meta.assets)}`)
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
+          if (isMediaInfoJsonProfile(mediaProfile)) {
+            const path = this.mediaInfoJsonPath = assets[0]
+            this.fetchAsset({ path })
+          }
           assets.forEach((asset) => {
-            console.log(`for asset ${asset}, checking enabled/primary on profile ${JSON.stringify(mediaProfile)}`)
+            // console.log(`for asset ${asset}, checking enabled/primary on profile ${JSON.stringify(mediaProfile)}`)
             if (mediaProfile.enabled && mediaProfile.primary && c.getExtension(asset) === mediaProfile.ext) {
               console.log(`video.vue: pushing src = /s3/proxy/${asset}`)
               sources.push({

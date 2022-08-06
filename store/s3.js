@@ -7,8 +7,61 @@ export const state = () => ({
 
   metadata: {},
   loadingMetadata: false,
-  loadingMetadataError: null
+  loadingMetadataError: null,
+
+  assetData: {},
+  loadingAsset: false,
+  loadingAssetError: null
 })
+
+export const actions = {
+  fetchObjects ({ commit }, { prefix }) {
+    commit('fetchObjectsRequest')
+    s3Service
+      .listS3(prefix)
+      .then(
+        objects => commit('fetchObjectsSuccess', objects),
+        error => commit('fetchObjectsFailure', error)
+      )
+  },
+
+  fetchMetadata ({ commit }, { path }) {
+    commit('fetchMetaRequest')
+    console.log(`fetchMetadata: starting for path: ${path}`)
+    s3Service
+      .metadata(path)
+      .then(
+        (meta) => {
+          console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
+          meta.path = path
+          commit('fetchMetaSuccess', { path, meta })
+        },
+        error => commit('fetchMetaFailure', error)
+      )
+  },
+
+  fetchAsset ({ commit }, { path }) {
+    commit('fetchAssetRequest')
+    console.log(`fetchAsset: starting for path: ${path}`)
+    s3Service
+      .jsonAsset(path)
+      .then(
+        (assetContents) => {
+          if (assetContents) {
+            commit('fetchAssetSuccess', {
+              path,
+              assetContents
+            })
+          } else {
+            const message = `fetchAsset: ERROR assetContents=${assetContents}`
+            console.warn(message)
+            commit('fetchAssetFailure', new TypeError(message))
+          }
+        },
+        error => commit('fetchAssetFailure', error)
+      )
+  }
+}
 
 export const mutations = {
   fetchObjectsRequest (state) {
@@ -43,32 +96,20 @@ export const mutations = {
   fetchMetaFailure (state, error) {
     state.loadingMetadata = false
     state.loadingMetadataError = error
-  }
-}
-
-export const actions = {
-  fetchObjects ({ commit }, { prefix }) {
-    commit('fetchObjectsRequest')
-    s3Service
-      .listS3(prefix)
-      .then(
-        objects => commit('fetchObjectsSuccess', objects),
-        error => commit('fetchObjectsFailure', error)
-      )
   },
 
-  fetchMetadata ({ commit }, { path }) {
-    commit('fetchMetaRequest')
-    console.log(`fetchMetadata: starting for path: ${path}`)
-    s3Service
-      .metadata(path)
-      .then(
-        (meta) => {
-          console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
-          meta.path = path
-          commit('fetchMetaSuccess', { path, meta })
-        },
-        error => commit('fetchMetaFailure', error)
-      )
+  fetchAssetRequest (state) {
+    state.loadingAsset = true
+  },
+  fetchAssetSuccess (state, { path, assetContents }) {
+    const assetObj = {}
+    assetObj[path] = assetContents
+    state.assetData = Object.assign({}, state.assetData, assetObj)
+    state.loadingAssetError = null
+    state.loadingAsset = false
+  },
+  fetchAssetFailure (state, error) {
+    state.loadingAsset = false
+    state.loadingAssetError = error
   }
 }

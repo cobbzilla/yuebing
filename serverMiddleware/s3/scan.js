@@ -4,7 +4,7 @@ const m = require('../../shared/media')
 const s3util = require('./s3util')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
-const INITIAL_SCAN_DELAY = 1000 * 10
+const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
 
 let CURRENT_AUTOSCAN_START = null
 let AUTOSCAN_COUNT = 1
@@ -35,10 +35,18 @@ function autoscan () {
   }
 }
 
-if (nuxt.default.privateRuntimeConfig.autoScanInterval > 0) {
-  const autoScanInterval = Math.max(nuxt.default.privateRuntimeConfig.autoScanInterval, AUTOSCAN_MINIMUM_INTERVAL)
+const AUTOSCAN = nuxt.default.privateRuntimeConfig.autoscan
+if (AUTOSCAN.interval > 0) {
+  const autoScanInterval = Math.max(AUTOSCAN.interval, AUTOSCAN_MINIMUM_INTERVAL)
   setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval
-  setTimeout(() => autoscan(), INITIAL_SCAN_DELAY) // start an initial scan soon
+} else {
+  console.warn(' ~~~ AUTOSCAN (periodic) is disabled ~~~')
+}
+if (AUTOSCAN.initialDelay > 0) {
+  const initialDelay = Math.max(AUTOSCAN.initialDelay, AUTOSCAN_MINIMUM_INITIAL_DELAY)
+  setTimeout(() => autoscan(), initialDelay) // start an initial scan soon
+} else {
+  console.warn(' ~~~ AUTOSCAN (initial) is disabled ~~~')
 }
 
 async function scan (prefix, autoscan = false) {

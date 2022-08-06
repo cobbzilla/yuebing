@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const nuxt = require('../../nuxt.config')
 const s3util = require('../s3/s3util')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
@@ -56,7 +57,7 @@ export default {
           }
 
           // bcrypt the password, create new user object
-          const salt = bcrypt.genSaltSync(10)
+          const salt = bcrypt.genSaltSync(nuxt.default.privateRuntimeConfig.userEncryption.bcryptRounds)
           const newUser = {
             firstName: regRequest.firstName,
             lastName: regRequest.lastName,

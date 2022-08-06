@@ -7,7 +7,7 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 // adapted from https://stackoverflow.com/a/1203361
 function getExtension (filename) {
-  console.log(`getExtension: filename is ${filename} with type ${typeof filename}`)
+  // console.log(`getExtension: filename is ${filename} with type ${typeof filename}`)
   return filename.split('.').pop()
 }
 

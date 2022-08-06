@@ -154,9 +154,14 @@ function profileNameFromAsset (asset) {
   return profile
 }
 
+function profileFromAsset (mediaType, asset) {
+  return MEDIA[mediaType][profileNameFromAsset(asset)]
+}
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
-  hasMediaType, isDirectory, isViewable, profileNameFromAsset, mediaProfileByName,
+  hasMediaType, isDirectory, isViewable,
+  profileNameFromAsset, mediaProfileByName, profileFromAsset,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX, ASSET_SUFFIX

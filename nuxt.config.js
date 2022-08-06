@@ -7,20 +7,37 @@ export default {
   },
 
   privateRuntimeConfig: {
-    // optional, define these to encrypt user data stored on destination bucket
-    userEncryptionKey: process.env.SV_USERDATA_KEY,
-    userEncryptionIV: process.env.SV_USERDATA_IV,
 
-    // How long web sessions last
-    sessionExpiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24, // default 24 hours
+    userEncryption: {
+      // Optional. Define these to encrypt user data stored on destination bucket
+      key: process.env.SV_USERDATA_KEY,
+      iv: process.env.SV_USERDATA_IV,
 
-    // How frequently to auto-scan the source for new content
-    // Zero or negative means disable auto scanning
-    // Otherwise, scan at this interval, which must be at least one minute (60000)
-    // Only one scan runs at a time. If an active scan is already running when a new
-    // interval is triggered, a concurrent scan will NOT be started.
-    // If enabled, an initial scan will being shortly after startup
-    autoScanInterval: process.env.SV_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24 // default 24 hours
+      // Passwords are stored as bcrypt hashes. How many rounds to use
+      bcryptRounds: process.env.SV_BCRYPT_ROUNDS || 12
+    },
+
+    session: {
+      // How long web sessions last
+      expiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
+    },
+
+    // The server scans the source media for new content to transform
+    autoscan: {
+      // How frequently to auto-scan the source for new content
+      // Zero or negative means disable auto scanning
+      // Otherwise, scan at this interval.
+      // Minimum interval is 1 minute. Lower settings are ignored.
+      // Only one scan runs at a time. If an active scan is already running when a new
+      // interval is triggered, a concurrent scan will NOT be started.
+      // If enabled, an initial scan will being shortly after startup
+      interval: process.env.SV_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
+
+      // How long to wait before the initial startup scan
+      // Zero or negative means disable initial scan
+      // Minimum interval is 5 seconds. Lower settings are ignored.
+      initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30 // default 30 seconds
+    }
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head

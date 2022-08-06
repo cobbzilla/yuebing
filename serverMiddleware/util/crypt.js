@@ -6,13 +6,13 @@ const nuxt = require('../../nuxt.config')
 const MIN_KEY_LEN = 16
 
 // ensure key long enough for security, and is 32 bytes for AES-256
-const rawKey = nuxt.default.privateRuntimeConfig.userEncryptionKey
+const rawKey = nuxt.default.privateRuntimeConfig.userEncryption.key
 const KEY = (typeof rawKey === 'string' && rawKey.trim().length > MIN_KEY_LEN)
   ? Buffer.from(shasum(rawKey)).subarray(0, 32)
   : null
 
 // ensure IV is 16 bytes for AES-256
-const rawIV = nuxt.default.privateRuntimeConfig.userEncryptionIV
+const rawIV = nuxt.default.privateRuntimeConfig.userEncryption.iv
 const CRYPTO_IV = (typeof rawIV === 'string')
   ? Buffer.from(shasum(rawIV)).subarray(0, 16)
   : KEY
