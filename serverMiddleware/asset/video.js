@@ -363,43 +363,31 @@ function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
   return args
 }
 
+const XFORM_FUNCS = {}
+XFORM_FUNCS[m.OP_TRANSCODE] = transcode
+XFORM_FUNCS[m.OP_DASH] = dash
+XFORM_FUNCS[m.OP_MEDIAINFO] = mediainfo
+XFORM_FUNCS[m.OP_THUMBNAILS] = thumbnails
+XFORM_FUNCS[m.OP_FIRST_THUMBNAIL] = firstThumbnail
+
 function transform (sourcePath, file, profile, outfile) {
-  console.log(`video:transform(${sourcePath}, ${file}, ${profile.name}) starting with outfile ${outfile}`)
+  const logPrefix = `video:transform(${sourcePath}, ${file}, ${profile.name}):`
+  console.log(`${logPrefix} starting with outfile ${outfile}`)
   if (typeof profile.operation === 'undefined') {
-    console.log(`video:transform(${sourcePath}, ${file}, ${JSON.stringify(profile)}) no operation defined on profile, skipping`)
+    console.log(`${logPrefix} no operation defined on profile, skipping: profile=${JSON.stringify(profile)}`)
     return
   }
   if (!profile.enabled) {
-    console.log(`video:transform(${sourcePath}, ${file}, ${JSON.stringify(profile)}) profile not enabled, skipping`)
+    console.log(`${logPrefix} profile not enabled, skipping`)
     return
   }
 
-  let args
-  switch (profile.operation) {
-    case 'mediainfo':
-      args = mediainfo(sourcePath, file, profile, outfile)
-      break
-    case 'dash':
-      args = dash(sourcePath, file, profile, outfile)
-      break
-    case 'transcode':
-      args = transcode(sourcePath, file, profile, outfile)
-      break
-    case 'thumbnails':
-      args = thumbnails(sourcePath, file, profile, outfile)
-      break
-    case 'firstThumbnail':
-      args = firstThumbnail(sourcePath, file, profile, outfile)
-      break
-    default:
-      console.log(`video:transform(${sourcePath}, ${file}, ${JSON.stringify(profile)}) unknown operation ${profile.operation}, skipping`)
-      return
-  }
-
-  const handler = handleOutputFiles(sourcePath, profile, outfile)
-  console.log('running ffmpeg transcode: ffmpeg ' + args.join(' '))
+  const xform = XFORM_FUNCS[profile.operation]
+  const args = xform(sourcePath, file, profile, outfile)
+  const outputHandler = handleOutputFiles(sourcePath, profile, outfile)
+  console.log(`transform: running xform command: ${profile.command} ${args.join(' ')}`)
   runTransformCommand(profile, outfile, args, (code) => {
-    handler(code).then(() => {
+    outputHandler(code).then(() => {
       console.log(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
     })
   })

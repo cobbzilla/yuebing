@@ -32,11 +32,10 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { hasMediaType, isDirectory, isViewable, mediaProfileByName, mediaType } from '@/shared/media'
-
-function isThumbnailProfile (profile) {
-  return profile.operation === 'thumbnails' || profile.operation === 'firstThumbnail'
-}
+import {
+  hasMediaType, isDirectory, isViewable,
+  mediaProfileByName, mediaType, isThumbnailProfile
+} from '@/shared/media'
 
 export default {
   name: 'ListVideos',

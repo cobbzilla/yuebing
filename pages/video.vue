@@ -25,14 +25,11 @@ import VideoPlayer from '@/components/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
 const c = require('../shared')
+const m = require('../shared/media')
 const info = require('../shared/mediainfo')
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
-}
-
-function isMediaInfoJsonProfile (profile) {
-  return profile.operation === 'mediainfo' && profile.ext === 'json'
 }
 
 export default {
@@ -137,7 +134,7 @@ export default {
           const assets = this.object.meta.assets[assetProfileName]
           // console.log(`this.object.meta.assets = ${JSON.stringify(this.object.meta.assets)}`)
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
-          if (isMediaInfoJsonProfile(mediaProfile)) {
+          if (m.isMediaInfoJsonProfile(mediaProfile)) {
             const path = this.mediaInfoJsonPath = assets[0]
             this.fetchAsset({ path })
           }

@@ -165,11 +165,29 @@ function profileFromAsset (mediaType, asset) {
   return MEDIA[mediaType][profileNameFromAsset(asset)]
 }
 
+// standard operations
+const OP_TRANSCODE = 'transcode'
+const OP_DASH = 'dash'
+const OP_THUMBNAILS = 'thumbnails'
+const OP_FIRST_THUMBNAIL = 'firstThumbnail'
+const OP_MEDIAINFO = 'mediainfo'
+
+function isThumbnailProfile (profile) {
+  return profile.operation === OP_THUMBNAILS || profile.operation === OP_FIRST_THUMBNAIL
+}
+
+function isMediaInfoJsonProfile (profile) {
+  return profile.operation === OP_MEDIAINFO && profile.ext === 'json'
+}
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
   hasMediaType, isDirectory, isViewable,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
+  isThumbnailProfile, isMediaInfoJsonProfile,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
-  ASSET_PREFIX, assetSuffix
+  ASSET_PREFIX, assetSuffix,
+  OP_THUMBNAILS, OP_FIRST_THUMBNAIL, OP_MEDIAINFO,
+  OP_DASH, OP_TRANSCODE
 }
