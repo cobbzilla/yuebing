@@ -49,7 +49,7 @@ for (const type in MEDIA) {
     Object.keys(typeConfig.profiles).forEach((profileName) => {
       const profile = typeConfig.profiles[profileName]
       profile.name = profileName
-      if (typeof profile.enabled !== 'boolean') {
+      if (typeof profile.enabled !== 'boolean' && typeof profile.from === 'undefined') {
         profile.enabled = true
       }
       typeProfiles.push(profile)
