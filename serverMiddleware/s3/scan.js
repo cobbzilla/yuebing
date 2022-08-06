@@ -4,6 +4,7 @@ const m = require('../../shared/media')
 const s3util = require('./s3util')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
+const INITIAL_SCAN_DELAY = 1000 * 10
 
 let CURRENT_AUTOSCAN_START = null
 let AUTOSCAN_COUNT = 1
@@ -37,7 +38,7 @@ function autoscan () {
 if (nuxt.default.privateRuntimeConfig.autoScanInterval > 0) {
   const autoScanInterval = Math.max(nuxt.default.privateRuntimeConfig.autoScanInterval, AUTOSCAN_MINIMUM_INTERVAL)
   setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval
-  setTimeout(() => autoscan(), 19000) // start an initial scan soon
+  setTimeout(() => autoscan(), INITIAL_SCAN_DELAY) // start an initial scan soon
 }
 
 async function scan (prefix, autoscan = false) {

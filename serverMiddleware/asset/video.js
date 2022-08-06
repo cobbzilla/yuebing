@@ -9,17 +9,52 @@ const m = require('../../shared/media')
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
 
-function ffmpeg (args, closeHandler) {
-  const ffmpeg = spawn('ffmpeg', args)
-  ffmpeg.stdout.on('data', (data) => {
-    console.log(`stdout >>>>>> ${data}`)
+const VALID_XFORM_COMMANDS = ['ffmpeg', 'mediainfo']
+const DEFAULT_XFORM_COMMAND = 'ffmpeg'
+
+function runTransformCommand (profile, outfile, args, closeHandler) {
+  // you can't just run any old command here sonny!
+  const command = profile.command ? profile.command : DEFAULT_XFORM_COMMAND
+  if (!VALID_XFORM_COMMANDS.includes(command)) {
+    throw new TypeError(`run_xform_command: illegal profile command: ${command}`)
+  }
+  const saveStdout = (profile.outfile && profile.outfile === 'stdout')
+  const saveStderr = (profile.outfile && profile.outfile === 'stderr')
+
+  const xform = spawn(command, args)
+  const stream = fs.createWriteStream(outfile)
+  xform.stdout.on('data', (data) => {
+    if (saveStdout) {
+      stream.write(data, (err) => {
+        if (err) {
+          console.log(`runTransformCommand: error writing stdout to ${outfile}: ${err}`)
+          throw err
+        }
+      })
+    } else {
+      console.log(`stdout >>>>>> ${data}`)
+    }
   })
 
-  ffmpeg.stderr.on('data', (data) => {
-    console.error(`stderr >>>>>> ${data}`)
+  xform.stderr.on('data', (data) => {
+    if (saveStderr) {
+      stream.write(data, (err) => {
+        if (err) {
+          console.log(`runTransformCommand: error writing stderr to ${outfile}: ${err}`)
+          throw err
+        }
+      })
+    } else {
+      console.log(`stdout >>>>>> ${data}`)
+    }
   })
 
-  ffmpeg.on('close', code => closeHandler(code))
+  xform.on('close', (code) => {
+    stream.close((err) => {
+      console.error(`runTransformCommand: error closing stream: ${err}`)
+    })
+    closeHandler(code)
+  })
 }
 
 function multifilePrefix (outfile) {
@@ -175,6 +210,20 @@ function handleOutputFiles (sourcePath, profile, outfile) {
   }
 }
 
+function mediainfo (sourcePath, sourceFile, profile, outfile) {
+  const args = []
+  if (profile.details) {
+    args.push(['--Details=1'])
+  } else {
+    args.push(['--Output=JSON'])
+    if (profile.full) {
+      args.push(['--Full'])
+    }
+  }
+  args.push(sourceFile)
+  return args
+}
+
 function transcode (sourcePath, sourceFile, profile, outfile) {
   const args = []
   args.push('-i')
@@ -322,8 +371,10 @@ function transform (sourcePath, file, profile, outfile) {
 
   let args
   switch (profile.operation) {
+    case 'mediainfo':
+      args = mediainfo(sourcePath, file, profile, outfile)
+      break
     case 'dash':
-      console.log(`video:transform(${sourcePath}, ${file}, ${JSON.stringify(profile)}): starting DASH transcode with outfile: ${outfile}`)
       args = dash(sourcePath, file, profile, outfile)
       break
     case 'transcode':
@@ -342,7 +393,7 @@ function transform (sourcePath, file, profile, outfile) {
 
   const handler = handleOutputFiles(sourcePath, profile, outfile)
   console.log('running ffmpeg transcode: ffmpeg ' + args.join(' '))
-  ffmpeg(args, (code) => {
+  runTransformCommand(profile, outfile, args, (code) => {
     handler(code).then(() => {
       console.log(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
     })

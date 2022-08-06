@@ -120,12 +120,13 @@ async function headObject (client, bucketParams) {
 }
 
 async function downloadObjectToFile (client, bucketParams, file) {
+  let stream = null
   try {
     const size = util.statSize(file)
     if (size > 0) {
       fs.truncateSync(file, 0)
     }
-    const stream = fs.createWriteStream(file)
+    stream = fs.createWriteStream(file)
     const handler = (chunk) => {
       stream.write(chunk, (err) => {
         if (err) {
@@ -138,6 +139,13 @@ async function downloadObjectToFile (client, bucketParams, file) {
   } catch (err) {
     console.log('Error', err)
     return false
+  } finally {
+    if (stream) {
+      stream.close((err) => {
+        console.log(`downloadObjectToFile: error closing file ${file}: ${err}`)
+        throw err
+      })
+    }
   }
 }
 

@@ -8,7 +8,11 @@ export default {
   // Configuration params for the supported operations
   // Currently the video transformer only uses these to verify that
   // the assets created have some minimum size to be considered valid
+  // It's a very rudimentary check. Better validation of final assets would be great
   operations: {
+    mediainfo: {
+      minFileSize: 512 // 512 bytes, very conservative. Even an essentially empty file clocks in just over 2k
+    },
     transcode: {
       minFileSize: 1024 * 128 // 128k min valid size
     },
@@ -28,6 +32,30 @@ export default {
   // an object to be considered "ready" for viewing in the webapp.
   // The 'operation' field determines what the media-specific transformer does
   profiles: {
+
+    // The mediainfo profile runs the 'mediainfo' command on the video
+    // and stores the output. The video player then has access to this info
+    mediainfo_json: {
+      operation: 'mediainfo',
+      // The default video command is 'ffmpeg', so override that here
+      // Arbitrary command execution not allowed, see ~/serverMiddleware/asset/video.js#runTransformCommand
+      command: 'mediainfo',
+      enabled: true,
+      ext: 'json',
+      contentType: 'application/json',
+      outfile: 'stdout',
+      full: true
+    },
+
+    // If you set details to true, mediainfo uses a text format
+    // So ext is 'txt' and contentType is 'text/plain'
+    // The 'full' flag is ignored when 'details' is true
+    mediainfo_details: {
+      from: 'mediainfo_json', // inherit props from above
+      ext: 'txt',
+      contentType: 'application/json',
+      details: true
+    },
 
     // The various transcode_ profiles create different versions of the video
     // so that the video player can serve up an appropriate selection of choices
