@@ -7,8 +7,10 @@
       <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
 <!--    <div v-if="mediaInfoJson">-->
-      <h5>media info json</h5>
-      {{ JSON.stringify(mediaInfoJson) }}
+      <h4>media info json</h4>
+      <h5>Width: {{ mediaInfoField('width') }}</h5>
+      <h5>Height: {{ mediaInfoField('height') }}</h5>
+      <h5>Duration: {{ mediaInfoField('duration') }}</h5>
 <!--    </div>-->
     <div v-if="error">
       <h3>{{ error }}</h3>
@@ -23,6 +25,7 @@ import VideoPlayer from '@/components/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
 const c = require('../shared')
+const info = require('../shared/mediainfo')
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -78,9 +81,7 @@ export default {
       this.refreshMeta()
     },
     assetData (newAssetData, oldAssetData) {
-      console.log(`watch:assets received newAssets=${JSON.stringify(newAssetData, null, 2)}`)
       if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
-        console.log(`watch:assets: *********** assigning new asset: ${JSON.stringify(newAssetData[this.mediaInfoJsonPath])}`)
         this.mediaInfoJson = newAssetData[this.mediaInfoJsonPath]
       } else {
         console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
@@ -155,6 +156,10 @@ export default {
       } else {
         console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
       }
+    },
+
+    mediaInfoField (field) {
+      return this.mediaInfoJson ? info.mediaInfoField(field, this.mediaInfoJson) : null
     }
   }
 }
