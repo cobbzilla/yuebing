@@ -33,10 +33,10 @@ async function createArtifacts (sourcePath, localSourceFile) {
     // determine which destKey we will check to determine if the transform has completed
     if (profile.multiFile) {
       const outfilePrefix = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
-      outfile = outfilePrefix + m.ASSET_SUFFIX + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.ASSET_SUFFIX + util.MULTIFILE_FIRST + '.' + profile.ext
+      outfile = outfilePrefix + m.assetSuffix(mediaType) + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
+      completedAssetKey = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + util.MULTIFILE_FIRST + '.' + profile.ext
     } else {
-      outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + '.' + profile.ext
+      outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
       completedAssetKey = util.canonicalDestDir(sourcePath) + path.basename(outfile)
     }
 

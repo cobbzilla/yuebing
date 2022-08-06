@@ -40,7 +40,6 @@ export default {
       // The default video command is 'ffmpeg', so override that here
       // Arbitrary command execution not allowed, see ~/serverMiddleware/asset/video.js#runTransformCommand
       command: 'mediainfo',
-      enabled: true,
       ext: 'json',
       contentType: 'application/json',
       outfile: 'stdout',
@@ -64,7 +63,6 @@ export default {
     // The DASH profile supports adaptive streaming based on other profile definitions
     dash_mp4: {
       operation: 'dash',
-      enabled: true,
       // At startup, each element of this array is transformed into the corresponding profile object
       subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
       // subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding

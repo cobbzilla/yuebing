@@ -136,8 +136,10 @@ async function downloadObjectToFile (client, bucketParams, file) {
       })
     }
     const closeHandler = () => stream.close((err) => {
-      console.log(`downloadObjectToFile: error closing file ${file}: ${err}`)
-      throw err
+      if (err) {
+        console.log(`downloadObjectToFile: error closing file ${file}: ${err}`)
+        throw err
+      }
     })
     return await downloadObject(client, bucketParams, handler, closeHandler)
   } catch (err) {

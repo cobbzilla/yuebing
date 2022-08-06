@@ -9,6 +9,8 @@ const m = require('../../shared/media')
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
 
+const VIDEO_ASSET_SUFFIX = m.assetSuffix(m.VIDEO_MEDIA_TYPE)
+
 const VALID_XFORM_COMMANDS = ['ffmpeg', 'mediainfo']
 const DEFAULT_XFORM_COMMAND = 'ffmpeg'
 
@@ -320,9 +322,9 @@ function dash (sourcePath, sourceFile, profile, outfile) {
 
   // ensure output assets are named appropriately so that handleOutputFiles picks them up
   args.push('-init_seg_name')
-  args.push(`${m.ASSET_PREFIX}${profile.name}${m.ASSET_SUFFIX}init-stream$RepresentationID$.$ext$`)
+  args.push(`${m.ASSET_PREFIX}${profile.name}${VIDEO_ASSET_SUFFIX}init-stream$RepresentationID$.$ext$`)
   args.push('-media_seg_name')
-  args.push(`${m.ASSET_PREFIX}${profile.name}${m.ASSET_SUFFIX}chunk-stream$RepresentationID$-$Number%05d$.$ext$`)
+  args.push(`${m.ASSET_PREFIX}${profile.name}${VIDEO_ASSET_SUFFIX}chunk-stream$RepresentationID$-$Number%05d$.$ext$`)
 
   args.push('-f')
   args.push('dash')

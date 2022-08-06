@@ -6,7 +6,10 @@ const AUDIO_MEDIA_TYPE = 'audio'
 const UNKNOWN_MEDIA_TYPE = 'binary'
 
 const ASSET_PREFIX = 'asset_'
-const ASSET_SUFFIX = '@'
+
+function assetSuffix (mediaType) {
+  return `@${mediaType}@`
+}
 
 const EXT_MAP = {}
 
@@ -35,6 +38,7 @@ for (const type in MEDIA) {
 
   // Process profiles to handle a few preparatory tasks:
   //  * Populate the 'name' property for each profile object
+  //  * Define 'enabled: true' for profiles that do not have an 'enabled' property
   //  * Expand the magic 'from' property where found
   //  * Expand the magic 'subProfiles' property where found
   if (typeConfig.profiles && Object.keys(typeConfig.profiles).length > 0) {
@@ -45,6 +49,9 @@ for (const type in MEDIA) {
     Object.keys(typeConfig.profiles).forEach((profileName) => {
       const profile = typeConfig.profiles[profileName]
       profile.name = profileName
+      if (typeof profile.enabled !== 'boolean') {
+        profile.enabled = true
+      }
       typeProfiles.push(profile)
       typeProfileMap[profileName] = profile
     })
@@ -143,13 +150,13 @@ function profileNameFromAsset (asset) {
     throw new TypeError(message)
   }
   const prefix = asset.indexOf(ASSET_PREFIX)
-  const dot = asset.lastIndexOf('.')
-  if (prefix === -1 || dot === -1) {
+  const suffix = asset.indexOf(assetSuffix(mediaType(asset)), prefix === -1 ? 0 : prefix)
+  if (prefix === -1 || suffix === -1) {
     const message = `profileFromAsset: cannot determine profile from asset with invalid name: ${asset}`
     console.error(message)
     throw new TypeError(message)
   }
-  const profile = asset.substring(prefix + ASSET_PREFIX.length, dot)
+  const profile = asset.substring(prefix + ASSET_PREFIX.length, suffix)
   console.log(`profileFromAsset(${asset}) returning '${profile}'`)
   return profile
 }
@@ -164,5 +171,5 @@ export {
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
-  ASSET_PREFIX, ASSET_SUFFIX
+  ASSET_PREFIX, assetSuffix
 }

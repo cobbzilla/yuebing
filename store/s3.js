@@ -27,12 +27,11 @@ export const actions = {
 
   fetchMetadata ({ commit }, { path }) {
     commit('fetchMetaRequest')
-    console.log(`fetchMetadata: starting for path: ${path}`)
     s3Service
       .metadata(path)
       .then(
         (meta) => {
-          console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
+          // console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
           meta.path = path
           commit('fetchMetaSuccess', { path, meta })
         },
@@ -42,7 +41,6 @@ export const actions = {
 
   fetchAsset ({ commit }, { path }) {
     commit('fetchAssetRequest')
-    console.log(`fetchAsset: starting for path: ${path}`)
     s3Service
       .jsonAsset(path)
       .then(
@@ -79,11 +77,10 @@ export const mutations = {
   },
 
   fetchMetaRequest (state) {
-    console.log('fetchMetaRequest...')
     state.loadingMetadata = true
   },
   fetchMetaSuccess (state, { path, meta }) {
-    console.log(`fetchMetaSuccess: path=${path}, meta=${JSON.stringify(meta)}, and state=${state}`)
+    // console.log(`fetchMetaSuccess: path=${path}, meta=${JSON.stringify(meta)}, and state=${state}`)
     // state.metadata[path] = meta
     state.metadata = Object.assign({}, state.metadata, { path: meta })
     state.loadingMetadataError = null

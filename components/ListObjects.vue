@@ -15,7 +15,8 @@
       <div v-else-if="hasMedia(obj)">
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/'+obj.mediaType, query: {n: obj.name}}">
-            viewable media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+            viewable media: {{ filterName(obj.name) }}
+            <img v-if="thumbnail(obj)" :src="`/s3/proxy/${thumbnail(obj)}`" width="200" height="200"></img>
           </NuxtLink>
         </div>
         <div v-else>
@@ -31,7 +32,11 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { hasMediaType, isDirectory, isViewable } from '@/shared/media'
+import { hasMediaType, isDirectory, isViewable, mediaProfileByName, mediaType } from '@/shared/media'
+
+function isThumbnailProfile (profile) {
+  return profile.operation === 'thumbnails' || profile.operation === 'firstThumbnail'
+}
 
 export default {
   name: 'ListVideos',
@@ -74,6 +79,16 @@ export default {
       return filtered
     }
   },
+  watch: {
+    objectList (newObjectList, oldObjectList) {
+      if (Array.isArray(newObjectList)) {
+        newObjectList.forEach((obj) => {
+          const path = obj.name
+          this.fetchMetadata({ path })
+        })
+      }
+    }
+  },
   created () {
     const prefix = this.prefix
     this.fetchObjects({ prefix })
@@ -89,7 +104,32 @@ export default {
     },
     isDir (obj) { return isDirectory(obj) },
     hasMedia (obj) { return hasMediaType(obj) },
-    canView (obj) { return isViewable(obj) }
+    canView (obj) { return isViewable(obj) },
+    thumbnail (obj) {
+      let thumb = null
+      if (obj && obj.meta && typeof obj.meta.assets === 'object' &&
+        Object.keys(obj.meta.assets).length > 0) {
+        console.log(`thumbnail: examining obj.meta.assets=${JSON.stringify(obj.meta.assets)}`)
+        // todo: in the future we will allow the user to specify which thumbnail
+        // we would look that up here, and if not found, then pick the first one
+        Object.keys(obj.meta.assets).every((assetProfileName) => {
+          console.log(`thumbnail: examining assetProfileName=${assetProfileName}`)
+          const assets = obj.meta.assets[assetProfileName]
+          if (assets.length > 0) {
+            const mt = mediaType(obj.name)
+            const mediaProfile = mediaProfileByName(mt, assetProfileName)
+            if (!mediaProfile) {
+              console.warn(`thumbnail: profile ${assetProfileName} not found for mediaType ${mt}`)
+            } else if (isThumbnailProfile(mediaProfile)) {
+              thumb = assets[0]
+              return false
+            }
+          }
+          return true
+        })
+      }
+      return thumb
+    }
   }
 }
 </script>
