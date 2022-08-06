@@ -58,7 +58,7 @@ function canonicalSourceFile (path) {
   const base = path.endsWith('/') ? path.substring(0, path.length - 1) : path
   const slash = base.lastIndexOf('/')
   const file = slash === -1 ? base : base.substring(slash)
-  const ext = c.getExtension(file)
+  const ext = c.getExtension(file).toLowerCase()
   const canonical = 'source.' + ext
   return canonical
 }
