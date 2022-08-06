@@ -14,9 +14,13 @@ const VIDEO_ASSET_SUFFIX = m.assetSuffix(m.VIDEO_MEDIA_TYPE)
 const VALID_XFORM_COMMANDS = ['ffmpeg', 'mediainfo']
 const DEFAULT_XFORM_COMMAND = 'ffmpeg'
 
+// you can't just run any old command here sonny!
+function profileCommand (profile) {
+  return profile.command ? profile.command : DEFAULT_XFORM_COMMAND
+}
+
 function runTransformCommand (profile, outfile, args, closeHandler) {
-  // you can't just run any old command here sonny!
-  const command = profile.command ? profile.command : DEFAULT_XFORM_COMMAND
+  const command = profileCommand(profile)
   if (!VALID_XFORM_COMMANDS.includes(command)) {
     throw new TypeError(`run_xform_command: illegal profile command: ${command}`)
   }
@@ -180,12 +184,16 @@ function handleOutputFiles (sourcePath, profile, outfile) {
         if (err) {
           const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
           console.error(message)
+          s3util.recordError(sourcePath, profile.name, message)
+          deleteLocalOutfiles(outfile, profile)
         } else if (files && files.length && files.length > 0) {
           console.log(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
           await handleMultiOutputFiles(sourcePath, profile, files, outfile)
         } else {
           const message = `${logPrefix}  GLOB: No files matched!`
           console.error(message)
+          s3util.recordError(sourcePath, profile.name, message)
+          deleteLocalOutfiles(outfile, profile)
         }
       })
     } else {
@@ -385,7 +393,7 @@ function transform (sourcePath, file, profile, outfile) {
   const xform = XFORM_FUNCS[profile.operation]
   const args = xform(sourcePath, file, profile, outfile)
   const outputHandler = handleOutputFiles(sourcePath, profile, outfile)
-  console.log(`transform: running xform command: ${profile.command} ${args.join(' ')}`)
+  console.log(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
   runTransformCommand(profile, outfile, args, (code) => {
     outputHandler(code).then(() => {
       console.log(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
