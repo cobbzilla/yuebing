@@ -36,7 +36,10 @@ export default {
       // How long to wait before the initial startup scan
       // Zero or negative means disable initial scan
       // Minimum interval is 5 seconds. Lower settings are ignored.
-      initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30 // default 30 seconds
+      initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30, // default 30 seconds
+
+      // show stdout/stderr from transform commands?
+      showTransformOutput: false
     }
   },
 

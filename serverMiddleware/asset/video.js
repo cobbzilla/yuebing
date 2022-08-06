@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import fs from 'fs'
 import path from 'path'
 import glob from 'glob'
+const nuxt = require('../../nuxt.config')
 const s3util = require('../s3/s3util')
 const redis = require('../util/redis')
 const util = require('../util/file')
@@ -13,6 +14,8 @@ const VIDEO_ASSET_SUFFIX = m.assetSuffix(m.VIDEO_MEDIA_TYPE)
 
 const VALID_XFORM_COMMANDS = ['ffmpeg', 'mediainfo']
 const DEFAULT_XFORM_COMMAND = 'ffmpeg'
+
+const SHOW_XFORM_OUTPUT = nuxt.default.privateRuntimeConfig.autoscan.showTransformOutput
 
 // you can't just run any old command here sonny!
 function profileCommand (profile) {
@@ -38,7 +41,7 @@ function runTransformCommand (profile, outfile, args, closeHandler) {
           throw err
         }
       })
-    } else {
+    } else if (SHOW_XFORM_OUTPUT) {
       console.log(`stdout >>>>>> ${data}`)
     }
   })
@@ -51,7 +54,7 @@ function runTransformCommand (profile, outfile, args, closeHandler) {
           throw err
         }
       })
-    } else {
+    } else if (SHOW_XFORM_OUTPUT) {
       console.log(`stdout >>>>>> ${data}`)
     }
   })
