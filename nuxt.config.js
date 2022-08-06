@@ -10,7 +10,17 @@ export default {
     // optional, define these to encrypt user data stored on destination bucket
     userEncryptionKey: process.env.SV_USERDATA_KEY,
     userEncryptionIV: process.env.SV_USERDATA_IV,
-    sessionExpiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
+
+    // How long web sessions last
+    sessionExpiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24, // default 24 hours
+
+    // How frequently to auto-scan the source for new content
+    // Zero or negative means disable auto scanning
+    // Otherwise, scan at this interval, which must be at least one minute (60000)
+    // Only one scan runs at a time. If an active scan is already running when a new
+    // interval is triggered, a concurrent scan will NOT be started.
+    // If enabled, an initial scan will being shortly after startup
+    autoScanInterval: process.env.SV_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24 // default 24 hours
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head

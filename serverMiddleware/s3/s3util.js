@@ -1,6 +1,7 @@
 import {
   GetObjectCommand, HeadObjectCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand
 } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 
 const fs = require('fs')
 const util = require('../util/file')
@@ -13,23 +14,25 @@ async function listDest (prefix) {
   return await listObjects(prefix, client, params)
 }
 
-async function listSource (prefix) {
+async function listSource (prefix, recursive = false) {
   const client = s3cfg.sourceClient
   const params = s3cfg.sourceBucketParams
-  return await listObjects(prefix, client, params)
+  return await listObjects(prefix, client, params, recursive)
 }
 
-async function listObjects (prefix, client, params) {
+async function listObjects (prefix, client, params, recursive = false) {
+  const logPrefix = `listObjects(prefix=${prefix}):`
+
   // Declare truncated as a flag that the while loop is based on.
   let truncated = true
 
   const fullPrefix = prefix.startsWith(params.Prefix) ? prefix : params.Prefix + prefix
   const bucketParams = Object.assign({}, params, {
     Prefix: fullPrefix,
-    Delimiter: '/'
+    Delimiter: recursive ? undefined : '/'
   })
   const objects = []
-  console.log(`listing with prefix = ${prefix}, fullPrefix = ${fullPrefix}, bucketParams=${JSON.stringify(bucketParams)}`)
+  console.log(`${logPrefix} fullPrefix = ${fullPrefix}, bucketParams=${JSON.stringify(bucketParams)}`)
 
   // Declare a variable to which the key of the last element is assigned to in the response.
   let pageMarker
@@ -37,8 +40,9 @@ async function listObjects (prefix, client, params) {
   // while loop that runs until 'response.truncated' is false.
   while (truncated) {
     try {
+      console.log(`${logPrefix} sending request with bucketParams=${JSON.stringify(bucketParams)}`)
       const response = await client.send(new ListObjectsCommand(bucketParams))
-      console.log(`>>>>>>>> listing returned : ${JSON.stringify(response)}`)
+      console.log(`${logPrefix} >>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
           const type = m.mediaType(item.Key)
@@ -76,7 +80,7 @@ async function listObjects (prefix, client, params) {
       }
       // At end of the list, response.truncated is false, and the function exits the while loop.
     } catch (err) {
-      console.log('Error', err)
+      console.log(`${logPrefix} Error: ${err}`)
       truncated = false
     }
   }
@@ -181,6 +185,30 @@ async function downloadObject (client, bucketParams, dataHandler, closeHandler =
   }
 }
 
+async function uploadObject (bucketParams) {
+  try {
+    const uploader = new Upload({
+      client: s3cfg.destClient,
+      params: {
+        Bucket: s3cfg.destBucketParams.Bucket,
+        Key: bucketParams.Key,
+        Body: bucketParams.Body
+      },
+      queueSize: 4, // optional concurrency configuration
+      partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
+      leavePartsOnError: false // optional manually handle dropped parts
+    })
+    uploader.on('httpUploadProgress', (progress) => {
+      console.log(`uploadObject(${bucketParams.Key}): ${progress}`)
+    })
+    await uploader.done()
+    return true
+  } catch (e) {
+    console.error(`uploadObject(${bucketParams.Key}): ERROR ${e}`)
+    return null
+  }
+}
+
 async function putObject (bucketParams) {
   const client = s3cfg.destClient
   const origKey = bucketParams.Key
@@ -246,6 +274,6 @@ export {
   listObjects, listDest, listSource,
   downloadObject, downloadObjectToFile, streamDestObject, readDestTextObject,
   headObject, headSourceObject, headDestObject,
-  putObject, destPut, deleteDestObject,
+  putObject, uploadObject, destPut, deleteDestObject,
   touchLastModified, recordError, countErrors
 }

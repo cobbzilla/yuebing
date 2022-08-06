@@ -54,7 +54,7 @@ async function uploadAsset (sourcePath, outfile) {
   const destKey = util.canonicalDestDir(sourcePath) + path.basename(outfile)
   const fileUp = fs.createReadStream(outfile)
   console.log(`uploadAsset(${destKey}): uploading asset ${outfile} to destKey=${destKey}`)
-  if (await s3util.putObject(Object.assign({}, { Key: destKey, Body: fileUp })) == null) {
+  if (await s3util.uploadObject({ Key: destKey, Body: fileUp }) == null) {
     const message = `uploadAsset(${destKey}): error uploading asset (upload failed)`
     console.error(message)
     await s3util.deleteDestObject(destKey)
@@ -77,80 +77,99 @@ async function uploadAsset (sourcePath, outfile) {
   }
 }
 
+async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile) {
+  let errorMessage = null
+  const logPrefix = `handleMultiOutputFiles(${profile.name}, ${sourcePath}):`
+  if (Array.isArray(multifiles)) {
+    const minSize = m.minFileSize(sourcePath, profile.operation)
+    multifiles.every((file) => {
+      const size = util.statSize(file)
+      const sizeOk = size >= minSize
+      if (!sizeOk) {
+        const message = `${logPrefix} asset file was too small (${size} < ${minSize}): ${file}`
+        console.error(message)
+        errorMessage = message
+      }
+      return sizeOk
+    })
+  } else {
+    const message = `${logPrefix} somehow errorMessage === null but multifiles is not an array: ${JSON.stringify(multifiles)}`
+    console.error(message)
+    errorMessage = message
+  }
+  if (errorMessage === null) {
+    // OK, upload all the thumbnails
+    for (let i = 0; i < multifiles.length; i++) {
+      const f = multifiles[i]
+      console.log(`${logPrefix} uploading: ${f} ...`)
+      const msg = await uploadAsset(sourcePath, f)
+      if (msg != null) {
+        console.log(`${logPrefix} ERROR uploading (${f}) ${msg}`)
+        errorMessage = msg
+        break
+      } else {
+        console.log(`${logPrefix} upload ${f} SUCCESS`)
+      }
+    }
+  }
+  if (errorMessage !== null) {
+    console.error(errorMessage)
+    s3util.recordError(sourcePath, profile.name, errorMessage)
+  }
+  console.log(`${logPrefix} deleting local outfiles (${errorMessage ? `ERROR: ${errorMessage}` : 'after successful upload'})`)
+  deleteLocalOutfiles(outfile, profile)
+}
+
 function handleOutputFiles (sourcePath, profile, outfile) {
+  const logPrefix = `handleOutputFiles(${profile.name}, ${sourcePath}):`
   return async (code) => {
-    console.log(`handleOutputFiles(${profile.name}, ${sourcePath}): starting with outfile ${outfile} and ffmpeg exit code ${code}`)
+    console.log(`${logPrefix} starting with outfile ${outfile} and ffmpeg exit code ${code}`)
     if (code !== 0) {
-      const message = `handleOutputFiles(${profile.name}, ${sourcePath}): child process exited with code ${code}`
+      const message = `${logPrefix} child process exited with code ${code}`
       console.warn(message)
-      deleteLocalOutfiles(outfile, profile)
       s3util.recordError(sourcePath, profile.name, message)
+
+      console.log(`${logPrefix} deleting local outfiles (ffmpeg error)`)
+      deleteLocalOutfiles(outfile, profile)
       return
     }
 
     if (profile.multiFile) {
       const outfilePrefix = multifilePrefix(outfile)
-      let errorMessage = null
-      let multifiles = null
-      glob(outfilePrefix + '*', (err, files) => {
+      await glob(outfilePrefix + '*', async (err, files) => {
         console.log(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
         if (err) {
-          const message = `handleOutputFiles(${profile.name}, ${sourcePath}): Error listing multifiles: ${err}`
+          const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
           console.error(message)
-          errorMessage = message
+        } else if (files && files.length && files.length > 0) {
+          console.log(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
+          await handleMultiOutputFiles(sourcePath, profile, files, outfile)
         } else {
-          multifiles = files
+          const message = `${logPrefix}  GLOB: No files matched!`
+          console.error(message)
         }
       })
-      if (multifiles == null || typeof multifiles.length === 'undefined' || multifiles.length === 0) {
-        errorMessage = `handleOutputFiles(${profile.name}, ${sourcePath}): No multifiles found for outfile ${outfile} with prefix ${outfilePrefix}`
-        console.error(errorMessage)
-      }
-      if (errorMessage === null) {
-        const minSize = m.minFileSize(sourcePath, profile.operation)
-        multifiles.every((file) => {
-          const size = util.statSize(file)
-          const sizeOk = size >= minSize
-          if (!sizeOk) {
-            const message = `handleOutputFiles(${profile.name}, ${sourcePath}): asset file was too small (${size} < ${minSize}): ${file}`
-            console.error(message)
-            errorMessage = message
-          }
-          return sizeOk
-        })
-      }
-      if (errorMessage === null) {
-        // OK, upload all the thumbnails
-        for (let i = 0; i < multifiles.length; i++) {
-          const f = multifiles[i]
-          const msg = await uploadAsset(sourcePath, f)
-          if (msg != null) {
-            errorMessage = msg
-            break
-          }
-        }
-      }
-      if (errorMessage !== null) {
-        console.error(errorMessage)
-        deleteLocalOutfiles(outfile, profile)
-        s3util.recordError(sourcePath, profile.name, errorMessage)
-      }
     } else {
       // stat the outfile -- it should be at least a minimum size
       const outfileSize = util.statSize(outfile)
       const minAssetSize = m.minFileSize(sourcePath, profile.operation)
       if (outfileSize < minAssetSize) {
         util.deleteFile(outfile)
-        const message = `handleOutputFiles(${profile.name}, ${sourcePath}): profile/operation ${profile.name}/${profile.operation} (min size ${minAssetSize} not met) for outfile ${outfile}`
+        const message = `${logPrefix} profile/operation ${profile.name}/${profile.operation} (min size ${minAssetSize} not met) for outfile ${outfile}`
         console.warn(message)
         s3util.recordError(sourcePath, profile.name, message)
       } else {
         // file is OK, we can upload it to dest
+        console.log(`${logPrefix} uploading ${outfile} ...`)
         const msg = await uploadAsset(sourcePath, outfile)
         if (msg != null) {
-          console.error(msg)
+          console.error(`${logPrefix} ERROR: ${msg}`)
           s3util.recordError(sourcePath, profile.name, msg)
+        } else {
+          console.log(`${logPrefix} upload ${outfile} SUCCESS`)
         }
+        console.log(`${logPrefix} deleting local outfiles (after successful upload)`)
+        deleteLocalOutfiles(outfile, profile)
       }
     }
   }
@@ -217,6 +236,11 @@ function dash (sourcePath, sourceFile, profile, outfile) {
     args.push(`-profile:v:${i}`)
     args.push('main')
   }
+
+  // we enable the template below, so I'm not sure if window_size is relevant
+  // but given that the playlist will be statically hosted and never dynamically
+  // generated we set this to a very large value, such that the playlist should
+  // always contain all segments
   args.push('-window_size')
   args.push('1000000')
 
@@ -226,7 +250,7 @@ function dash (sourcePath, sourceFile, profile, outfile) {
   args.push('-use_template')
   args.push('1')
 
-  // todo: see what these do -- b-frames, minimum keyframe interval and GOP (group of picture) size
+  // todo: see what these do: b-frames, minimum keyframe interval and GOP (group of picture) size
   // args.push('-bf')
   // args.push('1')
   // args.push('-keyint_min')
@@ -237,6 +261,8 @@ function dash (sourcePath, sourceFile, profile, outfile) {
   // args.push('0') // default is already zero?
   // args.push('-b_strategy')
   // args.push('0') // default is already zero?
+
+  // todo: add a subtitles set if we detect that the media has subtitles
   args.push('-adaptation_sets')
   args.push('id=0,streams=v id=1,streams=a')
 

@@ -62,45 +62,44 @@ async function ensureSourceDownloaded (sourcePath) {
   const size = util.statSize(file)
 
   const sourceBucketParams = Object.assign({}, s3cfg.sourceBucketParams, { Key: sourcePath })
-  let downloadSource = true
   if (size !== -1) {
     // we have a file with some size. do a HEAD request for the source
     // we might already have the whole file
     const head = await s3util.headSourceObject(sourcePath)
     if (head && head.ContentLength && head.ContentLength === size) {
-      downloadSource = false
+      return file
     }
   }
 
-  if (downloadSource) {
-    console.log(`createArtifacts: downloading source to file: ${file}`)
-    fs.mkdirSync(path.dirname(file), { recursive: true })
-    await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
-    const MAX_TRIES = 10
-    let head = null
-    for (let i = 1; i <= MAX_TRIES; i++) {
-      const downloadSize = util.statSize(file)
-      if (head == null) {
-        head = await s3util.headSourceObject(sourcePath)
-      }
-      if (head && head.ContentLength && head.ContentLength === downloadSize) {
-        console.log(`createArtifacts: successfully downloaded complete source file: ${file}`)
-        return file
-      } else if (i === MAX_TRIES) {
-        if (head && head.ContentLength) {
-          console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`)
-        } else {
-          console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`)
-        }
-        util.deleteFile(file)
-        return null
+  console.log(`createArtifacts: downloading source to file: ${file}`)
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
+  const MAX_TRIES = 10
+  let head = null
+  for (let i = 1; i <= MAX_TRIES; i++) {
+    const downloadSize = util.statSize(file)
+    if (head == null) {
+      head = await s3util.headSourceObject(sourcePath)
+    }
+    if (head && head.ContentLength && head.ContentLength === downloadSize) {
+      console.log(`createArtifacts: successfully downloaded complete source file: ${file}`)
+      return file
+    } else if (i === MAX_TRIES) {
+      if (head && head.ContentLength) {
+        console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`)
       } else {
-        // wait for last few bytes of file to be written
-        console.log(`createArtifacts: downloaded file ${file} (size=${downloadSize}) might still be finishing, waiting for size=${head.ContentLength}`)
-        await c.snooze(100 * i)
+        console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`)
       }
+      util.deleteFile(file)
+      return null
+    } else {
+      // wait for last few bytes of file to be written
+      console.log(`createArtifacts: downloaded file ${file} (size=${downloadSize}) might still be finishing, waiting for size=${head.ContentLength}`)
+      await c.snooze(100 * i)
     }
   }
+  // unreachable
+  throw new EvalError('createArtifacts: exited loop into unreachable code!')
 }
 
 const jobQueue = new Queue('xform', 'redis://127.0.0.1:6379')

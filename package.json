@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.141.0",
+    "@aws-sdk/lib-storage": "^3.142.0",
     "@nuxtjs/axios": "^5.13.6",
     "bcryptjs": "^2.4.3",
     "bull": "^4.8.5",
