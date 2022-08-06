@@ -18,16 +18,17 @@ function runTransformCommand (profile, outfile, args, closeHandler) {
   if (!VALID_XFORM_COMMANDS.includes(command)) {
     throw new TypeError(`run_xform_command: illegal profile command: ${command}`)
   }
+  const logPrefix = `runTransformCommand(command=${command}, profile=${profile.name}):`
   const saveStdout = (profile.outfile && profile.outfile === 'stdout')
   const saveStderr = (profile.outfile && profile.outfile === 'stderr')
 
   const xform = spawn(command, args)
-  const stream = fs.createWriteStream(outfile)
+  const stream = (saveStdout || saveStderr) ? fs.createWriteStream(outfile) : null
   xform.stdout.on('data', (data) => {
     if (saveStdout) {
       stream.write(data, (err) => {
         if (err) {
-          console.log(`runTransformCommand: error writing stdout to ${outfile}: ${err}`)
+          console.log(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
           throw err
         }
       })
@@ -40,7 +41,7 @@ function runTransformCommand (profile, outfile, args, closeHandler) {
     if (saveStderr) {
       stream.write(data, (err) => {
         if (err) {
-          console.log(`runTransformCommand: error writing stderr to ${outfile}: ${err}`)
+          console.log(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
           throw err
         }
       })
@@ -50,9 +51,7 @@ function runTransformCommand (profile, outfile, args, closeHandler) {
   })
 
   xform.on('close', (code) => {
-    stream.close((err) => {
-      console.error(`runTransformCommand: error closing stream: ${err}`)
-    })
+    console.log(`${logPrefix}  exited with code ${code}`)
     closeHandler(code)
   })
 }
@@ -150,6 +149,9 @@ async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile)
   if (errorMessage !== null) {
     console.error(errorMessage)
     s3util.recordError(sourcePath, profile.name, errorMessage)
+  } else {
+    console.log(`${logPrefix} clearing errors after successful upload)`)
+    await s3util.clearErrors(sourcePath, profile.name)
   }
   console.log(`${logPrefix} deleting local outfiles (${errorMessage ? `ERROR: ${errorMessage}` : 'after successful upload'})`)
   deleteLocalOutfiles(outfile, profile)
@@ -203,7 +205,8 @@ function handleOutputFiles (sourcePath, profile, outfile) {
         } else {
           console.log(`${logPrefix} upload ${outfile} SUCCESS`)
         }
-        console.log(`${logPrefix} deleting local outfiles (after successful upload)`)
+        console.log(`${logPrefix} clearing errors and deleting local outfiles (after successful upload)`)
+        await s3util.clearErrors(sourcePath, profile.name)
         deleteLocalOutfiles(outfile, profile)
       }
     }

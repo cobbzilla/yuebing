@@ -135,17 +135,14 @@ async function downloadObjectToFile (client, bucketParams, file) {
         }
       })
     }
-    return await downloadObject(client, bucketParams, handler)
+    const closeHandler = () => stream.close((err) => {
+      console.log(`downloadObjectToFile: error closing file ${file}: ${err}`)
+      throw err
+    })
+    return await downloadObject(client, bucketParams, handler, closeHandler)
   } catch (err) {
     console.log('Error', err)
     return false
-  } finally {
-    if (stream) {
-      stream.close((err) => {
-        console.log(`downloadObjectToFile: error closing file ${file}: ${err}`)
-        throw err
-      })
-    }
   }
 }
 
@@ -278,10 +275,22 @@ async function countErrors (sourcePath, profile) {
   return count
 }
 
+async function clearErrors (sourcePath, profile) {
+  const prefix = util.canonicalDestDir(sourcePath) + util.ERROR_FILE_PREFIX + profile
+  console.log(`clearErrors(${sourcePath}, ${profile}): looking for files with prefix: ${prefix}`)
+  const files = await listDest(prefix)
+  if (files && files.length ? files.length : 0) {
+    files.forEach((file) => {
+      console.log(`clearErrors(${sourcePath}, ${profile}): deleting: ${file.name}`)
+      deleteDestObject(file.name)
+    })
+  }
+}
+
 export {
   listObjects, listDest, listSource,
   downloadObject, downloadObjectToFile, streamDestObject, readDestTextObject,
   headObject, headSourceObject, headDestObject,
   putObject, uploadObject, destPut, deleteDestObject,
-  touchLastModified, recordError, countErrors
+  touchLastModified, recordError, countErrors, clearErrors
 }
