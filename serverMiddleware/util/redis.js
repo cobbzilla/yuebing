@@ -19,4 +19,20 @@ async function del (key) {
   await redisClient.del(key)
 }
 
-export { get, set, del }
+async function flushall () {
+  await redisClient.flushall()
+}
+
+// start with an empty redis
+flushall().then(
+  (ok) => {
+    console.log(' ***** redis: FLUSHED *****')
+  },
+  (err) => {
+    if (err) {
+      console.error(` ***** redis: ERROR calling flushall: ${err}`)
+    }
+  }
+)
+
+export { get, set, del, flushall }
