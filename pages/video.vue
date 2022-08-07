@@ -80,6 +80,14 @@ export default {
     assetData (newAssetData, oldAssetData) {
       if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
         this.mediaInfoJson = newAssetData[this.mediaInfoJsonPath]
+        const width = this.mediaInfoField('width')
+        const height = this.mediaInfoField('height')
+        const aspectRatio = width / height
+        if (height && width) {
+          this.videoOptions.width = Math.min(width, Math.floor(document.documentElement.clientWidth * 0.7))
+          this.videoOptions.height = Math.floor(this.videoOptions.width / aspectRatio)
+          // console.log(`watch:assets -- set video width/height to ${this.videoOptions.width}/${this.videoOptions.height} from original ${width}/${height}`)
+        }
       } else {
         console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
       }
