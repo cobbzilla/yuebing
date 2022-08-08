@@ -143,8 +143,8 @@ async function downloadObjectToFile (client, bucketParams, file) {
     })
     return await downloadObject(client, bucketParams, handler, closeHandler)
   } catch (err) {
-    console.log('Error', err)
-    return false
+    console.log(`downloadObjectToFile: ERROR: ${err}`)
+    throw err
   }
 }
 
@@ -165,7 +165,8 @@ async function readDestTextObject (key) {
   const handler = (chunk) => {
     buffer += chunk.toString()
   }
-  return await downloadObject(s3cfg.destClient, bucketParams, handler) ? buffer : null
+  await downloadObject(s3cfg.destClient, bucketParams, handler)
+  return buffer
 }
 
 async function downloadObject (client, bucketParams, dataHandler, closeHandler = null) {
@@ -188,7 +189,7 @@ async function downloadObject (client, bucketParams, dataHandler, closeHandler =
     return true
   } catch (err) {
     console.error(`downloadObject(${bucketParams.Key}, prefix=${bucketParams.Prefix}) ERROR: ${err}`)
-    return false
+    throw err
   }
 }
 

@@ -8,11 +8,12 @@ let JOB_QUEUE = null
 const QUEUED_PATHS = {}
 
 const redisConfig = nuxt.default.privateRuntimeConfig.redis
+const MAX_CONCURRENCY = nuxt.default.privateRuntimeConfig.autoscan.concurrency
 
 function initializeQueue (processFunction) {
   if (JOB_QUEUE === null) {
     JOB_QUEUE = new Queue(XFORM_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
-    JOB_QUEUE.process(XFORM_JOB_NAME, util.MAX_CONCURRENT_TRANSFORMS, processFunction)
+    JOB_QUEUE.process(XFORM_JOB_NAME, MAX_CONCURRENCY, processFunction)
 
     JOB_QUEUE.on('active', (job, result) => {
       if (job.data.sourcePath) {
@@ -93,7 +94,8 @@ function getQueue () {
   Object.keys(QUEUED_PATHS).forEach((sourcePath) => {
     const job = QUEUED_PATHS[sourcePath]
     if (job) {
-      if (Date.now() - job.ctime < MAX_SHOW_DONE_JOB) {
+      if (job.events && job.events.length && job.events.length >= 1 &&
+        Date.now() - job.ctime < MAX_SHOW_DONE_JOB) {
         // copy job then overwrite events with sorted events
         const jobCopy = Object.assign({}, job)
         delete jobCopy.events

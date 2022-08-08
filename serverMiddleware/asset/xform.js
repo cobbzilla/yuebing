@@ -129,8 +129,8 @@ function deleteLocalFiles (outfile, profile, job, jobPrefix) {
       }
       files.forEach((f) => {
         util.deleteFile(f)
-        q.recordJobEvent(job, `${jobPrefix}_deleted_local_file`, f)
       })
+      q.recordJobEvent(job, `${jobPrefix}_deleted_local_files`, files.join('\n'))
     })
   } else {
     util.deleteFile(outfile)
@@ -395,7 +395,9 @@ async function createArtifacts (job, localSourceFile) {
 
 async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
-  q.recordJobEvent(job, 'download_start')
+  const mediaType = m.mediaType(sourcePath)
+  const jobPrefix = `ensureSourceDownload_${mediaType}`
+  q.recordJobEvent(job, `${jobPrefix}_download_start`)
 
   // Does the local copy of the source exist already?
   const file = util.workbenchDir + util.canonicalWorkingDir(sourcePath) + util.canonicalSourceFile(sourcePath)
@@ -407,44 +409,46 @@ async function ensureSourceDownloaded (job) {
     // we might already have the whole file
     const head = await s3util.headSourceObject(sourcePath)
     if (head && head.ContentLength && head.ContentLength === size) {
-      q.recordJobEvent(job, 'download_using_cached_source')
+      q.recordJobEvent(job, `${jobPrefix}_download_using_cached_source`)
       return file
     }
   }
 
-  console.log(`createArtifacts: downloading source to file: ${file}`)
+  console.log(`ensureSourceDownload: downloading source to file: ${file}`)
   fs.mkdirSync(path.dirname(file), { recursive: true })
-  await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
   const MAX_TRIES = 10
   let head = null
   for (let i = 1; i <= MAX_TRIES; i++) {
-    const downloadSize = util.statSize(file)
-    if (head == null) {
-      q.recordJobEvent(job, 'download_HEAD_source')
-      head = await s3util.headSourceObject(sourcePath)
-    }
-    if (head && head.ContentLength && head.ContentLength === downloadSize) {
-      console.log(`createArtifacts: successfully downloaded complete source file: ${file}`)
-      q.recordJobEvent(job, 'download_SUCCESS')
-      return file
-    } else if (i === MAX_TRIES) {
-      if (head && head.ContentLength) {
-        console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`)
-      } else {
-        console.error(`createArtifacts: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`)
+    const attemptPrefix = `${jobPrefix}_download_attempt_${i}`
+    try {
+      await s3util.downloadObjectToFile(s3cfg.sourceClient, sourceBucketParams, file)
+      const downloadSize = util.statSize(file)
+      if (head == null) {
+        q.recordJobEvent(job, `${attemptPrefix}_HEAD_source`)
+        head = await s3util.headSourceObject(sourcePath)
       }
-      util.deleteFile(file)
-      q.recordJobEvent(job, 'download_FAIL')
-      return null
-    } else {
-      // wait for last few bytes of file to be written
-      console.log(`createArtifacts: downloaded file ${file} (size=${downloadSize}) might still be finishing, waiting for size=${head.ContentLength}`)
-      await c.snooze(100 * i)
+      if (head && head.ContentLength && head.ContentLength === downloadSize) {
+        console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
+        q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
+        return file
+      }
+      let message
+      if (head && head.ContentLength) {
+        message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`
+      } else {
+        message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`
+      }
+      console.error(message)
+      q.recordJobEvent(job, `${attemptPrefix}_download_ERROR_size_mismatch`, message)
+    } catch (err) {
+      console.log(`ensureSourceDownload: ERROR downloading source file: ${file}: ${err}`)
+      q.recordJobEvent(job, `${attemptPrefix}_download_ERROR`, `${err}`)
     }
   }
-  // unreachable
-  q.recordJobEvent(job, 'download_UNREACHABLE')
-  throw new EvalError('createArtifacts: exited loop into unreachable code!')
+  // max tries exceeded
+  console.log(`ensureSourceDownload: downloaded file ${file} failed, max tries exceeded (${MAX_TRIES})`)
+  q.recordJobEvent(job, `${jobPrefix}_download_FAIL`, `max tries exceeded (${MAX_TRIES})`)
+  return null
 }
 
 async function transform (sourcePath) {

@@ -67,7 +67,10 @@ export default {
       initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30, // default 30 seconds
 
       // show stdout/stderr from transform commands?
-      showTransformOutput: false
+      showTransformOutput: false,
+
+      // how many concurrent transformations can be done
+      concurrency: process.env.SV_XFORM_CONCURRENCY || 2
     }
   },
 
