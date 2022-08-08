@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs')
-const s3util = require('../s3/s3util')
-const crypt = require('../util/crypt')
-const u = require('./util')
+const s3util = require('../../s3/s3util')
+const crypt = require('../../util/crypt')
+const u = require('../../user/userUtil')
 
 export default {
-  path: '/user/authenticate',
+  path: '/api/user/authenticate',
   handler (req, res) {
     console.log(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {

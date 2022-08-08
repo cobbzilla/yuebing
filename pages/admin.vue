@@ -39,7 +39,6 @@
         </tr>
         </tbody>
       </table>
-{{ JSON.stringify(queue) }}
     </pre>
   </div>
 </template>
@@ -61,6 +60,7 @@ export default {
   },
   created () {
     this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
+    this.fetchQueue()
   },
   beforeUnmount () {
     if (this.interval) {

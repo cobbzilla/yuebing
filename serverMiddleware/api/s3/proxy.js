@@ -1,4 +1,4 @@
-const s3util = require('./s3util')
+const s3util = require('../../s3/s3util')
 
 function notFound (res) {
   res.statusCode = 404

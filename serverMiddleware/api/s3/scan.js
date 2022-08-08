@@ -1,7 +1,7 @@
-const nuxt = require('../../nuxt.config')
-const video = require('../asset/xform')
-const m = require('../../shared/media')
-const s3util = require('./s3util')
+const nuxt = require('../../../nuxt.config')
+const video = require('../../asset/xform')
+const m = require('../../../shared/media')
+const s3util = require('../../s3/s3util')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
 const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
@@ -76,11 +76,12 @@ async function scan (prefix, autoscan = false) {
 }
 
 export default {
-  path: '/s3/scan',
+  path: '/api/s3/scan',
   async handler (req, res) {
     const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
     console.log(`'>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
     const transforms = await scan(prefix)
+    res.contentType = 'application/json'
     res.end(JSON.stringify(transforms))
   }
 }

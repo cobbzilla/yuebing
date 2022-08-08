@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs')
-const nuxt = require('../../nuxt.config')
-const s3util = require('../s3/s3util')
-const validate = require('../util/validation')
-const crypt = require('../util/crypt')
-const u = require('./util')
+const nuxt = require('../../../nuxt.config')
+const s3util = require('../../s3/s3util')
+const validate = require('../../util/validation')
+const crypt = require('../../util/crypt')
+const u = require('../../user/userUtil')
 
 const USER_VALIDATIONS = {
   username: {
@@ -33,7 +33,7 @@ function validateUser (u) {
 }
 
 export default {
-  path: '/user/register',
+  path: '/api/user/register',
   handler (req, res) {
     console.log(`>>>>> API: Register ${req.url} ....`)
     req.on('data', (data) => {

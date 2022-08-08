@@ -25,7 +25,7 @@ function login (username, password) {
     body: JSON.stringify({ username, password })
   }
 
-  return fetch('/user/authenticate', requestOptions)
+  return fetch('/api/user/authenticate', requestOptions)
     .then(handleResponse)
     .then((user) => {
       // login successful if there's a jwt token in the response
@@ -47,7 +47,7 @@ function register (user) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(user)
   }
-  return fetch('/user/register', requestOptions).then(handleResponse)
+  return fetch('/api/user/register', requestOptions).then(handleResponse)
 }
 
 function getAll () {
@@ -55,7 +55,7 @@ function getAll () {
     method: 'GET',
     headers: authHeader()
   }
-  return fetch('/users', requestOptions).then(handleResponse)
+  return fetch('/api/users', requestOptions).then(handleResponse)
 }
 
 function getById (id) {
@@ -63,7 +63,7 @@ function getById (id) {
     method: 'GET',
     headers: authHeader()
   }
-  return fetch(`/user/${id}`, requestOptions).then(handleResponse)
+  return fetch(`/api/user/${id}`, requestOptions).then(handleResponse)
 }
 
 function update (user) {
@@ -72,7 +72,7 @@ function update (user) {
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
     body: JSON.stringify(user)
   }
-  return fetch(`/user/${user.id}`, requestOptions).then(handleResponse)
+  return fetch(`/api/user/${user.id}`, requestOptions).then(handleResponse)
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript
@@ -81,7 +81,7 @@ function _delete (id) {
     method: 'DELETE',
     headers: authHeader()
   }
-  return fetch(`/user/${id}`, requestOptions).then(handleResponse)
+  return fetch(`/api/user/${id}`, requestOptions).then(handleResponse)
 }
 
 function handleResponse (response) {

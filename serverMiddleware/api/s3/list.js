@@ -1,9 +1,9 @@
-const manifest = require('../asset/manifest')
-const m = require('../../shared/media')
-const s3util = require('./s3util')
+const manifest = require('../../asset/manifest')
+const m = require('../../../shared/media')
+const s3util = require('../../s3/s3util')
 
 export default {
-  path: '/s3/list',
+  path: '/api/s3/list',
   async handler (req, res) {
     const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
     console.log('>>>>> API: Listing ' + req.url + ', prefix = ' + prefix)
@@ -14,6 +14,7 @@ export default {
         result.meta = await manifest.deriveMetadata(result.name)
       }
     }
+    res.contentType = 'application/json'
     res.end(JSON.stringify(results, null, 2))
   }
 }

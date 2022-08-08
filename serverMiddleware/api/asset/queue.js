@@ -1,12 +1,13 @@
-const q = require('./job')
+const q = require('../../asset/job')
 
 export default {
-  path: '/asset/queue',
+  path: '/api/asset/queue',
   handler (req, res) {
     console.log(`'>>>>> API: Queue ${req.url}`)
+    const queue = q.getQueue()
+
     res.statusCode = 200
     res.contentType = 'application/json'
-    const queue = q.getQueue()
     res.end(JSON.stringify(queue, null, 2))
   }
 }

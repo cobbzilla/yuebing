@@ -98,14 +98,14 @@ export default {
   ],
 
   serverMiddleware: [
-    { path: '/user', handler: '~/serverMiddleware/user' },
-    { path: '/user/authenticate', handler: '~/serverMiddleware/user/authenticate' },
-    { path: '/user/register', handler: '~/serverMiddleware/user/register' },
-    { path: '/s3/list', handler: '~/serverMiddleware/s3/list' },
-    { path: '/s3/scan', handler: '~/serverMiddleware/s3/scan' },
-    { path: '/s3/meta', handler: '~/serverMiddleware/s3/meta' },
-    { path: '/s3/proxy', handler: '~/serverMiddleware/s3/proxy' },
-    { path: '/asset/queue', handler: '~/serverMiddleware/asset/queue' }
+    '~/serverMiddleware/api/user',
+    '~/serverMiddleware/api/user/authenticate',
+    '~/serverMiddleware/api/user/register',
+    '~/serverMiddleware/api/s3/list',
+    '~/serverMiddleware/api/s3/scan',
+    '~/serverMiddleware/api/s3/meta',
+    '~/serverMiddleware/api/s3/proxy',
+    '~/serverMiddleware/api/asset/queue'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
