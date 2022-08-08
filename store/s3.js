@@ -1,6 +1,7 @@
 import { s3Service } from '~/services/s3service'
 
 export const state = () => ({
+  prefix: '',
   objectList: [],
   loadingObjects: false,
   loadingObjectsError: null,
@@ -16,7 +17,7 @@ export const state = () => ({
 
 export const actions = {
   fetchObjects ({ commit }, { prefix }) {
-    commit('fetchObjectsRequest')
+    commit('fetchObjectsRequest', { prefix })
     s3Service
       .listS3(prefix)
       .then(
@@ -62,7 +63,8 @@ export const actions = {
 }
 
 export const mutations = {
-  fetchObjectsRequest (state) {
+  fetchObjectsRequest (state, { prefix }) {
+    state.prefix = prefix
     state.loadingObjects = true
   },
   fetchObjectsSuccess (state, objects) {

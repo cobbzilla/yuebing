@@ -5,11 +5,11 @@
       Go back (prefix = {{ prefix }})
       <button @click="refresh(parentPrefix)">{{ parentPrefixDisplay }}</button>
     </div>
-    <div v-for="(obj, index) in filteredObjectList" v-bind:key="index">
+    <div v-for="(obj, index) in filteredObjectList" :key="index">
       <div v-if="isDir(obj)">
         Directory:
         <button @click="refresh(obj.name)">
-          {{ filterName(obj.name) }}
+          {{ filterDirName(obj.name) }}
         </button>
       </div>
       <div v-else-if="hasMedia(obj)">
@@ -38,14 +38,9 @@ import {
 } from '@/shared/media'
 
 export default {
-  name: 'ListVideos',
-  data () {
-    return {
-      prefix: ''
-    }
-  },
+  name: 'ListObjects',
   computed: {
-    ...mapState('s3', ['objectList', 'metadata']),
+    ...mapState('s3', ['prefix', 'objectList', 'metadata']),
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -59,12 +54,12 @@ export default {
     parentPrefix () {
       const base = this.prefix.endsWith('/') ? this.prefix.substring(0, this.prefix.length - 1) : this.prefix
       const pos = base.lastIndexOf('/')
-      return pos === -1 ? '' : base.substring(0, pos - 1)
+      return pos === -1 ? '' : base.substring(0, pos + 1)
     },
     parentPrefixDisplay () {
       const base = this.prefix.endsWith('/') ? this.prefix.substring(0, this.prefix.length - 1) : this.prefix
       const pos = base.lastIndexOf('/')
-      return pos === -1 ? '(back to top level)' : '(back to ' + base.substring(0, pos - 1) + ')'
+      return pos === -1 ? '(back to top level)' : '(back to ' + base.substring(0, pos + 1) + ')'
     },
     filteredObjectList () {
       const filtered = []
@@ -95,11 +90,14 @@ export default {
   methods: {
     ...mapActions('s3', ['fetchObjects', 'fetchMetadata']),
     refresh (prefix) {
-      this.prefix = prefix
       this.fetchObjects({ prefix })
     },
     filterName (name) {
       return name.startsWith(this.prefix) ? name.substring(this.prefix.length) : name
+    },
+    filterDirName (name) {
+      const n = this.filterName(name)
+      return n.endsWith('/') ? n.substring(0, n.length - 1) : n
     },
     isDir (obj) { return isDirectory(obj) },
     hasMedia (obj) { return hasMediaType(obj) },
