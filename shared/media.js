@@ -14,7 +14,7 @@ function assetSuffix (mediaType) {
 const EXT_MAP = {}
 
 const MEDIA = {
-  video: require('./video.js').default
+  video: require('./media/video.js').default
 }
 
 function resolveFrom (profile, profileMap) {
@@ -38,6 +38,7 @@ for (const type in MEDIA) {
 
   // Process profiles to handle a few preparatory tasks:
   //  * Populate the 'name' property for each profile object
+  //  * Populate the 'mediaType' property for each profile object
   //  * Define 'enabled: true' for profiles that do not have an 'enabled' property
   //  * Expand the magic 'from' property where found
   //  * Expand the magic 'subProfiles' property where found
@@ -49,6 +50,7 @@ for (const type in MEDIA) {
     Object.keys(typeConfig.profiles).forEach((profileName) => {
       const profile = typeConfig.profiles[profileName]
       profile.name = profileName
+      profile.mediaType = type
       if (typeof profile.enabled !== 'boolean' && typeof profile.from === 'undefined') {
         profile.enabled = true
       }

@@ -4,7 +4,7 @@ const s3util = require('../s3/s3util')
 const util = require('../util/file')
 const m = require('../../shared/media')
 
-const MIN_CACHE_PERIOD = 5 * 60 * 1000 // 5 minutes
+const MIN_CACHE_PERIOD = 60 * 1000 // 1 minute
 
 async function deriveMetadata (sourcePath) {
   // Do we have this cached?

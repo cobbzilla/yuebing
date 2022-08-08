@@ -66,7 +66,7 @@ async function scan (prefix, autoscan = false) {
         // asynchronously for regular scan
         setTimeout(() => {
           video.transform(result.name).then((meta) => {
-            console.log(`TRANSFORM-RESULT (${result.name}) = ${JSON.stringify(meta)}`)
+            console.log(`ASYNC-TRANSFORM-RESULT (${result.name}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
       }

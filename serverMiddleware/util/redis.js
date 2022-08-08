@@ -1,8 +1,11 @@
 const Redis = require('ioredis')
+const nuxt = require('../../nuxt.config')
+
+const redisConfig = nuxt.default.privateRuntimeConfig.redis
 
 const redisClient = new Redis({
-  host: '127.0.0.1',
-  port: 6379
+  host: redisConfig.host,
+  port: redisConfig.port
 })
 
 const DEFAULT_EXPIRATION = 1000 * 60 * 60 * 24 * 30 // 30 days

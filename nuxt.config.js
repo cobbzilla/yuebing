@@ -8,6 +8,34 @@ export default {
 
   privateRuntimeConfig: {
 
+    // redis is used for server-side caching, the xform job queue, and web sessions
+    redis: {
+      host: process.env.SV_REDIS_HOST || '127.0.0.1',
+      port: process.env.SV_REDIS_PORT || 6379
+    },
+
+    // A map of supported (media type) -> (config for the media type)
+    //
+    // The existence of a mediaType named 'foo' implies that there exists:
+    //  * A specification in 'shared/media/foo.js' to determine which files match and what to do with them
+    //  * A page in 'pages/media/foo.vue' to display an individual media item with type foo
+    //  * A driver in 'serverMiddleware/driver/foo.js' that generates derived assets from a source of type foo
+    //    - The driver must export a functions named after each operation that the driver supports
+    //      See serverMiddleware/driver/video.js for an example.
+    //
+    media: {
+      video: {
+        // 'allowedCommands' is a list of shell commands the driver is allowed to run.
+        //
+        // The first command listed is the default command and will be used for any profiles that
+        // do not specify a 'command' property.
+        //
+        // All drivers are allowed to run 'mediainfo', that does not need to be listed.
+        // Anything that looks like a shell will fail validation (bash/zsh/ssh/etc)
+        allowedCommands: ['ffmpeg']
+      }
+    },
+
     userEncryption: {
       // Optional. Define these to encrypt user data stored on destination bucket
       key: process.env.SV_USERDATA_KEY,
@@ -76,7 +104,8 @@ export default {
     { path: '/s3/list', handler: '~/serverMiddleware/s3/list' },
     { path: '/s3/scan', handler: '~/serverMiddleware/s3/scan' },
     { path: '/s3/meta', handler: '~/serverMiddleware/s3/meta' },
-    { path: '/s3/proxy', handler: '~/serverMiddleware/s3/proxy' }
+    { path: '/s3/proxy', handler: '~/serverMiddleware/s3/proxy' },
+    { path: '/asset/queue', handler: '~/serverMiddleware/asset/queue' }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

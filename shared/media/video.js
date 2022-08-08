@@ -64,8 +64,8 @@ export default {
     dash_mp4: {
       operation: 'dash',
       // At startup, each element of this array is transformed into the corresponding profile object
-      subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
-      // subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
+      // subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
+      subProfiles: ['transcode_low_mp4', 'transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
       contentType: 'application/dash+xml',
       ext: 'mpd',
       primary: true,

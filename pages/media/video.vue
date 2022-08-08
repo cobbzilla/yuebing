@@ -6,12 +6,11 @@
     <div v-if="isReady">
       <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
-<!--    <div v-if="mediaInfoJson">-->
-      <h4>media info json</h4>
+    <div v-if="mediaInfoJson">
       <h5>Width: {{ mediaInfoField('width') }}</h5>
       <h5>Height: {{ mediaInfoField('height') }}</h5>
       <h5>Duration: {{ mediaInfoField('duration') }}</h5>
-<!--    </div>-->
+    </div>
     <div v-if="error">
       <h3>{{ error }}</h3>
     </div>
@@ -21,12 +20,12 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '@/shared/media'
-import VideoPlayer from '@/components/VideoPlayer.vue'
+import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-const c = require('../shared')
-const m = require('../shared/media')
-const info = require('../shared/mediainfo')
+const c = require('../../shared')
+const m = require('../../shared/media')
+const info = require('../../shared/mediainfo')
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
