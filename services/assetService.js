@@ -5,5 +5,5 @@ export const assetService = {
 }
 
 function getQueue () {
-  return fetch('/api/asset/queue', a.GET).then(response => a.handleJsonResponse(response))
+  return fetch('/api/asset/queue', a.authGet()).then(response => a.handleJsonResponse(response))
 }

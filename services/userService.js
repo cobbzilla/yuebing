@@ -1,3 +1,5 @@
+const a = require('./util')
+
 export const userService = {
   login,
   logout,
@@ -8,25 +10,9 @@ export const userService = {
   delete: _delete
 }
 
-function authHeader () {
-  // return authorization header with jwt token
-  const user = JSON.parse(localStorage.getItem('user'))
-  if (user && user.token) {
-    return { Authorization: 'Bearer ' + user.token }
-  } else {
-    return {}
-  }
-}
-
 function login (username, password) {
-  const requestOptions = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  }
-
-  return fetch('/api/user/authenticate', requestOptions)
-    .then(handleResponse)
+  return fetch('/api/user/authenticate', a.authPostJson({ username, password }))
+    .then(a.handleJsonResponse)
     .then((user) => {
       // login successful if there's a jwt token in the response
       if (user.token) {
@@ -42,61 +28,26 @@ function logout () {
 }
 
 function register (user) {
-  const requestOptions = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(user)
-  }
-  return fetch('/api/user/register', requestOptions).then(handleResponse)
+  return fetch('/api/user/register', a.authPostJson(user)).then(a.handleJsonResponse)
 }
 
 function getAll () {
-  const requestOptions = {
-    method: 'GET',
-    headers: authHeader()
-  }
-  return fetch('/api/users', requestOptions).then(handleResponse)
+  return fetch('/api/users', a.authGet()).then(a.handleJsonResponse)
 }
 
 function getById (id) {
-  const requestOptions = {
-    method: 'GET',
-    headers: authHeader()
-  }
-  return fetch(`/api/user/${id}`, requestOptions).then(handleResponse)
+  return fetch(`/api/user/${id}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function update (user) {
-  const requestOptions = {
-    method: 'PUT',
-    headers: { ...authHeader(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(user)
-  }
-  return fetch(`/api/user/${user.id}`, requestOptions).then(handleResponse)
+  return fetch(`/api/user/${user.id}`, a.authPostJson(user)).then(a.handleJsonResponse)
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript
 function _delete (id) {
   const requestOptions = {
     method: 'DELETE',
-    headers: authHeader()
+    headers: a.authHeader()
   }
-  return fetch(`/api/user/${id}`, requestOptions).then(handleResponse)
-}
-
-function handleResponse (response) {
-  return response.text().then((text) => {
-    const data = text && JSON.parse(text)
-    if (!response.ok) {
-      if (response.status === 401) {
-        // auto logout if 401 response returned from api
-        logout()
-        location.reload()
-      }
-
-      const error = (data && data.message) || response.statusText
-      return Promise.reject(error)
-    }
-    return data
-  })
+  return fetch(`/api/user/${id}`, requestOptions).then(a.handleJsonResponse)
 }

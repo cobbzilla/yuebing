@@ -6,6 +6,7 @@ const nuxt = require('../../nuxt.config')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
 const s3util = require('../s3/s3util')
+const shared = require('../../shared/index')
 
 const USER_STORE_PREFIX = 'users/'
 const BCRYPT_ROUNDS = nuxt.default.privateRuntimeConfig.userEncryption.bcryptRounds
@@ -25,6 +26,19 @@ async function startSession (user) {
   }
   await redis.set(user.session, JSON.stringify(user), SESSION_EXPIRATION)
   return user
+}
+
+async function currentUser (req) {
+  if (req.headers && req.headers[shared.USER_SESSION_HEADER.toLowerCase()]) {
+    const session = req.headers[shared.USER_SESSION_HEADER.toLowerCase()]
+    try {
+      const val = await redis.get(session)
+      console.log(`currentUser: redis.get(${session}) returned ${val}`)
+      return JSON.parse(val)
+    } catch (e) {
+      console.log(`currentUser: ${e}`)
+    }
+  }
 }
 
 const USER_VALIDATIONS = {
@@ -145,7 +159,7 @@ if (ADMIN_USER) {
 }
 
 export {
-  userKey, startSession,
+  userKey, startSession, currentUser,
   UserValidationException, registerUser,
   deleteUser
 }

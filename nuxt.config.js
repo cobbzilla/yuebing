@@ -19,13 +19,16 @@ export default {
         username: process.env.SV_ADMIN_USER || 'admin',
         password: process.env.SV_ADMIN_PASSWORD || null
       },
-      overwrite: true // set to true to overwrite existing username
+      overwrite: false // set to true to overwrite existing username
     },
 
     // redis is used for: server-side caching, the xform job queue, and web sessions
     redis: {
       host: process.env.SV_REDIS_HOST || '127.0.0.1',
-      port: process.env.SV_REDIS_PORT || 6379
+      port: process.env.SV_REDIS_PORT || 6379,
+
+      // set to true to flush redis when the app starts (this will log out all users)
+      flushAtStartup: process.env.SV_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.SV_REDIS_FLUSH_AT_STARTUP) : false
     },
 
     // A map of supported (media type) -> (config for the media type)

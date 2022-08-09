@@ -26,16 +26,17 @@ async function flushall () {
   await redisClient.flushall()
 }
 
-// start with an empty redis
-flushall().then(
-  (ok) => {
-    console.log(' ***** redis: FLUSHED *****')
-  },
-  (err) => {
-    if (err) {
-      console.error(` ***** redis: ERROR calling flushall: ${err}`)
-    }
-  }
-)
+if (redisConfig.flushAtStartup) {
+  // start with an empty redis
+  flushall().then(
+    () => {
+      console.log(' ***** redis: FLUSHED *****')
+    },
+    (err) => {
+      if (err) {
+        console.error(` ***** redis: ERROR calling flushall: ${err}`)
+      }
+    })
+}
 
 export { get, set, del, flushall }

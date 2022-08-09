@@ -11,4 +11,9 @@ function getExtension (filename) {
   return filename.split('.').pop()
 }
 
-export { snooze, getExtension }
+const USER_SESSION_HEADER = 'X-S3Vid-Session'
+
+export {
+  USER_SESSION_HEADER,
+  snooze, getExtension
+}
