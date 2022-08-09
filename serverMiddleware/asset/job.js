@@ -21,6 +21,7 @@ function initializeQueue (processFunction) {
       } else {
         console.warn(`jobQueue.on(active): job (with missing data.sourcePath: ${JSON.stringify(job)}) STARTING with result=${JSON.stringify(result)}`)
       }
+      recordJobEvent(job, 'QUEUE_ACTIVE')
     })
 
     JOB_QUEUE.on('completed', (job, result) => {
@@ -29,6 +30,7 @@ function initializeQueue (processFunction) {
       } else {
         console.warn(`jobQueue.on(completed): job (with missing data.sourcePath: ${JSON.stringify(job)}) COMPLETED with result=${JSON.stringify(result)}`)
       }
+      recordJobEvent(job, 'QUEUE_COMPLETED')
       job.data.done = true
     })
 
@@ -38,6 +40,7 @@ function initializeQueue (processFunction) {
       } else {
         console.log(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
       }
+      recordJobEvent(job, 'QUEUE_FAILED')
       job.data.done = true
     })
   }
