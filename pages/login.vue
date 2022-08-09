@@ -41,14 +41,14 @@ export default {
     }
   },
   computed: {
-    ...mapState('account', ['status'])
+    ...mapState('user.js', ['status'])
   },
   created () {
     // reset login status
     this.logout()
   },
   methods: {
-    ...mapActions('account', ['login', 'logout']),
+    ...mapActions('user.js', ['login', 'logout']),
     handleSubmit (e) {
       this.submitted = true
       const { username, password } = this
