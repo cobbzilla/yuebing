@@ -1,19 +1,21 @@
 <template>
   <div>
-    <h3>Transform Processing Queue:</h3>
+    <h3>Transform Processing Queue?</h3>
 
     <!-- TOC -->
-    <div v-for="(job, jobIndex) in queue" :key="jobIndex">
-      <a :href="`#${job.sourcePath}`"><h4>{{ job.sourcePath }}</h4></a>
+    <div v-for="(j, jobIndex) in queue" :key="jobIndex" @click="displayJobDetails(j)">
+      <h5>
+        {{ j.sourcePath }}: {{ new Date(j.lastEvent).toLocaleString('en-US') }}
+      </h5>
     </div>
 
     <!-- data -->
-    <div v-if="queue">
-      <table v-for="(job, jobIndex) in queue" :key="jobIndex">
+    <div v-if="job">
+      <table>
         <thead>
           <tr>
             <th colspan="2">
-              <a :id="`#${job.sourcePath}`"><h2>{{ job.sourcePath }}</h2></a>
+              <h2>{{ job.sourcePath }}</h2>
             </th>
           </tr>
           <tr>
@@ -61,7 +63,8 @@ export default {
   name: 'AdminPage',
   data () {
     return {
-      interval: null
+      interval: null,
+      job: null
     }
   },
   computed: {
@@ -77,7 +80,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions('asset', ['fetchQueue'])
+    ...mapActions('asset', ['fetchQueue']),
+    shasum (val) {
+      return require('shasum')(val)
+    },
+    displayJobDetails (j) {
+      if (this.queue) {
+        this.job = this.job && this.job.sourcePath === j.sourcePath ? null : j
+      }
+    }
   }
 }
 </script>
