@@ -20,7 +20,7 @@ import { mapState, mapActions } from 'vuex'
 export default {
   name: 'SiteHeader',
   computed: {
-    ...mapState('user.js', ['user', 'status']),
+    ...mapState('user', ['user', 'status']),
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
@@ -34,7 +34,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user.js', ['logout']),
+    ...mapActions('user', ['logout']),
     logOut () {
       console.log('calling account.logout...')
       this.logout()

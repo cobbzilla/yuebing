@@ -7,6 +7,14 @@ export default {
   },
 
   privateRuntimeConfig: {
+    // Initial admin user. Set the password to create the admin user
+    admin: {
+      user: {
+        username: process.env.SV_ADMIN_USER || 'admin',
+        password: process.env.SV_ADMIN_PASSWORD || null
+      },
+      overwrite: false // set to true to overwrite existing username.
+    },
 
     // redis is used for server-side caching, the xform job queue, and web sessions
     redis: {

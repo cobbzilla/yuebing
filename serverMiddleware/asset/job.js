@@ -1,5 +1,4 @@
 const Queue = require('bull')
-const util = require('../util/file')
 const nuxt = require('../../nuxt.config')
 const XFORM_QUEUE_NAME = 'xform'
 const XFORM_JOB_NAME = 'xform-job'

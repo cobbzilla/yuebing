@@ -90,10 +90,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('user.js', ['status'])
+    ...mapState('user', ['status'])
   },
   methods: {
-    ...mapActions('user.js', ['register']),
+    ...mapActions('user', ['register']),
     handleSubmit (e) {
       this.submitted = true
       this.$refs.form.validate().then((success) => {

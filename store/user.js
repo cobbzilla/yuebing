@@ -15,6 +15,7 @@ export const actions = {
     userService.login(username, password)
       .then(
         (user) => {
+          console.log(`login success! user=${JSON.stringify(user)}`)
           commit('loginSuccess', user)
           this.app.store.$router.push('/')
         },
@@ -73,7 +74,8 @@ export const mutations = {
   },
   registerSuccess (state, user) {
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
-    state.status = {}
+    state.user = user
+    state.status = { loggedIn: true }
   },
   registerFailure (state, error) {
     state.status = {}

@@ -33,6 +33,7 @@
 import { mapState, mapActions } from 'vuex'
 
 export default {
+  name: 'UserLogin',
   data () {
     return {
       username: '',
@@ -41,14 +42,14 @@ export default {
     }
   },
   computed: {
-    ...mapState('user.js', ['status'])
+    ...mapState('user', ['status'])
   },
   created () {
     // reset login status
     this.logout()
   },
   methods: {
-    ...mapActions('user.js', ['login', 'logout']),
+    ...mapActions('user', ['login', 'logout']),
     handleSubmit (e) {
       this.submitted = true
       const { username, password } = this
