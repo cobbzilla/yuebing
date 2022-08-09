@@ -9,12 +9,18 @@ const s3util = require('../s3/s3util')
 
 const USER_STORE_PREFIX = 'users/'
 const BCRYPT_ROUNDS = nuxt.default.privateRuntimeConfig.userEncryption.bcryptRounds
+const SESSION_EXPIRATION = nuxt.default.privateRuntimeConfig.session.expiration
+
+const ADMIN = nuxt.default.privateRuntimeConfig.admin
+const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password
+  ? nuxt.default.privateRuntimeConfig.admin.user
+  : null
 
 async function startSession (user) {
   delete user.password
   delete user.hashedPassword
   user.session = uuid.v4() + '.' + Math.floor(Math.random() * 1000000)
-  await redis.set(user.session, JSON.stringify(user), nuxt.default.privateRuntimeConfig.session.expiration)
+  await redis.set(user.session, JSON.stringify(user), SESSION_EXPIRATION)
   return user
 }
 
@@ -69,61 +75,73 @@ async function userExists (username) {
   return head && head.ContentLength && head.ContentLength > 0
 }
 
-function registerUser (regRequest, successHandler) {
-  const errors = validateUser(regRequest)
-  if (Object.keys(errors).length > 0) {
-    throw new UserValidationException(errors)
-  }
-  // check for duplicate user
-  userExists(regRequest.username).then((exists) => {
-    if (exists) {
-      throw new UserValidationException({ username: ['alreadyRegistered'] })
-    } else {
-      // bcrypt the password, create new user object
-      const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
-      const newUser = {
-        firstName: regRequest.firstName,
-        lastName: regRequest.lastName,
-        username: regRequest.username,
-        hashedPassword: bcrypt.hashSync(regRequest.password, salt)
-      }
+function registerInitialAdminUser (regRequest) {
+  return _registerUser(regRequest, () => {
+    console.log(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.username}`)
+  }, true)
+}
 
-      const bucketParams = {
-        Key: userKey(regRequest.username),
-        Body: crypt.encrypt(JSON.stringify(newUser))
-      }
-      s3util.putObject(bucketParams).then(
-        data => successHandler(data, newUser),
-        (error) => {
-          console.error(`>>>>> API: Register: Error writing user file: ${error}`)
-        })
+function registerUser (regRequest, successHandler) {
+  return _registerUser(regRequest, successHandler, false)
+}
+
+function _registerUser (regRequest, successHandler, admin) {
+  if (!ADMIN.allowRegistration && !admin) {
+    throw new UserValidationException({ username: ['registrationNotAllowed'] })
+  }
+  if (!admin) {
+    const errors = validateUser(regRequest)
+    if (Object.keys(errors).length > 0) {
+      throw new UserValidationException(errors)
     }
-  })
+  } else if (admin && ADMIN.overwrite) {
+    // allow over-write of initial admin when nuxt config flag is set
+    writeUserRecord(regRequest, successHandler)
+  } else {
+    // check for duplicate user
+    userExists(regRequest.username).then((exists) => {
+      if (exists) {
+        throw new UserValidationException({ username: ['alreadyRegistered'] })
+      } else {
+        writeUserRecord(regRequest)
+      }
+    })
+  }
+}
+
+function writeUserRecord (user, successHandler) {
+  // bcrypt the password, create new user object
+  const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
+  const newUser = {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    hashedPassword: bcrypt.hashSync(user.password, salt)
+  }
+  const bucketParams = {
+    Key: userKey(user.username),
+    Body: crypt.encrypt(JSON.stringify(newUser))
+  }
+  s3util.putObject(bucketParams).then(
+    data => successHandler(data, newUser),
+    (error) => {
+      console.error(`writeUserRecord: Error writing user file: ${error}`)
+    })
+}
+
+async function deleteUser (username) {
+  return await s3util.deleteDestObject(userKey(username))
 }
 
 // initialize admin user
-const admin = nuxt.default.privateRuntimeConfig.admin
-if (admin && admin.user && admin.user.username && admin.user.password) {
-  const adminUser = admin.user
-  userExists(adminUser.username).then(
-    (exists) => {
-      if (exists) {
-        if (admin.overwrite) {
-          console.log(`register.js: registering (overwriting) admin user: ${adminUser.username}`)
-          registerUser(adminUser, () => {
-            console.log(`register.js: successfully overwrote admin user: ${adminUser.username}`)
-          })
-        }
-        console.log(`register.js: admin user already registered: ${adminUser.username}`)
-      } else {
-        console.log(`register.js: registering admin user: ${adminUser.username}`)
-        registerUser(adminUser, () => {
-          console.log(`register.js: successfully registered new admin user: ${adminUser.username}`)
-        })
-      }
-    })
+if (ADMIN_USER) {
+  registerInitialAdminUser(ADMIN_USER)
 } else {
-  console.log('register: no admin user defined, not creating')
+  console.log('userUtil: no admin user defined, not creating')
 }
 
-export { userKey, startSession, validateUser, UserValidationException, registerUser }
+export {
+  userKey, startSession,
+  UserValidationException, registerUser,
+  deleteUser
+}

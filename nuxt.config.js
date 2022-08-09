@@ -13,7 +13,8 @@ export default {
         username: process.env.SV_ADMIN_USER || 'admin',
         password: process.env.SV_ADMIN_PASSWORD || null
       },
-      overwrite: false // set to true to overwrite existing username.
+      overwrite: true, // set to true to overwrite existing username
+      allowRegistration: false // set to true to allow people to sign up
     },
 
     // redis is used for server-side caching, the xform job queue, and web sessions
