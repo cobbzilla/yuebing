@@ -1,3 +1,4 @@
+const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 
 function notFound (res) {
@@ -35,6 +36,10 @@ async function get (req, res, path) {
 export default {
   path: '/s3/proxy',
   async handler (req, res) {
+    const user = await u.requireUser(req, res)
+    if (!user) {
+      return
+    }
     const path = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
     switch (req.method) {
       case 'HEAD':

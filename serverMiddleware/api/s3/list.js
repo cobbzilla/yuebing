@@ -1,10 +1,15 @@
-const manifest = require('../../asset/manifest')
 const m = require('../../../shared/media')
+const u = require('../../user/userUtil')
+const manifest = require('../../asset/manifest')
 const s3util = require('../../s3/s3util')
 
 export default {
   path: '/api/s3/list',
   async handler (req, res) {
+    const user = await u.requireUser(req, res)
+    if (!user) {
+      return
+    }
     const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
     console.log('>>>>> API: Listing ' + req.url + ', prefix = ' + prefix)
     const results = await s3util.listSource(prefix)

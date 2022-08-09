@@ -17,13 +17,17 @@ const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password ? AD
 
 const ALLOW_REGISTRATION = nuxt.default.publicRuntimeConfig.allowRegistration
 
+function isAdmin (userOrUsername) {
+  return ADMIN_USER && ADMIN_USER.username &&
+    (typeof userOrUsername === 'object' && userOrUsername.username
+      ? userOrUsername.username === ADMIN_USER.username
+      : userOrUsername === ADMIN_USER.username)
+}
+
 async function startSession (user) {
   delete user.password
   delete user.hashedPassword
   user.session = uuid.v4() + '.' + Math.floor(Math.random() * 1000000)
-  if (ADMIN_USER && user.username === ADMIN_USER) {
-    user.admin = true
-  }
   await redis.set(user.session, JSON.stringify(user), SESSION_EXPIRATION)
   return user
 }
@@ -39,6 +43,26 @@ async function currentUser (req) {
       console.log(`currentUser: ${e}`)
     }
   }
+}
+
+async function requireUser (req, res) {
+  const user = await currentUser(req)
+  if (user) {
+    return user
+  }
+  res.statusCode = 403
+  res.end()
+  return null
+}
+
+async function requireAdmin (req, res) {
+  const user = await currentUser(req)
+  if (user && isAdmin(user)) {
+    return user
+  }
+  res.statusCode = 403
+  res.end()
+  return null
 }
 
 const USER_VALIDATIONS = {
@@ -159,7 +183,7 @@ if (ADMIN_USER) {
 }
 
 export {
-  userKey, startSession, currentUser,
+  userKey, startSession, currentUser, isAdmin, requireUser, requireAdmin,
   UserValidationException, registerUser,
   deleteUser
 }
