@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h3>Transform Processing Queue?</h3>
+    <h3>Transform Processing Queue</h3>
 
     <!-- TOC -->
     <div v-for="(j, jobIndex) in queue" :key="jobIndex" @click="displayJobDetails(j)">
       <h5>
-        {{ j.sourcePath }}: {{ new Date(j.lastEvent).toLocaleString('en-US') }}
+        {{ j.sourcePath }}: {{ new Date(j.firstEvent).toLocaleString('en-US') }} to {{ new Date(j.lastEvent).toLocaleString('en-US') }}
       </h5>
     </div>
 

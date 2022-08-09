@@ -38,10 +38,10 @@ async function currentUser (req) {
     const session = req.headers[shared.USER_SESSION_HEADER.toLowerCase()]
     try {
       const val = await redis.get(session)
-      console.log(`currentUser: redis.get(${session}) returned ${val}`)
-      return JSON.parse(val)
+      return val ? JSON.parse(val) : null
     } catch (e) {
-      console.log(`currentUser: ${e}`)
+      console.log(`currentUser: error ${e}`)
+      return null
     }
   }
 }
