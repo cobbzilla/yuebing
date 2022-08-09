@@ -20,6 +20,9 @@ async function startSession (user) {
   delete user.password
   delete user.hashedPassword
   user.session = uuid.v4() + '.' + Math.floor(Math.random() * 1000000)
+  if (ADMIN_USER && user.username === ADMIN_USER) {
+    user.admin = true
+  }
   await redis.set(user.session, JSON.stringify(user), SESSION_EXPIRATION)
   return user
 }
@@ -51,6 +54,7 @@ function validateUser (u) {
   return validate.validateObject(u, USER_VALIDATIONS)
 }
 
+// adapted from https://stackoverflow.com/a/27724419
 function UserValidationException (errors) {
   this.errors = errors
   this.message = `Error: ${JSON.stringify(errors, null, 2)}`
