@@ -9,7 +9,7 @@ export default {
     public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true
   },
 
   privateRuntimeConfig: {

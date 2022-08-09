@@ -13,10 +13,17 @@ function validateField (obj, field, validation, errors) {
     addValidationError(errors, field, `${field} is required`)
   }
   if (fieldPresent) {
-    if (validation.min && fieldValue.trim().length < validation.min) {
+    const value = fieldValue.trim()
+    if (validation.min && value.length < validation.min) {
       addValidationError(errors, field, `${field} is too short (min ${validation.min})`)
-    } else if (validation.max && fieldValue.trim().length > validation.max) {
+    } else if (validation.max && value.length > validation.max) {
       addValidationError(errors, field, `${field} is too long (max ${validation.max})`)
+    }
+    if (validation.regex) {
+      const match = value.match(validation.regex)
+      if (!match || match.length !== 1 || match[0].length !== value.length) {
+        addValidationError(errors, field, `${field} is invalid (failed regex ${validation.regex})`)
+      }
     }
   }
   // console.log(`validated ${field} with value ${fieldValue} and errors = ${JSON.stringify(errors)}`)

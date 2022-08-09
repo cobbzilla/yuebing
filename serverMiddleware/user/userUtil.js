@@ -16,6 +16,7 @@ const ADMIN = nuxt.default.privateRuntimeConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password ? ADMIN.user : null
 
 const ALLOW_REGISTRATION = nuxt.default.publicRuntimeConfig.allowRegistration
+const PUBLIC = nuxt.default.publicRuntimeConfig.public
 
 function isAdmin (userOrUsername) {
   return ADMIN_USER && ADMIN_USER.username &&
@@ -50,9 +51,13 @@ async function requireUser (req, res) {
   if (user) {
     return user
   }
-  res.statusCode = 403
-  res.end()
-  return null
+  if (PUBLIC) {
+    return { username: '~anonymous~' }
+  } else {
+    res.statusCode = 403
+    res.end()
+    return null
+  }
 }
 
 async function requireAdmin (req, res) {
@@ -69,7 +74,8 @@ const USER_VALIDATIONS = {
   username: {
     required: true,
     min: 2,
-    max: 100
+    max: 100,
+    regex: /[\w\d_-]{2,}/
   },
   password: {
     required: true,
@@ -139,16 +145,16 @@ function _registerUser (regRequest, successHandler, admin) {
   } else if (admin && ADMIN.overwrite) {
     // allow over-write of initial admin when nuxt config flag is set
     writeUserRecord(regRequest, successHandler)
-  } else {
-    // check for duplicate user
-    userExists(regRequest.username).then((exists) => {
-      if (exists) {
-        throw new UserValidationException({ username: ['alreadyRegistered'] })
-      } else {
-        writeUserRecord(regRequest)
-      }
-    })
+    return
   }
+  // check for duplicate user
+  userExists(regRequest.username).then((exists) => {
+    if (exists) {
+      throw new UserValidationException({ username: ['alreadyRegistered'] })
+    } else {
+      writeUserRecord(regRequest, successHandler)
+    }
+  })
 }
 
 function writeUserRecord (user, successHandler) {
