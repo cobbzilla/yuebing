@@ -9,13 +9,14 @@
     </div>
     <div v-else>
       <NuxtLink to="/login">Sign In</NuxtLink>
-      <NuxtLink to="/register">Sign Up</NuxtLink>
+      <NuxtLink v-if="allowRegistration" to="/register">Sign Up</NuxtLink>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import config from '../nuxt.config'
 
 export default {
   name: 'SiteHeader',
@@ -31,6 +32,9 @@ export default {
         }
       }
       return 'mysterious one'
+    },
+    allowRegistration () {
+      return config.publicRuntimeConfig.allowRegistration
     }
   },
   methods: {

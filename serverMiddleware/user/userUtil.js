@@ -12,9 +12,9 @@ const BCRYPT_ROUNDS = nuxt.default.privateRuntimeConfig.userEncryption.bcryptRou
 const SESSION_EXPIRATION = nuxt.default.privateRuntimeConfig.session.expiration
 
 const ADMIN = nuxt.default.privateRuntimeConfig.admin
-const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password
-  ? nuxt.default.privateRuntimeConfig.admin.user
-  : null
+const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password ? ADMIN.user : null
+
+const ALLOW_REGISTRATION = nuxt.default.publicRuntimeConfig.allowRegistration
 
 async function startSession (user) {
   delete user.password
@@ -90,7 +90,7 @@ function registerUser (regRequest, successHandler) {
 }
 
 function _registerUser (regRequest, successHandler, admin) {
-  if (!ADMIN.allowRegistration && !admin) {
+  if (!ALLOW_REGISTRATION && !admin) {
     throw new UserValidationException({ username: ['registrationNotAllowed'] })
   }
   if (!admin) {

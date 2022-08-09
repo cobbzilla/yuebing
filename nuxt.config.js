@@ -3,7 +3,13 @@ export default {
   ssr: false,
 
   publicRuntimeConfig: {
-    title: process.env.SV_TITLE || 's3vid'
+    title: process.env.SV_TITLE || 's3vid',
+
+    // Set to true to allow anonymous browsing/viewing
+    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
+
+    // Set to true to allow people to sign up
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false
   },
 
   privateRuntimeConfig: {
@@ -13,11 +19,10 @@ export default {
         username: process.env.SV_ADMIN_USER || 'admin',
         password: process.env.SV_ADMIN_PASSWORD || null
       },
-      overwrite: true, // set to true to overwrite existing username
-      allowRegistration: false // set to true to allow people to sign up
+      overwrite: true // set to true to overwrite existing username
     },
 
-    // redis is used for server-side caching, the xform job queue, and web sessions
+    // redis is used for: server-side caching, the xform job queue, and web sessions
     redis: {
       host: process.env.SV_REDIS_HOST || '127.0.0.1',
       port: process.env.SV_REDIS_PORT || 6379
@@ -28,13 +33,13 @@ export default {
     // The existence of a mediaType named 'foo' implies that there exists:
     //  * A specification in 'shared/media/foo.js' to determine which files match and what to do with them
     //  * A page in 'pages/media/foo.vue' to display an individual media item with type foo
-    //  * A driver in 'serverMiddleware/driver/foo.js' that generates derived assets from a source of type foo
+    //  * A driver in 'serverMiddleware/asset/driver/foo.js' that generates assets from a source of type foo
     //    - The driver must export a functions named after each operation that the driver supports
-    //      See serverMiddleware/driver/video.js for an example.
+    //      See serverMiddleware/asset/driver/video.js for an example.
     //
     media: {
       video: {
-        // 'allowedCommands' is a list of shell commands the driver is allowed to run.
+        // 'allowedCommands' is a list of programs the driver is allowed to run.
         //
         // The first command listed is the default command and will be used for any profiles that
         // do not specify a 'command' property.
@@ -75,10 +80,10 @@ export default {
       // Minimum interval is 5 seconds. Lower settings are ignored.
       initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30, // default 30 seconds
 
-      // show stdout/stderr from transform commands?
+      // Show stdout/stderr from transform commands? It is a LOT of output (ffmpeg for example)
       showTransformOutput: false,
 
-      // how many concurrent transformations can be done
+      // How many concurrent transformations can be done
       concurrency: process.env.SV_XFORM_CONCURRENCY || 2
     }
   },
