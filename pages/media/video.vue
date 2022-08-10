@@ -22,9 +22,9 @@ import { mapState, mapActions } from 'vuex'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-import { getExtension } from '@/shared'
+import { sessionParams, getExtension } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
-import { mediaInfoField, hasAssets, findAsset } from '@/shared/mediainfo'
+import { mediaInfoField, hasAssets } from '@/shared/mediainfo'
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -140,9 +140,9 @@ export default {
           }
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              console.log(`video.vue: pushing src = /s3/proxy/${asset}`)
+              console.log(`video.vue: pushing src = /api/s3/proxy/${asset}`)
               sources.push({
-                src: `/s3/proxy/${asset}`,
+                src: `/api/s3/proxy/${asset}${sessionParams()}`,
                 type: mediaProfile.contentType
               })
             }

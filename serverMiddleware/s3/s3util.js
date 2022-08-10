@@ -4,9 +4,14 @@ import {
 import { Upload } from '@aws-sdk/lib-storage'
 
 const fs = require('fs')
-const util = require('../util/file')
+const nuxt = require('../../nuxt.config')
 const m = require('../../shared/media')
+const redis = require('../util/redis')
+const util = require('../util/file')
 const s3cfg = require('./s3client.js')
+
+const CACHE_PREFIX = 'CACHED_S3_LIST_SOURCE_'
+const LIST_CACHE_EXPIRATION = nuxt.default.privateRuntimeConfig.redis.listingCacheExpiration
 
 async function listDest (prefix) {
   const client = s3cfg.destClient
@@ -17,7 +22,17 @@ async function listDest (prefix) {
 async function listSource (prefix, recursive = false) {
   const client = s3cfg.sourceClient
   const params = s3cfg.sourceBucketParams
-  return await listObjects(prefix, client, params, recursive)
+
+  const cacheKey = CACHE_PREFIX + prefix
+  const cachedListing = await redis.get(cacheKey)
+  if (cachedListing) {
+    console.log(`listSource(${prefix}) RETURNING CACHED LISTING`)
+    return JSON.parse(cachedListing)
+  }
+
+  const results = await listObjects(prefix, client, params, recursive)
+  await redis.set(cacheKey, JSON.stringify(results), LIST_CACHE_EXPIRATION)
+  return results
 }
 
 async function listObjects (prefix, client, params, recursive = false) {
@@ -49,7 +64,7 @@ async function listObjects (prefix, client, params, recursive = false) {
           if (type) {
             objects.push({
               name: item.Key,
-              type: 'file',
+              type: type === m.DIRECTORY_TYPE ? m.DIRECTORY_TYPE : m.FILE_TYPE,
               mediaType: type
             })
           } else {

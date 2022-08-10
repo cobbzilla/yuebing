@@ -72,7 +72,7 @@ function mediaInfoField (field, mediainfo) {
 }
 
 function hasAssets (obj) {
-  return obj.meta &&
+  return obj && obj.meta &&
   obj.meta.status &&
   obj.meta.status.ready &&
   typeof obj.meta.assets === 'object' &&

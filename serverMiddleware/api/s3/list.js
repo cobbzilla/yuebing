@@ -11,7 +11,9 @@ export default {
       return
     }
     const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
-    console.log('>>>>> API: Listing ' + req.url + ', prefix = ' + prefix)
+    console.log(`>>>>> API: Listing ${req.url}, prefix=${prefix}`)
+    res.contentType = 'application/json'
+
     const results = await s3util.listSource(prefix)
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
@@ -19,7 +21,6 @@ export default {
         result.meta = await manifest.deriveMetadata(result.name)
       }
     }
-    res.contentType = 'application/json'
-    res.end(JSON.stringify(results, null, 2))
+    res.end(JSON.stringify(results))
   }
 }

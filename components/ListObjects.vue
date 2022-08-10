@@ -3,7 +3,9 @@
     <div>Dir is {{ displayPrefix }}</div>
     <div v-if="isNotRoot">
       Go back (prefix = {{ prefix }})
-      <button @click="refresh(parentPrefix)">{{ parentPrefixDisplay }}</button>
+      <button @click="refresh(parentPrefix)">
+        {{ parentPrefixDisplay }}
+      </button>
     </div>
     <div v-for="(obj, index) in filteredObjectList" :key="index">
       <div v-if="isDir(obj)">
@@ -16,17 +18,19 @@
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/'+obj.mediaType, query: {n: obj.name}}">
             viewable media: {{ filterName(obj.name) }}
-            <img v-if="thumbnail(obj)" :src="`/s3/proxy/${thumbnail(obj)}${thumbnailUrlParams}`" width="200" height="200"></img>
+            <img v-if="thumbnail(obj)" :src="`/api/s3/proxy/${thumbnail(obj)}${thumbnailUrlParams}`" width="200" height="200"></img>
           </NuxtLink>
         </div>
         <div v-else>
           not-ready media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
-        <button @click="toggleMediaInfo(obj)">
-          {{ mediaInfoToggleButtonLabel(obj) }}
-        </button>
-        <div v-if="isSelectedMedia(obj)">
-          <MediaInfo v-if="isSelectedMedia(obj)" :options="mediaInfoOptions(obj)"></MediaInfo>
+        <div v-if="mediaInfo(obj)">
+          <button @click="toggleMediaInfo(obj)">
+            {{ mediaInfoToggleButtonLabel(obj) }}
+          </button>
+          <div v-if="isSelectedMedia(obj)">
+            <MediaInfo :options="{ object: obj }" />
+          </div>
         </div>
       </div>
       <div v-else>
@@ -39,8 +43,8 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
-import config from '../nuxt.config'
-import { USER_SESSION_QUERY_PARAM } from '@/shared'
+import { sessionParams } from '@/shared'
+
 import {
   hasMediaType, isDirectory, isViewable, hasMediaInfo,
   mediaProfileByName, mediaType, isThumbnailProfile
@@ -92,12 +96,7 @@ export default {
       return filtered
     },
     thumbnailUrlParams () {
-      if (config.publicRuntimeConfig.public ||
-        !this.user || !this.user.session ||
-        !this.status || !this.status.loggedIn) {
-        return ''
-      }
-      return `?${USER_SESSION_QUERY_PARAM}=${this.user.session}`
+      return sessionParams()
     }
   },
   watch: {

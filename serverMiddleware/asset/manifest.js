@@ -1,10 +1,11 @@
 const path = require('path')
 const redis = require('../util/redis')
+const nuxt = require('../../nuxt.config')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
 const m = require('../../shared/media')
 
-const MIN_CACHE_PERIOD = 60 * 1000 // 1 minute
+const MANIFEST_CACHE_EXPIRATION = nuxt.default.privateRuntimeConfig.redis.manifestCacheExpiration
 
 async function deriveMetadata (sourcePath) {
   // Do we have this cached?
@@ -12,7 +13,7 @@ async function deriveMetadata (sourcePath) {
   const cachedMeta = JSON.parse(await redis.get(cacheKey))
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
-    if (Date.now() - cachedMeta.ctime < MIN_CACHE_PERIOD) {
+    if (Date.now() - cachedMeta.ctime < MANIFEST_CACHE_EXPIRATION) {
       // console.log(`'deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
       return cachedMeta
     }

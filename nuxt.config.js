@@ -7,10 +7,10 @@ export default {
 
     // Set to true to allow anonymous browsing/viewing
     // WARNING: This can generate expensive bandwidth bills, depending on your site's traffic load
-    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
+    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : true,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true
   },
 
   privateRuntimeConfig: {
@@ -29,7 +29,15 @@ export default {
       port: process.env.SV_REDIS_PORT || 6379,
 
       // set to true to flush redis when the app starts (this will log out all users)
-      flushAtStartup: process.env.SV_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.SV_REDIS_FLUSH_AT_STARTUP) : false
+      flushAtStartup: process.env.SV_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.SV_REDIS_FLUSH_AT_STARTUP) : false,
+
+      // Cache duration for listings from S3, in milliseconds
+      listingCacheExpiration: process.env.SV_S3_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
+
+      // Cache duration for manifests, in milliseconds
+      // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`
+      // file is newer than the cache's ctime
+      manifestCacheExpiration: process.env.SV_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000 // default 1 minute
     },
 
     // A map of supported (media type) -> (config for the media type)

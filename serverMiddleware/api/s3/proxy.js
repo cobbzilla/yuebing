@@ -2,6 +2,7 @@ const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 
 function notFound (res) {
+  console.log(`notFound: returning from: ${new TypeError('wtf').stack}`)
   res.statusCode = 404
   res.end('Not Found')
 }
@@ -19,6 +20,7 @@ async function head (req, res, path) {
 async function get (req, res, path) {
   const head = await s3util.headDestObject(path)
   if (!head) {
+    console.log(`proxy.get: HEAD request failed, returning 404 Not Found for path=${path}`)
     notFound(res)
     return
   }
@@ -34,7 +36,7 @@ async function get (req, res, path) {
 }
 
 export default {
-  path: '/s3/proxy',
+  path: '/api/s3/proxy',
   async handler (req, res) {
     const user = await u.requireUser(req, res)
     if (!user) {
