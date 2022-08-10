@@ -50,7 +50,7 @@ async function deriveMetadata (sourcePath) {
   const prefix = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX
   const assets = await s3util.listDest(prefix)
   assets.forEach((asset) => {
-    console.log(`examining asset: ${asset}`)
+    // console.log(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
@@ -59,7 +59,7 @@ async function deriveMetadata (sourcePath) {
       const foundProfile = (at !== -1 && at > underscore && at < dot)
         ? base.substring(underscore + 1, at)
         : base.substring(underscore + 1, dot)
-      console.log(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
+      // console.log(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
       if (foundProfile in profiles) {
         const prof = profiles[foundProfile]
         if (prof.enabled) {
@@ -102,7 +102,7 @@ async function deriveMetadata (sourcePath) {
   }
 
   await redis.set(cacheKey, JSON.stringify(meta))
-  console.log('deriveMetadata returning: ' + JSON.stringify(meta))
+  // console.log('deriveMetadata returning: ' + JSON.stringify(meta))
   return meta
 }
 
