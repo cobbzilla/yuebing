@@ -101,6 +101,14 @@ async function deriveMetadata (sourcePath) {
     meta.status.ready = true
   }
 
+  // is there a selected thumbnail?
+  try {
+    const selectedThumbnail = await s3util.readDestTextObject(util.canonicalDestDir(sourcePath) + util.SELECTED_THUMBNAIL_FILE)
+    meta.selectedThumbnail = JSON.parse(selectedThumbnail)
+  } catch (err) {
+    console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)
+  }
+
   await redis.set(cacheKey, JSON.stringify(meta))
   // console.log('deriveMetadata returning: ' + JSON.stringify(meta))
   return meta

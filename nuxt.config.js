@@ -134,6 +134,7 @@ export default {
     '~/serverMiddleware/api/s3/scan',
     '~/serverMiddleware/api/s3/meta',
     '~/serverMiddleware/api/s3/mediainfo',
+    '~/serverMiddleware/api/s3/thumbnail',
     '~/serverMiddleware/api/s3/proxy',
     '~/serverMiddleware/api/asset/queue'
   ],

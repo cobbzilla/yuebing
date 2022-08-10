@@ -1,7 +1,13 @@
 const a = require('./util')
 
 export const s3Service = {
-  listS3, metadata, jsonAsset, fetchUserMediaInfo, updateMediaInfo
+  listS3,
+  metadata,
+  jsonAsset,
+  fetchUserMediaInfo,
+  updateUserMediaInfo,
+  fetchSelectedThumbnail,
+  updateSelectedThumbnail
 }
 
 function listS3 (path) {
@@ -16,10 +22,18 @@ function jsonAsset (path) {
   return fetch(`/api/s3/proxy/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
-function fetchUserMediaInfo (path, values) {
+function fetchUserMediaInfo (path) {
   return fetch(`/api/s3/mediainfo/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
-function updateMediaInfo (path, values) {
+function updateUserMediaInfo (path, values) {
   return fetch(`/api/s3/mediainfo/${path}`, a.authPostJson(values)).then(a.handleJsonResponse)
+}
+
+function fetchSelectedThumbnail (path) {
+  return fetch(`/api/s3/thumbnail/${path}`, a.authGet()).then(a.handleJsonResponse)
+}
+
+function updateSelectedThumbnail (path, thumb) {
+  return fetch(`/api/s3/thumbnail/${path}`, a.authPostJson(thumb)).then(a.handleJsonResponse)
 }

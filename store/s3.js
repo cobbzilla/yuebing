@@ -14,12 +14,17 @@ export const state = () => ({
   loadingAsset: false,
   loadingAssetError: null,
 
-  updatingMediaInfo: false,
-  updatingMediaInfoError: null,
-
   userMediaInfo: {},
   fetchingUserMediaInfo: false,
-  fetchingUserMediaInfoError: null
+  fetchingUserMediaInfoError: null,
+  updatingUserMediaInfo: false,
+  updatingUserMediaInfoError: null,
+
+  selectedThumbnails: {},
+  fetchingSelectedThumbnail: false,
+  fetchingSelectedThumbnailError: null,
+  updatingSelectedThumbnail: false,
+  updatingSelectedThumbnailError: null
 })
 
 export const actions = {
@@ -39,7 +44,6 @@ export const actions = {
       .metadata(path)
       .then(
         (meta) => {
-          // console.log(`fetchMetadata: SUCCESS path=${path}, meta=${meta} ... committing....`)
           meta.path = path
           commit('fetchMetaSuccess', { path, meta })
         },
@@ -70,30 +74,56 @@ export const actions = {
 
   fetchUserMediaInfo ({ dispatch, commit }, { path }) {
     commit('fetchUserMediaInfoRequest')
-    console.log('***** fetchUserMediaInfo starting')
     s3Service
       .fetchUserMediaInfo(path)
       .then(
         (values) => {
-          console.log(`***** fetchUserMediaInfo committing values: ${JSON.stringify(values)}`)
           commit('fetchUserMediaInfoSuccess', { path, values })
         },
         (error) => {
-          console.log(`***** fetchUserMediaInfo committing error: ${error}`)
           commit('fetchUserMediaInfoFailure', error)
         }
       )
   },
 
   updateUserMediaInfo ({ dispatch, commit }, { path, values }) {
-    commit('updateMediaInfoRequest')
+    commit('updateUserMediaInfoRequest')
     s3Service
-      .updateMediaInfo(path, values)
+      .updateUserMediaInfo(path, values)
       .then(
         () => {
-          commit('updateMediaInfoSuccess', { path, values })
+          commit('updateUserMediaInfoSuccess', { path, values })
         },
-        error => commit('updateMediaInfoFailure', error)
+        error => commit('updateUserMediaInfoFailure', error)
+      )
+  },
+
+  fetchSelectedThumbnail ({ dispatch, commit }, { path }) {
+    commit('fetchSelectedThumbnailRequest')
+    console.log('***** fetchSelectedThumbnail starting')
+    s3Service
+      .fetchSelectedThumbnail(path)
+      .then(
+        (thumbnailAsset) => {
+          console.log(`***** fetchSelectedThumbnail committing thumbnailAsset: ${thumbnailAsset}`)
+          commit('fetchSelectedThumbnailSuccess', { path, thumbnailAsset })
+        },
+        (error) => {
+          console.log(`***** fetchSelectedThumbnail committing error: ${error}`)
+          commit('fetchSelectedThumbnailFailure', error)
+        }
+      )
+  },
+
+  updateSelectedThumbnail ({ dispatch, commit }, { path, thumbnailAsset }) {
+    commit('updateSelectedThumbnailRequest')
+    s3Service
+      .updateSelectedThumbnail(path, thumbnailAsset)
+      .then(
+        () => {
+          commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
+        },
+        error => commit('updateSelectedThumbnailFailure', error)
       )
   }
 }
@@ -158,21 +188,51 @@ export const mutations = {
   },
   fetchUserMediaInfoFailure (state, error) {
     state.fetchingUserMediaInfoError = error
-    state.fetchingMediaInfo = false
+    state.fetchingUserMediaInfo = false
   },
 
-  updateMediaInfoRequest (state) {
-    state.updatingMediaInfo = true
+  updateUserMediaInfoRequest (state) {
+    state.updatingUserMediaInfo = true
   },
-  updateMediaInfoSuccess (state, { path, values }) {
+  updateUserMediaInfoSuccess (state, { path, values }) {
     const newInfo = {}
     newInfo[path] = values
     state.userMediaInfo = Object.assign({}, state.userMediaInfo, newInfo)
-    state.updatingMediaInfoError = null
-    state.updatingMediaInfo = false
+    state.updatingUserMediaInfoError = null
+    state.updatingUserMediaInfo = false
   },
-  updateMediaInfoFailure (state, error) {
-    state.updatingMediaInfoError = error
-    state.updatingMediaInfo = false
+  updateUserMediaInfoFailure (state, error) {
+    state.updatingUserMediaInfoError = error
+    state.updatingUserMediaInfo = false
+  },
+
+  fetchSelectedThumbnailRequest (state) {
+    state.fetchingSelectedThumbnail = true
+  },
+  fetchSelectedThumbnailSuccess (state, { path, thumbnailAsset }) {
+    const newInfo = {}
+    newInfo[path] = thumbnailAsset
+    state.selectedThumbnail = Object.assign({}, state.selectedThumbnail, newInfo)
+    state.fetchingSelectedThumbnailError = null
+    state.fetchingSelectedThumbnail = false
+  },
+  fetchSelectedThumbnailFailure (state, error) {
+    state.fetchingSelectedThumbnailError = error
+    state.fetchingSelectedThumbnail = false
+  },
+
+  updateSelectedThumbnailRequest (state) {
+    state.updatingSelectedThumbnail = true
+  },
+  updateSelectedThumbnailSuccess (state, { path, thumbnailAsset }) {
+    const newInfo = {}
+    newInfo[path] = thumbnailAsset
+    state.selectedThumbnail = Object.assign({}, state.selectedThumbnail, newInfo)
+    state.updatingSelectedThumbnailError = null
+    state.updatingSelectedThumbnail = false
+  },
+  updateSelectedThumbnailFailure (state, error) {
+    state.updatingSelectedThumbnailError = error
+    state.updatingSelectedThumbnail = false
   }
 }

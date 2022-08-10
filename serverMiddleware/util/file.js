@@ -9,6 +9,8 @@ const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
   : process.env.SV_WORK_DIR + '/'
 
 const LAST_MODIFIED_FILE = 'lastModified'
+const SELECTED_THUMBNAIL_FILE = 'selectedThumbnail.json'
+
 const ERROR_FILE_PREFIX = '_error_'
 
 const MULTIFILE_PLACEHOLDER = '%03d'
@@ -80,5 +82,5 @@ export {
   deleteFile, statSize, redisMetaCacheKey,
   workbenchDir,
   MULTIFILE_PLACEHOLDER, MULTIFILE_FIRST,
-  LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
+  LAST_MODIFIED_FILE, SELECTED_THUMBNAIL_FILE, ERROR_FILE_PREFIX
 }

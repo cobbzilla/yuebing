@@ -26,6 +26,9 @@ export default {
     this.player = videojs(this.$refs.videoPlayer, this.options, () => {
       this.player.width(this.options.width || 640)
       this.player.height(this.options.height || 480)
+      if (this.options.poster) {
+        this.player.poster(this.options.poster)
+      }
       this.player.log('onPlayerReady', this)
     })
   },

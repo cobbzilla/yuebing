@@ -2,7 +2,7 @@ const util = require('../../util/file')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 
-const USER_MEDIAINFO_JSON = '.user_mediainfo.json'
+const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 
 export default {
   path: '/api/s3/mediainfo',

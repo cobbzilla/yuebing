@@ -16,7 +16,7 @@
       </div>
       <div v-else-if="hasMedia(obj)">
         <div v-if="canView(obj)">
-          <NuxtLink :to="{path: '/'+obj.mediaType, query: {n: obj.name}}">
+          <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.name}}">
             viewable media: {{ filterName(obj.name) }}
             <img v-if="thumbnail(obj)" :src="`/api/s3/proxy/${thumbnail(obj)}${thumbnailUrlParams}`" width="200" height="200"></img>
           </NuxtLink>
@@ -63,7 +63,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'status']),
-    ...mapState('s3', ['prefix', 'objectList', 'metadata']),
+    ...mapState('s3', ['prefix', 'objectList', 'metadata', 'selectedThumbnails']),
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -132,13 +132,15 @@ export default {
     thumbnail (obj) {
       let thumb = null
       if (hasAssets(obj)) {
-        // console.log(`thumbnail: examining obj.meta.assets=${JSON.stringify(obj.meta.assets)}`)
-        // todo: in the future we will allow the user to specify which thumbnail
-        // we would look that up here, and if not found, then pick the first one
-        thumb = findAsset(obj, (assets, profile) => {
-          const mediaProfile = mediaProfileByName(mediaType(obj.name), profile)
-          return mediaProfile && isThumbnailProfile(mediaProfile)
-        })
+        // Look for user-specified thumbnail first. If not found, then pick the first one
+        if (obj.meta.selectedThumbnail) {
+          thumb = obj.meta.selectedThumbnail
+        } else {
+          thumb = findAsset(obj, (assets, profile) => {
+            const mediaProfile = mediaProfileByName(mediaType(obj.name), profile)
+            return mediaProfile && isThumbnailProfile(mediaProfile)
+          })
+        }
       }
       return thumb
     },

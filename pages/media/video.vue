@@ -43,10 +43,11 @@ export default {
       mediaInfoJson: null,
       error: null,
       videoOptions: {
-        autoplay: true,
+        autoplay: false,
         controls: true,
         width: Math.floor(document.documentElement.clientWidth * 0.6),
         height: Math.floor(document.documentElement.clientHeight * 0.7),
+        poster: null,
         sources: []
       }
     }
@@ -76,6 +77,10 @@ export default {
         this.object.meta = newMeta.path
       } else {
         this.object.meta = newMeta
+      }
+      if (this.object.meta.selectedThumbnail) {
+        this.videoOptions.poster = `/api/s3/proxy/${this.object.meta.selectedThumbnail}${sessionParams()}`
+        console.log(`watch.metadata: set poster: ${this.videoOptions.poster}`)
       }
       this.object = Object.assign({}, this.object) // force vue refresh
       this.refreshMeta()
