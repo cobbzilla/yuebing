@@ -14,6 +14,7 @@ function assetSuffix (mediaType) {
 const EXT_MAP = {}
 
 const MEDIA = {
+  standard: require('./media/standard').default,
   video: require('./media/video.js').default
 }
 
@@ -34,6 +35,18 @@ for (const type in MEDIA) {
     typeConfig.ext.forEach((e) => {
       EXT_MAP[e] = type
     })
+  }
+
+  // If mediaType includes a 'from' property, copy operations and profiles
+  // from that mediaType into this one (e.g. 'standard')
+  if (typeConfig.from) {
+    if (MEDIA[typeConfig.from]) {
+      const fromConfig = MEDIA[typeConfig.from]
+      Object.assign(typeConfig.operations, fromConfig.operations)
+      Object.assign(typeConfig.profiles, fromConfig.profiles)
+    } else {
+      throw new TypeError(`Cannot parse mediaType ${type}: 'from' mediaType not found: ${typeConfig.from}`)
+    }
   }
 
   // Process profiles to handle a few preparatory tasks:
