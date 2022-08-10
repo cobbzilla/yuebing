@@ -9,12 +9,11 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 // adapted from https://stackoverflow.com/a/1203361
 function getExtension (filename) {
-  // console.log(`getExtension: filename is ${filename} with type ${typeof filename}`)
   return filename.split('.').pop()
 }
 
 const USER_SESSION_HEADER = 'x-s3vid-session'
-const USER_SESSION_QUERY_PARAM = 'svs'
+const USER_SESSION_QUERY_PARAM = 's'
 
 function sessionParams () {
   if (nuxt.default.publicRuntimeConfig.public ||

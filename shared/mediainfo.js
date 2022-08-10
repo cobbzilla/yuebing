@@ -54,6 +54,10 @@ function mediaInfoFields () {
   return Object.keys(META_FIELDS)
 }
 
+function editableMediaInfoFields () {
+  return Object.keys(META_FIELDS).filter(k => META_FIELDS[k].editable)
+}
+
 function mediaInfoField (field, mediainfo) {
   const candidates = META_FIELDS[field]
   if (candidates && candidates.find) {
@@ -65,9 +69,10 @@ function mediaInfoField (field, mediainfo) {
         return typeof value === 'string' ? value : JSON.stringify(value)
       }
     }
-    console.log(`mediaInfoField: field not found in mediainfo: ${field}`)
+    // console.log(`mediaInfoField: field not found in mediainfo: ${field}`)
+  } else {
+    // console.warn(`mediaInfoField: invalid field: ${field}`)
   }
-  console.warn(`mediaInfoField: invalid field: ${field}`)
   return null
 }
 
@@ -110,4 +115,7 @@ function findAsset (obj, matcher, returner = DEFAULT_FIND_ASSET_RETURNER) {
   }))
 }
 
-export { mediaInfoFields, mediaInfoField, hasAssets, findAsset }
+export {
+  mediaInfoFields, editableMediaInfoFields, mediaInfoField,
+  hasAssets, findAsset
+}
