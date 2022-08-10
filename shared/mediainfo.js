@@ -71,4 +71,43 @@ function mediaInfoField (field, mediainfo) {
   return null
 }
 
-export { mediaInfoFields, mediaInfoField }
+function hasAssets (obj) {
+  return obj.meta &&
+  obj.meta.status &&
+  obj.meta.status.ready &&
+  typeof obj.meta.assets === 'object' &&
+  Object.keys(obj.meta.assets).length > 0
+}
+
+function hasProfileAssets (obj, profile) {
+  return obj.meta &&
+    obj.meta.status &&
+    obj.meta.status.ready &&
+    typeof obj.meta.assets === 'object' &&
+    Object.keys(obj.meta.assets).length > 0 &&
+    obj.meta.assets[profile] &&
+    obj.meta.assets[profile].length > 0
+}
+
+function profileAssets (obj, profile) {
+  return hasProfileAssets(obj, profile) ? obj.meta.assets[profile] : null
+}
+
+// return the first asset in the list, or null if nothing found
+const DEFAULT_FIND_ASSET_RETURNER =
+  (obj, profile) => profile && hasProfileAssets(obj, profile)
+    ? profileAssets(obj, profile)[0]
+    : null
+
+function findAsset (obj, matcher, returner = DEFAULT_FIND_ASSET_RETURNER) {
+  if (!obj || !obj.meta || !(typeof obj.meta.assets === 'object') ||
+    Object.keys(obj.meta.assets).length === 0) {
+    return null
+  }
+  return returner(obj, Object.keys(obj.meta.assets).find((profile) => {
+    const assets = obj.meta.assets[profile]
+    return assets.length > 0 && matcher(assets, profile)
+  }))
+}
+
+export { mediaInfoFields, mediaInfoField, hasAssets, findAsset }

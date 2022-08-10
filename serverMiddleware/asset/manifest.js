@@ -62,6 +62,9 @@ async function deriveMetadata (sourcePath) {
       if (foundProfile in profiles) {
         const prof = profiles[foundProfile]
         if (prof.enabled) {
+          if (prof.operation === m.OP_MEDIAINFO && prof.contentType === 'application/json') {
+            meta.status.info = true
+          }
           if (prof.multiFile) {
             if (!(foundProfile in meta.assets)) {
               meta.assets[foundProfile] = []

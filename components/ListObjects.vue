@@ -22,6 +22,12 @@
         <div v-else>
           not-ready media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
+        <button @click="toggleMediaInfo(obj)">
+          {{ mediaInfoToggleButtonLabel(obj) }}
+        </button>
+        <div v-if="isSelectedMedia(obj)">
+          <MediaInfo v-if="isSelectedMedia(obj)" :options="mediaInfoOptions(obj)"></MediaInfo>
+        </div>
       </div>
       <div v-else>
         Regular file: {{ filterName(obj.name) }} JSON = {{ JSON.stringify(obj) }}
@@ -32,15 +38,25 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import MediaInfo from '../components/MediaInfo'
 import config from '../nuxt.config'
+import { USER_SESSION_QUERY_PARAM } from '@/shared'
 import {
-  hasMediaType, isDirectory, isViewable,
+  hasMediaType, isDirectory, isViewable, hasMediaInfo,
   mediaProfileByName, mediaType, isThumbnailProfile
 } from '@/shared/media'
-import { USER_SESSION_QUERY_PARAM } from '@/shared'
+import { hasAssets, findAsset } from '@/shared/mediainfo'
 
 export default {
   name: 'ListObjects',
+  components: {
+    MediaInfo
+  },
+  data () {
+    return {
+      mediaInfoObjectPath: null
+    }
+  },
   computed: {
     ...mapState('user', ['user', 'status']),
     ...mapState('s3', ['prefix', 'objectList', 'metadata']),
@@ -113,30 +129,33 @@ export default {
     isDir (obj) { return isDirectory(obj) },
     hasMedia (obj) { return hasMediaType(obj) },
     canView (obj) { return isViewable(obj) },
+    mediaInfo (obj) { return hasMediaInfo(obj) },
     thumbnail (obj) {
       let thumb = null
-      if (obj && obj.meta && typeof obj.meta.assets === 'object' &&
-        Object.keys(obj.meta.assets).length > 0) {
-        console.log(`thumbnail: examining obj.meta.assets=${JSON.stringify(obj.meta.assets)}`)
+      if (hasAssets(obj)) {
+        // console.log(`thumbnail: examining obj.meta.assets=${JSON.stringify(obj.meta.assets)}`)
         // todo: in the future we will allow the user to specify which thumbnail
         // we would look that up here, and if not found, then pick the first one
-        Object.keys(obj.meta.assets).every((assetProfileName) => {
-          console.log(`thumbnail: examining assetProfileName=${assetProfileName}`)
-          const assets = obj.meta.assets[assetProfileName]
-          if (assets.length > 0) {
-            const mt = mediaType(obj.name)
-            const mediaProfile = mediaProfileByName(mt, assetProfileName)
-            if (!mediaProfile) {
-              console.warn(`thumbnail: profile ${assetProfileName} not found for mediaType ${mt}`)
-            } else if (isThumbnailProfile(mediaProfile)) {
-              thumb = assets[0]
-              return false
-            }
-          }
-          return true
+        thumb = findAsset(obj, (assets, profile) => {
+          const mediaProfile = mediaProfileByName(mediaType(obj.name), profile)
+          return mediaProfile && isThumbnailProfile(mediaProfile)
         })
       }
       return thumb
+    },
+    toggleMediaInfo (obj) {
+      this.mediaInfoObjectPath = this.isSelectedMedia(obj) ? this.mediaInfoObjectPath = null : obj.name
+    },
+    mediaInfoToggleButtonLabel (obj) {
+      return `${this.isSelectedMedia(obj) ? 'hide' : 'show'} media info`
+    },
+    isSelectedMedia (obj) {
+      return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
+    },
+    mediaInfoOptions (obj) {
+      return {
+        object: obj
+      }
     }
   }
 }

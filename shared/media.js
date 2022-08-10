@@ -100,7 +100,7 @@ function mediaType (path) {
 }
 
 function mediaProfileByName (mediaType, profileName) {
-  return MEDIA[mediaType].profiles[profileName]
+  return MEDIA[mediaType] && MEDIA[mediaType].profiles ? MEDIA[mediaType].profiles[profileName] : null
 }
 
 function mediaProfilesForSource (path) {
@@ -158,6 +158,10 @@ function isViewable (obj) {
   return obj.meta && obj.meta.status && obj.meta.status.ready
 }
 
+function hasMediaInfo (obj) {
+  return obj.meta && obj.meta.status && obj.meta.status.info
+}
+
 function profileNameFromAsset (asset) {
   if (typeof asset !== 'string') {
     const message = `profileFromAsset: expected string argument, got: ${asset} (type=${typeof asset})`
@@ -177,7 +181,7 @@ function profileNameFromAsset (asset) {
 }
 
 function profileFromAsset (mediaType, asset) {
-  return MEDIA[mediaType][profileNameFromAsset(asset)]
+  return MEDIA[mediaType] ? MEDIA[mediaType][profileNameFromAsset(asset)] : null
 }
 
 // standard operations
@@ -188,16 +192,18 @@ const OP_FIRST_THUMBNAIL = 'firstThumbnail'
 const OP_MEDIAINFO = 'mediainfo'
 
 function isThumbnailProfile (profile) {
-  return profile.operation === OP_THUMBNAILS || profile.operation === OP_FIRST_THUMBNAIL
+  return profile && profile.operation &&
+    (profile.operation === OP_THUMBNAILS || profile.operation === OP_FIRST_THUMBNAIL)
 }
 
 function isMediaInfoJsonProfile (profile) {
-  return profile.operation === OP_MEDIAINFO && profile.ext === 'json'
+  return profile && profile.operation && profile.ext &&
+    profile.operation === OP_MEDIAINFO && profile.ext === 'json'
 }
 
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
-  hasMediaType, isDirectory, isViewable,
+  hasMediaType, isDirectory, isViewable, hasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,

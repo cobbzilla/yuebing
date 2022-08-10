@@ -19,13 +19,12 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '@/shared/media'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-const c = require('../../shared')
-const m = require('../../shared/media')
-const info = require('../../shared/mediainfo')
+import { getExtension } from '@/shared'
+import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
+import { mediaInfoField, hasAssets, findAsset } from '@/shared/mediainfo'
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -131,23 +130,16 @@ export default {
 
     refreshMeta () {
       const sources = this.videoOptions.sources
-      if (this.object.meta &&
-        this.object.meta.status &&
-        this.object.meta.status.ready &&
-        typeof this.object.meta.assets === 'object' &&
-        Object.keys(this.object.meta.assets).length > 0 &&
-        !this.hasSources) {
+      if (hasAssets(this.object) && !this.hasSources) {
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
           const assets = this.object.meta.assets[assetProfileName]
-          // console.log(`this.object.meta.assets = ${JSON.stringify(this.object.meta.assets)}`)
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
-          if (m.isMediaInfoJsonProfile(mediaProfile)) {
+          if (isMediaInfoJsonProfile(mediaProfile)) {
             const path = this.mediaInfoJsonPath = assets[0]
             this.fetchAsset({ path })
           }
           assets.forEach((asset) => {
-            // console.log(`for asset ${asset}, checking enabled/primary on profile ${JSON.stringify(mediaProfile)}`)
-            if (mediaProfile.enabled && mediaProfile.primary && c.getExtension(asset) === mediaProfile.ext) {
+            if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
               console.log(`video.vue: pushing src = /s3/proxy/${asset}`)
               sources.push({
                 src: `/s3/proxy/${asset}`,
@@ -163,7 +155,7 @@ export default {
     },
 
     mediaInfoField (field) {
-      return this.mediaInfoJson ? info.mediaInfoField(field, this.mediaInfoJson) : null
+      return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson) : null
     }
   }
 }
