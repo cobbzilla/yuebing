@@ -11,9 +11,10 @@ function getExtension (filename) {
   return filename.split('.').pop()
 }
 
-const USER_SESSION_HEADER = 'X-S3Vid-Session'
+const USER_SESSION_HEADER = 'x-s3vid-session'
+const USER_SESSION_QUERY_PARAM = 'svs'
 
 export {
-  USER_SESSION_HEADER,
+  USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM,
   snooze, getExtension
 }

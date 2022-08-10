@@ -33,16 +33,26 @@ async function startSession (user) {
   return user
 }
 
+const SESSION_HEADER = shared.USER_SESSION_HEADER
+const SESSION_PARAM = shared.USER_SESSION_QUERY_PARAM
+
 async function currentUser (req) {
-  if (req.headers && req.headers[shared.USER_SESSION_HEADER.toLowerCase()]) {
-    const session = req.headers[shared.USER_SESSION_HEADER.toLowerCase()]
-    try {
-      const val = await redis.get(session)
-      return val ? JSON.parse(val) : null
-    } catch (e) {
-      console.log(`currentUser: error ${e}`)
-      return null
-    }
+  let session = null
+  if (req.headers && req.headers[SESSION_HEADER]) {
+    session = req.headers[SESSION_HEADER]
+  } else if (req.url.includes('?')) {
+    const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
+    session = query && query.has(SESSION_PARAM) ? query.get(SESSION_PARAM) : null
+  }
+  if (!session) {
+    return null
+  }
+  try {
+    const val = await redis.get(session)
+    return val ? JSON.parse(val) : null
+  } catch (e) {
+    console.log(`currentUser: error ${e}`)
+    return null
   }
 }
 

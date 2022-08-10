@@ -80,13 +80,12 @@ export default {
   path: '/api/s3/scan',
   async handler (req, res) {
     const user = await u.requireUser(req, res)
-    if (!user) {
-      return
+    if (user) {
+      const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
+      console.log(`'>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
+      const transforms = await scan(prefix)
+      res.contentType = 'application/json'
+      res.end(JSON.stringify(transforms))
     }
-    const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
-    console.log(`'>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
-    const transforms = await scan(prefix)
-    res.contentType = 'application/json'
-    res.end(JSON.stringify(transforms))
   }
 }

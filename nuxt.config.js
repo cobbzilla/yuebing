@@ -6,10 +6,11 @@ export default {
     title: process.env.SV_TITLE || 's3vid',
 
     // Set to true to allow anonymous browsing/viewing
+    // WARNING: This can generate expensive bandwidth bills, depending on your site's traffic load
     public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false
   },
 
   privateRuntimeConfig: {
@@ -81,7 +82,7 @@ export default {
       // How long to wait before the initial startup scan
       // Zero or negative means disable initial scan
       // Minimum interval is 5 seconds. Lower settings are ignored.
-      initialDelay: process.env.SV_INITIAL_SCAN_DELAY || 1000 * 30, // default 30 seconds
+      initialDelay: process.env.SV_AUTOSCAN_INITIAL_DELAY || 1000 * 30, // default 30 seconds
 
       // Show stdout/stderr from transform commands? It is a LOT of output (ffmpeg for example)
       showTransformOutput: false,

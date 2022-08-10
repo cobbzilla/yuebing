@@ -16,7 +16,7 @@
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/'+obj.mediaType, query: {n: obj.name}}">
             viewable media: {{ filterName(obj.name) }}
-            <img v-if="thumbnail(obj)" :src="`/s3/proxy/${thumbnail(obj)}`" width="200" height="200"></img>
+            <img v-if="thumbnail(obj)" :src="`/s3/proxy/${thumbnail(obj)}${thumbnailUrlParams}`" width="200" height="200"></img>
           </NuxtLink>
         </div>
         <div v-else>
@@ -32,14 +32,17 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import config from '../nuxt.config'
 import {
   hasMediaType, isDirectory, isViewable,
   mediaProfileByName, mediaType, isThumbnailProfile
 } from '@/shared/media'
+import { USER_SESSION_QUERY_PARAM } from '@/shared'
 
 export default {
   name: 'ListObjects',
   computed: {
+    ...mapState('user', ['user', 'status']),
     ...mapState('s3', ['prefix', 'objectList', 'metadata']),
     displayPrefix () {
       return this.prefix === ''
@@ -71,6 +74,14 @@ export default {
         })
       }
       return filtered
+    },
+    thumbnailUrlParams () {
+      if (config.publicRuntimeConfig.public ||
+        !this.user || !this.user.session ||
+        !this.status || !this.status.loggedIn) {
+        return ''
+      }
+      return `?${USER_SESSION_QUERY_PARAM}=${this.user.session}`
     }
   },
   watch: {

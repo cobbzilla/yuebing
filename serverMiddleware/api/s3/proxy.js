@@ -40,7 +40,14 @@ export default {
     if (!user) {
       return
     }
-    const path = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
+
+    // chop query if any
+    const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
+
+    // adjust for undefined paths, chop leading / if present
+    const path = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
+
+    // only HEAD and GET are allowed, return 404 for anything else
     switch (req.method) {
       case 'HEAD':
         await head(req, res, path)
