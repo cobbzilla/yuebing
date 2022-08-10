@@ -14,7 +14,7 @@ async function deriveMetadata (sourcePath) {
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
     if (Date.now() - cachedMeta.ctime < MANIFEST_CACHE_EXPIRATION) {
-      // console.log(`'deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
+      // console.log(`deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
       return cachedMeta
     }
     // check last-modified time on directory

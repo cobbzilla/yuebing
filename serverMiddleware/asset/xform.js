@@ -161,7 +161,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     const head = await s3util.headDestObject(destKey)
     if (head && head.ContentLength && head.ContentLength === outfileSize) {
       // upload success!
-      console.log(`'uploadAsset(${destKey}): uploaded ${outfile} to destKey=${destKey}`)
+      console.log(`uploadAsset(${destKey}): uploaded ${outfile} to destKey=${destKey}`)
       s3util.touchLastModified(sourcePath)
       await redis.del(util.redisMetaCacheKey(sourcePath))
       q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destKey)

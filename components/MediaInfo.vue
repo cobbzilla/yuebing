@@ -14,7 +14,7 @@
     </button>
 
     <div v-if="showEditor && canEdit(options.object)">
-      <form @submit.prevent="updateMediaInfo">
+      <form @submit.prevent="updateMediaInfoValues">
         <div v-for="(field, index) in editableInfoFields" :key="index">
 
           <div class="form-group">
@@ -54,13 +54,14 @@ export default {
     return {
       mediaInfoJsonPath: null,
       mediaInfo: null,
+      origInfoFieldValues: {},
       infoFieldValues: {},
       showEditor: false
     }
   },
   computed: {
     ...mapState('user', ['user', 'status']),
-    ...mapState('s3', ['assetData']),
+    ...mapState('s3', ['assetData', 'userMediaInfo']),
     infoFields () {
       return mediaInfoFields()
     },
@@ -72,15 +73,30 @@ export default {
     },
     editButtonLabel () {
       return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata'
+    },
+    getUserMediaInfo () {
+      return this.options.object && this.options.object.name &&
+      this.userMediaInfo && this.userMediaInfo[this.options.object.name]
+        ? this.userMediaInfo[this.options.object.name]
+        : {}
     }
   },
   watch: {
     assetData (newAssetData, oldAssetData) {
-      console.log(`MediaInfo.watch.assetData starting with newAssetData=${JSON.stringify(newAssetData)}`)
+      // console.log(`MediaInfo.watch.assetData starting with newAssetData=${JSON.stringify(newAssetData)}`)
       if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
         this.mediaInfo = newAssetData[this.mediaInfoJsonPath]
       } else {
         console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
+      }
+    },
+    userMediaInfo (newInfo, oldInfo) {
+      console.log(`--------------- MediaInfo.watch.userMediaInfo: got new info: ${JSON.stringify(newInfo)}`)
+      if (this.options.object && this.options.object.name && newInfo[this.options.object.name]) {
+        const newMediaInfo = newInfo[this.options.object.name]
+        Object.keys(newMediaInfo).forEach((prop) => {
+          this.infoFieldValues[prop] = newMediaInfo[prop]
+        })
       }
     }
   },
@@ -89,15 +105,21 @@ export default {
     this.refreshMediaInfo()
   },
   methods: {
-    ...mapActions('s3', ['fetchAsset']),
+    ...mapActions('s3', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
     infoField (field) {
-      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo) : null
+      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : null
     },
     infoFieldValue (field) {
-      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo) : ''
+      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : ''
     },
     refreshMediaInfo () {
       const obj = this.options.object
+      if (obj && obj.name) {
+        // get user media info
+        console.log(`refreshMediaInfo: fetching user media info for path: ${obj.name}`)
+        const path = obj.name
+        this.fetchUserMediaInfo({ path })
+      }
       if (hasAssets(obj) && !this.mediaInfoJsonPath) {
         console.log(`MediaInfo.refreshMediaInfo started, this.mediaInfoJsonPath=${this.mediaInfoJsonPath}, obj=${JSON.stringify(obj)}`)
         this.mediaInfoJsonPath = findAsset(obj, (assets, profile) => {
@@ -120,18 +142,20 @@ export default {
     toggleEditButton () {
       this.showEditor = !this.showEditor
       if (this.showEditor) {
-        console.log(`MediaInfo.toggleEditButton: filtering this.editableInfoFields ${JSON.stringify(this.editableInfoFields)}`)
         this.editableInfoFields.forEach((field) => {
-          console.log(`MediaInfo.toggleEditButton: setting field ${field} = ${this.infoFieldValue(field)}`)
-          this.infoFieldValues[field] = this.infoFieldValue(field)
+          this.origInfoFieldValues[field] = this.infoFieldValues[field] = this.infoFieldValue(field)
         })
       } else {
-        console.log('MediaInfo.toggleEditButton: showEditor was false, clearing editedFields')
-        this.infoFieldValues = {}
+        this.editableInfoFields.forEach((field) => {
+          this.infoFieldValues[field] = this.origInfoFieldValues[field]
+        })
       }
     },
-    updateMediaInfo (e) {
-      console.log(`updateMediaInfo: submitting edits to metadata yo: ${JSON.stringify(this.infoFieldValues)}`)
+    updateMediaInfoValues (e) {
+      const path = this.options.object.name
+      const values = this.infoFieldValues
+      this.updateUserMediaInfo({ path, values })
+      this.showEditor = false
     }
   }
 }

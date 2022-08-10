@@ -4,8 +4,6 @@ const shasum = require('shasum')
 const c = require('../../shared')
 const s3cfg = require('../s3/s3client')
 
-const MAX_CONCURRENT_TRANSFORMS = 2
-
 const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
   ? process.env.SV_WORK_DIR
   : process.env.SV_WORK_DIR + '/'
@@ -80,7 +78,7 @@ function redisMetaCacheKey (sourcePath) {
 export {
   canonicalSourceFile, canonicalWorkingDir, canonicalDestDir,
   deleteFile, statSize, redisMetaCacheKey,
-  workbenchDir, MAX_CONCURRENT_TRANSFORMS,
+  workbenchDir,
   MULTIFILE_PLACEHOLDER, MULTIFILE_FIRST,
   LAST_MODIFIED_FILE, ERROR_FILE_PREFIX
 }

@@ -27,7 +27,7 @@ async function get (req, res, path) {
 
   const range = (req.headers && req.headers.Range) ? req.headers.Range : null
   if (range) {
-    console.log(`'>>>>> API: Proxying ${req.url}, prefix = ${path}, range = ${range}`)
+    console.log(`>>>>> API: Proxying ${req.url}, prefix = ${path}, range = ${range}`)
   }
 
   res.statusCode = 200

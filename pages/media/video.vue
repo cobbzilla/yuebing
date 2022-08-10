@@ -52,7 +52,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('s3', ['objectList', 'metadata', 'assetData']),
+    ...mapState('s3', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     hasSources () {
       return hasSourceVideos(this)
     },
@@ -61,6 +61,11 @@ export default {
     },
     hasMediaInfoJsonPath () {
       return this.object && this.mediaInfoJsonPath
+    },
+    getUserMediaInfo () {
+      return this.name && this.userMediaInfo && this.userMediaInfo[this.name]
+        ? this.userMediaInfo[this.name]
+        : {}
     }
   },
   watch: {
@@ -126,9 +131,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions('s3', ['fetchMetadata', 'fetchAsset']),
+    ...mapActions('s3', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
 
     refreshMeta () {
+      if (this.name) {
+        // get user media info
+        this.fetchUserMediaInfo(this.name)
+      }
       const sources = this.videoOptions.sources
       if (hasAssets(this.object) && !this.hasSources) {
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
@@ -155,7 +164,7 @@ export default {
     },
 
     mediaInfoField (field) {
-      return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson) : null
+      return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson, this.getUserMediaInfo) : null
     }
   }
 }

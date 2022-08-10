@@ -1,11 +1,120 @@
 const jp = require('jsonpath')
 
 const META_FIELDS = {
-  videoTracks: { find: ['$.media.track[?(@.@type=="General")].VideoCount'] },
-  audioTracks: { find: ['$.media.track[?(@.@type=="General")].AudioCount'] },
-  format: { find: ['$.media.track[?(@.@type=="General")].Format'] },
-  contentType: { find: ['$.media.track[?(@.@type=="General")].InternetMediaType'] },
+
+  // fixme -- some of the less common ones are probably not correct and/or may require more JSONPaths in the find array
+  // sort: 1xxx -- important/editable fields
+  title: {
+    sort: 1000,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Title']
+  },
+  artist: {
+    sort: 1010,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Artist']
+  },
+  album_artist: {
+    sort: 1020,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Album_Artist']
+  },
+  author: {
+    sort: 1030,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Author']
+  },
+  composer: {
+    sort: 1040,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Composer']
+  },
+  year: {
+    sort: 1050,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Year']
+  },
+  copyright: {
+    sort: 1060,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Copyright']
+  },
+  album: {
+    sort: 1070,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Album']
+  },
+  movie: {
+    sort: 1080,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Movie']
+  },
+  description: {
+    sort: 1090,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Description']
+  },
+  comment: {
+    sort: 1100,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Comment']
+  },
+  genre: {
+    sort: 1110,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Genre']
+  },
+  location: {
+    sort: 1120,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Location']
+  },
+  show: {
+    sort: 1130,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Show']
+  },
+  episode: {
+    sort: 1140,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Episode']
+  },
+  episode_sort: {
+    sort: 1150,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Episode_Sort']
+  },
+  season: {
+    sort: 1160,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Season']
+  },
+  lyrics: {
+    sort: 1170,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Lyrics']
+  },
+
+  // sort: 2xxx -- important read-only fields
+  duration: {
+    sort: 2000,
+    find: [
+      '$.media.track[?(@.@type=="General")].Duration_String2',
+      '$.media.track[?(@.@type=="General")].Duration_String2',
+      '$.media.track[?(@.@type=="General")].Duration_String',
+      '$.media.track[?(@.@type=="General")].Duration'
+    ]
+  },
+  width: {
+    sort: 2010,
+    find: ['$.media.track[?(@.@type=="Video")].Width']
+  },
+  height: {
+    sort: 2020,
+    find: ['$.media.track[?(@.@type=="Video")].Height']
+  },
   size: {
+    sort: 2030,
     find: [
       '$.media.track[?(@.@type=="General")].FileSize_String4',
       '$.media.track[?(@.@type=="General")].FileSize_String3',
@@ -15,50 +124,52 @@ const META_FIELDS = {
       '$.media.track[?(@.@type=="General")].FileSize'
     ]
   },
-  duration: {
-    find: [
-      '$.media.track[?(@.@type=="General")].Duration_String2',
-      '$.media.track[?(@.@type=="General")].Duration_String2',
-      '$.media.track[?(@.@type=="General")].Duration_String',
-      '$.media.track[?(@.@type=="General")].Duration'
-    ]
-  },
-  bitRate: { find: ['$.media.track[?(@.@type=="General")].OverallBitRate'] },
-  frameRate: { find: ['$.media.track[?(@.@type=="General")].FrameRate'] },
-  dateEncoded: { find: ['$.media.track[?(@.@type=="General")].File_Modified_Date'] },
-  width: { find: ['$.media.track[?(@.@type=="Video")].Width'] },
-  height: { find: ['$.media.track[?(@.@type=="Video")].Height'] },
 
-  // todo -- some of the less common ones are probably not correct and/or may require more JSONPaths in the find array
-  title: { editable: true, find: ['$.media.track[?(@.@type=="General")].Title'] },
-  artist: { editable: true, find: ['$.media.track[?(@.@type=="General")].Artist'] },
-  album_artist: { editable: true, find: ['$.media.track[?(@.@type=="General")].Album_Artist'] },
-  author: { editable: true, find: ['$.media.track[?(@.@type=="General")].Author'] },
-  composer: { editable: true, find: ['$.media.track[?(@.@type=="General")].Composer'] },
-  year: { editable: true, find: ['$.media.track[?(@.@type=="General")].Year'] },
-  copyright: { editable: true, find: ['$.media.track[?(@.@type=="General")].Copyright'] },
-  album: { editable: true, find: ['$.media.track[?(@.@type=="General")].Album'] },
-  movie: { editable: true, find: ['$.media.track[?(@.@type=="General")].Movie'] },
-  description: { editable: true, find: ['$.media.track[?(@.@type=="General")].Description'] },
-  comment: { editable: true, find: ['$.media.track[?(@.@type=="General")].Comment'] },
-  genre: { editable: true, find: ['$.media.track[?(@.@type=="General")].Genre'] },
-  location: { editable: true, find: ['$.media.track[?(@.@type=="General")].Location'] },
-  show: { editable: true, find: ['$.media.track[?(@.@type=="General")].Show'] },
-  episode: { editable: true, find: ['$.media.track[?(@.@type=="General")].Episode'] },
-  episode_sort: { editable: true, find: ['$.media.track[?(@.@type=="General")].Episode_Sort'] },
-  season: { editable: true, find: ['$.media.track[?(@.@type=="General")].Season'] },
-  lyrics: { editable: true, find: ['$.media.track[?(@.@type=="General")].Lyrics'] }
+  // sort: 3xxx -- less well-known fields
+  videoTracks: {
+    sort: 3000,
+    find: ['$.media.track[?(@.@type=="General")].VideoCount']
+  },
+  audioTracks: {
+    sort: 3010,
+    find: ['$.media.track[?(@.@type=="General")].AudioCount']
+  },
+  format: {
+    sort: 3020,
+    find: ['$.media.track[?(@.@type=="General")].Format']
+  },
+  contentType: {
+    sort: 3030,
+    find: ['$.media.track[?(@.@type=="General")].InternetMediaType']
+  },
+  bitRate: {
+    sort: 3040,
+    find: ['$.media.track[?(@.@type=="General")].OverallBitRate']
+  },
+  frameRate: {
+    sort: 3050,
+    find: ['$.media.track[?(@.@type=="General")].FrameRate']
+  },
+  dateEncoded: {
+    sort: 3060,
+    find: ['$.media.track[?(@.@type=="General")].File_Modified_Date']
+  }
 }
 
+const sortInfoFields = (f1, f2) => META_FIELDS[f1].sort - META_FIELDS[f2].sort
+
 function mediaInfoFields () {
-  return Object.keys(META_FIELDS)
+  return Object.keys(META_FIELDS).sort(sortInfoFields)
 }
 
 function editableMediaInfoFields () {
-  return Object.keys(META_FIELDS).filter(k => META_FIELDS[k].editable)
+  return Object.keys(META_FIELDS).filter(k => META_FIELDS[k].editable).sort(sortInfoFields)
 }
 
-function mediaInfoField (field, mediainfo) {
+function mediaInfoField (field, mediainfo, userMediainfo) {
+  if (userMediainfo && userMediainfo[field]) {
+    return userMediainfo[field]
+  }
   const candidates = META_FIELDS[field]
   if (candidates && candidates.find) {
     for (let i = 0; i < candidates.find.length; i++) {

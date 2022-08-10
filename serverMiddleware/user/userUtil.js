@@ -199,7 +199,8 @@ if (ADMIN_USER) {
 }
 
 export {
-  userKey, startSession, currentUser, isAdmin, requireUser, requireAdmin,
+  userKey, startSession, currentUser, isAdmin,
+  requireUser, requireAdmin,
   UserValidationException, registerUser,
   deleteUser
 }

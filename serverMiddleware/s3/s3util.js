@@ -275,7 +275,7 @@ async function deleteDestObject (destKey) {
 function touchLastModified (sourcePath) {
   const path = util.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE
   const bucketParams = Object.assign({}, s3cfg.destBucketParams, { Key: path, Body: '' + Date.now() })
-  destPut(bucketParams, `'touchLastModified: error writing ${path}`)
+  destPut(bucketParams, `touchLastModified: error writing ${path}`)
   console.log(`touchLastModified: touched: ${path}`)
 }
 

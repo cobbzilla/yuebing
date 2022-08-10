@@ -12,7 +12,14 @@ export const state = () => ({
 
   assetData: {},
   loadingAsset: false,
-  loadingAssetError: null
+  loadingAssetError: null,
+
+  updatingMediaInfo: false,
+  updatingMediaInfoError: null,
+
+  userMediaInfo: {},
+  fetchingUserMediaInfo: false,
+  fetchingUserMediaInfoError: null
 })
 
 export const actions = {
@@ -59,6 +66,35 @@ export const actions = {
         },
         error => commit('fetchAssetFailure', error)
       )
+  },
+
+  fetchUserMediaInfo ({ dispatch, commit }, { path }) {
+    commit('fetchUserMediaInfoRequest')
+    console.log('***** fetchUserMediaInfo starting')
+    s3Service
+      .fetchUserMediaInfo(path)
+      .then(
+        (values) => {
+          console.log(`***** fetchUserMediaInfo committing values: ${JSON.stringify(values)}`)
+          commit('fetchUserMediaInfoSuccess', { path, values })
+        },
+        (error) => {
+          console.log(`***** fetchUserMediaInfo committing error: ${error}`)
+          commit('fetchUserMediaInfoFailure', error)
+        }
+      )
+  },
+
+  updateUserMediaInfo ({ dispatch, commit }, { path, values }) {
+    commit('updateMediaInfoRequest')
+    s3Service
+      .updateMediaInfo(path, values)
+      .then(
+        () => {
+          commit('updateMediaInfoSuccess', { path, values })
+        },
+        error => commit('updateMediaInfoFailure', error)
+      )
   }
 }
 
@@ -82,8 +118,6 @@ export const mutations = {
     state.loadingMetadata = true
   },
   fetchMetaSuccess (state, { path, meta }) {
-    // console.log(`fetchMetaSuccess: path=${path}, meta=${JSON.stringify(meta)}, and state=${state}`)
-    // state.metadata[path] = meta
     state.metadata = Object.assign({}, state.metadata, { path: meta })
     state.loadingMetadataError = null
     state.loadingMetadata = false
@@ -110,5 +144,35 @@ export const mutations = {
   fetchAssetFailure (state, error) {
     state.loadingAsset = false
     state.loadingAssetError = error
+  },
+
+  fetchUserMediaInfoRequest (state) {
+    state.fetchingUserMediaInfo = true
+  },
+  fetchUserMediaInfoSuccess (state, { path, values }) {
+    const newInfo = {}
+    newInfo[path] = values
+    state.userMediaInfo = Object.assign({}, state.userMediaInfo, newInfo)
+    state.fetchingUserMediaInfoError = null
+    state.fetchingUserMediaInfo = false
+  },
+  fetchUserMediaInfoFailure (state, error) {
+    state.fetchingUserMediaInfoError = error
+    state.fetchingMediaInfo = false
+  },
+
+  updateMediaInfoRequest (state) {
+    state.updatingMediaInfo = true
+  },
+  updateMediaInfoSuccess (state, { path, values }) {
+    const newInfo = {}
+    newInfo[path] = values
+    state.userMediaInfo = Object.assign({}, state.userMediaInfo, newInfo)
+    state.updatingMediaInfoError = null
+    state.updatingMediaInfo = false
+  },
+  updateMediaInfoFailure (state, error) {
+    state.updatingMediaInfoError = error
+    state.updatingMediaInfo = false
   }
 }
