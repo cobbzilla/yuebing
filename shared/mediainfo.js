@@ -94,6 +94,11 @@ const META_FIELDS = {
     editable: true,
     find: ['$.media.track[?(@.@type=="General")].Lyrics']
   },
+  tags: {
+    sort: 1500,
+    editable: true,
+    find: ['$.media.track[?(@.@type=="General")].Tags'] // fixme: is this correct?
+  },
 
   // sort: 2xxx -- important read-only fields
   duration: {
