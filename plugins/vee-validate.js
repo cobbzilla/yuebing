@@ -7,5 +7,5 @@ Vue.component('ValidationObserver', ValidationObserver)
 
 for (const [rule, validation] of Object.entries(rules)) {
   // noinspection TypeScriptValidateTypes
-  extend(rule, { ...validation })
+  extend(rule, Object.assign({}, { ...validation }, { message: rule }))
 }

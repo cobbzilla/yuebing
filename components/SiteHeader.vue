@@ -1,27 +1,29 @@
 <template>
   <div>
-    <div v-if="status">
-      Your user status: {{ status }}
-    </div>
+<!--    <div v-if="status">-->
+<!--      {{ status }}-->
+<!--    </div>-->
     <div v-if="user">
-      <h2>Welcome, {{ accountName }}</h2>
-      <button @click="logOut">Sign Out</button>
+      <h2>{{ messages.welcome.parseMessage(this, { user }) }}</h2>
+      <button @click="logOut">{{ messages.button_logout }}</button>
     </div>
     <div v-else>
-      <NuxtLink to="/signIn">Sign In</NuxtLink>
-      <NuxtLink v-if="allowRegistration" to="/signUp">Sign Up</NuxtLink>
+      <NuxtLink to="/signIn">{{ messages.button_login }}</NuxtLink>
+      <NuxtLink v-if="allowRegistration" to="/signUp">{{ messages.button_register }}</NuxtLink>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import { localeMessagesForUser } from '@/shared/locale'
 import config from '../nuxt.config'
 
 export default {
   name: 'SiteHeader',
   computed: {
     ...mapState('user', ['user', 'status']),
+    messages () { return localeMessagesForUser(this.user) },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {

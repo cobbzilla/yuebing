@@ -4,7 +4,7 @@ import glob from 'glob'
 const fs = require('fs')
 const path = require('path')
 const shellescape = require('shell-escape')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 const s3cfg = require('../s3/s3client.js')
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
@@ -16,7 +16,7 @@ const q = require('./job')
 
 const MAX_XFORM_ERRORS = 3
 
-const SHOW_XFORM_OUTPUT = nuxt.default.privateRuntimeConfig.autoscan.showTransformOutput
+const SHOW_XFORM_OUTPUT = nuxt.privateRuntimeConfig.autoscan.showTransformOutput
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
   ensureSourceDownloaded(job).then((file) => {
@@ -28,7 +28,7 @@ const XFORM_PROCESS_FUNCTION = (job, done) => {
 
 q.initializeQueue(XFORM_PROCESS_FUNCTION)
 
-const MEDIA_COMMANDS = nuxt.default.privateRuntimeConfig.media
+const MEDIA_COMMANDS = nuxt.privateRuntimeConfig.media
 const ALWAYS_ALLOWED_COMMANDS = ['mediainfo']
 
 function mediainfo (sourcePath, sourceFile, profile, outfile) {

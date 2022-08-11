@@ -1,9 +1,9 @@
-const nuxt = require('../../../nuxt.config')
+const nuxt = require('../../../nuxt.config').default
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const userAdmin = require('../../user/userAdmin')
 
-const USER_ENC_KEY = nuxt.default.privateRuntimeConfig.userEncryption.key
+const USER_ENC_KEY = nuxt.privateRuntimeConfig.userEncryption.key
 
 export default {
   path: '/api/admin/migrateUsers',

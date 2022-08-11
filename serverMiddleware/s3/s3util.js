@@ -4,14 +4,14 @@ import {
 import { Upload } from '@aws-sdk/lib-storage'
 
 const fs = require('fs')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 const m = require('../../shared/media')
 const redis = require('../util/redis')
 const util = require('../util/file')
 const s3cfg = require('./s3client.js')
 
 const CACHE_PREFIX = 'CACHED_S3_LIST_SOURCE_'
-const LIST_CACHE_EXPIRATION = nuxt.default.privateRuntimeConfig.redis.listingCacheExpiration
+const LIST_CACHE_EXPIRATION = nuxt.privateRuntimeConfig.redis.listingCacheExpiration
 
 async function listDest (prefix) {
   const client = s3cfg.destClient

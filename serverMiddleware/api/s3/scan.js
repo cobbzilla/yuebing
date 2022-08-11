@@ -1,4 +1,4 @@
-const nuxt = require('../../../nuxt.config')
+const nuxt = require('../../../nuxt.config').default
 const m = require('../../../shared/media')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
@@ -37,7 +37,7 @@ function autoscan () {
   }
 }
 
-const AUTOSCAN = nuxt.default.privateRuntimeConfig.autoscan
+const AUTOSCAN = nuxt.privateRuntimeConfig.autoscan
 if (AUTOSCAN.interval > 0) {
   const autoScanInterval = Math.max(AUTOSCAN.interval, AUTOSCAN_MINIMUM_INTERVAL)
   setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval

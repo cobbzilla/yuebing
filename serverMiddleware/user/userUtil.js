@@ -2,22 +2,24 @@ const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 const shared = require('../../shared/index')
+const loc = require('../../shared/locale')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
 const s3util = require('../s3/s3util')
 const api = require('../util/api')
+const email = require('../util/email')
 
-const BCRYPT_ROUNDS = nuxt.default.privateRuntimeConfig.userEncryption.bcryptRounds
-const USER_ENC_KEY = nuxt.default.privateRuntimeConfig.userEncryption.key
-const SESSION_EXPIRATION = nuxt.default.privateRuntimeConfig.session.expiration
+const BCRYPT_ROUNDS = nuxt.privateRuntimeConfig.userEncryption.bcryptRounds
+const USER_ENC_KEY = nuxt.privateRuntimeConfig.userEncryption.key
+const SESSION_EXPIRATION = nuxt.privateRuntimeConfig.session.expiration
 
-const ADMIN = nuxt.default.privateRuntimeConfig.admin
+const ADMIN = nuxt.privateRuntimeConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
 
-const ALLOW_REGISTRATION = nuxt.default.publicRuntimeConfig.allowRegistration
-const PUBLIC = nuxt.default.publicRuntimeConfig.public
+const ALLOW_REGISTRATION = nuxt.publicRuntimeConfig.allowRegistration
+const PUBLIC = nuxt.publicRuntimeConfig.public
 
 function userStorePrefix (key = USER_ENC_KEY) {
   return `users_${shasum(`users:${key}`)}/`
@@ -25,7 +27,7 @@ function userStorePrefix (key = USER_ENC_KEY) {
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
-  const LIMIT_REG = nuxt.default.publicRuntimeConfig.limitRegistration
+  const LIMIT_REG = nuxt.publicRuntimeConfig.limitRegistration
   if (!LIMIT_REG) {
     return Promise.resolve(null)
   }
@@ -34,14 +36,14 @@ function initLimitRegistration () {
       // use as-is, it should be an array of email addresses
       return Promise.resolve(LIMIT_REG)
     } else {
-      throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+      throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
     }
   } else if (typeof LIMIT_REG === 'string') {
     return s3util.readDestTextObject(LIMIT_REG).then((text) => {
       if (text.trim().startsWith('[')) {
         const list = JSON.parse(text)
         if (list.length === 0 || typeof list[0] !== 'string') {
-          throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
+          throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
         }
         return list
       } else {
@@ -49,7 +51,7 @@ function initLimitRegistration () {
       }
     })
   } else {
-    throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+    throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
   }
 }
 
@@ -257,6 +259,14 @@ function createUserRecord (user, successHandler) {
     redis.set(key, token, USER_VERIFY_EXPIRATION).then(() => {
       console.log(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
     })
+    email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, { user, token }).then(
+      (ok) => {
+        console.log(`createUserRecord: verification request sent to user: ${user.email}`)
+      },
+      (err) => {
+        console.error(`createUserRecord: ERROR sending verification request to user: ${user.email}: ${err}`)
+      }
+    )
   }
   const bucketParams = {
     Key: userKey(user.email),

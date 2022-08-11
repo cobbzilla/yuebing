@@ -1,11 +1,11 @@
 const path = require('path')
 const redis = require('../util/redis')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 const s3util = require('../s3/s3util')
 const util = require('../util/file')
 const m = require('../../shared/media')
 
-const MANIFEST_CACHE_EXPIRATION = nuxt.default.privateRuntimeConfig.redis.manifestCacheExpiration
+const MANIFEST_CACHE_EXPIRATION = nuxt.privateRuntimeConfig.redis.manifestCacheExpiration
 
 async function flushCachedMetadata (sourcePath) {
   const cacheKey = util.redisMetaCacheKey(sourcePath)

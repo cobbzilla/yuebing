@@ -18,7 +18,18 @@ export default {
     //    addresses to allow registration from. The contents of this file can be a JSON array, or a flat
     //    text file with one email address per line
     // 2. An array object, containing the email addresses to allow registration from
-    limitRegistration: process.env.SV_LIMIT_REGISTRATION || null
+    limitRegistration: process.env.SV_LIMIT_REGISTRATION || null,
+
+    // To add support for a new locale:
+    //  - Add the locale name to the 'locales' array below
+    //  - For UI/API strings: copy shared/messages/en_US.js to shared/messages/<locale>.js and translate/adjust as needed
+    //  - If email is enabled, copy the serverMiddleware/templates/email/en_US directory to a directory named after
+    //    the new locale, then edit the files and translate/adjust as needed
+    //  - If you're feeling extra nice, edit shared/messages/en_US.js (and all others) and add a translation for
+    //    your new locale. This is for when your new locale appears a drop-down list, it will be translated
+    //    into the user's language.
+    locales: ['en_US', 'fr_FR'],
+    defaultLocale: process.env.SV_DEFAULT_LOCALE || 'en_US'
   },
 
   privateRuntimeConfig: {
@@ -32,12 +43,14 @@ export default {
     },
 
     // SMTP settings for sending email
-    // If host or port is null, emails will be disabled
+    // If host is not set, emails will be disabled
     email: {
       host: process.env.SV_EMAIL_HOST || null,
-      port: process.env.SV_EMAIL_PORT || null,
+      port: process.env.SV_EMAIL_PORT || 587,
       user: process.env.SV_EMAIL_USER || null,
-      password: process.env.SV_EMAIL_PASSWORD || null
+      password: process.env.SV_EMAIL_PASSWORD || null,
+      secure: process.env.SV_EMAIL_SECURE || true,
+      fromEmail: process.env.SV_EMAIL_FROM || 'nobody@localhost'
     },
 
     // redis is used for: server-side caching, the xform job queue, and web sessions

@@ -1,7 +1,7 @@
 // adapted from https://stackoverflow.com/a/64136185
 const crypto = require('crypto')
 const shasum = require('shasum')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 
 const MIN_KEY_LEN = 16
 
@@ -20,11 +20,11 @@ function normalizeIV (iv, key) {
 }
 
 // ensure key long enough for security, and is 32 bytes for AES-256
-const rawKey = nuxt.default.privateRuntimeConfig.userEncryption.key
+const rawKey = nuxt.privateRuntimeConfig.userEncryption.key
 const KEY = normalizeKey(rawKey)
 
 // ensure IV is 16 bytes for AES-256
-const rawIV = nuxt.default.privateRuntimeConfig.userEncryption.iv
+const rawIV = nuxt.privateRuntimeConfig.userEncryption.iv
 const CRYPTO_IV = normalizeIV(rawIV, KEY)
 
 if (!KEY) {

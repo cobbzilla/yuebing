@@ -1,7 +1,7 @@
 const Redis = require('ioredis')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 
-const redisConfig = nuxt.default.privateRuntimeConfig.redis
+const redisConfig = nuxt.privateRuntimeConfig.redis
 
 const redisClient = new Redis({
   host: redisConfig.host,

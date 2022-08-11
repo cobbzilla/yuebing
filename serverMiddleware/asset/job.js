@@ -1,13 +1,13 @@
 const Queue = require('bull')
-const nuxt = require('../../nuxt.config')
+const nuxt = require('../../nuxt.config').default
 const XFORM_QUEUE_NAME = 'xform'
 const XFORM_JOB_NAME = 'xform-job'
 let JOB_QUEUE = null
 
 const QUEUED_PATHS = {}
 
-const redisConfig = nuxt.default.privateRuntimeConfig.redis
-const MAX_CONCURRENCY = nuxt.default.privateRuntimeConfig.autoscan.concurrency
+const redisConfig = nuxt.privateRuntimeConfig.redis
+const MAX_CONCURRENCY = nuxt.privateRuntimeConfig.autoscan.concurrency
 
 function initializeQueue (processFunction) {
   if (JOB_QUEUE === null) {

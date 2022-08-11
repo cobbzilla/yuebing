@@ -3,7 +3,7 @@
 // As such, code here should remain very simple. Constants. Stateless methods. Nothing too fancy.
 //
 
-const nuxt = require('../nuxt.config')
+const nuxt = require('../nuxt.config').default
 
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -16,7 +16,7 @@ const USER_SESSION_HEADER = 'x-s3vid-session'
 const USER_SESSION_QUERY_PARAM = 's'
 
 function sessionParams (user, status) {
-  if (nuxt.default.publicRuntimeConfig.public ||
+  if (nuxt.publicRuntimeConfig.public ||
     !user || !user.session ||
     !status || !status.loggedIn) {
     return ''
