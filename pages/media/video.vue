@@ -22,7 +22,7 @@ import { mapState, mapActions } from 'vuex'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-import { sessionParams, getExtension } from '@/shared'
+import { sessionParams, proxyMediaUrl, getExtension } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
 import { mediaInfoField, hasAssets } from '@/shared/mediainfo'
 
@@ -79,7 +79,7 @@ export default {
         this.object.meta = newMeta
       }
       if (this.object.meta.selectedThumbnail) {
-        this.videoOptions.poster = `/api/s3/proxy/${this.object.meta.selectedThumbnail}${sessionParams()}`
+        this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail)
         console.log(`watch.metadata: set poster: ${this.videoOptions.poster}`)
       }
       this.object = Object.assign({}, this.object) // force vue refresh
@@ -154,9 +154,9 @@ export default {
           }
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              console.log(`video.vue: pushing src = /api/s3/proxy/${asset}`)
+              console.log(`video.vue: pushing src = ${proxyMediaUrl(asset)}`)
               sources.push({
-                src: `/api/s3/proxy/${asset}${sessionParams()}`,
+                src: proxyMediaUrl(asset),
                 type: mediaProfile.contentType
               })
             }

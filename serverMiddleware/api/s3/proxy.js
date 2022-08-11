@@ -1,3 +1,4 @@
+const shared = require('../../../shared')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 
@@ -36,7 +37,7 @@ async function get (req, res, path) {
 }
 
 export default {
-  path: '/api/s3/proxy',
+  path: shared.PROXY_API,
   async handler (req, res) {
     const user = await u.requireUser(req, res)
     if (!user) {

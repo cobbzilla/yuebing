@@ -18,7 +18,7 @@
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.name}}">
             viewable media: {{ filterName(obj.name) }}
-            <img v-if="thumbnail(obj)" :src="`/api/s3/proxy/${thumbnail(obj)}${thumbnailUrlParams}`" width="200" height="200"></img>
+            <img v-if="thumbnail(obj)" :src="proxyUrl(thumbnail(obj))" width="200" height="200"></img>
           </NuxtLink>
         </div>
         <div v-else>
@@ -43,7 +43,7 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
-import { sessionParams } from '@/shared'
+import { proxyMediaUrl } from '@/shared'
 
 import {
   hasMediaType, isDirectory, isViewable, hasMediaInfo,
@@ -94,9 +94,6 @@ export default {
         })
       }
       return filtered
-    },
-    thumbnailUrlParams () {
-      return sessionParams()
     }
   },
   watch: {
@@ -153,10 +150,8 @@ export default {
     isSelectedMedia (obj) {
       return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
     },
-    mediaInfoOptions (obj) {
-      return {
-        object: obj
-      }
+    proxyUrl (obj) {
+      return proxyMediaUrl(obj)
     }
   }
 }

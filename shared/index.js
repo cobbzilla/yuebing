@@ -24,7 +24,14 @@ function sessionParams () {
   return `?${USER_SESSION_QUERY_PARAM}=${this.user.session}`
 }
 
+const PROXY_API = '/api/s3/proxy'
+
+function proxyMediaUrl (asset) {
+  return `${PROXY_API}/${asset}${sessionParams()}`
+}
+
 export {
-  USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM,
-  sessionParams, snooze, getExtension
+  USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM, PROXY_API,
+  snooze, getExtension,
+  sessionParams, proxyMediaUrl
 }

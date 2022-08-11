@@ -1,3 +1,4 @@
+const shared = require('../shared')
 const a = require('./util')
 
 export const s3Service = {
@@ -19,7 +20,7 @@ function metadata (path) {
 }
 
 function jsonAsset (path) {
-  return fetch(`/api/s3/proxy/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`${shared.PROXY_API}/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function fetchUserMediaInfo (path) {
