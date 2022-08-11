@@ -7,20 +7,37 @@ export default {
 
     // Set to true to allow anonymous browsing/viewing
     // WARNING: This can generate expensive bandwidth bills, depending on your site's traffic load
-    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : true,
+    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true,
+
+    // If limitRegistration is set, the allowRegistration setting is ignored
+    // The limitRegistration property can be either:
+    // 1. A string representing a path on the destination bucket to a file containing a list of email
+    //    addresses to allow registration from. The contents of this file can be a JSON array, or a flat
+    //    text file with one email address per line
+    // 2. An array object, containing the email addresses to allow registration from
+    limitRegistration: process.env.SV_LIMIT_REGISTRATION || null
   },
 
   privateRuntimeConfig: {
     // Initial admin user. Set the password to create the admin user
     admin: {
       user: {
-        username: process.env.SV_ADMIN_USER || 'admin',
+        email: process.env.SV_ADMIN_EMAIL || 'admin', // superuser email does not actually have to be a valid email
         password: process.env.SV_ADMIN_PASSWORD || null
       },
-      overwrite: false // set to true to overwrite existing username
+      overwrite: false // set to true to overwrite existing admin user
+    },
+
+    // SMTP settings for sending email
+    // If host or port is null, emails will be disabled
+    email: {
+      host: process.env.SV_EMAIL_HOST || null,
+      port: process.env.SV_EMAIL_PORT || null,
+      user: process.env.SV_EMAIL_USER || null,
+      password: process.env.SV_EMAIL_PASSWORD || null
     },
 
     // redis is used for: server-side caching, the xform job queue, and web sessions
@@ -64,8 +81,12 @@ export default {
 
     userEncryption: {
       // Optional. Define these to encrypt user data stored on destination bucket
+      //
+      // WARNING: if you change this, your user-storage location will be different, so
+      // existing users will no longer be able to sign in. Login as admin and visit
+      // the /admin/rotateKey page to migrate old users to the new encryption key
       key: process.env.SV_USERDATA_KEY,
-      iv: process.env.SV_USERDATA_IV,
+      iv: process.env.SV_USERDATA_IV, // IV is optional, will be derived from key if empty
 
       // Passwords are stored as bcrypt hashes. How many rounds to use
       bcryptRounds: process.env.SV_BCRYPT_ROUNDS || 12
@@ -117,6 +138,23 @@ export default {
     ]
   },
 
+  router: {
+    extendRoutes (routes, resolve) {
+      routes.push({
+        name: 'Sign In',
+        path: '/signIn', // <--- change this
+        component: resolve(__dirname, 'pages/auth/login.vue'),
+        chunkName: 'pages/auth/login'
+      })
+      routes.push({
+        name: 'Sign Up',
+        path: '/signUp', // <--- change this
+        component: resolve(__dirname, 'pages/auth/register.vue'),
+        chunkName: 'pages/auth/register'
+      })
+    }
+  },
+
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
   ],
@@ -136,7 +174,8 @@ export default {
     '~/serverMiddleware/api/s3/mediainfo',
     '~/serverMiddleware/api/s3/thumbnail',
     '~/serverMiddleware/api/s3/proxy',
-    '~/serverMiddleware/api/asset/queue'
+    '~/serverMiddleware/api/admin/queue',
+    '~/serverMiddleware/api/admin/migrateUsers'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

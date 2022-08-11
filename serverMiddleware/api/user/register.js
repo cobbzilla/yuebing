@@ -1,21 +1,17 @@
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 
 function newSessionResponse (res) {
   return (data, newUser) => {
     if (data) {
       u.startSession(newUser).then(
-        (u) => {
-          res.statusCode = 200
-          res.end(JSON.stringify(u))
-        },
+        user => api.okJson(user),
         (error) => {
           console.error(`startSession: error starting session: ${error}`)
-          res.statusCode = 500
-          res.end(`Error: ${error}`)
+          api.serverError(`Error: ${error}`)
         })
     } else {
-      res.statusCode = 500
-      res.end('Error saving user record')
+      api.serverError('Error saving user record')
     }
   }
 }
@@ -30,13 +26,10 @@ export default {
         u.registerUser(regRequest, newSessionResponse(res))
       } catch (e) {
         if (e instanceof u.UserValidationException) {
-          res.statusCode = 422
-          console.log(`>>>>> API: Register: returning validation errors: ${JSON.stringify(e.errors, null, 2)}`)
-          res.end(JSON.stringify(e.errors))
+          api.validationFailed(e.errors)
         } else {
           console.error(`>>>>> API: Register: error reading user record: ${e}`)
-          res.statusCode = 500
-          res.end(`Error: ${e}`)
+          api.serverError(`Error: ${e}`)
         }
       }
     })

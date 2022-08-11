@@ -32,12 +32,12 @@
         </div>
 
         <div class="form-group">
-          <ValidationProvider v-slot="{ errors }" name="username" rules="required|min:2" immediate>
-            <label for="username">Username</label>
+          <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+            <label for="email">Email</label>
             <input
-              v-model="user.username"
+              v-model="user.email"
               type="text"
-              name="username"
+              name="email"
               class="form-control"
               :class="{ 'is-invalid': submitted && errors.length>0 }"
             >
@@ -83,7 +83,7 @@ export default {
       user: {
         firstName: '',
         lastName: '',
-        username: '',
+        email: '',
         password: ''
       },
       submitted: false

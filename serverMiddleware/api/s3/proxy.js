@@ -1,12 +1,7 @@
 const shared = require('../../../shared')
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
-
-function notFound (res) {
-  console.log(`notFound: returning from: ${new TypeError('wtf').stack}`)
-  res.statusCode = 404
-  res.end('Not Found')
-}
 
 async function head (req, res, path) {
   const head = await s3util.headDestObject(path)
@@ -14,7 +9,7 @@ async function head (req, res, path) {
     res.statusCode = 200
     res.end(head)
   } else {
-    notFound(res)
+    api.notFound(res)
   }
 }
 
@@ -22,8 +17,7 @@ async function get (req, res, path) {
   const head = await s3util.headDestObject(path)
   if (!head) {
     console.log(`proxy.get: HEAD request failed, returning 404 Not Found for path=${path}`)
-    notFound(res)
-    return
+    return api.notFound(res)
   }
 
   const range = (req.headers && req.headers.Range) ? req.headers.Range : null
@@ -59,7 +53,7 @@ export default {
         await get(req, res, path)
         break
       default:
-        notFound(res)
+        api.notFound(res)
     }
   }
 }

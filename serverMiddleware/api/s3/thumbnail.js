@@ -1,4 +1,5 @@
 const util = require('../../util/file')
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 const manifest = require('../../asset/manifest')
@@ -8,7 +9,7 @@ export default {
   async handler (req, res) {
     const user = await u.requireLoggedInUser(req, res)
     if (!user) {
-      return
+      return api.forbidden(res)
     }
     const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
     const path = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
@@ -25,27 +26,23 @@ export default {
             const Body = JSON.stringify(thumbnailAsset)
             const bucketParams = { Key, Body }
             s3util.destPut(bucketParams, `thumbnail: error writing selectedThumbnail: ${path}`)
-            res.contentType = 'application/json'
-            res.end(Body)
+            api.okJson(Body)
             // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
             manifest.flushCachedMetadata(path)
           } else {
             const message = `thumbnail: error in HEAD request for selected thumbnail asset: ${thumbnailAsset}`
             console.error(message)
-            res.statusCode = 404
-            res.end(message)
+            api.notFound(res, message)
           }
         },
         (err) => {
           const message = `thumbnail: selected thumbnail asset not found: ${thumbnailAsset}: ${err}`
           console.error(message)
-          res.statusCode = 404
-          res.end(message)
+          api.notFound(res, message)
         })
       })
     } else {
-      res.statusCode = 400
-      res.end('HTTP method must be GET or POST')
+      api.badRequest(res, 'HTTP method must be GET or POST')
     }
   }
 }

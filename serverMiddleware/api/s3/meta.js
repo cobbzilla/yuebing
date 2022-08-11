@@ -1,3 +1,4 @@
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 
@@ -12,7 +13,6 @@ export default {
     // console.log(`>>>>> API: Meta ${req.url}, prefix = ${prefix}`)
     const meta = await manifest.deriveMetadata(prefix)
     console.log(`>>>>> API: Meta ${req.url}, prefix = ${prefix} -- returning meta=${JSON.stringify(meta)}`)
-    res.contentType = 'application/json'
-    res.end(JSON.stringify(meta))
+    return api.okJson(meta)
   }
 }

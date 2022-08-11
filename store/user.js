@@ -9,9 +9,9 @@ export const state = () => ({
 })
 
 export const actions = {
-  login ({ dispatch, commit }, { username, password }) {
-    commit('loginRequest', { username })
-    userService.login(username, password)
+  login ({ dispatch, commit }, { email, password }) {
+    commit('loginRequest', { email })
+    userService.login(email, password)
       .then(
         (user) => {
           console.log(`login success! user=${JSON.stringify(user)}`)
@@ -36,14 +36,27 @@ export const actions = {
         (user) => {
           commit('registerSuccess', user)
           this.app.store.$router.push('/')
-          setTimeout(() => {
-            // display success message after route change completes
-            // dispatch('alert/success', 'Registration successful', { root: true })
-          })
+          // setTimeout(() => {
+          // display success message after route change completes
+          // dispatch('alert/success', 'Registration successful', { root: true })
+          // })
         },
         (error) => {
           commit('registerFailure', error)
           // dispatch('alert/error', error, { root: true })
+        }
+      )
+  },
+  verify ({ commit }, { email, token }) {
+    commit('verifyRequest', { email, token })
+    userService.verify({ email, token })
+      .then(
+        (user) => {
+          commit('verifySuccess', user)
+          this.app.store.$router.push('/')
+        },
+        (error) => {
+          commit('verifyFailure', { error })
         }
       )
   }
@@ -78,5 +91,14 @@ export const mutations = {
   },
   registerFailure (state, error) {
     state.status = {}
+  },
+  verifyRequest (state, { email, token }) {
+    state.status = { verifying: true }
+  },
+  verifySuccess (state, { email, token }) {
+    state.status = { loggedIn: true, verified: true }
+  },
+  verifyFailure (state, { error }) {
+    state.status = { verifyError: error }
   }
 }

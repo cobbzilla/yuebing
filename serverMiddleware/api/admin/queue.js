@@ -1,8 +1,9 @@
 const q = require('../../asset/job')
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 
 export default {
-  path: '/api/asset/queue',
+  path: '/api/admin/queue',
   async handler (req, res) {
     const user = await u.requireAdmin(req, res)
     if (!user) {
@@ -10,9 +11,6 @@ export default {
     }
     console.log(`>>>>> API: Queue ${req.url}`)
     const queue = q.getQueue()
-
-    res.statusCode = 200
-    res.contentType = 'application/json'
-    res.end(JSON.stringify(queue, null, 2))
+    return api.okJson(queue)
   }
 }

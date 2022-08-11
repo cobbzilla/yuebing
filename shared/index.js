@@ -15,19 +15,19 @@ function getExtension (filename) {
 const USER_SESSION_HEADER = 'x-s3vid-session'
 const USER_SESSION_QUERY_PARAM = 's'
 
-function sessionParams () {
+function sessionParams (user, status) {
   if (nuxt.default.publicRuntimeConfig.public ||
-    !this.user || !this.user.session ||
-    !this.status || !this.status.loggedIn) {
+    !user || !user.session ||
+    !status || !status.loggedIn) {
     return ''
   }
-  return `?${USER_SESSION_QUERY_PARAM}=${this.user.session}`
+  return `?${USER_SESSION_QUERY_PARAM}=${user.session}`
 }
 
 const PROXY_API = '/api/s3/proxy'
 
-function proxyMediaUrl (asset) {
-  return `${PROXY_API}/${asset}${sessionParams()}`
+function proxyMediaUrl (asset, user, status) {
+  return `${PROXY_API}/${asset}${sessionParams(user, status)}`
 }
 
 export {

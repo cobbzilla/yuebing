@@ -68,7 +68,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('asset', ['queue'])
+    ...mapState('admin', ['queue'])
   },
   created () {
     this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
@@ -80,7 +80,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('asset', ['fetchQueue']),
+    ...mapActions('admin', ['fetchQueue']),
     shasum (val) {
       return require('shasum')(val)
     },

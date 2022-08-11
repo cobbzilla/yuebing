@@ -8,8 +8,8 @@
       <button @click="logOut">Sign Out</button>
     </div>
     <div v-else>
-      <NuxtLink to="/login">Sign In</NuxtLink>
-      <NuxtLink v-if="allowRegistration" to="/register">Sign Up</NuxtLink>
+      <NuxtLink to="/signIn">Sign In</NuxtLink>
+      <NuxtLink v-if="allowRegistration" to="/signUp">Sign Up</NuxtLink>
     </div>
   </div>
 </template>
@@ -27,8 +27,10 @@ export default {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
           return this.user.firstName
         }
-        if (this.user.username && this.user.username.trim().length > 0) {
-          return this.user.username
+        if (this.user.email && this.user.email.trim().length > 0) {
+          return this.user.email.includes('@')
+            ? this.user.email.substring(0, this.user.email.indexOf('@'))
+            : this.user.email
         }
       }
       return 'mysterious one'

@@ -3,38 +3,80 @@ const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
 const nuxt = require('../../nuxt.config')
+const shared = require('../../shared/index')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
 const s3util = require('../s3/s3util')
-const shared = require('../../shared/index')
+const api = require('../util/api')
 
-const USER_STORE_PREFIX = 'users/'
 const BCRYPT_ROUNDS = nuxt.default.privateRuntimeConfig.userEncryption.bcryptRounds
+const USER_ENC_KEY = nuxt.default.privateRuntimeConfig.userEncryption.key
 const SESSION_EXPIRATION = nuxt.default.privateRuntimeConfig.session.expiration
 
 const ADMIN = nuxt.default.privateRuntimeConfig.admin
-const ADMIN_USER = ADMIN.user && ADMIN.user.username && ADMIN.user.password ? ADMIN.user : null
+const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
 
 const ALLOW_REGISTRATION = nuxt.default.publicRuntimeConfig.allowRegistration
 const PUBLIC = nuxt.default.publicRuntimeConfig.public
 
-function isAdmin (userOrUsername) {
-  return ADMIN_USER && ADMIN_USER.username &&
-    (typeof userOrUsername === 'object' && userOrUsername.username
-      ? userOrUsername.username === ADMIN_USER.username
-      : userOrUsername === ADMIN_USER.username)
+function userStorePrefix (key = USER_ENC_KEY) {
+  return `users_${shasum(`users:${key}`)}/`
+}
+
+// initialize LIMIT_REGISTRATION if needed
+function initLimitRegistration () {
+  const LIMIT_REG = nuxt.default.publicRuntimeConfig.limitRegistration
+  if (!LIMIT_REG) {
+    return null
+  }
+  if (Array.isArray(LIMIT_REG)) {
+    if (LIMIT_REG.length > 0 && (typeof LIMIT_REG[0] === 'string')) {
+      // use as-is, it should be an array of email addresses
+      return Promise.resolve(LIMIT_REG)
+    } else {
+      throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+    }
+  } else if (typeof LIMIT_REG === 'string') {
+    return s3util.readDestTextObject(LIMIT_REG).then((text) => {
+      if (text.trim().startsWith('[')) {
+        const list = JSON.parse(text)
+        if (list.length === 0 || typeof list[0] !== 'string') {
+          throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
+        }
+        return list
+      } else {
+        return text.split('\n').map(email => email.trim())
+      }
+    })
+  } else {
+    throw new TypeError(`initLimitRegistration: invalid nuxt.default.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+  }
+}
+
+let LIMIT_REGISTRATION = null
+initLimitRegistration().then((list) => { LIMIT_REGISTRATION = list }, (err) => { throw err })
+if (LIMIT_REGISTRATION) {
+  console.log(`****** userUtil: initialized LIMIT_REGISTRATION=${JSON.stringify(LIMIT_REGISTRATION)}`)
+}
+
+function isAdmin (userOrEmail) {
+  return ADMIN_USER && ADMIN_USER.email &&
+    (typeof userOrEmail === 'object' && userOrEmail.email
+      ? userOrEmail.email === ADMIN_USER.email
+      : userOrEmail === ADMIN_USER.email)
 }
 
 async function startSession (user) {
   delete user.password
   delete user.hashedPassword
   user.session = uuid.v4() + '.' + Math.floor(Math.random() * 1000000)
-  await redis.set(user.session, JSON.stringify(user), SESSION_EXPIRATION)
+  await redis.set(REDIS_SESSION_PREFIX + user.session, JSON.stringify(user), SESSION_EXPIRATION)
   return user
 }
 
 const SESSION_HEADER = shared.USER_SESSION_HEADER
 const SESSION_PARAM = shared.USER_SESSION_QUERY_PARAM
+const REDIS_SESSION_PREFIX = 'session_'
 
 async function currentUser (req) {
   let session = null
@@ -48,7 +90,7 @@ async function currentUser (req) {
     return null
   }
   try {
-    const val = await redis.get(session)
+    const val = await redis.get(REDIS_SESSION_PREFIX + session)
     return val ? JSON.parse(val) : null
   } catch (e) {
     console.log(`currentUser: error ${e}`)
@@ -61,9 +103,7 @@ async function requireLoggedInUser (req, res) {
   if (user) {
     return user
   }
-  res.statusCode = 403
-  res.end()
-  return null
+  return api.forbidden(res)
 }
 
 async function requireUser (req, res) {
@@ -72,11 +112,9 @@ async function requireUser (req, res) {
     return user
   }
   if (PUBLIC) {
-    return { username: '~anonymous~' }
+    return { email: '~anonymous~' }
   } else {
-    res.statusCode = 403
-    res.end()
-    return null
+    return api.forbidden(res)
   }
 }
 
@@ -85,17 +123,15 @@ async function requireAdmin (req, res) {
   if (user && isAdmin(user)) {
     return user
   }
-  res.statusCode = 403
-  res.end()
-  return null
+  return api.forbidden(res)
 }
 
 const USER_VALIDATIONS = {
-  username: {
+  email: {
     required: true,
     min: 2,
     max: 100,
-    regex: /[\w\d_-]{2,}/
+    regex: /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
   },
   password: {
     required: true,
@@ -130,22 +166,18 @@ function UserValidationException (errors) {
   }
 }
 
-function sanitizeUsername (username) {
-  return username.replace(/[\W_.-]+/g, ' ')
+function userKey (email) {
+  return userStorePrefix() + shasum(USER_ENC_KEY + ':' + email.trim())
 }
 
-function userKey (username) {
-  return USER_STORE_PREFIX + shasum(nuxt.default.privateRuntimeConfig.userEncryption.key + ':' + sanitizeUsername(username))
-}
-
-async function userExists (username) {
-  const head = await s3util.headDestObject(userKey(username))
+async function userExists (email) {
+  const head = await s3util.headDestObject(userKey(email))
   return head && head.ContentLength && head.ContentLength > 0
 }
 
 function registerInitialAdminUser (regRequest) {
   return _registerUser(regRequest, () => {
-    console.log(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.username}`)
+    console.log(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
   }, true)
 }
 
@@ -153,11 +185,17 @@ function registerUser (regRequest, successHandler) {
   return _registerUser(regRequest, successHandler, false)
 }
 
+function regNotAllowed () {
+  return new UserValidationException({ email: ['registrationNotAllowed'] })
+}
+
 function _registerUser (regRequest, successHandler, admin) {
-  if (!ALLOW_REGISTRATION && !admin) {
-    throw new UserValidationException({ username: ['registrationNotAllowed'] })
-  }
   if (!admin) {
+    if (LIMIT_REGISTRATION && !LIMIT_REGISTRATION.includes(regRequest.email)) {
+      throw regNotAllowed()
+    } else if (!LIMIT_REGISTRATION && !ALLOW_REGISTRATION) {
+      throw regNotAllowed()
+    }
     const errors = validateUser(regRequest)
     if (Object.keys(errors).length > 0) {
       throw new UserValidationException(errors)
@@ -168,9 +206,13 @@ function _registerUser (regRequest, successHandler, admin) {
     return
   }
   // check for duplicate user
-  userExists(regRequest.username).then((exists) => {
+  userExists(regRequest.email).then((exists) => {
     if (exists) {
-      throw new UserValidationException({ username: ['alreadyRegistered'] })
+      if (admin) {
+        console.log(`admin user already exists: ${regRequest.email}`)
+      } else {
+        throw new UserValidationException({ email: ['alreadyRegistered'] })
+      }
     } else {
       writeUserRecord(regRequest, successHandler)
     }
@@ -183,11 +225,11 @@ function writeUserRecord (user, successHandler) {
   const newUser = {
     firstName: user.firstName,
     lastName: user.lastName,
-    username: user.username,
+    email: user.email,
     hashedPassword: bcrypt.hashSync(user.password, salt)
   }
   const bucketParams = {
-    Key: userKey(user.username),
+    Key: userKey(user.email),
     Body: crypt.encrypt(JSON.stringify(newUser))
   }
   s3util.putObject(bucketParams).then(
@@ -197,8 +239,8 @@ function writeUserRecord (user, successHandler) {
     })
 }
 
-async function deleteUser (username) {
-  return await s3util.deleteDestObject(userKey(username))
+async function deleteUser (email) {
+  return await s3util.deleteDestObject(userKey(email))
 }
 
 // initialize admin user
@@ -209,8 +251,9 @@ if (ADMIN_USER) {
 }
 
 export {
-  userKey, startSession, currentUser, isAdmin,
-  requireUser, requireLoggedInUser, requireAdmin,
+  userStorePrefix, userKey, startSession, currentUser,
+  forbidden, notFound,
+  isAdmin, requireUser, requireLoggedInUser, requireAdmin,
   UserValidationException, registerUser,
   deleteUser
 }

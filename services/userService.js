@@ -4,14 +4,15 @@ export const userService = {
   login,
   logout,
   register,
+  verify,
   getAll,
   getById,
   update,
   delete: _delete
 }
 
-function login (username, password) {
-  return fetch('/api/user/authenticate', a.authPostJson({ username, password }))
+function login (email, password) {
+  return fetch('/api/user/authenticate', a.authPostJson({ email, password }))
     .then(a.handleJsonResponse)
     .then((user) => {
       // login successful if there's a jwt token in the response
@@ -29,6 +30,10 @@ function logout () {
 
 function register (user) {
   return fetch('/api/user/register', a.authPostJson(user)).then(a.handleJsonResponse)
+}
+
+function verify (email, token) {
+  return fetch('/api/user/verify', a.authPostJson({ email, token })).then(a.handleJsonResponse)
 }
 
 function getAll () {

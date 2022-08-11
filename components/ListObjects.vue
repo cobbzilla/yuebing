@@ -139,7 +139,7 @@ export default {
     isSelectedMedia (obj) {
       return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
     },
-    proxyUrl (obj) { return proxyMediaUrl(obj) }
+    proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.status) }
   }
 }
 </script>

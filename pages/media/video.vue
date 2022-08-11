@@ -70,6 +70,7 @@ export default {
     }
   },
   computed: {
+    ...mapState('user', ['user', 'status']),
     ...mapState('s3', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     hasSources () {
       return hasSourceVideos(this)
@@ -96,7 +97,7 @@ export default {
         this.object.meta = newMeta
       }
       if (this.object.meta.selectedThumbnail) {
-        this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail)
+        this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail, this.user, this.status)
         console.log(`watch.metadata: set poster: ${this.videoOptions.poster}`)
       }
       this.object = Object.assign({}, this.object) // force vue refresh
@@ -175,9 +176,10 @@ export default {
           }
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              console.log(`video.vue: pushing src = ${proxyMediaUrl(asset)}`)
+              const src = proxyMediaUrl(asset, this.user, this.status)
+              console.log(`video.vue: pushing src = ${src}`)
               sources.push({
-                src: proxyMediaUrl(asset),
+                src,
                 type: mediaProfile.contentType
               })
             }

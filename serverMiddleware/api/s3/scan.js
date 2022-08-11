@@ -1,5 +1,6 @@
 const nuxt = require('../../../nuxt.config')
 const m = require('../../../shared/media')
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const video = require('../../asset/xform')
 const s3util = require('../../s3/s3util')
@@ -80,12 +81,12 @@ export default {
   path: '/api/s3/scan',
   async handler (req, res) {
     const user = await u.requireLoggedInUser(req, res)
-    if (user) {
-      const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
-      console.log(`>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
-      const transforms = await scan(prefix)
-      res.contentType = 'application/json'
-      res.end(JSON.stringify(transforms))
+    if (!user) {
+      return api.forbidden(res)
     }
+    const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
+    console.log(`>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
+    const transforms = await scan(prefix)
+    return api.okJson(transforms)
   }
 }

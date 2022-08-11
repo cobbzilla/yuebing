@@ -1,4 +1,5 @@
 const util = require('../../util/file')
+const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
 
@@ -11,7 +12,7 @@ export default {
       ? await u.requireUser(req, res)
       : await u.requireLoggedInUser(req, res)
     if (!user) {
-      return
+      return api.forbidden(res)
     }
     const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
     const path = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
@@ -27,12 +28,10 @@ export default {
         const Body = JSON.stringify(values)
         const bucketParams = { Key, Body }
         s3util.destPut(bucketParams, `mediainfo: error writing mediainfo ${path}`)
-        res.contentType = 'application/json'
-        res.end(Body)
+        return api.okJson(Body)
       })
     } else {
-      res.statusCode = 400
-      res.end('HTTP method must be GET or POST')
+      return api.badRequest(res, 'HTTP method must be GET or POST')
     }
   }
 }
