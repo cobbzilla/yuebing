@@ -11,6 +11,6 @@ export default {
     }
     console.log(`>>>>> API: Queue ${req.url}`)
     const queue = q.getQueue()
-    return api.okJson(queue)
+    return api.okJson(res, queue)
   }
 }

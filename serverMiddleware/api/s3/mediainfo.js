@@ -28,7 +28,7 @@ export default {
         const Body = JSON.stringify(values)
         const bucketParams = { Key, Body }
         s3util.destPut(bucketParams, `mediainfo: error writing mediainfo ${path}`)
-        return api.okJson(Body)
+        return api.okJson(res, Body)
       })
     } else {
       return api.badRequest(res, 'HTTP method must be GET or POST')

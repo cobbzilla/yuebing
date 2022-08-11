@@ -27,10 +27,10 @@ export default {
         res.end('{ "oldKey": ["sameAsCurrentKey"] }')
       } else {
         userAdmin.migrateUsers(oldKey, oldIV).then((results) => {
-          return api.okJson(results)
+          return api.okJson(res, results)
         },
         (err) => {
-          return api.serverError(`migrateUsers ERROR: ${err}`)
+          return api.serverError(res, `migrateUsers ERROR: ${err}`)
         })
       }
     })

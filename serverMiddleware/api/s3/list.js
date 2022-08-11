@@ -20,6 +20,6 @@ export default {
         result.meta = await manifest.deriveMetadata(result.name)
       }
     }
-    return api.okJson(results)
+    return api.okJson(res, results)
   }
 }

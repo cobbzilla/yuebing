@@ -13,6 +13,6 @@ export default {
     // console.log(`>>>>> API: Meta ${req.url}, prefix = ${prefix}`)
     const meta = await manifest.deriveMetadata(prefix)
     console.log(`>>>>> API: Meta ${req.url}, prefix = ${prefix} -- returning meta=${JSON.stringify(meta)}`)
-    return api.okJson(meta)
+    return api.okJson(res, meta)
   }
 }

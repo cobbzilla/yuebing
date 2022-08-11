@@ -38,7 +38,7 @@ export default {
           },
           (error) => {
             console.error(`>>>>> API: Authenticate: error reading user record: ${error}`)
-            return api.serverError(`Error: ${error}`)
+            return api.notFound(res)
           }
         )
       }

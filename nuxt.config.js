@@ -168,6 +168,7 @@ export default {
     '~/serverMiddleware/api/user',
     '~/serverMiddleware/api/user/authenticate',
     '~/serverMiddleware/api/user/register',
+    '~/serverMiddleware/api/user/verify',
     '~/serverMiddleware/api/s3/list',
     '~/serverMiddleware/api/s3/scan',
     '~/serverMiddleware/api/s3/meta',

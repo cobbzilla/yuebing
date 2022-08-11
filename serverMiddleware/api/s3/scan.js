@@ -87,6 +87,6 @@ export default {
     const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
     console.log(`>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
     const transforms = await scan(prefix)
-    return api.okJson(transforms)
+    return api.okJson(res, transforms)
   }
 }

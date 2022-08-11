@@ -27,7 +27,7 @@ function userStorePrefix (key = USER_ENC_KEY) {
 function initLimitRegistration () {
   const LIMIT_REG = nuxt.default.publicRuntimeConfig.limitRegistration
   if (!LIMIT_REG) {
-    return null
+    return Promise.resolve(null)
   }
   if (Array.isArray(LIMIT_REG)) {
     if (LIMIT_REG.length > 0 && (typeof LIMIT_REG[0] === 'string')) {
@@ -202,31 +202,61 @@ function _registerUser (regRequest, successHandler, admin) {
     }
   } else if (admin && ADMIN.overwrite) {
     // allow over-write of initial admin when nuxt config flag is set
-    writeUserRecord(regRequest, successHandler)
-    return
+    return createUserRecord(regRequest, successHandler)
   }
   // check for duplicate user
-  userExists(regRequest.email).then((exists) => {
+  return userExists(regRequest.email).then((exists) => {
     if (exists) {
       if (admin) {
         console.log(`admin user already exists: ${regRequest.email}`)
       } else {
-        throw new UserValidationException({ email: ['alreadyRegistered'] })
+        return Promise.resolve(() => {
+          throw new UserValidationException({ email: ['alreadyRegistered'] })
+        })
       }
     } else {
-      writeUserRecord(regRequest, successHandler)
+      return createUserRecord(regRequest, successHandler)
     }
   })
 }
 
-function writeUserRecord (user, successHandler) {
+const USER_VERIFY_PREFIX = 'verify_token_'
+const USER_VERIFY_EXPIRATION = 1000 * 60 * 60 * 24 // 1 day
+
+function verificationKey (email) {
+  return USER_VERIFY_PREFIX + shasum(USER_VERIFY_PREFIX + email)
+}
+
+async function isCorrectVerifyToken (email, token) {
+  try {
+    const key = verificationKey(email)
+    const verifyToken = await redis.get(key)
+    const correct = verifyToken === token
+    if (correct) {
+      await redis.del(key)
+    }
+    return correct
+  } catch (e) {
+    console.log(`isCorrectVerifyToken: error reading from redis: ${e}`)
+  }
+}
+
+function createUserRecord (user, successHandler) {
   // bcrypt the password, create new user object
   const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
   const newUser = {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    hashedPassword: bcrypt.hashSync(user.password, salt)
+    hashedPassword: bcrypt.hashSync(user.password, salt),
+    verified: isAdmin(user) ? Date.now() : null
+  }
+  if (!newUser.verified) {
+    const token = '' + Math.floor(Math.random() * 1000000)
+    const key = verificationKey(user.email)
+    redis.set(key, token, USER_VERIFY_EXPIRATION).then(() => {
+      console.log(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
+    })
   }
   const bucketParams = {
     Key: userKey(user.email),
@@ -235,8 +265,24 @@ function writeUserRecord (user, successHandler) {
   s3util.putObject(bucketParams).then(
     data => successHandler(data, newUser),
     (error) => {
-      console.error(`writeUserRecord: Error writing user file: ${error}`)
+      console.error(`createUserRecord: Error writing user file: ${error}`)
     })
+}
+
+function updateUserRecord (user, successHandler) {
+  const bucketParams = {
+    Key: userKey(user.email),
+    Body: crypt.encrypt(JSON.stringify(user))
+  }
+  s3util.putObject(bucketParams).then(
+    data => successHandler(data, user),
+    (error) => {
+      console.error(`updateUserRecord: Error writing user file: ${error}`)
+    })
+}
+
+async function findUser (email) {
+  return JSON.parse(crypt.decrypt(await s3util.readDestTextObject(userKey(email))))
 }
 
 async function deleteUser (email) {
@@ -252,8 +298,8 @@ if (ADMIN_USER) {
 
 export {
   userStorePrefix, userKey, startSession, currentUser,
-  forbidden, notFound,
+  isCorrectVerifyToken,
   isAdmin, requireUser, requireLoggedInUser, requireAdmin,
   UserValidationException, registerUser,
-  deleteUser
+  findUser, createUserRecord, updateUserRecord, deleteUser
 }

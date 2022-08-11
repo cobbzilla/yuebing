@@ -26,7 +26,7 @@ export default {
             const Body = JSON.stringify(thumbnailAsset)
             const bucketParams = { Key, Body }
             s3util.destPut(bucketParams, `thumbnail: error writing selectedThumbnail: ${path}`)
-            api.okJson(Body)
+            api.okJson(res, Body)
             // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
             manifest.flushCachedMetadata(path)
           } else {
