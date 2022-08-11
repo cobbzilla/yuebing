@@ -7,7 +7,9 @@ const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 export default {
   path: '/api/s3/mediainfo',
   async handler (req, res) {
-    const user = await u.requireUser(req, res)
+    const user = req.method === 'GET'
+      ? await u.requireUser(req, res)
+      : await u.requireLoggedInUser(req, res)
     if (!user) {
       return
     }

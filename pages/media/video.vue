@@ -3,14 +3,28 @@
     <h4 v-if="object && object.name">
       Video: {{ name }}
     </h4>
+
     <div v-if="isReady">
       <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
+
     <div v-if="mediaInfoJson">
       <h5>Width: {{ mediaInfoField('width') }}</h5>
       <h5>Height: {{ mediaInfoField('height') }}</h5>
       <h5>Duration: {{ mediaInfoField('duration') }}</h5>
     </div>
+
+    <div v-if="mediaInfo()">
+      <button @click="toggleMediaInfo()">
+        {{ mediaInfoToggleButtonLabel() }}
+      </button>
+      <MediaInfo v-if="showMediaInfo" :options="{ object }" />
+    </div>
+
+    <div v-if="thumbnail()">
+      <ThumbnailSelector :options="{ object }" />
+    </div>
+
     <div v-if="error">
       <h3>{{ error }}</h3>
     </div>
@@ -19,12 +33,14 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import MediaInfo from '../../components/MediaInfo'
+import ThumbnailSelector from '../../components/ThumbnailSelector'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
 import { proxyMediaUrl, getExtension } from '@/shared'
-import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
-import { mediaInfoField, hasAssets } from '@/shared/mediainfo'
+import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
+import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -33,7 +49,7 @@ function hasSourceVideos (vid) {
 export default {
   name: 'VideoObject',
   components: {
-    VideoPlayer
+    VideoPlayer, MediaInfo, ThumbnailSelector
   },
   data () {
     return {
@@ -41,6 +57,7 @@ export default {
       object: {},
       mediaInfoJsonPath: null,
       mediaInfoJson: null,
+      showMediaInfo: false,
       error: null,
       videoOptions: {
         autoplay: false,
@@ -128,10 +145,14 @@ export default {
       console.log('nothing cached, fetching meta...')
       const path = name
       this.fetchMetadata({ path })
-      this.object = {
-        name,
-        type: FILE_TYPE,
-        mediaType: VIDEO_MEDIA_TYPE
+      this.object = this.objectList.find(o => o.name === name)
+      if (!this.object) {
+        console.log('>>>> AFTER fetching meta, object not found in objectList, creating default/detached object')
+        this.object = {
+          name,
+          type: FILE_TYPE,
+          mediaType: VIDEO_MEDIA_TYPE
+        }
       }
     }
   },
@@ -167,10 +188,15 @@ export default {
         console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
       }
     },
-
+    mediaInfo () { return hasMediaInfo(this.object) },
     mediaInfoField (field) {
       return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson, this.getUserMediaInfo) : null
-    }
+    },
+    toggleMediaInfo () { this.showMediaInfo = !this.showMediaInfo },
+    mediaInfoToggleButtonLabel () {
+      return `${this.showMediaInfo ? 'hide' : 'show'} media info`
+    },
+    thumbnail () { return findThumbnail(this.object) }
   }
 }
 </script>

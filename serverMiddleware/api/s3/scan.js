@@ -79,7 +79,7 @@ async function scan (prefix, autoscan = false) {
 export default {
   path: '/api/s3/scan',
   async handler (req, res) {
-    const user = await u.requireUser(req, res)
+    const user = await u.requireLoggedInUser(req, res)
     if (user) {
       const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
       console.log(`>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)

@@ -60,20 +60,7 @@ async function listObjects (prefix, client, params, recursive = false) {
       console.log(`${logPrefix} >>>>>>>> listing returned : ${JSON.stringify(response)}`)
       if (typeof response.Contents !== 'undefined') {
         response.Contents.forEach((item) => {
-          const type = m.mediaType(item.Key)
-          if (type) {
-            objects.push({
-              name: item.Key,
-              type: type === m.DIRECTORY_TYPE ? m.DIRECTORY_TYPE : m.FILE_TYPE,
-              mediaType: type
-            })
-          } else {
-            objects.push({
-              name: item.Key,
-              type: item.Key.endsWith('/') ? m.DIRECTORY_TYPE : m.FILE_TYPE,
-              mediaType: item.Key.endsWith('/') ? m.DIRECTORY_TYPE : m.UNKNOWN_MEDIA_TYPE
-            })
-          }
+          objects.push(m.newMediaObject(item.Key))
         })
       }
       if (typeof response.CommonPrefixes !== 'undefined') {

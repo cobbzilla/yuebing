@@ -9,11 +9,11 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" @click="toggleEditButton()">
+    <button v-if="canEditMediainfo" class="btn btn-primary" @click="toggleEditButton()">
       {{ editButtonLabel }}
     </button>
 
-    <div v-if="showEditor && canEdit(options.object)">
+    <div v-if="showEditor">
       <form @submit.prevent="updateMediaInfoValues">
         <div v-for="(field, index) in editableInfoFields" :key="index">
 
@@ -62,18 +62,11 @@ export default {
   computed: {
     ...mapState('user', ['user', 'status']),
     ...mapState('s3', ['assetData', 'userMediaInfo']),
-    infoFields () {
-      return mediaInfoFields()
-    },
-    editableInfoFields () {
-      return editableMediaInfoFields()
-    },
-    hasMediaInfoJsonPath () {
-      return this.options.object && this.mediaInfoJsonPath
-    },
-    editButtonLabel () {
-      return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata'
-    },
+    infoFields () { return mediaInfoFields() },
+    canEditMediainfo () { return this.user && this.status && this.status.loggedIn },
+    editableInfoFields () { return editableMediaInfoFields() },
+    hasMediaInfoJsonPath () { return this.options.object && this.mediaInfoJsonPath },
+    editButtonLabel () { return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata' },
     getUserMediaInfo () {
       return this.options.object && this.options.object.name &&
       this.userMediaInfo && this.userMediaInfo[this.options.object.name]
@@ -134,10 +127,6 @@ export default {
       } else {
         console.log('refreshMediaInfo: mediaInfo already loaded for media, not replacing')
       }
-    },
-    canEdit (obj) {
-      // for now any logged-in user can edit metadata
-      return this.user && this.status && this.status.loggedIn
     },
     toggleEditButton () {
       this.showEditor = !this.showEditor

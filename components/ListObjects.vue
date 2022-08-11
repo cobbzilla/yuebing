@@ -49,12 +49,8 @@ import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
 import ThumbnailSelector from '../components/ThumbnailSelector'
 
-import {
-  hasMediaType, isDirectory, isViewable, hasMediaInfo
-} from '@/shared/media'
-import {
-  findThumbnail
-} from '@/shared/mediainfo'
+import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
+import { findThumbnail } from '@/shared/mediainfo'
 import { proxyMediaUrl } from '@/shared'
 
 export default {

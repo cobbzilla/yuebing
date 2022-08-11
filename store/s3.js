@@ -1,4 +1,5 @@
 import { s3Service } from '~/services/s3service'
+import { newMediaObject } from '@/shared/media'
 
 export const state = () => ({
   prefix: '',
@@ -20,6 +21,7 @@ export const state = () => ({
   updatingUserMediaInfo: false,
   updatingUserMediaInfoError: null,
 
+  selectedThumbnails: {},
   fetchingSelectedThumbnail: false,
   fetchingSelectedThumbnailError: null,
   updatingSelectedThumbnail: false,
@@ -136,6 +138,8 @@ export const mutations = {
     const found = state.objectList.find(o => o.name === path)
     if (found) {
       found.meta = meta
+    } else {
+      state.objectList.push(newMediaObject(path, meta))
     }
   },
   fetchMetaFailure (state, error) {
@@ -196,6 +200,9 @@ export const mutations = {
     if (found && found.meta) {
       found.meta.selectedThumbnail = thumbnailAsset
     }
+    const newInfo = {}
+    newInfo[path] = thumbnailAsset
+    state.selectedThumbnails = Object.assign({}, state.selectedThumbnails, newInfo)
     state.updatingSelectedThumbnailError = null
     state.updatingSelectedThumbnail = false
   },

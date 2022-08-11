@@ -145,6 +145,23 @@ function minFileSize (path, operation) {
   return 0
 }
 
+function newMediaObject (name, meta = null) {
+  const type = mediaType(name)
+  return type
+    ? {
+        name,
+        type: type === DIRECTORY_TYPE ? DIRECTORY_TYPE : FILE_TYPE,
+        mediaType: type,
+        meta
+      }
+    : {
+        name,
+        type: name.endsWith('/') ? DIRECTORY_TYPE : FILE_TYPE,
+        mediaType: name.endsWith('/') ? DIRECTORY_TYPE : UNKNOWN_MEDIA_TYPE,
+        meta
+      }
+}
+
 function hasMediaType (obj) {
   return obj.type && obj.type === 'file' &&
     obj.mediaType && obj.mediaType !== UNKNOWN_MEDIA_TYPE && obj.mediaType !== DIRECTORY_TYPE
@@ -203,7 +220,7 @@ function isMediaInfoJsonProfile (profile) {
 
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
-  hasMediaType, isDirectory, isViewable, hasMediaInfo,
+  newMediaObject, hasMediaType, isDirectory, isViewable, hasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,

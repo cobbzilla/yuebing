@@ -1,7 +1,7 @@
 <template>
   <div>
     <button @click="toggleThumbnailSelection()">
-      select thumbnail
+      {{ thumbnailToggleLabel }} thumbnails
     </button>
     <div v-if="thumbnails && showThumbnailSelector">
       <div v-if="thumbnailIndex !== null">
@@ -34,7 +34,7 @@
                     </b>
                   </div>
                   <div v-else>
-                    <button @click="selectThumbnail()">
+                    <button v-if="canSetThumbnail" @click="selectThumbnail()">
                       select this thumbnail
                     </button>
                   </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { findThumbnail, findThumbnails } from '@/shared/mediainfo'
 import { proxyMediaUrl } from '@/shared'
 
@@ -79,13 +79,16 @@ export default {
     }
   },
   computed: {
+    ...mapState('user', ['user', 'status']),
+    thumbnailToggleLabel () { return this.showThumbnailSelector ? 'hide' : 'show' },
     thumbnail () { return this.options.object ? findThumbnail(this.options.object) : null },
     thumbnails () { return this.options.object ? findThumbnails(this.options.object) : null },
     isSelectedThumbnail () {
       return this.options.object && this.options.object.meta && this.options.object.meta.selectedThumbnail
         ? this.thumbnails.indexOf(this.options.object.meta.selectedThumbnail) === this.thumbnailIndex
         : false
-    }
+    },
+    canSetThumbnail () { return this.user && this.status && this.status.loggedIn }
   },
   created () {
     const thumb = this.thumbnail

@@ -6,7 +6,7 @@ const manifest = require('../../asset/manifest')
 export default {
   path: '/api/s3/thumbnail',
   async handler (req, res) {
-    const user = await u.requireUser(req, res)
+    const user = await u.requireLoggedInUser(req, res)
     if (!user) {
       return
     }

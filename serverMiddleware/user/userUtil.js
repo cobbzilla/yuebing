@@ -56,6 +56,16 @@ async function currentUser (req) {
   }
 }
 
+async function requireLoggedInUser (req, res) {
+  const user = await currentUser(req)
+  if (user) {
+    return user
+  }
+  res.statusCode = 403
+  res.end()
+  return null
+}
+
 async function requireUser (req, res) {
   const user = await currentUser(req)
   if (user) {
@@ -200,7 +210,7 @@ if (ADMIN_USER) {
 
 export {
   userKey, startSession, currentUser, isAdmin,
-  requireUser, requireAdmin,
+  requireUser, requireLoggedInUser, requireAdmin,
   UserValidationException, registerUser,
   deleteUser
 }
