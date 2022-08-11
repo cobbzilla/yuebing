@@ -7,6 +7,11 @@ const m = require('../../shared/media')
 
 const MANIFEST_CACHE_EXPIRATION = nuxt.default.privateRuntimeConfig.redis.manifestCacheExpiration
 
+async function flushCachedMetadata (sourcePath) {
+  const cacheKey = util.redisMetaCacheKey(sourcePath)
+  return await redis.del(cacheKey)
+}
+
 async function deriveMetadata (sourcePath) {
   // Do we have this cached?
   const cacheKey = util.redisMetaCacheKey(sourcePath)
@@ -114,4 +119,4 @@ async function deriveMetadata (sourcePath) {
   return meta
 }
 
-export { deriveMetadata }
+export { deriveMetadata, flushCachedMetadata }

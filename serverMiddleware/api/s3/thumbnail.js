@@ -1,6 +1,7 @@
 const util = require('../../util/file')
 const u = require('../../user/userUtil')
 const s3util = require('../../s3/s3util')
+const manifest = require('../../asset/manifest')
 
 export default {
   path: '/api/s3/thumbnail',
@@ -18,7 +19,7 @@ export default {
       res.end()
     } else if (req.method === 'POST') {
       req.on('data', (data) => {
-        const thumbnailAsset = data.toString()
+        const thumbnailAsset = JSON.parse(data.toString())
         s3util.headDestObject(thumbnailAsset).then((head) => {
           if (head && head.ContentLength && head.ContentLength > 0) {
             const Body = JSON.stringify(thumbnailAsset)
@@ -26,6 +27,8 @@ export default {
             s3util.destPut(bucketParams, `thumbnail: error writing selectedThumbnail: ${path}`)
             res.contentType = 'application/json'
             res.end(Body)
+            // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
+            manifest.flushCachedMetadata(path)
           } else {
             const message = `thumbnail: error in HEAD request for selected thumbnail asset: ${thumbnailAsset}`
             console.error(message)

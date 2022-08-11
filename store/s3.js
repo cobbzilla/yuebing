@@ -20,7 +20,6 @@ export const state = () => ({
   updatingUserMediaInfo: false,
   updatingUserMediaInfoError: null,
 
-  selectedThumbnails: {},
   fetchingSelectedThumbnail: false,
   fetchingSelectedThumbnailError: null,
   updatingSelectedThumbnail: false,
@@ -95,23 +94,6 @@ export const actions = {
           commit('updateUserMediaInfoSuccess', { path, values })
         },
         error => commit('updateUserMediaInfoFailure', error)
-      )
-  },
-
-  fetchSelectedThumbnail ({ dispatch, commit }, { path }) {
-    commit('fetchSelectedThumbnailRequest')
-    console.log('***** fetchSelectedThumbnail starting')
-    s3Service
-      .fetchSelectedThumbnail(path)
-      .then(
-        (thumbnailAsset) => {
-          console.log(`***** fetchSelectedThumbnail committing thumbnailAsset: ${thumbnailAsset}`)
-          commit('fetchSelectedThumbnailSuccess', { path, thumbnailAsset })
-        },
-        (error) => {
-          console.log(`***** fetchSelectedThumbnail committing error: ${error}`)
-          commit('fetchSelectedThumbnailFailure', error)
-        }
       )
   },
 
@@ -206,28 +188,14 @@ export const mutations = {
     state.updatingUserMediaInfo = false
   },
 
-  fetchSelectedThumbnailRequest (state) {
-    state.fetchingSelectedThumbnail = true
-  },
-  fetchSelectedThumbnailSuccess (state, { path, thumbnailAsset }) {
-    const newInfo = {}
-    newInfo[path] = thumbnailAsset
-    state.selectedThumbnail = Object.assign({}, state.selectedThumbnail, newInfo)
-    state.fetchingSelectedThumbnailError = null
-    state.fetchingSelectedThumbnail = false
-  },
-  fetchSelectedThumbnailFailure (state, error) {
-    state.fetchingSelectedThumbnailError = error
-    state.fetchingSelectedThumbnail = false
-  },
-
   updateSelectedThumbnailRequest (state) {
     state.updatingSelectedThumbnail = true
   },
   updateSelectedThumbnailSuccess (state, { path, thumbnailAsset }) {
-    const newInfo = {}
-    newInfo[path] = thumbnailAsset
-    state.selectedThumbnail = Object.assign({}, state.selectedThumbnail, newInfo)
+    const found = state.objectList.find(o => o.name === path)
+    if (found && found.meta) {
+      found.meta.selectedThumbnail = thumbnailAsset
+    }
     state.updatingSelectedThumbnailError = null
     state.updatingSelectedThumbnail = false
   },

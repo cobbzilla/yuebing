@@ -1,3 +1,5 @@
+import { isThumbnailProfile, mediaProfileByName, mediaType } from '@/shared/media'
+
 const jp = require('jsonpath')
 
 const META_FIELDS = {
@@ -231,7 +233,36 @@ function findAsset (obj, matcher, returner = DEFAULT_FIND_ASSET_RETURNER) {
   }))
 }
 
+const isThumbnail = (name, profile) => {
+  const mediaProfile = mediaProfileByName(mediaType(name), profile)
+  return mediaProfile && isThumbnailProfile(mediaProfile)
+}
+
+function findThumbnail (obj) {
+  let thumb = null
+  if (hasAssets(obj)) {
+    // Look for user-specified thumbnail first. If not found, then pick the first one
+    if (obj.meta.selectedThumbnail) {
+      thumb = obj.meta.selectedThumbnail
+    } else {
+      thumb = findAsset(obj, (assets, profile) => isThumbnail(obj.name, profile))
+    }
+  }
+  return thumb
+}
+
+function findThumbnails (obj) {
+  if (hasAssets(obj)) {
+    const thumbs = []
+    Object.keys(obj.meta.assets)
+      .filter(profile => isThumbnail(obj.name, profile))
+      .forEach(profile => thumbs.push(...obj.meta.assets[profile]))
+    return thumbs
+  }
+  return []
+}
+
 export {
   mediaInfoFields, editableMediaInfoFields, mediaInfoField,
-  hasAssets, findAsset
+  hasAssets, findAsset, findThumbnail, findThumbnails
 }

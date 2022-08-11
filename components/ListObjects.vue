@@ -17,12 +17,15 @@
       <div v-else-if="hasMedia(obj)">
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.name}}">
-            viewable media: {{ filterName(obj.name) }}
+            {{ filterName(obj.name) }}
             <img v-if="thumbnail(obj)" :src="proxyUrl(thumbnail(obj))" width="200" height="200"></img>
           </NuxtLink>
+          <div v-if="thumbnail(obj)">
+            <ThumbnailSelector :options="{ object: obj }" />
+          </div>
         </div>
         <div v-else>
-          not-ready media: {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+          (not-ready) {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
         <div v-if="mediaInfo(obj)">
           <button @click="toggleMediaInfo(obj)">
@@ -34,7 +37,8 @@
         </div>
       </div>
       <div v-else>
-        Regular file: {{ filterName(obj.name) }} JSON = {{ JSON.stringify(obj) }}
+        {{ filterName(obj.name) }}
+<!--        JSON = {{ JSON.stringify(obj) }}-->
       </div>
     </div>
   </div>
@@ -43,27 +47,30 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
-import { proxyMediaUrl } from '@/shared'
+import ThumbnailSelector from '../components/ThumbnailSelector'
 
 import {
-  hasMediaType, isDirectory, isViewable, hasMediaInfo,
-  mediaProfileByName, mediaType, isThumbnailProfile
+  hasMediaType, isDirectory, isViewable, hasMediaInfo
 } from '@/shared/media'
-import { hasAssets, findAsset } from '@/shared/mediainfo'
+import {
+  findThumbnail
+} from '@/shared/mediainfo'
+import { proxyMediaUrl } from '@/shared'
 
 export default {
   name: 'ListObjects',
   components: {
-    MediaInfo
+    MediaInfo, ThumbnailSelector
   },
   data () {
     return {
-      mediaInfoObjectPath: null
+      mediaInfoObjectPath: null,
+      showThumbnailSelector: false
     }
   },
   computed: {
     ...mapState('user', ['user', 'status']),
-    ...mapState('s3', ['prefix', 'objectList', 'metadata', 'selectedThumbnails']),
+    ...mapState('s3', ['prefix', 'objectList', 'metadata']),
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -126,21 +133,7 @@ export default {
     hasMedia (obj) { return hasMediaType(obj) },
     canView (obj) { return isViewable(obj) },
     mediaInfo (obj) { return hasMediaInfo(obj) },
-    thumbnail (obj) {
-      let thumb = null
-      if (hasAssets(obj)) {
-        // Look for user-specified thumbnail first. If not found, then pick the first one
-        if (obj.meta.selectedThumbnail) {
-          thumb = obj.meta.selectedThumbnail
-        } else {
-          thumb = findAsset(obj, (assets, profile) => {
-            const mediaProfile = mediaProfileByName(mediaType(obj.name), profile)
-            return mediaProfile && isThumbnailProfile(mediaProfile)
-          })
-        }
-      }
-      return thumb
-    },
+    thumbnail (obj) { return findThumbnail(obj) },
     toggleMediaInfo (obj) {
       this.mediaInfoObjectPath = this.isSelectedMedia(obj) ? this.mediaInfoObjectPath = null : obj.name
     },
@@ -150,9 +143,7 @@ export default {
     isSelectedMedia (obj) {
       return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
     },
-    proxyUrl (obj) {
-      return proxyMediaUrl(obj)
-    }
+    proxyUrl (obj) { return proxyMediaUrl(obj) }
   }
 }
 </script>

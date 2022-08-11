@@ -22,7 +22,7 @@ import { mapState, mapActions } from 'vuex'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-import { sessionParams, proxyMediaUrl, getExtension } from '@/shared'
+import { proxyMediaUrl, getExtension } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
 import { mediaInfoField, hasAssets } from '@/shared/mediainfo'
 
