@@ -26,7 +26,6 @@ async function listSource (prefix, recursive = false) {
   const cacheKey = CACHE_PREFIX + prefix
   const cachedListing = await redis.get(cacheKey)
   if (cachedListing) {
-    console.log(`listSource(${prefix}) RETURNING CACHED LISTING`)
     return JSON.parse(cachedListing)
   }
 
