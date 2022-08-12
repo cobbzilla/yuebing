@@ -14,6 +14,8 @@ export default {
   label_newPassword: 'New password',
   label_locale: 'Language',
   label_token: 'Verification token',
+  label_ctime: 'Created',
+  label_mtime: 'Modified',
   button_login: 'Sign In',
   button_logout: 'Sign Out',
   button_register: 'Sign Up',
@@ -22,6 +24,13 @@ export default {
   button_set_new_password: 'Set Password',
   info_password_reset_email_sent: 'An email message was sent to {{ email }}, check your inbox for a link to reset your password',
 
+  label_search: 'Search',
+  button_search: 'Search',
+  label_sort: 'Sort by',
+  label_sort_order: 'Order',
+  label_sort_ascending: 'ascending',
+  label_sort_descending: 'descending',
+
   // vee-validate error types
   error_field_required: '{{ field }} is required',
   error_field_invalid: '{{ field }} is not valid',
@@ -29,6 +38,7 @@ export default {
   error_field_min: '{{ field }} is too short',
   error_field_max: '{{ field }} is too long',
   error_field_email: '{{ field }} is not a valid email address',
+  error_field_cannotDeleteSelf: 'You cannot delete yourself',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'English (US)',
@@ -98,20 +108,25 @@ export default {
   label_date_month_number_10: '11',
   label_date_month_number_11: '12',
 
-  // admin messages
+  // Site Administration
   admin_title_site_administration: '{{ title }} Administration',
   admin_title_user_administration: 'User Administration',
   admin_title_migrate_users: 'Migrate users from previous encryption key',
   admin_title_transform_queue: 'Media Transform Queue',
 
-  // xform queue messages
+  // User Administration
+  admin_label_total_user_count: '{{ totalUserCount }} total users',
+  admin_button_delete_user: 'Delete User',
+  admin_label_confirm_user_delete: 'Please confirm deletion of the user: {{ email }}',
+
+  // Transform Queue
   admin_label_firstEvent: 'first event',
   admin_label_lastEvent: 'last event',
   admin_label_eventTime: 'time',
   admin_label_eventName: 'event',
   admin_label_eventDescription: 'description',
 
-  // user migration messages
+  // User Migration
   admin_label_migration_results: 'User migration results:',
   admin_label_migration_oldKey: 'Previous encryption key',
   admin_label_migration_oldIV: 'Previous initialization vector (IV) (if one was set)',

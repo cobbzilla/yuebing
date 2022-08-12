@@ -7,8 +7,6 @@ export const userService = {
   register,
   verify,
   requestPasswordReset,
-  getAll,
-  getById,
   update,
   delete: _delete
 }
@@ -47,14 +45,6 @@ function requestPasswordReset (email) {
   const body = {}
   body[auth.VERIFY_EMAIL_PARAM] = email
   return fetch('/api/user/requestPasswordReset', { method: 'POST', body: JSON.stringify(body) }).then(a.handleJsonResponse)
-}
-
-function getAll () {
-  return fetch('/api/users', a.authGet()).then(a.handleJsonResponse)
-}
-
-function getById (id) {
-  return fetch(`/api/user/${id}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function update (user) {

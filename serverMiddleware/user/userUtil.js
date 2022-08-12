@@ -269,9 +269,12 @@ function createUserRecord (user, successHandler) {
   // bcrypt the password, create new user object
   const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
   const newUser = {
+    ctime: Date.now(),
+    mtime: Date.now(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    locale: user.locale,
     hashedPassword: bcrypt.hashSync(user.password, salt),
     verified: isAdmin(user) ? Date.now() : null
   }
@@ -313,8 +316,8 @@ function updateUserRecord (user, successHandler) {
   if (Object.keys(errors).length > 0) {
     throw new UserValidationException(errors)
   }
-  // copy user object so we can delete the plaintext password and admin properties
-  const update = Object.assign({}, user)
+  // copy user object, assign mtime and delete the plaintext password and admin properties
+  const update = Object.assign({}, user, { mtime: Date.now() })
   if (update.password) {
     delete update.password
   }

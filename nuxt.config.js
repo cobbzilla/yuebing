@@ -46,7 +46,8 @@ export default {
     admin: {
       user: {
         email: process.env.SV_ADMIN_EMAIL || 'admin', // superuser email does not actually have to be a valid email
-        password: process.env.SV_ADMIN_PASSWORD || null
+        password: process.env.SV_ADMIN_PASSWORD || null,
+        locale: process.env.SV_DEFAULT_LOCALE || 'en_US'
       },
       overwrite: false // set to true to overwrite existing admin user
     },

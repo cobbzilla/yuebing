@@ -13,7 +13,7 @@ export default {
       return
     }
     if (req.method !== 'POST') {
-      return u.forbidden(res)
+      return api.forbidden(res)
     }
 
     console.log(`>>>>> API: Migrate Users ${req.url}`)

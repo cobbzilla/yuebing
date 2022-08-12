@@ -5,7 +5,8 @@ const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 
 export const state = () => ({
   user,
-  userStatus: { loggedIn: !!user }
+  userStatus: { loggedIn: !!user },
+  userList: null
 })
 
 export const actions = {
@@ -52,12 +53,10 @@ export const actions = {
     userService.verify(email, token, resetPasswordHash, password)
       .then(
         (user) => {
-          console.log(`>>> verify success: ${JSON.stringify(user)}`)
           commit('verifySuccess', { user })
           this.app.store.$router.push('/')
         },
         (error) => {
-          console.log(`>>> verify error: ${JSON.stringify(error)}`)
           commit('verifyFailure', { error })
         }
       )
@@ -67,11 +66,9 @@ export const actions = {
     userService.requestPasswordReset(email)
       .then(
         (ok) => {
-          console.log('>>> requestPasswordReset success')
           commit('requestPasswordResetSuccess', { user })
         },
         (error) => {
-          console.log(`>>> requestPasswordReset error: ${JSON.stringify(error)}`)
           commit('requestPasswordResetFailure', { error })
         }
       )

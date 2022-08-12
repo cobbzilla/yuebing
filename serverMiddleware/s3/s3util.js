@@ -71,7 +71,6 @@ async function listObjects (prefix, client, params, recursive = false) {
           })
         })
       }
-      // Log the key of every item in the response to standard output.
       truncated = response.IsTruncated
       // If truncated is true, assign the key of the last element in the response to the pageMarker variable.
       if (truncated) {
@@ -231,7 +230,7 @@ async function putObject (bucketParams) {
     console.log(`putObject(${origKey}): params=${JSON.stringify(params)}`)
     const data = await client.send(new PutObjectCommand(params))
     console.log(`putObject(${origKey}): created object: ${params.Bucket}/${params.Key}`)
-    return data || true // For unit tests.
+    return data || true
   } catch (err) {
     console.log(`putObject(${origKey}) error: ${err}`)
     return null
@@ -252,7 +251,7 @@ async function deleteDestObject (destKey) {
     const bucketParams = { Bucket: s3cfg.destBucketParams.Bucket, Key: key }
     const data = await s3cfg.destClient.send(new DeleteObjectCommand(bucketParams))
     console.log(`deleteDestObject: Object deleted: ${key} : ${JSON.stringify(data)}`)
-    return data // For unit tests.
+    return data || true
   } catch (err) {
     console.log(`deleteDestObject: error deleting ${key}: ${err}`)
   }

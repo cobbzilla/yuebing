@@ -14,6 +14,8 @@ export default {
   label_newPassword: 'Nouveau mot de passe',
   label_locale: 'Langue',
   label_token: 'Jeton de vérification',
+  label_ctime: 'L\'eure de création',
+  label_mtime: 'L\'heure modifiée',
   button_login: 'Connexion',
   button_logout: 'Se déconnecter',
   button_register: 'Créer un compte',
@@ -22,6 +24,13 @@ export default {
   button_set_new_password: 'Définir le mot de passe',
   info_password_reset_email_sent: 'Un e-mail a été envoyé à {{ email }}, vérifiez votre boîte de réception pour un lien pour réinitialiser votre mot de passe',
 
+  label_search: 'Chercher',
+  button_search: 'Chercher',
+  label_sort: 'Trier par',
+  label_sort_order: 'ordre',
+  label_sort_ascending: 'croissant',
+  label_sort_descending: 'décroissant',
+
   // vee-validate error types
   error_field_required: '{{ field }} est requis',
   error_field_invalid: '{{ field }} n\'est pas valide',
@@ -29,6 +38,7 @@ export default {
   error_field_min: '{{ field }} est trop court',
   error_field_max: '{{ field }} est trop long',
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
+  error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'Anglais (EU)',
@@ -98,19 +108,24 @@ export default {
   label_date_month_number_10: '11',
   label_date_month_number_11: '12',
 
-  // admin messages
+  // Site Administration
   admin_title_user_administration: 'Administration des utilisateurs',
   admin_title_migrate_users: 'Migrer les utilisateurs à partir de la clé de chiffrement précédente',
   admin_title_transform_queue: 'File d\'attente de transformation multimédia',
 
-  // xform queue messages
+  // User Administration
+  admin_label_total_user_count: '{{ totalUserCount }} utilisateurs au total',
+  admin_button_delete_user: 'Supprimer l\'utilisateur',
+  admin_label_confirm_user_delete: 'Veuillez confirmer la suppression de l\'utilisateur: {{ email }}',
+
+  // Transform Queue
   admin_label_firstEvent: 'premier événement',
   admin_label_lastEvent: 'dernier événement',
   admin_label_eventTime: 'time',
   admin_label_eventName: 'événement',
   admin_label_eventDescription: 'description',
 
-  // user migration messages
+  // User Migration
   admin_label_migration_results: 'Résultats de la migration des utilisateurs:',
   admin_label_migration_oldKey: 'Clé de chiffrement précédente',
   admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (s\'il y en a un)',
