@@ -53,5 +53,5 @@ function handleJsonResponse (response) {
 
 export {
   USER_LOCAL_STORAGE_KEY,
-  authHeader, authGet, authPostJson, handleJsonResponse
+  currentUser, authHeader, authGet, authPostJson, handleJsonResponse
 }

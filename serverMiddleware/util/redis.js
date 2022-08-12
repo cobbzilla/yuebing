@@ -1,4 +1,5 @@
 const Redis = require('ioredis')
+const generators = require('redis-async-gen')
 const nuxt = require('../../nuxt.config').default
 
 const redisConfig = nuxt.privateRuntimeConfig.redis
@@ -7,6 +8,8 @@ const redisClient = new Redis({
   host: redisConfig.host,
   port: redisConfig.port
 })
+
+const { keysMatching } = generators.using(redisClient)
 
 const DEFAULT_EXPIRATION_MILLIS = 1000 * 60 * 60 * 24 * 30 // 30 days
 
@@ -26,6 +29,14 @@ async function flushall () {
   await redisClient.flushall()
 }
 
+async function findMatchingKeys (pattern) {
+  const keys = []
+  for await (const key of keysMatching(pattern)) {
+    keys.push(key)
+  }
+  return keys
+}
+
 if (redisConfig.flushAtStartup) {
   // start with an empty redis
   flushall().then(
@@ -39,4 +50,4 @@ if (redisConfig.flushAtStartup) {
     })
 }
 
-export { get, set, del, flushall }
+export { get, set, del, flushall, findMatchingKeys }

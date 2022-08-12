@@ -6,7 +6,7 @@ const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 export const state = () => ({
   user,
   userStatus: { loggedIn: !!user },
-  userList: null
+  invitationResults: null
 })
 
 export const actions = {
@@ -25,10 +25,15 @@ export const actions = {
         }
       )
   },
-  logout ({ commit }) {
+
+  logout ({ commit }, { redirect = true }) {
     userService.logout()
     commit('logout')
+    if (redirect) {
+      this.app.store.$router.push('/')
+    }
   },
+
   register ({ dispatch, commit }, user) {
     commit('registerRequest', user)
 
@@ -48,6 +53,7 @@ export const actions = {
         }
       )
   },
+
   verify ({ commit }, { email, token, resetPasswordHash, password }) {
     commit('verifyRequest', { email, token, resetPasswordHash, password })
     userService.verify(email, token, resetPasswordHash, password)
@@ -61,6 +67,7 @@ export const actions = {
         }
       )
   },
+
   requestPasswordReset ({ commit }, { email }) {
     commit('requestPasswordResetRequest', { email })
     userService.requestPasswordReset(email)
@@ -72,6 +79,23 @@ export const actions = {
           commit('requestPasswordResetFailure', { error })
         }
       )
+  },
+
+  inviteFriends ({ commit }, { emails }) {
+    commit('inviteFriendsRequest', { emails })
+    userService.inviteFriends(emails)
+      .then(
+        (results) => {
+          commit('inviteFriendsSuccess', { results })
+        },
+        (error) => {
+          commit('inviteFriendsFailure', { error })
+        }
+      )
+  },
+
+  clearInvitationResults ({ commit }) {
+    commit('clearInvitationResultsSuccess')
   }
 }
 
@@ -89,11 +113,13 @@ export const mutations = {
     state.userStatus = {}
     state.user = null
   },
+
   logout (state) {
     localStorage.removeItem(USER_LOCAL_STORAGE_KEY)
     state.userStatus = {}
     state.user = null
   },
+
   registerRequest (state, user) {
     state.userStatus = { registering: true }
   },
@@ -105,6 +131,7 @@ export const mutations = {
   registerFailure (state, error) {
     state.userStatus = {}
   },
+
   verifyRequest (state, { email, token, resetPasswordHash, password }) {
     state.userStatus = { verifying: true }
   },
@@ -116,6 +143,7 @@ export const mutations = {
   verifyFailure (state, { error }) {
     state.userStatus = { verifyError: error }
   },
+
   requestPasswordResetRequest (state, { email, token, resetPasswordHash, password }) {
     state.userStatus = { requestingPasswordReset: true }
   },
@@ -124,5 +152,24 @@ export const mutations = {
   },
   requestPasswordResetFailure (state, { error }) {
     state.userStatus = { passwordResetRequestError: error }
+  },
+
+  inviteFriendsRequest (state, { emails }) {
+    state.userStatus = Object.assign({}, state.userStatus, { inviting: true })
+    state.invitationError = null
+  },
+  inviteFriendsSuccess (state, { results }) {
+    state.userStatus.inviting = null
+    state.invitationResults = results
+  },
+  inviteFriendsFailure (state, { error }) {
+    state.userStatus.inviting = null
+    state.userStatus = Object.assign({}, state.userStatus, { inviting: null, invitationError: error })
+  },
+  clearInvitationResultsSuccess (state) {
+    state.invitationResults = null
+    if (state.userStatus.invitationError) {
+      delete state.userStatus.invitationError
+    }
   }
 }

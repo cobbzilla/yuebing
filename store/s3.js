@@ -1,3 +1,5 @@
+import config from '../nuxt.config'
+import { currentUser } from '~/services/util'
 import { s3Service } from '~/services/s3service'
 import { newMediaObject } from '@/shared/media'
 
@@ -31,84 +33,114 @@ export const state = () => ({
 export const actions = {
   fetchObjects ({ commit }, { prefix }) {
     commit('fetchObjectsRequest', { prefix })
-    s3Service
-      .listS3(prefix)
-      .then(
-        objects => commit('fetchObjectsSuccess', objects),
-        error => commit('fetchObjectsFailure', error)
-      )
+    if (!config.public && !currentUser()) {
+      console.log('fetchObjects: No user logged in and not a public instance, not calling API')
+      commit('fetchObjectsSuccess', [])
+    } else {
+      s3Service
+        .listS3(prefix)
+        .then(
+          objects => commit('fetchObjectsSuccess', objects),
+          error => commit('fetchObjectsFailure', error)
+        )
+    }
   },
 
   fetchMetadata ({ commit }, { path }) {
     commit('fetchMetaRequest')
-    s3Service
-      .metadata(path)
-      .then(
-        (meta) => {
-          meta.path = path
-          commit('fetchMetaSuccess', { path, meta })
-        },
-        error => commit('fetchMetaFailure', error)
-      )
+    if (!config.public && !currentUser()) {
+      console.log('fetchMetadata: No user logged in and not a public instance, not calling API')
+      commit('fetchMetaSuccess', { path, meta: {} })
+    } else {
+      s3Service
+        .metadata(path)
+        .then(
+          (meta) => {
+            meta.path = path
+            commit('fetchMetaSuccess', { path, meta })
+          },
+          error => commit('fetchMetaFailure', error)
+        )
+    }
   },
 
   fetchAsset ({ commit }, { path }) {
     commit('fetchAssetRequest')
-    s3Service
-      .jsonAsset(path)
-      .then(
-        (assetContents) => {
-          if (assetContents) {
-            commit('fetchAssetSuccess', {
-              path,
-              assetContents
-            })
-          } else {
-            const message = `fetchAsset: ERROR assetContents=${assetContents}`
-            console.warn(message)
-            commit('fetchAssetFailure', new TypeError(message))
-          }
-        },
-        error => commit('fetchAssetFailure', error)
-      )
+    if (!config.public && !currentUser()) {
+      console.log('fetchAsset: No user logged in and not a public instance, not calling API')
+      commit('fetchAssetSuccess', { path, assetContents: null })
+    } else {
+      s3Service
+        .jsonAsset(path)
+        .then(
+          (assetContents) => {
+            if (assetContents) {
+              commit('fetchAssetSuccess', {
+                path,
+                assetContents
+              })
+            } else {
+              const message = `fetchAsset: ERROR assetContents=${assetContents}`
+              console.warn(message)
+              commit('fetchAssetFailure', new TypeError(message))
+            }
+          },
+          error => commit('fetchAssetFailure', error)
+        )
+    }
   },
 
   fetchUserMediaInfo ({ dispatch, commit }, { path }) {
     commit('fetchUserMediaInfoRequest')
-    s3Service
-      .fetchUserMediaInfo(path)
-      .then(
-        (values) => {
-          commit('fetchUserMediaInfoSuccess', { path, values })
-        },
-        (error) => {
-          commit('fetchUserMediaInfoFailure', error)
-        }
-      )
+    if (!config.public && !currentUser()) {
+      console.log('fetchUserMediaInfo: No user logged in and not a public instance, not calling API')
+      commit('fetchUserMediaInfoSuccess', { path, values: {} })
+    } else {
+      s3Service
+        .fetchUserMediaInfo(path)
+        .then(
+          (values) => {
+            commit('fetchUserMediaInfoSuccess', { path, values })
+          },
+          (error) => {
+            commit('fetchUserMediaInfoFailure', error)
+          }
+        )
+    }
   },
 
   updateUserMediaInfo ({ dispatch, commit }, { path, values }) {
     commit('updateUserMediaInfoRequest')
-    s3Service
-      .updateUserMediaInfo(path, values)
-      .then(
-        () => {
-          commit('updateUserMediaInfoSuccess', { path, values })
-        },
-        error => commit('updateUserMediaInfoFailure', error)
-      )
+    if (!currentUser()) {
+      console.log('updateUserMediaInfo: No user logged in and not a public instance, not calling API')
+      commit('updateUserMediaInfoSuccess', { path, values })
+    } else {
+      s3Service
+        .updateUserMediaInfo(path, values)
+        .then(
+          () => {
+            commit('updateUserMediaInfoSuccess', { path, values })
+          },
+          error => commit('updateUserMediaInfoFailure', error)
+        )
+    }
   },
 
   updateSelectedThumbnail ({ dispatch, commit }, { path, thumbnailAsset }) {
     commit('updateSelectedThumbnailRequest')
-    s3Service
-      .updateSelectedThumbnail(path, thumbnailAsset)
-      .then(
-        () => {
-          commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
-        },
-        error => commit('updateSelectedThumbnailFailure', error)
-      )
+    if (!currentUser()) {
+      console.log('updateSelectedThumbnail: No user logged in and not a public instance, not calling API')
+      commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
+    } else {
+      s3Service
+        .updateSelectedThumbnail(path, thumbnailAsset)
+        .then(
+          () => {
+            commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
+          },
+          error => commit('updateSelectedThumbnailFailure', error)
+        )
+    }
   }
 }
 

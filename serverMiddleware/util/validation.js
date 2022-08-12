@@ -20,8 +20,7 @@ function validateField (obj, field, validation, errors) {
       addValidationError(errors, field, 'max', { params: { max: validation.max } })
     }
     if (validation.regex) {
-      const match = value.match(validation.regex)
-      if (!match || match.length !== 1 || match[0].length !== value.length) {
+      if (!isExactRegexMatch(value, validation.regex)) {
         addValidationError(errors, field, 'invalid', { params: { regex: validation.regex } })
       }
     }

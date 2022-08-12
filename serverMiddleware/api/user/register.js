@@ -17,7 +17,7 @@ function newSessionResponse (res) {
 }
 
 function handleRegError (res, e) {
-  if (e instanceof u.UserValidationException) {
+  if (e instanceof u.UserValidationError) {
     api.validationFailed(res, e.errors)
   } else {
     console.error(`>>>>> API: Register: error reading user record: ${e}`)

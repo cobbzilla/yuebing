@@ -1,7 +1,9 @@
 const fs = require('fs')
+const shasum = require('shasum')
 const nodemailer = require('nodemailer')
 const Handlebars = require('handlebars')
 const nuxt = require('../../nuxt.config').default
+const redis = require('../util/redis')
 const locale = require('../../shared/locale')
 
 const EMAIL_CONFIG = nuxt.privateRuntimeConfig.email
@@ -9,7 +11,8 @@ const EMAIL_ENABLED = !!EMAIL_CONFIG.host
 
 const TEMPLATE_VERIFY_EMAIL = 'verifyEmail'
 const TEMPLATE_RESET_PASSWORD = 'resetPassword'
-const TEMPLATE_NAMES = [TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD]
+const TEMPLATE_INVITATION = 'invitation'
+const TEMPLATE_NAMES = [TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD, TEMPLATE_INVITATION]
 
 const SUBJECT_TEMPLATE = 'subject.txt.hbs'
 const MESSAGE_TXT_TEMPLATE = 'message.txt.hbs'
@@ -72,10 +75,41 @@ const MAIL_SENDER = EMAIL_CONFIG.host
 
 const MAIL_FROM = EMAIL_CONFIG.fromEmail
 
+const MAIL_SENDING_LIMITS = {}
+
+// max 1 new invitation per week
+MAIL_SENDING_LIMITS[TEMPLATE_INVITATION] = { count: 1, period: 1000 * 60 * 60 * 24 * 7 }
+
+// max 10 verify/reset attempts per day
+MAIL_SENDING_LIMITS[TEMPLATE_RESET_PASSWORD] = { count: 10, period: 1000 * 60 * 60 * 24 }
+MAIL_SENDING_LIMITS[TEMPLATE_VERIFY_EMAIL] = { count: 10, period: 1000 * 60 * 60 * 24 }
+
+function redisRecipientPrefix (to, template) {
+  return 'mlimit_' + shasum(to + ' ! ' + template)
+}
+
+// adapted from https://stackoverflow.com/a/27724419
+function EmailRateLimitExceededError (limit) {
+  this.message = `Rate limit exceeded: ${JSON.stringify(limit)}`
+  // Use V8's native method if available, otherwise fallback
+  if ('captureStackTrace' in Error) {
+    Error.captureStackTrace(this, TypeError)
+  } else {
+    this.stack = (new Error(this.message)).stack
+  }
+}
+
 async function sendEmail (to, locale, template, params) {
   if (!EMAIL_ENABLED) {
     console.log(`sendEmail(${to}, ${locale}, ${template}): email not enabled, not sending`)
     return
+  }
+  // what is our limit for sending these types of messages?
+  const limit = MAIL_SENDING_LIMITS[template]
+  const redisPrefix = redisRecipientPrefix(to, template)
+  const sendReceipts = await redis.findMatchingKeys(redisPrefix + '*')
+  if (sendReceipts && sendReceipts.length >= limit.count) {
+    throw new EmailRateLimitExceededError(limit)
   }
   console.log(`sendEmail(${to}, ${locale}, ${template}) starting`)
 
@@ -88,6 +122,11 @@ async function sendEmail (to, locale, template, params) {
 
   // inject config into params
   const ctx = Object.assign({}, params, { config: nuxt.publicRuntimeConfig })
+
+  // record attempt to send mail -- limit is enforced above
+  await redis.set(redisPrefix + '_' + Date.now(), '' + Date.now(), limit.period)
+
+  // send the mail!
   await MAIL_SENDER.sendMail({
     from: MAIL_FROM, // sender address
     to,
@@ -104,6 +143,6 @@ async function sendEmail (to, locale, template, params) {
 }
 
 export {
-  TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD,
+  TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD, TEMPLATE_INVITATION,
   sendEmail
 }

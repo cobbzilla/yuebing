@@ -7,6 +7,7 @@ export const userService = {
   register,
   verify,
   requestPasswordReset,
+  inviteFriends,
   update,
   delete: _delete
 }
@@ -45,6 +46,10 @@ function requestPasswordReset (email) {
   const body = {}
   body[auth.VERIFY_EMAIL_PARAM] = email
   return fetch('/api/user/requestPasswordReset', { method: 'POST', body: JSON.stringify(body) }).then(a.handleJsonResponse)
+}
+
+function inviteFriends (emails) {
+  return fetch('/api/user/inviteFriends', a.authPostJson(emails)).then(a.handleJsonResponse)
 }
 
 function update (user) {

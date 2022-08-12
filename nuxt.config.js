@@ -13,7 +13,7 @@ export default {
     public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : true,
+    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false,
 
     // If limitRegistration is set, the allowRegistration setting is ignored
     // The limitRegistration property can be either:
@@ -38,7 +38,11 @@ export default {
     timeout: {
       verify: process.env.SV_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
       resetPassword: process.env.SV_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60 // 1 hour
-    }
+    },
+
+    // Don't change this line. If you want to enable email, set the SV_EMAIL_HOST environment
+    // variable (and others, see below in privateRuntimeConfig for email settings)
+    emailEnabled: (typeof process.env.SV_EMAIL_HOST === 'string' && process.env.SV_EMAIL_HOST.length > 0)
   },
 
   privateRuntimeConfig: {
@@ -54,6 +58,8 @@ export default {
 
     // SMTP settings for sending email
     // If host is not set, emails will be disabled
+    // Do not set edit the lines below.
+    // Instead, set the SV_EMAIL environment variables to the config you want
     email: {
       host: process.env.SV_EMAIL_HOST || null,
       port: process.env.SV_EMAIL_PORT || 587,

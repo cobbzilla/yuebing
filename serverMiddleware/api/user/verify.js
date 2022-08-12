@@ -68,7 +68,7 @@ export default {
             })
           } catch (e) {
             // we shouldn't get a validation exception during update, since we already validated above
-            if (e instanceof u.UserValidationException) {
+            if (e instanceof u.UserValidationError) {
               return api.validationFailed(res, e.errors)
             } else {
               return api.serverError(res, `verify: updateUserRecord failed: ${e}`)

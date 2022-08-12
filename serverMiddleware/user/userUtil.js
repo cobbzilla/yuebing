@@ -1,3 +1,4 @@
+const s3 = require('@aws-sdk/client-s3')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')
@@ -6,6 +7,7 @@ const nuxt = require('../../nuxt.config').default
 const shared = require('../../shared')
 const auth = require('../../shared/auth')
 const loc = require('../../shared/locale')
+const valid = require('../../shared/validation')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
 const s3util = require('../s3/s3util')
@@ -134,7 +136,7 @@ const USER_VALIDATIONS = {
     required: true,
     min: 2,
     max: 100,
-    regex: /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
+    regex: valid.EMAIL_REGEX
   },
   password: {
     required: true,
@@ -158,7 +160,7 @@ function validateUser (u) {
 }
 
 // adapted from https://stackoverflow.com/a/27724419
-function UserValidationException (errors) {
+function UserValidationError (errors) {
   this.errors = errors
   this.message = `Error: ${JSON.stringify(errors, null, 2)}`
   // Use V8's native method if available, otherwise fallback
@@ -179,6 +181,12 @@ async function userExists (email) {
 }
 
 function registerInitialAdminUser (regRequest) {
+  if (!regRequest.firstName) {
+    regRequest.firstName = 'admin'
+  }
+  if (!regRequest.lastName) {
+    regRequest.lastName = 'admin'
+  }
   return _registerUser(regRequest, () => {
     console.log(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
   }, true)
@@ -189,7 +197,7 @@ function registerUser (regRequest, successHandler) {
 }
 
 function regNotAllowed () {
-  return new UserValidationException({ email: ['registrationNotAllowed'] })
+  return new UserValidationError({ email: ['registrationNotAllowed'] })
 }
 
 function _registerUser (regRequest, successHandler, admin) {
@@ -201,7 +209,7 @@ function _registerUser (regRequest, successHandler, admin) {
     }
     const errors = validateUser(regRequest)
     if (Object.keys(errors).length > 0) {
-      throw new UserValidationException(errors)
+      throw new UserValidationError(errors)
     }
   } else if (admin && ADMIN.overwrite) {
     // allow over-write of initial admin when nuxt config flag is set
@@ -214,7 +222,7 @@ function _registerUser (regRequest, successHandler, admin) {
         console.log(`admin user already exists: ${regRequest.email}`)
       } else {
         return Promise.resolve(() => {
-          throw new UserValidationException({ email: ['alreadyRegistered'] })
+          throw new UserValidationError({ email: ['alreadyRegistered'] })
         })
       }
     } else {
@@ -314,7 +322,7 @@ function createUserRecord (user, successHandler) {
 function updateUserRecord (user, successHandler) {
   const errors = validateUser(user)
   if (Object.keys(errors).length > 0) {
-    throw new UserValidationException(errors)
+    throw new UserValidationError(errors)
   }
   // copy user object, assign mtime and delete the plaintext password and admin properties
   const update = Object.assign({}, user, { mtime: Date.now() })
@@ -366,8 +374,54 @@ async function findUser (email) {
   return JSON.parse(crypt.decrypt(await s3util.readDestTextObject(userKey(email))))
 }
 
-async function deleteUser (email) {
-  return await s3util.deleteDestObject(userKey(email))
+async function sendInvitations (fromUser, emailList) {
+  const ctx = {
+    fromUser,
+    inviteLink: nuxt.publicRuntimeConfig.siteUrl + '/signUp'
+  }
+  const successfulSends = {}
+  const failedSends = {}
+
+  const list = []
+  for (const recipient of emailList) {
+    if (!valid.isValidEmail(recipient.trim())) {
+      failedSends[recipient] = 'invalid'
+    } else {
+      list.push(recipient.trim())
+    }
+  }
+  // return await Promise.all(objectList.map(obj => migrateUser(obj.name, normKey, normIV)))
+  await Promise.all(list.map(
+    async (recipient) => {
+      ctx.recipient = recipient
+      try {
+        const existingUser = await findUser(recipient)
+        if (existingUser) {
+          successfulSends[recipient] = Date.now()
+          return Promise.resolve()
+        }
+      } catch (e) {
+        // NoSuchKey is an expected exception, we are just checking to make sure the user
+        // does NOT exist before sending them an invitation to join. So it's OK to get this error
+        if (!(e instanceof s3.NoSuchKey)) {
+          // For other errors, we should at least log
+          console.error(`sendInvitations: unexpected findUser error: ${e}, we'll still send email to: ${recipient}`)
+        }
+      }
+      return email.sendEmail(recipient, fromUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_INVITATION, ctx).then(
+        (ok) => {
+          console.log(`resetPassword: invitation sent to: ${recipient}`)
+          successfulSends[recipient] = Date.now()
+        },
+        (err) => {
+          console.error(`resetPassword: ERROR sending invitation to: ${recipient}: ${JSON.stringify(err)}`)
+          failedSends[recipient] = err
+        })
+    }))
+  return {
+    success: successfulSends,
+    errors: failedSends
+  }
 }
 
 // initialize admin user
@@ -381,6 +435,6 @@ export {
   userStorePrefix, userKey, startSession, currentUser,
   checkPassword, isCorrectVerifyToken, isCorrectResetPasswordToken,
   isAdmin, requireUser, requireLoggedInUser, requireAdmin,
-  UserValidationException, registerUser, resetShasum, sendResetPasswordMessage,
-  findUser, validateUser, createUserRecord, updateUserRecord, deleteUser
+  UserValidationError, registerUser, resetShasum, sendResetPasswordMessage,
+  findUser, validateUser, createUserRecord, updateUserRecord, sendInvitations
 }
