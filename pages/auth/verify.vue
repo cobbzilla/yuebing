@@ -148,12 +148,7 @@ export default {
             resetPasswordHash: this.resetPasswordHash,
             password: this.password
           })
-          // return
         }
-        // // Wait until the models are updated in the UI
-        // this.$nextTick(() => {
-        //   this.$refs.form.reset()
-        // })
       })
       console.log(`handleSubmit: received errors: ${JSON.stringify(errors)}`)
     }

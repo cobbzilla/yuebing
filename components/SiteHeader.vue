@@ -4,7 +4,7 @@
 <!--      {{ status }}-->
 <!--    </div>-->
     <div v-if="user">
-      <h2>{{ messages.welcome.parseMessage(this, { user }) }}</h2>
+      <h2>{{ messages.welcome.parseMessage({ user }) }}</h2>
       <button @click="logOut">{{ messages.button_logout }}</button>
     </div>
     <div v-else>
@@ -16,8 +16,8 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { localeMessagesForUser } from '@/shared/locale'
 import config from '../nuxt.config'
+import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'SiteHeader',

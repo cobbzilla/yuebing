@@ -29,14 +29,18 @@ function evalInContext (ctx, string) {
   try {
     return safeEval('ctx.' + string.trim(), context)
   } catch (error) {
-    console.warn(`evalInContext: Error evaluating "${string}"`, error)
-    return ''
+    try {
+      return safeEval(string.trim(), ctx)
+    } catch (errorWithoutThis) {
+      console.warn(`evalInContext: Error evaluating "${string}": ${error} and then ${errorWithoutThis}`)
+      return ''
+    }
   }
 }
 
 String.prototype.parseMessage = function (ctx) {
   const evaluated = this
-    ? '' + this.replace(/{{\s*[\w-.]+\s*}}/g, (match) => {
+    ? '' + this.replace(/{{.+}}/g, (match) => {
       const expression = match.slice(2, -2)
       return evalInContext(ctx, expression)
     })

@@ -313,10 +313,14 @@ function updateUserRecord (user, successHandler) {
   if (Object.keys(errors).length > 0) {
     throw new UserValidationException(errors)
   }
-  // copy user object so we can delete the plaintext password
+  // copy user object so we can delete the plaintext password and admin properties
   const update = Object.assign({}, user)
   if (update.password) {
     delete update.password
+  }
+  // never store the 'admin' property -- we always call isAdmin to check if a user is admin
+  if (update.admin) {
+    delete update.admin
   }
   const bucketParams = {
     Key: userKey(user.email),

@@ -1,6 +1,6 @@
 export default {
   // titles and labels
-  welcome: 'Bienvenue {{user.firstName}}',
+  welcome: 'Bienvenue {{user.firstName ? user.firstName : user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
   title_login: 'Connexion',
   title_register: 'Créer un compte',
   title_verifying: 'Vérification de votre compte...',
@@ -96,5 +96,24 @@ export default {
   label_date_month_number_8: '9',
   label_date_month_number_9: '10',
   label_date_month_number_10: '11',
-  label_date_month_number_11: '12'
+  label_date_month_number_11: '12',
+
+  // admin messages
+  admin_title_user_administration: 'Administration des utilisateurs',
+  admin_title_migrate_users: 'Migrer les utilisateurs à partir de la clé de chiffrement précédente',
+  admin_title_transform_queue: 'File d\'attente de transformation multimédia',
+
+  // xform queue messages
+  admin_label_firstEvent: 'premier événement',
+  admin_label_lastEvent: 'dernier événement',
+  admin_label_eventTime: 'time',
+  admin_label_eventName: 'événement',
+  admin_label_eventDescription: 'description',
+
+  // user migration messages
+  admin_label_migration_results: 'Résultats de la migration des utilisateurs:',
+  admin_label_migration_oldKey: 'Clé de chiffrement précédente',
+  admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (s\'il y en a un)',
+  admin_button_migrate_users: 'Migrer les utilisateurs',
+  admin_title_main_site: 'Retour à {{ title }}'
 }

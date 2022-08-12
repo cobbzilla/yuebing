@@ -16,7 +16,7 @@ export const actions = {
         (user) => {
           console.log(`login success! user=${JSON.stringify(user)}`)
           commit('loginSuccess', user)
-          this.app.store.$router.push('/')
+          this.app.store.$router.push(user.admin ? '/admin' : '/')
         },
         (error) => {
           commit('loginFailure', error)

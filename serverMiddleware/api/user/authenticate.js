@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs')
 const s3util = require('../../s3/s3util')
 const crypt = require('../../util/crypt')
 const api = require('../../util/api')
@@ -20,7 +19,12 @@ export default {
             u.checkPassword(user, loginRequest.password, (ok) => {
               if (ok) {
                 u.startSession(user).then(
-                  u => api.okJson(res, u),
+                  (sessionUser) => {
+                    if (u.isAdmin(sessionUser)) {
+                      sessionUser.admin = true
+                    }
+                    api.okJson(res, sessionUser)
+                  },
                   (error) => {
                     console.error(`>>>>> API: Authenticate: error starting session: ${error}`)
                     api.serverError(res, `Error: ${error}`)

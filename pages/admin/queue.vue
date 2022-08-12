@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h3>Transform Processing Queue</h3>
+    <h3>
+      {{ messages.admin_title_transform_queue }}
+    </h3>
 
     <!-- TOC -->
     <div v-for="(j, jobIndex) in queue" :key="jobIndex" @click="displayJobDetails(j)">
@@ -19,8 +21,8 @@
             </th>
           </tr>
           <tr>
-            <th><h3>first event</h3></th>
-            <th><h3>last event</h3></th>
+            <th><h3>{{ messages.admin_label_firstEvent }}</h3></th>
+            <th><h3>{{ messages.admin_label_lastEvent }}</h3></th>
           </tr>
         </thead>
         <tbody>
@@ -33,9 +35,9 @@
               <table border="1">
                 <thead>
                   <tr>
-                    <th>time</th>
-                    <th>event</th>
-                    <th>description</th>
+                    <th>{{ messages.admin_label_eventTime }}</th>
+                    <th>{{ messages.admin_label_eventName }}</th>
+                    <th>{{ messages.admin_label_eventDescription }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -56,6 +58,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import { localeMessagesForUser } from '@/shared/locale'
 
 const UPDATE_INTERVAL = 1000 * 15
 
@@ -68,7 +71,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('admin', ['queue'])
+    ...mapState('admin', ['queue']),
+    ...mapState('user', ['user', 'userStatus']),
+    messages () { return localeMessagesForUser(this.user) }
   },
   created () {
     this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
