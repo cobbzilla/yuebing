@@ -4,7 +4,11 @@ const USER_LOCAL_STORAGE_KEY = 'user'
 
 function currentUser () {
   const userJson = localStorage.getItem(USER_LOCAL_STORAGE_KEY)
-  return userJson ? JSON.parse(userJson) : null
+  try {
+    return userJson ? JSON.parse(userJson) : null
+  } catch (e) {
+    console.log(`currentUser: error parsing userJson: ${userJson}: ${e}`)
+  }
 }
 
 function authHeader () {
@@ -39,7 +43,7 @@ function handleJsonResponse (response) {
   return response.text().then((text) => {
     const data = typeof text === 'string' ? JSON.parse(text) : 'null'
     if (!response.ok) {
-      const error = (data && data.message) || response.statusText
+      const error = text ? data : response.statusText
       return Promise.reject(error)
     }
     // console.log(`handleJsonResponse returning: ${JSON.stringify(data, null, 2)}`)

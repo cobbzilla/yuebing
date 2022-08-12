@@ -122,7 +122,7 @@ export default {
   created () {
     const name = this.$route.query.n
     if (typeof name !== 'string') {
-      this.error = 'Thing not found'
+      this.error = 'Video not found'
       return
     }
     this.name = name

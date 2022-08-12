@@ -1,8 +1,6 @@
+const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
-
-const VERIFY_EMAIL_PARAM = 'e'
-const VERIFY_TOKEN_PARAM = 't'
 
 export default {
   path: '/api/user/verify',
@@ -14,17 +12,17 @@ export default {
     }
     const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
     const errors = {}
-    if (!query.has(VERIFY_EMAIL_PARAM)) {
+    if (!query.has(auth.VERIFY_EMAIL_PARAM)) {
       errors.email = ['required']
     }
-    if (!query.has(VERIFY_TOKEN_PARAM)) {
+    if (!query.has(auth.VERIFY_TOKEN_PARAM)) {
       errors.verifyToken = ['required']
     }
     if (Object.keys(errors).length > 0) {
       return api.validationFailed(res, errors)
     }
-    const email = query.get(VERIFY_EMAIL_PARAM)
-    const token = query.get(VERIFY_TOKEN_PARAM)
+    const email = query.get(auth.VERIFY_EMAIL_PARAM)
+    const token = query.get(auth.VERIFY_TOKEN_PARAM)
     const correct = await u.isCorrectVerifyToken(email, token)
     if (!correct) {
       return api.validationFailed(res, { verifyToken: ['invalid'] })

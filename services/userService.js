@@ -1,3 +1,4 @@
+const auth = require('../shared/auth')
 const a = require('./util')
 
 export const userService = {
@@ -33,7 +34,10 @@ function register (user) {
 }
 
 function verify (email, token) {
-  return fetch('/api/user/verify', a.authPostJson({ email, token })).then(a.handleJsonResponse)
+  const verifyUrl = '/api/user/verify' +
+    '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(email) +
+    '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
+  return fetch(verifyUrl, { method: 'GET' }).then(a.handleJsonResponse)
 }
 
 function getAll () {

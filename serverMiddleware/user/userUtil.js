@@ -4,6 +4,7 @@ const shasum = require('shasum')
 const redis = require('../util/redis')
 const nuxt = require('../../nuxt.config').default
 const shared = require('../../shared/index')
+const auth = require('../../shared/auth')
 const loc = require('../../shared/locale')
 const validate = require('../util/validation')
 const crypt = require('../util/crypt')
@@ -259,7 +260,14 @@ function createUserRecord (user, successHandler) {
     redis.set(key, token, USER_VERIFY_EXPIRATION).then(() => {
       console.log(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
     })
-    email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, { user, token }).then(
+    const ctx = {
+      user,
+      token,
+      verifyUrl: nuxt.publicRuntimeConfig.siteUrl + auth.VERIFY_ENDPOINT +
+        '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
+        '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
+    }
+    email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
       (ok) => {
         console.log(`createUserRecord: verification request sent to user: ${user.email}`)
       },

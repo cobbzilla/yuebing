@@ -49,13 +49,15 @@ export const actions = {
   },
   verify ({ commit }, { email, token }) {
     commit('verifyRequest', { email, token })
-    userService.verify({ email, token })
+    userService.verify(email, token)
       .then(
         (user) => {
-          commit('verifySuccess', user)
+          console.log(`>>> verify success: ${JSON.stringify(user)}`)
+          commit('verifySuccess', { user })
           this.app.store.$router.push('/')
         },
         (error) => {
+          console.log(`>>> verify error: ${JSON.stringify(error)}`)
           commit('verifyFailure', { error })
         }
       )
@@ -68,7 +70,7 @@ export const mutations = {
     state.user = user
   },
   loginSuccess (state, user) {
-    state.status = { loggedIn: true }
+    state.status = { loggedIn: true, verified: !!user.verified }
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
   },
@@ -95,10 +97,16 @@ export const mutations = {
   verifyRequest (state, { email, token }) {
     state.status = { verifying: true }
   },
-  verifySuccess (state, { email, token }) {
+  verifySuccess (state, { user }) {
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
+    state.user = user
     state.status = { loggedIn: true, verified: true }
   },
   verifyFailure (state, { error }) {
-    state.status = { verifyError: error }
+    if (error && Array.isArray(error.verifyToken)) {
+      state.status = { verifyError: error.verifyToken[0] }
+    } else {
+      state.status = { verifyError: error }
+    }
   }
 }

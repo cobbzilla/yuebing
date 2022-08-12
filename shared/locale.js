@@ -36,7 +36,7 @@ function evalInContext (ctx, string) {
 
 String.prototype.parseMessage = function (ctx) {
   const evaluated = this
-    ? '' + this.replace(/{{\s*[\w-]+\s*}}/g, (match) => {
+    ? '' + this.replace(/{{\s*[\w-.]+\s*}}/g, (match) => {
       const expression = match.slice(2, -2)
       return evalInContext(ctx, expression)
     })

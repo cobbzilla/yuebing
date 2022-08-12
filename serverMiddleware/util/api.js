@@ -40,4 +40,6 @@ function validationFailed (res, errors) {
   return null
 }
 
-export { okJson, forbidden, notFound, serverError, badRequest, validationFailed }
+export {
+  okJson, forbidden, notFound, serverError, badRequest, validationFailed
+}

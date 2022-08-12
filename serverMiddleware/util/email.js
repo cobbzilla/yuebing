@@ -18,11 +18,17 @@ const TEMPLATE_FILES = [SUBJECT_TEMPLATE, MESSAGE_TXT_TEMPLATE, MESSAGE_HTML_TEM
 const COMPILED_TEMPLATES = {}
 
 if (EMAIL_ENABLED) {
+  // compile templates
   for (const templateName of TEMPLATE_NAMES) {
     for (const loc of locale.SUPPORTED_LOCALES) {
       compileTemplates(loc, templateName)
     }
   }
+
+  // register helpers
+  Handlebars.registerHelper('urlEscape', (src) => {
+    return new Handlebars.SafeString(encodeURIComponent(src))
+  })
 }
 
 function compileTemplates (locale, template) {
@@ -79,12 +85,14 @@ async function sendEmail (to, locale, template, params) {
     throw new TypeError(`sendEmail(${to}, ${locale}, ${template}): compiled templates not found for locale/template`)
   }
 
-  const mail = await MAIL_SENDER.sendMail({
+  // inject config into params
+  const ctx = Object.assign({}, params, { config: nuxt.publicRuntimeConfig })
+  await MAIL_SENDER.sendMail({
     from: MAIL_FROM, // sender address
     to,
-    subject: compiled[SUBJECT_TEMPLATE](params),
-    text: compiled[MESSAGE_TXT_TEMPLATE](params),
-    html: compiled[MESSAGE_HTML_TEMPLATE](params)
+    subject: compiled[SUBJECT_TEMPLATE](ctx),
+    text: compiled[MESSAGE_TXT_TEMPLATE](ctx),
+    html: compiled[MESSAGE_HTML_TEMPLATE](ctx)
   }, (err, result) => {
     if (err) {
       console.log(`sendMail: error sending mail: ${err}`)
@@ -92,7 +100,6 @@ async function sendEmail (to, locale, template, params) {
       console.log(`sendMail: sent mail: ${JSON.stringify(result)}`)
     }
   })
-  console.log(`Message sent: ${mail.messageId}`)
 }
 
 export {

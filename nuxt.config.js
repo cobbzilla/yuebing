@@ -5,6 +5,9 @@ export default {
   publicRuntimeConfig: {
     title: process.env.SV_TITLE || 's3vid',
 
+    // Links in outbound emails will point back here
+    siteUrl: process.env.SV_SITE_URL || 'http://127.0.0.1:3000',
+
     // Set to true to allow anonymous browsing/viewing
     // WARNING: This can generate expensive bandwidth bills, depending on your site's traffic load
     public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
@@ -155,15 +158,21 @@ export default {
     extendRoutes (routes, resolve) {
       routes.push({
         name: 'Sign In',
-        path: '/signIn', // <--- change this
+        path: '/signIn',
         component: resolve(__dirname, 'pages/auth/login.vue'),
         chunkName: 'pages/auth/login'
       })
       routes.push({
         name: 'Sign Up',
-        path: '/signUp', // <--- change this
+        path: '/signUp',
         component: resolve(__dirname, 'pages/auth/register.vue'),
         chunkName: 'pages/auth/register'
+      })
+      routes.push({
+        name: 'Verify',
+        path: require(resolve(__dirname, 'shared/auth')).VERIFY_ENDPOINT,
+        component: resolve(__dirname, 'pages/auth/verify.vue'),
+        chunkName: 'pages/auth/verify'
       })
     }
   },
