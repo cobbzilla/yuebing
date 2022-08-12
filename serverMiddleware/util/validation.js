@@ -1,3 +1,5 @@
+const valid = require('../../shared/validation')
+
 function addValidationError (errors, field, error) {
   if (!(field in Object.keys(errors))) {
     errors[field] = []
@@ -20,7 +22,7 @@ function validateField (obj, field, validation, errors) {
       addValidationError(errors, field, 'max', { params: { max: validation.max } })
     }
     if (validation.regex) {
-      if (!isExactRegexMatch(value, validation.regex)) {
+      if (!valid.isExactRegexMatch(value, validation.regex)) {
         addValidationError(errors, field, 'invalid', { params: { regex: validation.regex } })
       }
     }
