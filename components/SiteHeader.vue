@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div v-if="user">
-      <h2>{{ messages.welcome.parseMessage({ user }) }}</h2>
+    <div v-if="user && userStatus && userStatus.loggedIn">
+      <h2>{{ messages.welcome.parseMessage({ user, title }) }}</h2>
       <button @click="logOut()">{{ messages.button_logout }}</button>
       <div>
         <NuxtLink to="/profile">{{ messages.button_profile }}</NuxtLink>
@@ -36,9 +36,8 @@ export default {
       }
       return 'mysterious one'
     },
-    allowRegistration () {
-      return this.$config.allowRegistration
-    }
+    allowRegistration () { return this.$config.allowRegistration },
+    title () { return this.$config.title }
   },
   methods: {
     ...mapActions('user', ['logout']),

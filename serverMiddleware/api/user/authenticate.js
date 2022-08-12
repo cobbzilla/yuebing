@@ -1,7 +1,7 @@
-const s3util = require('../../s3/s3util')
-const crypt = require('../../util/crypt')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+
+const ACCOUNT_NOT_FOUND = { email: ['accountNotFound'] }
 
 export default {
   path: '/api/user/authenticate',
@@ -27,17 +27,17 @@ export default {
                   })
               } else {
                 console.log(`>>>>> API: Authenticate: wrong password (ok was ${ok})`)
-                return api.notFound(res)
+                return api.validationFailed(res, ACCOUNT_NOT_FOUND)
               }
             },
             (err) => {
               console.log(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
-              return api.notFound(res)
+              return api.validationFailed(res, ACCOUNT_NOT_FOUND)
             })
           },
           (error) => {
             console.error(`>>>>> API: Authenticate: error reading user record: ${error}`)
-            return api.notFound(res)
+            return api.validationFailed(res, ACCOUNT_NOT_FOUND)
           }
         )
       }

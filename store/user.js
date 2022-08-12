@@ -6,6 +6,7 @@ const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 export const state = () => ({
   user,
   userStatus: { loggedIn: !!user },
+  loginError: null,
   invitationResults: null
 })
 
@@ -20,7 +21,7 @@ export const actions = {
           this.app.store.$router.push(user.admin ? '/admin' : '/')
         },
         (error) => {
-          commit('loginFailure', error)
+          commit('loginFailure', { error })
           // dispatch('alert/error', error, { root: true })
         }
       )
@@ -135,10 +136,12 @@ export const mutations = {
     state.userStatus = { loggedIn: true, verified: !!user.verified }
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
+    state.loginError = null
   },
-  loginFailure (state) {
+  loginFailure (state, { error }) {
     state.userStatus = {}
     state.user = null
+    state.loginError = error
   },
 
   logout (state) {

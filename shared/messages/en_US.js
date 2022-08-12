@@ -1,6 +1,6 @@
 export default {
   // titles and labels
-  welcome: 'Welcome {{user.firstName || user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
+  welcome: 'Welcome to {{ title }}, {{user.firstName || user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}!',
   title_login: 'Sign In',
   title_register: 'Sign Up',
   title_verifying: 'Verifying your account...',
@@ -55,6 +55,7 @@ export default {
   error_field_email: '{{ field }} is not a valid email address',
   error_field_cannotDeleteSelf: 'You cannot delete yourself',
   error_field_readOnly: '{{ field }} cannot be changed',
+  error_field_accountNotFound: 'Account not found',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'English (US)',

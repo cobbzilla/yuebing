@@ -1,6 +1,6 @@
 export default {
   // titles and labels
-  welcome: 'Bienvenue {{user.firstName ? user.firstName : user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
+  welcome: 'Bienvenue sur {{ title }}, {{user.firstName ? user.firstName : user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
   title_login: 'Connexion',
   title_register: 'Créer un compte',
   title_verifying: 'Vérification de votre compte...',
@@ -55,6 +55,7 @@ export default {
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
   error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
   error_field_readOnly: '{{ field }} ne peut pas être modifié',
+  error_field_accountNotFound: 'Compte non trouvé',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'Anglais (EU)',
