@@ -10,12 +10,8 @@ export default {
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
       if (typeof loginRequest.email === 'string' && loginRequest.email.length > 1) {
-        s3util.readDestTextObject(u.userKey(loginRequest.email)).then(
-          (userJson) => {
-            if (typeof userJson !== 'string') {
-              return api.notFound(res)
-            }
-            const user = JSON.parse(crypt.decrypt(userJson))
+        u.findUser(loginRequest.email).then(
+          (user) => {
             u.checkPassword(user, loginRequest.password, (ok) => {
               if (ok) {
                 u.startSession(user).then(

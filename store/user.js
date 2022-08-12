@@ -81,6 +81,33 @@ export const actions = {
       )
   },
 
+  updateUser ({ commit }, { update }) {
+    commit('updateUserRequest', { update })
+    userService.updateUser(update)
+      .then(
+        (results) => {
+          commit('updateUserSuccess', { results })
+        },
+        (error) => {
+          commit('updateUserFailure', { error })
+        }
+      )
+  },
+
+  deleteUser ({ commit }) {
+    commit('deleteUserRequest')
+    userService.deleteUser()
+      .then(
+        () => {
+          commit('deleteUserSuccess')
+          commit('logout')
+        },
+        (error) => {
+          commit('deleteUserFailure', { error })
+        }
+      )
+  },
+
   inviteFriends ({ commit }, { emails }) {
     commit('inviteFriendsRequest', { emails })
     userService.inviteFriends(emails)
@@ -152,6 +179,30 @@ export const mutations = {
   },
   requestPasswordResetFailure (state, { error }) {
     state.userStatus = { passwordResetRequestError: error }
+  },
+
+  updateUserRequest (state, { update }) {
+    state.userStatus = Object.assign({}, state.userStatus, { updating: true })
+  },
+  updateUserSuccess (state, { results }) {
+    state.userStatus.updating = null
+    state.updateResults = results
+  },
+  updateUserFailure (state, { error }) {
+    state.userStatus.updating = null
+    state.userStatus = Object.assign({}, state.userStatus, { updating: null, updateError: error })
+  },
+
+  deleteUserRequest (state) {
+    state.userStatus = Object.assign({}, state.userStatus, { deleting: true })
+  },
+  deleteUserSuccess (state) {
+    state.userStatus.deleting = null
+    state.userStatus.deleted = true
+  },
+  deleteUserFailure (state, { error }) {
+    state.userStatus.deleting = null
+    state.userStatus = Object.assign({}, state.userStatus, { deleting: null, deleteError: error })
   },
 
   inviteFriendsRequest (state, { emails }) {

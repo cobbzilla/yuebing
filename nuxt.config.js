@@ -53,7 +53,7 @@ export default {
         password: process.env.SV_ADMIN_PASSWORD || null,
         locale: process.env.SV_DEFAULT_LOCALE || 'en_US'
       },
-      overwrite: false // set to true to overwrite existing admin user
+      overwrite: true // set to true to overwrite existing admin user
     },
 
     // SMTP settings for sending email
@@ -192,6 +192,12 @@ export default {
         path: require(resolve(__dirname, 'shared/auth')).VERIFY_ENDPOINT,
         component: resolve(__dirname, 'pages/auth/verify.vue'),
         chunkName: 'pages/auth/verify'
+      })
+      routes.push({
+        name: 'Account Profile',
+        path: '/profile',
+        component: resolve(__dirname, 'pages/auth/profile.vue'),
+        chunkName: 'pages/auth/profile'
       })
     }
   },

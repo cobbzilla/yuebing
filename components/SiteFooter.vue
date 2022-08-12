@@ -17,10 +17,7 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     messages () { return localeMessagesForUser(this.user) },
-    canEmail () {
-      console.log(`SiteFooter ------ this.$config is ${JSON.stringify(this.$config)}`)
-      return this.$config.emailEnabled
-    }
+    canEmail () { return this.$config.emailEnabled }
   }
 }
 </script>

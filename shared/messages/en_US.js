@@ -7,6 +7,11 @@ export default {
   title_requestPasswordReset: 'Reset your password',
   title_resetPassword: 'Set a new password',
   title_verifying_ended: 'Verification ended',
+  title_profile: 'Account Information',
+  button_profile: 'My Account',
+  button_update: 'save',
+  button_delete_my_account: 'Delete my account (CANNOT BE UNDONE)',
+  label_confirm_user_delete: 'Confirm deletion of your account. This action is irreversible!',
   label_firstName: 'First Name',
   label_lastName: 'Last Name',
   label_email: 'Email',
@@ -49,6 +54,7 @@ export default {
   error_field_max: '{{ field }} is too long',
   error_field_email: '{{ field }} is not a valid email address',
   error_field_cannotDeleteSelf: 'You cannot delete yourself',
+  error_field_readOnly: '{{ field }} cannot be changed',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'English (US)',

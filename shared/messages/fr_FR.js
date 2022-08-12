@@ -7,6 +7,11 @@ export default {
   title_requestPasswordReset: 'Réinitialisez votre mot de passe',
   title_resetPassword: 'Définir un nouveau mot de passe',
   title_verifying_ended: 'Vérification terminée',
+  title_profile: 'Information sur le compte',
+  button_profile: 'Mon compte',
+  button_update: 'commettre',
+  button_delete_my_account: 'Supprimer mon compte (IMPOSSIBLE D\'ÊTRE ANNULÉ)',
+  label_confirm_user_delete: 'Confirmez la suppression de votre compte. Cette action est irréversible!',
   label_firstName: 'Prénom',
   label_lastName: 'Nom',
   label_email: 'E-mail',
@@ -49,6 +54,7 @@ export default {
   error_field_max: '{{ field }} est trop long',
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
   error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
+  error_field_readOnly: '{{ field }} ne peut pas être modifié',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'Anglais (EU)',

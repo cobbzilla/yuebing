@@ -63,7 +63,7 @@ export default {
 
           // now update the user and start a new session
           try {
-            u.updateUserRecord(user, (data, newUser) => {
+            await u.updateUserRecord(user, (data, newUser) => {
               u.startSession(newUser).then(u => api.okJson(res, u))
             })
           } catch (e) {

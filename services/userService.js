@@ -7,9 +7,9 @@ export const userService = {
   register,
   verify,
   requestPasswordReset,
-  inviteFriends,
-  update,
-  delete: _delete
+  updateUser,
+  deleteUser,
+  inviteFriends
 }
 
 function login (email, password) {
@@ -48,19 +48,15 @@ function requestPasswordReset (email) {
   return fetch('/api/user/requestPasswordReset', { method: 'POST', body: JSON.stringify(body) }).then(a.handleJsonResponse)
 }
 
+function updateUser (update) {
+  console.log(`userService.updateUser() called with: ${JSON.stringify(update)}`)
+  return fetch('/api/user/update', a.authPostJson(update)).then(a.handleJsonResponse)
+}
+
+function deleteUser () {
+  return fetch('/api/user/delete', a.authPostJson({})).then(a.handleJsonResponse)
+}
+
 function inviteFriends (emails) {
   return fetch('/api/user/inviteFriends', a.authPostJson(emails)).then(a.handleJsonResponse)
-}
-
-function update (user) {
-  return fetch(`/api/user/${user.id}`, a.authPostJson(user)).then(a.handleJsonResponse)
-}
-
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete (id) {
-  const requestOptions = {
-    method: 'DELETE',
-    headers: a.authHeader()
-  }
-  return fetch(`/api/user/${id}`, requestOptions).then(a.handleJsonResponse)
 }

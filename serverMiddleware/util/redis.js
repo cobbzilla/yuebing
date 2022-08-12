@@ -21,6 +21,18 @@ async function set (key, val, expirationMillis = DEFAULT_EXPIRATION_MILLIS) {
   await redisClient.set(key, val, 'EX', expirationMillis / 1000)
 }
 
+async function sadd (key, val) {
+  await redisClient.sadd(key, val)
+}
+
+async function expire (key, expirationMillis) {
+  await redisClient.expire(key, expirationMillis / 1000)
+}
+
+function smembers (key) {
+  return redisClient.smembers(key)
+}
+
 async function del (key) {
   await redisClient.del(key)
 }
@@ -50,4 +62,4 @@ if (redisConfig.flushAtStartup) {
     })
 }
 
-export { get, set, del, flushall, findMatchingKeys }
+export { get, set, del, expire, sadd, smembers, flushall, findMatchingKeys }

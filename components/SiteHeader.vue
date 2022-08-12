@@ -1,11 +1,11 @@
 <template>
   <div>
-<!--    <div v-if="status">-->
-<!--      {{ status }}-->
-<!--    </div>-->
     <div v-if="user">
       <h2>{{ messages.welcome.parseMessage({ user }) }}</h2>
-      <button @click="logOut">{{ messages.button_logout }}</button>
+      <button @click="logOut()">{{ messages.button_logout }}</button>
+      <div>
+        <NuxtLink to="/profile">{{ messages.button_profile }}</NuxtLink>
+      </div>
     </div>
     <div v-else>
       <NuxtLink to="/signIn">{{ messages.button_login }}</NuxtLink>
@@ -44,8 +44,7 @@ export default {
   methods: {
     ...mapActions('user', ['logout']),
     logOut () {
-      console.log('calling account.logout...')
-      this.logout()
+      this.logout({ redirect: true })
     }
   }
 }

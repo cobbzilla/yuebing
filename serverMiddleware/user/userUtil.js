@@ -71,17 +71,35 @@ function isAdmin (userOrEmail) {
       : userOrEmail === ADMIN_USER.email)
 }
 
+function redisUserSessionSet (user) {
+  return REDIS_SESSION_SET_PREFIX + shasum(user.email)
+}
+
 async function startSession (user) {
   delete user.password
   delete user.hashedPassword
   user.session = uuid.v4() + '.' + Math.floor(Math.random() * 1000000)
-  await redis.set(REDIS_SESSION_PREFIX + user.session, JSON.stringify(user), SESSION_EXPIRATION)
+  const sessionKey = REDIS_SESSION_PREFIX + user.session
+  const sessionSetKey = redisUserSessionSet(user)
+  await redis.set(sessionKey, JSON.stringify(user), SESSION_EXPIRATION)
+  await redis.sadd(sessionSetKey, sessionKey)
+  await redis.expire(sessionSetKey, SESSION_EXPIRATION)
   return user
+}
+
+function cancelSessions (user) {
+  const sessionSetKey = redisUserSessionSet(user)
+  redis.smembers(sessionSetKey).then(async (members) => {
+    for (const sessionKey of members) {
+      await redis.del(sessionKey)
+    }
+  }).then(() => redis.del(sessionSetKey))
 }
 
 const SESSION_HEADER = shared.USER_SESSION_HEADER
 const SESSION_PARAM = shared.USER_SESSION_QUERY_PARAM
 const REDIS_SESSION_PREFIX = 'session_'
+const REDIS_SESSION_SET_PREFIX = 'session_SET_'
 
 async function currentUser (req) {
   let session = null
@@ -136,12 +154,14 @@ const USER_VALIDATIONS = {
     required: true,
     min: 2,
     max: 100,
-    regex: valid.EMAIL_REGEX
+    regex: valid.EMAIL_REGEX,
+    checkOnUpdate: false
   },
   password: {
     required: true,
     min: 8,
-    max: 100
+    max: 100,
+    checkOnUpdate: false
   },
   firstName: {
     required: false,
@@ -155,8 +175,15 @@ const USER_VALIDATIONS = {
   }
 }
 
-function validateUser (u) {
-  return validate.validateObject(u, USER_VALIDATIONS)
+const USER_UPDATE_VALIDATIONS = {}
+for (const field of Object.keys(USER_VALIDATIONS)) {
+  if (typeof USER_VALIDATIONS[field].checkOnUpdate === 'undefined' || USER_VALIDATIONS[field].checkOnUpdate !== false) {
+    USER_UPDATE_VALIDATIONS[field] = USER_VALIDATIONS[field]
+  }
+}
+
+function validateUser (u, isUpdate = false) {
+  return validate.validateObject(u, isUpdate ? USER_UPDATE_VALIDATIONS : USER_VALIDATIONS)
 }
 
 // adapted from https://stackoverflow.com/a/27724419
@@ -319,29 +346,36 @@ function createUserRecord (user, successHandler) {
     })
 }
 
-function updateUserRecord (user, successHandler) {
-  const errors = validateUser(user)
+function updateUserRecord (proposed, successHandler) {
+  const errors = validateUser(proposed, true)
   if (Object.keys(errors).length > 0) {
     throw new UserValidationError(errors)
   }
-  // copy user object, assign mtime and delete the plaintext password and admin properties
-  const update = Object.assign({}, user, { mtime: Date.now() })
-  if (update.password) {
-    delete update.password
-  }
-  // never store the 'admin' property -- we always call isAdmin to check if a user is admin
-  if (update.admin) {
-    delete update.admin
-  }
-  const bucketParams = {
-    Key: userKey(user.email),
-    Body: crypt.encrypt(JSON.stringify(update))
-  }
-  s3util.putObject(bucketParams).then(
-    data => successHandler(data, update),
-    (error) => {
-      console.error(`updateUserRecord: Error writing user file: ${error}`)
-    })
+
+  return findUser(proposed.email).then((user) => {
+    // copy user object, set mtime, delete the plaintext password and admin properties
+    const update = Object.assign({}, user, proposed, { mtime: Date.now() })
+    if (update.password) {
+      delete update.password
+    }
+    // never store the 'admin' property -- we always call isAdmin to check if a user is admin
+    if (update.admin) {
+      delete update.admin
+    }
+    const bucketParams = {
+      Key: userKey(user.email),
+      Body: crypt.encrypt(JSON.stringify(update))
+    }
+    console.log(`updateUserRecord: updating S3 with: ${JSON.stringify(update)}`)
+    return s3util.putObject(bucketParams).then(
+      data => successHandler(data, update),
+      (error) => {
+        console.error(`updateUserRecord: Error writing user file: ${error}`)
+      })
+  },
+  (err) => {
+    console.error(`updateUserRecord: findUser error: ${err}`)
+  })
 }
 
 function resetShasum (email, token) { return shasum(email + ' ~ ' + token) }
@@ -432,7 +466,7 @@ if (ADMIN_USER) {
 }
 
 export {
-  userStorePrefix, userKey, startSession, currentUser,
+  userStorePrefix, userKey, startSession, cancelSessions, currentUser,
   checkPassword, isCorrectVerifyToken, isCorrectResetPasswordToken,
   isAdmin, requireUser, requireLoggedInUser, requireAdmin,
   UserValidationError, registerUser, resetShasum, sendResetPasswordMessage,
