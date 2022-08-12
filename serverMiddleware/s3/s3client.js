@@ -33,6 +33,11 @@ const destClient = new S3Client({
   credentials: destCredentials
 })
 
+// sanity check
+if (destBucketParams.Bucket === sourceBucketParams.Bucket) {
+  throw new Error(`s3client: Destination bucket MUST be different from source bucket. Both source and dest were: ${sourceBucketParams.Bucket}`)
+}
+
 export {
   sourceBucketParams, destBucketParams, sourceClient, destClient
 }

@@ -3,7 +3,7 @@ const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
 const nuxt = require('../../nuxt.config').default
-const shared = require('../../shared/index')
+const shared = require('../../shared')
 const auth = require('../../shared/auth')
 const loc = require('../../shared/locale')
 const validate = require('../util/validation')
@@ -224,24 +224,45 @@ function _registerUser (regRequest, successHandler, admin) {
 }
 
 const USER_VERIFY_PREFIX = 'verify_token_'
-const USER_VERIFY_EXPIRATION = 1000 * 60 * 60 * 24 // 1 day
+const USER_VERIFY_EXPIRATION = nuxt.publicRuntimeConfig.timeout.verify || 1000 * 60 * 60 * 24 // 1 day
+
+const USER_RESET_PASSWORD_PREFIX = 'resetPassword_token_'
+const USER_RESET_PASSWORD_EXPIRATION = nuxt.publicRuntimeConfig.timeout.resetPassword || 1000 * 60 * 60 // 1 hour
 
 function verificationKey (email) {
   return USER_VERIFY_PREFIX + shasum(USER_VERIFY_PREFIX + email)
 }
 
+function resetPasswordKey (email) {
+  return USER_RESET_PASSWORD_PREFIX + shasum(USER_RESET_PASSWORD_PREFIX + email)
+}
+
 async function isCorrectVerifyToken (email, token) {
+  return await isCorrectToken(email, token, verificationKey(email))
+}
+
+async function isCorrectResetPasswordToken (email, token) {
+  return await isCorrectToken(email, token, resetPasswordKey(email))
+}
+
+async function isCorrectToken (email, token, key) {
   try {
-    const key = verificationKey(email)
-    const verifyToken = await redis.get(key)
-    const correct = verifyToken === token
+    const redisToken = await redis.get(key)
+    const correct = redisToken === token
     if (correct) {
       await redis.del(key)
     }
     return correct
   } catch (e) {
-    console.log(`isCorrectVerifyToken: error reading from redis: ${e}`)
+    console.log(`isCorrectToken: error reading from redis: ${e}`)
   }
+}
+
+function checkPassword (user, password, successCallback, errorCallback) {
+  bcrypt.compare(password, user.hashedPassword).then(
+    ok => successCallback(ok),
+    err => errorCallback(err)
+  )
 }
 
 function createUserRecord (user, successHandler) {
@@ -288,15 +309,50 @@ function createUserRecord (user, successHandler) {
 }
 
 function updateUserRecord (user, successHandler) {
+  const errors = validateUser(user)
+  if (Object.keys(errors).length > 0) {
+    throw new UserValidationException(errors)
+  }
+  // copy user object so we can delete the plaintext password
+  const update = Object.assign({}, user)
+  if (update.password) {
+    delete update.password
+  }
   const bucketParams = {
     Key: userKey(user.email),
-    Body: crypt.encrypt(JSON.stringify(user))
+    Body: crypt.encrypt(JSON.stringify(update))
   }
   s3util.putObject(bucketParams).then(
-    data => successHandler(data, user),
+    data => successHandler(data, update),
     (error) => {
       console.error(`updateUserRecord: Error writing user file: ${error}`)
     })
+}
+
+function resetShasum (email, token) { return shasum(email + ' ~ ' + token) }
+
+function sendResetPasswordMessage (user) {
+  const token = '' + Math.floor(Math.random() * 1000000)
+  const key = resetPasswordKey(user.email)
+  redis.set(key, token, USER_RESET_PASSWORD_EXPIRATION).then(() => {
+    console.log(`resetPassword: created password reset token for user: ${user.email}: ${key}`)
+  })
+  const ctx = {
+    user,
+    token,
+    resetPasswordUrl: nuxt.publicRuntimeConfig.siteUrl + auth.VERIFY_ENDPOINT +
+      '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
+      '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token) +
+      '&' + auth.VERIFY_RESET_PARAM + '=' + resetShasum(user.email, token)
+  }
+  email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_RESET_PASSWORD, ctx).then(
+    (ok) => {
+      console.log(`resetPassword: message sent to user: ${user.email}`)
+    },
+    (err) => {
+      console.error(`resetPassword: ERROR sending to user: ${user.email}: ${err}`)
+    }
+  )
 }
 
 async function findUser (email) {
@@ -316,8 +372,8 @@ if (ADMIN_USER) {
 
 export {
   userStorePrefix, userKey, startSession, currentUser,
-  isCorrectVerifyToken,
+  checkPassword, isCorrectVerifyToken, isCorrectResetPasswordToken,
   isAdmin, requireUser, requireLoggedInUser, requireAdmin,
-  UserValidationException, registerUser,
-  findUser, createUserRecord, updateUserRecord, deleteUser
+  UserValidationException, registerUser, resetShasum, sendResetPasswordMessage,
+  findUser, validateUser, createUserRecord, updateUserRecord, deleteUser
 }

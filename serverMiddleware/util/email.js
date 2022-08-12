@@ -8,7 +8,8 @@ const EMAIL_CONFIG = nuxt.privateRuntimeConfig.email
 const EMAIL_ENABLED = !!EMAIL_CONFIG.host
 
 const TEMPLATE_VERIFY_EMAIL = 'verifyEmail'
-const TEMPLATE_NAMES = [TEMPLATE_VERIFY_EMAIL]
+const TEMPLATE_RESET_PASSWORD = 'resetPassword'
+const TEMPLATE_NAMES = [TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD]
 
 const SUBJECT_TEMPLATE = 'subject.txt.hbs'
 const MESSAGE_TXT_TEMPLATE = 'message.txt.hbs'
@@ -103,6 +104,6 @@ async function sendEmail (to, locale, template, params) {
 }
 
 export {
-  TEMPLATE_VERIFY_EMAIL,
+  TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD,
   sendEmail
 }

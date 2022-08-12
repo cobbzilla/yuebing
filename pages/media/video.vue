@@ -70,7 +70,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'status']),
+    ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     hasSources () {
       return hasSourceVideos(this)
@@ -176,7 +176,7 @@ export default {
           }
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              const src = proxyMediaUrl(asset, this.user, this.status)
+              const src = proxyMediaUrl(asset, this.user, this.userStatus)
               console.log(`video.vue: pushing src = ${src}`)
               sources.push({
                 src,

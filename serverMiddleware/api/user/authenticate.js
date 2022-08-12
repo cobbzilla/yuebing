@@ -17,24 +17,23 @@ export default {
               return api.notFound(res)
             }
             const user = JSON.parse(crypt.decrypt(userJson))
-            bcrypt.compare(loginRequest.password, user.hashedPassword).then(
-              (ok) => {
-                if (ok) {
-                  u.startSession(user).then(
-                    u => api.okJson(res, u),
-                    (error) => {
-                      console.error(`>>>>> API: Authenticate: error starting session: ${error}`)
-                      api.serverError(res, `Error: ${error}`)
-                    })
-                } else {
-                  console.log(`>>>>> API: Authenticate: wrong password (ok was ${ok})`)
-                  return api.notFound(res)
-                }
-              },
-              (err) => {
-                console.log(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
+            u.checkPassword(user, loginRequest.password, (ok) => {
+              if (ok) {
+                u.startSession(user).then(
+                  u => api.okJson(res, u),
+                  (error) => {
+                    console.error(`>>>>> API: Authenticate: error starting session: ${error}`)
+                    api.serverError(res, `Error: ${error}`)
+                  })
+              } else {
+                console.log(`>>>>> API: Authenticate: wrong password (ok was ${ok})`)
                 return api.notFound(res)
-              })
+              }
+            },
+            (err) => {
+              console.log(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
+              return api.notFound(res)
+            })
           },
           (error) => {
             console.error(`>>>>> API: Authenticate: error reading user record: ${error}`)

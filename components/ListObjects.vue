@@ -65,7 +65,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'status']),
+    ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['prefix', 'objectList', 'metadata']),
     displayPrefix () {
       return this.prefix === ''
@@ -139,7 +139,7 @@ export default {
     isSelectedMedia (obj) {
       return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
     },
-    proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.status) }
+    proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) }
   }
 }
 </script>

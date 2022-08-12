@@ -1,39 +1,84 @@
+import bcrypt from 'bcryptjs'
+
+const nuxt = require('../../../nuxt.config').default
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 
+const BCRYPT_ROUNDS = nuxt.privateRuntimeConfig.userEncryption.bcryptRounds
+
 export default {
   path: '/api/user/verify',
-  async handler (req, res) {
-    const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
-    console.log(`>>>>> API: Verifying user(s) ${req.url}, prefix = ${prefix}`)
-    if (!req.url.includes('?')) {
-      return api.validationFailed(res, { verifyToken: ['required'] })
-    }
-    const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
-    const errors = {}
-    if (!query.has(auth.VERIFY_EMAIL_PARAM)) {
-      errors.email = ['required']
-    }
-    if (!query.has(auth.VERIFY_TOKEN_PARAM)) {
-      errors.verifyToken = ['required']
-    }
-    if (Object.keys(errors).length > 0) {
-      return api.validationFailed(res, errors)
-    }
-    const email = query.get(auth.VERIFY_EMAIL_PARAM)
-    const token = query.get(auth.VERIFY_TOKEN_PARAM)
-    const correct = await u.isCorrectVerifyToken(email, token)
-    if (!correct) {
-      return api.validationFailed(res, { verifyToken: ['invalid'] })
-    }
-    const user = await u.findUser(email)
-    if (!user) {
-      return api.validationFailed(res, { email: ['invalid'] })
-    }
-    user.verified = Date.now()
-    u.updateUserRecord(user, (data, newUser) => {
-      u.startSession(newUser).then(u => api.okJson(res, u))
+  handler (req, res) {
+    req.on('data', (data) => {
+      const params = JSON.parse(data.toString())
+      const errors = {}
+      if (!params[auth.VERIFY_EMAIL_PARAM]) {
+        errors.email = ['required']
+      }
+      if (!params[auth.VERIFY_TOKEN_PARAM]) {
+        errors.token = ['required']
+      }
+
+      const resetPasswordHash = params[auth.VERIFY_RESET_PARAM] || null
+      if (resetPasswordHash) {
+        if (!params[auth.VERIFY_PASSWORD_PARAM]) {
+          errors.password = ['required']
+        }
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return api.validationFailed(res, errors)
+      }
+
+      const email = params[auth.VERIFY_EMAIL_PARAM]
+      const token = params[auth.VERIFY_TOKEN_PARAM]
+      const password = params[auth.VERIFY_PASSWORD_PARAM]
+
+      if (resetPasswordHash) {
+        if (u.resetShasum(email, token) !== resetPasswordHash) {
+          return api.validationFailed(res, { token: ['invalid'] })
+        }
+      }
+
+      u.findUser(email).then(
+        async (user) => {
+          user.verified ||= Date.now()
+          if (resetPasswordHash) {
+            // set password so we can validate it
+            user.password = password
+            const errors = u.validateUser(user)
+            if (Object.keys(errors).length > 0) {
+              return api.validationFailed(res, errors)
+            }
+            const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
+            user.hashedPassword = bcrypt.hashSync(password, salt)
+          }
+
+          // check token AFTER validating user, otherwise an invalid request (invalid password) will erase the token
+          const correct = await (resetPasswordHash ? u.isCorrectResetPasswordToken(email, token) : u.isCorrectVerifyToken(email, token))
+          if (!correct) {
+            return api.validationFailed(res, { token: ['invalid'] })
+          }
+
+          // now update the user and start a new session
+          try {
+            u.updateUserRecord(user, (data, newUser) => {
+              u.startSession(newUser).then(u => api.okJson(res, u))
+            })
+          } catch (e) {
+            // we shouldn't get a validation exception during update, since we already validated above
+            if (e instanceof u.UserValidationException) {
+              return api.validationFailed(res, e.errors)
+            } else {
+              return api.serverError(res, `verify: updateUserRecord failed: ${e}`)
+            }
+          }
+        },
+        (err) => {
+          console.log(`verify: findUser error: ${err}`)
+          return api.validationFailed(res, { email: ['invalid'] })
+        })
     })
   }
 }

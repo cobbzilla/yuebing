@@ -6,6 +6,7 @@ export const userService = {
   logout,
   register,
   verify,
+  requestPasswordReset,
   getAll,
   getById,
   update,
@@ -16,9 +17,7 @@ function login (email, password) {
   return fetch('/api/user/authenticate', a.authPostJson({ email, password }))
     .then(a.handleJsonResponse)
     .then((user) => {
-      // login successful if there's a jwt token in the response
       if (user.token) {
-        // store user details and jwt token in local storage to keep user logged in between page refreshes
         localStorage.setItem('user', JSON.stringify(user))
       }
       return user
@@ -33,11 +32,21 @@ function register (user) {
   return fetch('/api/user/register', a.authPostJson(user)).then(a.handleJsonResponse)
 }
 
-function verify (email, token) {
-  const verifyUrl = '/api/user/verify' +
-    '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(email) +
-    '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
-  return fetch(verifyUrl, { method: 'GET' }).then(a.handleJsonResponse)
+function verify (email, token, resetPasswordHash, newPassword) {
+  const verification = {}
+  verification[auth.VERIFY_EMAIL_PARAM] = email
+  verification[auth.VERIFY_TOKEN_PARAM] = token
+  if (resetPasswordHash) {
+    verification[auth.VERIFY_RESET_PARAM] = resetPasswordHash
+    verification[auth.VERIFY_PASSWORD_PARAM] = newPassword
+  }
+  return fetch('/api/user/verify', { method: 'POST', body: JSON.stringify(verification) }).then(a.handleJsonResponse)
+}
+
+function requestPasswordReset (email) {
+  const body = {}
+  body[auth.VERIFY_EMAIL_PARAM] = email
+  return fetch('/api/user/requestPasswordReset', { method: 'POST', body: JSON.stringify(body) }).then(a.handleJsonResponse)
 }
 
 function getAll () {

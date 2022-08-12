@@ -60,10 +60,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'status']),
+    ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['assetData', 'userMediaInfo']),
     infoFields () { return mediaInfoFields() },
-    canEditMediainfo () { return this.user && this.status && this.status.loggedIn },
+    canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn },
     editableInfoFields () { return editableMediaInfoFields() },
     hasMediaInfoJsonPath () { return this.options.object && this.mediaInfoJsonPath },
     editButtonLabel () { return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata' },

@@ -5,7 +5,7 @@ const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 
 export const state = () => ({
   user,
-  status: { loggedIn: !!user }
+  userStatus: { loggedIn: !!user }
 })
 
 export const actions = {
@@ -47,9 +47,9 @@ export const actions = {
         }
       )
   },
-  verify ({ commit }, { email, token }) {
-    commit('verifyRequest', { email, token })
-    userService.verify(email, token)
+  verify ({ commit }, { email, token, resetPasswordHash, password }) {
+    commit('verifyRequest', { email, token, resetPasswordHash, password })
+    userService.verify(email, token, resetPasswordHash, password)
       .then(
         (user) => {
           console.log(`>>> verify success: ${JSON.stringify(user)}`)
@@ -61,52 +61,71 @@ export const actions = {
           commit('verifyFailure', { error })
         }
       )
+  },
+  requestPasswordReset ({ commit }, { email }) {
+    commit('requestPasswordResetRequest', { email })
+    userService.requestPasswordReset(email)
+      .then(
+        (ok) => {
+          console.log('>>> requestPasswordReset success')
+          commit('requestPasswordResetSuccess', { user })
+        },
+        (error) => {
+          console.log(`>>> requestPasswordReset error: ${JSON.stringify(error)}`)
+          commit('requestPasswordResetFailure', { error })
+        }
+      )
   }
 }
 
 export const mutations = {
   loginRequest (state, user) {
-    state.status = { loggingIn: true }
+    state.userStatus = { loggingIn: true }
     state.user = user
   },
   loginSuccess (state, user) {
-    state.status = { loggedIn: true, verified: !!user.verified }
+    state.userStatus = { loggedIn: true, verified: !!user.verified }
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
   },
   loginFailure (state) {
-    state.status = {}
+    state.userStatus = {}
     state.user = null
   },
   logout (state) {
     localStorage.removeItem(USER_LOCAL_STORAGE_KEY)
-    state.status = {}
+    state.userStatus = {}
     state.user = null
   },
   registerRequest (state, user) {
-    state.status = { registering: true }
+    state.userStatus = { registering: true }
   },
   registerSuccess (state, user) {
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
-    state.status = { loggedIn: true }
+    state.userStatus = { loggedIn: true }
   },
   registerFailure (state, error) {
-    state.status = {}
+    state.userStatus = {}
   },
-  verifyRequest (state, { email, token }) {
-    state.status = { verifying: true }
+  verifyRequest (state, { email, token, resetPasswordHash, password }) {
+    state.userStatus = { verifying: true }
   },
   verifySuccess (state, { user }) {
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
-    state.status = { loggedIn: true, verified: true }
+    state.userStatus = { loggedIn: true, verified: true }
   },
   verifyFailure (state, { error }) {
-    if (error && Array.isArray(error.verifyToken)) {
-      state.status = { verifyError: error.verifyToken[0] }
-    } else {
-      state.status = { verifyError: error }
-    }
+    state.userStatus = { verifyError: error }
+  },
+  requestPasswordResetRequest (state, { email, token, resetPasswordHash, password }) {
+    state.userStatus = { requestingPasswordReset: true }
+  },
+  requestPasswordResetSuccess (state) {
+    state.userStatus = { passwordResetRequested: true }
+  },
+  requestPasswordResetFailure (state, { error }) {
+    state.userStatus = { passwordResetRequestError: error }
   }
 }

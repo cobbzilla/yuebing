@@ -22,7 +22,7 @@ import config from '../nuxt.config'
 export default {
   name: 'SiteHeader',
   computed: {
-    ...mapState('user', ['user', 'status']),
+    ...mapState('user', ['user', 'userStatus']),
     messages () { return localeMessagesForUser(this.user) },
     accountName () {
       if (this.user) {

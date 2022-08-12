@@ -79,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'status']),
+    ...mapState('user', ['user', 'userStatus']),
     thumbnailToggleLabel () { return this.showThumbnailSelector ? 'hide' : 'show' },
     thumbnail () { return this.options.object ? findThumbnail(this.options.object) : null },
     thumbnails () { return this.options.object ? findThumbnails(this.options.object) : null },
@@ -88,7 +88,7 @@ export default {
         ? this.thumbnails.indexOf(this.options.object.meta.selectedThumbnail) === this.thumbnailIndex
         : false
     },
-    canSetThumbnail () { return this.user && this.status && this.status.loggedIn }
+    canSetThumbnail () { return this.user && this.userStatus && this.userStatus.loggedIn }
   },
   created () {
     const thumb = this.thumbnail
@@ -102,7 +102,7 @@ export default {
   methods: {
     ...mapActions('s3', ['updateSelectedThumbnail']),
     toggleThumbnailSelection () { this.showThumbnailSelector = !this.showThumbnailSelector },
-    proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.status) },
+    proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
     prevThumbnail () { this.thumbnailIndex-- },
     nextThumbnail () { this.thumbnailIndex++ },
     selectThumbnail () {

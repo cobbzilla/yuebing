@@ -32,7 +32,13 @@ export default {
     //    your new locale. This is for when your new locale appears a drop-down list, it will be translated
     //    into the user's language.
     locales: ['en_US', 'fr_FR'],
-    defaultLocale: process.env.SV_DEFAULT_LOCALE || 'en_US'
+    defaultLocale: process.env.SV_DEFAULT_LOCALE || 'en_US',
+
+    // timeouts for various temporary tokens stored in redis
+    timeout: {
+      verify: process.env.SV_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
+      resetPassword: process.env.SV_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60 // 1 hour
+    }
   },
 
   privateRuntimeConfig: {
@@ -169,6 +175,12 @@ export default {
         chunkName: 'pages/auth/register'
       })
       routes.push({
+        name: 'Request Password Reset',
+        path: '/reset',
+        component: resolve(__dirname, 'pages/auth/requestPasswordReset.vue'),
+        chunkName: 'pages/auth/requestPasswordReset'
+      })
+      routes.push({
         name: 'Verify',
         path: require(resolve(__dirname, 'shared/auth')).VERIFY_ENDPOINT,
         component: resolve(__dirname, 'pages/auth/verify.vue'),
@@ -186,20 +198,10 @@ export default {
     '~/plugins/vee-validate.js'
   ],
 
-  serverMiddleware: [
-    '~/serverMiddleware/api/user',
-    '~/serverMiddleware/api/user/authenticate',
-    '~/serverMiddleware/api/user/register',
-    '~/serverMiddleware/api/user/verify',
-    '~/serverMiddleware/api/s3/list',
-    '~/serverMiddleware/api/s3/scan',
-    '~/serverMiddleware/api/s3/meta',
-    '~/serverMiddleware/api/s3/mediainfo',
-    '~/serverMiddleware/api/s3/thumbnail',
-    '~/serverMiddleware/api/s3/proxy',
-    '~/serverMiddleware/api/admin/queue',
-    '~/serverMiddleware/api/admin/migrateUsers'
-  ],
+  // Don't load serverMiddleware here -- it's loaded via 'modules/api' below
+  // Loading the serverMiddleware during 'nuxt build' causes a nasty build warning message
+  // See: https://github.com/nuxt/nuxt.js/issues/5669#issuecomment-491241150
+  // serverMiddleware: [],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -213,7 +215,9 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    // this module loads the serverMiddleware when nuxt runs, but does not load it during 'nuxt build'
+    '~/modules/api'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
