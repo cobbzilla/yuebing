@@ -16,7 +16,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import config from '../nuxt.config'
 import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
@@ -38,7 +37,7 @@ export default {
       return 'mysterious one'
     },
     allowRegistration () {
-      return config.publicRuntimeConfig.allowRegistration
+      return this.$config.allowRegistration
     }
   },
   methods: {
