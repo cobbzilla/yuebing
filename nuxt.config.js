@@ -51,9 +51,9 @@ export default {
       user: {
         email: process.env.SV_ADMIN_EMAIL || 'admin@example.local',
         password: process.env.SV_ADMIN_PASSWORD || null,
-        locale: process.env.SV_DEFAULT_LOCALE || 'en_US'
+        locale: process.env.SV_ADMIN_LOCALE || process.env.SV_DEFAULT_LOCALE || 'en_US'
       },
-      overwrite: true // set to true to overwrite existing admin user
+      overwrite: !!process.env.SV_ADMIN_OVERWRITE // set to true to overwrite existing admin user
     },
 
     // SMTP settings for sending email
