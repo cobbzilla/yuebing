@@ -2,6 +2,7 @@ const auth = require('../shared/auth')
 const a = require('./util')
 
 export const userService = {
+  browserHeaders,
   login,
   logout,
   register,
@@ -11,6 +12,8 @@ export const userService = {
   deleteUser,
   inviteFriends
 }
+
+function browserHeaders () { return fetch('/api/user/headers', { method: 'POST', body: '{}' }).then(a.handleJsonResponse) }
 
 function login (email, password) {
   return fetch('/api/user/authenticate', a.authPostJson({ email, password }))

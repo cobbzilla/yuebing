@@ -34,15 +34,15 @@
 
 <script>
 import { mapState } from 'vuex'
-import config from '../../nuxt.config'
 import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'AdminIndex',
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) },
-    title () { return config.publicRuntimeConfig.title }
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    title () { return this.$config.title }
   }
 }
 </script>

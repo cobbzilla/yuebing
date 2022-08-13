@@ -40,7 +40,7 @@ function evalInContext (ctx, string) {
 
 String.prototype.parseMessage = function (ctx) {
   const evaluated = this
-    ? '' + this.replace(/{{.+}}/g, (match) => {
+    ? '' + this.replace(/{{[^}]+}}/g, (match) => {
       const expression = match.slice(2, -2)
       return evalInContext(ctx, expression)
     })
@@ -90,9 +90,15 @@ function localeMessages (locale) {
   return locale ? LOCALIZED_MESSAGES[locale] : LOCALIZED_MESSAGES[DEFAULT_LOCALE]
 }
 
-function localeMessagesForUser (user) {
+function localeMessagesForUser (user, browserLocale = null) {
   if (user && user.locale && LOCALIZED_MESSAGES[user.locale]) {
     return LOCALIZED_MESSAGES[user.locale]
+  }
+  if (browserLocale) {
+    if (user) {
+      user.locale = browserLocale
+    }
+    return LOCALIZED_MESSAGES[browserLocale]
   }
   if (user) {
     user.locale = DEFAULT_LOCALE
@@ -100,8 +106,8 @@ function localeMessagesForUser (user) {
   return LOCALIZED_MESSAGES[DEFAULT_LOCALE]
 }
 
-function localesList (user) {
-  const messages = localeMessagesForUser(user)
+function localesList (user, browserLocale) {
+  const messages = localeMessagesForUser(user, browserLocale)
   return SUPPORTED_LOCALES.map((loc) => {
     const localeDescription = messages['locale_' + loc]
     const description = (user && user.locale && loc === user.locale) || ((!user || !user.locale) && loc === DEFAULT_LOCALE)

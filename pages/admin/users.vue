@@ -95,7 +95,8 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus', 'userList']),
     ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'deleteUserError']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     sortFields () { return userSortFields() },
     searchQuery () {
       return {

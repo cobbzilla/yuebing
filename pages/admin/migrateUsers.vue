@@ -40,7 +40,8 @@ export default {
   computed: {
     ...mapState('admin', ['userMigrationResults']),
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) }
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) }
   },
   methods: {
     ...mapActions('admin', ['migrateUsers']),

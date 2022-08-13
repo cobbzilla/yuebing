@@ -106,9 +106,15 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus']),
-    supportedLocales () { return localesList() },
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    supportedLocales () { return localesList(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     passwordRules () { return PASSWORD_RULES }
+  },
+  created () {
+    if (this.browserLocale) {
+      this.user.locale = this.browserLocale
+    }
   },
   methods: {
     ...mapActions('user', ['register']),

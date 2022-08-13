@@ -49,7 +49,7 @@ export default {
     // Initial admin user. Set the password to create the admin user
     admin: {
       user: {
-        email: process.env.SV_ADMIN_EMAIL || 'admin', // superuser email does not actually have to be a valid email
+        email: process.env.SV_ADMIN_EMAIL || 'admin@example.local',
         password: process.env.SV_ADMIN_PASSWORD || null,
         locale: process.env.SV_DEFAULT_LOCALE || 'en_US'
       },

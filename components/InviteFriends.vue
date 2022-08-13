@@ -71,7 +71,8 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'invitationResults']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return this.$config.title },
     inviteSuccessCount () {
       return this.invitationResults.success ? Object.keys(this.invitationResults.success).length : 0

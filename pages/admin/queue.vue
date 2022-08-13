@@ -73,7 +73,8 @@ export default {
   computed: {
     ...mapState('admin', ['queue']),
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) }
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) }
   },
   created () {
     this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)

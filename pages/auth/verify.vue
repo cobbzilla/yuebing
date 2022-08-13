@@ -81,7 +81,8 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     passwordRules () { return PASSWORD_RULES },
     verifyErrorMessage () {
       if (!this.userStatus.verifyError) {

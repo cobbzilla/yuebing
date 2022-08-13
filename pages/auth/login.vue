@@ -53,7 +53,8 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus', 'loginError']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     loginErr () { return this.loginError || false }
   },
   created () {

@@ -1,13 +1,14 @@
 <template>
   <div>
     <div v-if="user && userStatus && userStatus.loggedIn">
-      <h2>{{ messages.welcome.parseMessage({ user, title }) }}</h2>
+      <h2>{{ messages.welcome_user.parseMessage({ user, title }) }}</h2>
       <button @click="logOut()">{{ messages.button_logout }}</button>
       <div>
         <NuxtLink to="/profile">{{ messages.button_profile }}</NuxtLink>
       </div>
     </div>
     <div v-else>
+      <h2>{{ messages.welcome_public.parseMessage({ title }) }}</h2>
       <NuxtLink to="/signIn">{{ messages.button_login }}</NuxtLink>
       <NuxtLink v-if="allowRegistration" to="/signUp">{{ messages.button_register }}</NuxtLink>
     </div>
@@ -22,7 +23,8 @@ export default {
   name: 'SiteHeader',
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {

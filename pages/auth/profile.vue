@@ -74,8 +74,9 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus']),
-    supportedLocales () { return localesList() },
-    messages () { return localeMessagesForUser(this.user) }
+    ...mapState(['browserLocale']),
+    supportedLocales () { return localesList(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) }
   },
   methods: {
     ...mapActions('user', ['updateUser', 'deleteUser']),

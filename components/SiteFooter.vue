@@ -16,7 +16,8 @@ export default {
   components: { InviteFriends },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     canEmail () { return this.$config.emailEnabled }
   }
 }

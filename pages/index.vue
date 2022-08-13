@@ -1,9 +1,6 @@
 <template>
   <div>
-    Welcome to {{ $config.title }}
-    <div>
-      <ListObjects/>
-    </div>
+    <ListObjects/>
   </div>
 </template>
 

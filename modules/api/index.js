@@ -12,7 +12,7 @@ module.exports = function (moduleOptions) {
     this.addServerMiddleware('~/serverMiddleware/api/user/verify')
     this.addServerMiddleware('~/serverMiddleware/api/user/requestPasswordReset')
     this.addServerMiddleware('~/serverMiddleware/api/user/update')
-    this.addServerMiddleware('~/serverMiddleware/api/user/delete')
+    this.addServerMiddleware('~/serverMiddleware/api/user/headers')
     this.addServerMiddleware('~/serverMiddleware/api/user/inviteFriends')
     this.addServerMiddleware('~/serverMiddleware/api/s3/list')
     this.addServerMiddleware('~/serverMiddleware/api/s3/scan')

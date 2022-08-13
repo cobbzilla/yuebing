@@ -51,7 +51,8 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus']),
-    messages () { return localeMessagesForUser(this.user) },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     resetSuccess () { return this.userStatus.passwordResetRequested },
     resetError () { return this.userStatus.passwordResetRequestError },
     disableSendButton () {

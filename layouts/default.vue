@@ -7,7 +7,14 @@
 </template>
 
 <script>
+
+import { mapActions } from 'vuex'
+
 export default {
-  name: 'DefaultLayout'
+  name: 'DefaultLayout',
+  created () { this.fetchBrowserHeaders() },
+  methods: {
+    ...mapActions(['fetchBrowserHeaders'])
+  }
 }
 </script>
