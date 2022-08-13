@@ -1,7 +1,8 @@
 <template>
   <div>
     <button @click="toggleThumbnailSelection()">
-      {{ thumbnailToggleLabel }} thumbnails
+      <span v-if="showThumbnailSelector">{{ messages.button_hide_thumbnails }}</span>
+      <span v-else>{{ messages.button_show_thumbnails }}</span>
     </button>
     <div v-if="thumbnails && showThumbnailSelector">
       <div v-if="thumbnailIndex !== null">
@@ -19,7 +20,7 @@
             <tr>
               <td>
                 <button v-if="thumbnailIndex > 0" @click="prevThumbnail()">
-                  Previous
+                  {{ messages.button_previous_thumbnail }}
                 </button>
               </td>
               <td>
@@ -30,19 +31,19 @@
                   <div>{{ thumbnailIndex + 1 }} of {{ thumbnails.length }}</div>
                   <div v-if="isSelectedThumbnail">
                     <b>
-                      <br/>~ currently selected ~
+                      <br/>{{ messages.label_selected_thumbnail }}
                     </b>
                   </div>
                   <div v-else>
                     <button v-if="canSetThumbnail" @click="selectThumbnail()">
-                      select this thumbnail
+                      {{ messages.button_select_thumbnail }}
                     </button>
                   </div>
                 </div>
               </td>
               <td>
                 <button v-if="thumbnailIndex < thumbnails.length - 1" @click="nextThumbnail()">
-                  Next
+                  {{ messages.button_next_thumbnail }}
                 </button>
               </td>
             </tr>
@@ -51,7 +52,7 @@
       </div>
     </div>
     <div v-else-if="showThumbnailSelector">
-      No thumbnails found!
+      {{ messages.info_no_thumbnails_found }}
     </div>
   </div>
 </template>
@@ -60,6 +61,7 @@
 import { mapState, mapActions } from 'vuex'
 import { findThumbnail, findThumbnails } from '@/shared/mediainfo'
 import { proxyMediaUrl } from '@/shared'
+import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'ThumbnailSelector',
@@ -80,7 +82,8 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    thumbnailToggleLabel () { return this.showThumbnailSelector ? 'hide' : 'show' },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     thumbnail () { return this.options.object ? findThumbnail(this.options.object) : null },
     thumbnails () { return this.options.object ? findThumbnails(this.options.object) : null },
     isSelectedThumbnail () {

@@ -1,22 +1,17 @@
 <template>
   <div>
     <h4 v-if="object && object.name">
-      Video: {{ name }}
+      {{ videoTitle }}
     </h4>
 
     <div v-if="isReady">
       <VideoPlayer :options="videoOptions"></VideoPlayer>
     </div>
 
-    <div v-if="mediaInfoJson">
-      <h5>Width: {{ mediaInfoField('width') }}</h5>
-      <h5>Height: {{ mediaInfoField('height') }}</h5>
-      <h5>Duration: {{ mediaInfoField('duration') }}</h5>
-    </div>
-
     <div v-if="mediaInfo()">
       <button @click="toggleMediaInfo()">
-        {{ mediaInfoToggleButtonLabel() }}
+        <span v-if="showMediaInfo">{{ messages.button_hide_metadata }}</span>
+        <span v-else>{{ messages.button_show_metadata }}</span>
       </button>
       <MediaInfo v-if="showMediaInfo" :options="{ object }" />
     </div>
@@ -41,6 +36,7 @@ import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, getExtension } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
 import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
+import { localeMessagesForUser } from '@/shared/locale'
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -72,19 +68,21 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
-    hasSources () {
-      return hasSourceVideos(this)
-    },
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    hasSources () { return hasSourceVideos(this) },
     isReady () {
       return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
     },
-    hasMediaInfoJsonPath () {
-      return this.object && this.mediaInfoJsonPath
-    },
+    hasMediaInfoJsonPath () { return this.object && this.mediaInfoJsonPath },
     getUserMediaInfo () {
       return this.name && this.userMediaInfo && this.userMediaInfo[this.name]
         ? this.userMediaInfo[this.name]
         : {}
+    },
+    videoTitle () {
+      const mediaTitle = mediaInfoField('title')
+      return mediaTitle || this.name
     }
   },
   watch: {
@@ -195,9 +193,6 @@ export default {
       return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson, this.getUserMediaInfo) : null
     },
     toggleMediaInfo () { this.showMediaInfo = !this.showMediaInfo },
-    mediaInfoToggleButtonLabel () {
-      return `${this.showMediaInfo ? 'hide' : 'show'} media info`
-    },
     thumbnail () { return findThumbnail(this.object) }
   }
 }

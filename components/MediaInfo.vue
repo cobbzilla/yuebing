@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!showEditor">
-      media info for {{ options.object.name }}:
+      {{ options.object.name }}:
       <div v-for="(field, index) in infoFields" :key="index">
         <div v-if="infoField(field)">
           {{ field }}: {{ infoField(field) }}
@@ -18,13 +18,13 @@
         <div v-for="(field, index) in editableInfoFields" :key="index">
 
           <div class="form-group">
-            <label :for="field">{{ field }}</label>
+            <label :for="field">{{ messages[`label_mediainfo_${field}`] }}</label>
             <input v-model="infoFieldValues[field]" type="text" :name="field" class="form-control" />
           </div>
 
         </div>
         <button class="btn btn-primary">
-          Save
+          {{ messages.button_update }}
         </button>
       </form>
     </div>
@@ -39,6 +39,7 @@ import {
   mediaInfoFields, editableMediaInfoFields, mediaInfoField,
   hasAssets, findAsset
 } from '@/shared/mediainfo'
+import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'MediaInfo',
@@ -62,6 +63,8 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['assetData', 'userMediaInfo']),
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     infoFields () { return mediaInfoFields() },
     canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn },
     editableInfoFields () { return editableMediaInfoFields() },

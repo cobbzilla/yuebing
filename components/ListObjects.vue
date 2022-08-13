@@ -1,15 +1,14 @@
 <template>
   <div>
-    <div>Dir is {{ displayPrefix }}</div>
+    <h3>{{ messages.title_browsing_folder.parseMessage({ folder: displayPrefix }) }}</h3>
     <div v-if="isNotRoot">
-      Go back (prefix = {{ prefix }})
       <button @click="refresh(parentPrefix)">
-        {{ parentPrefixDisplay }}
+        <span v-if="isParentRootFolder">{{ messages.button_back_to_root_folder }}</span>
+        <span v-else>{{ messages.button_back_to.parseMessage({ parentPrefix }) }}</span>
       </button>
     </div>
     <div v-for="(obj, index) in filteredObjectList" :key="index">
       <div v-if="isDir(obj)">
-        Directory:
         <button @click="refresh(obj.name)">
           {{ filterDirName(obj.name) }}
         </button>
@@ -25,7 +24,8 @@
           </div>
         </div>
         <div v-else>
-          (not-ready) {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+          {{ messages.label_media_unprocessed }}
+          {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
         </div>
         <div v-if="mediaInfo(obj)">
           <button @click="toggleMediaInfo(obj)">
@@ -38,7 +38,6 @@
       </div>
       <div v-else>
         {{ filterName(obj.name) }}
-<!--        JSON = {{ JSON.stringify(obj) }}-->
       </div>
     </div>
   </div>
@@ -52,6 +51,7 @@ import ThumbnailSelector from '../components/ThumbnailSelector'
 import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { proxyMediaUrl } from '@/shared'
+import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'ListObjects',
@@ -67,6 +67,8 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState('s3', ['prefix', 'objectList', 'metadata']),
+    ...mapState(['browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -74,18 +76,13 @@ export default {
           ? this.prefix.substring(0, this.prefix.length - 1)
           : this.prefix
     },
-    isNotRoot () {
-      return this.prefix !== ''
-    },
+    isRootFolder () { return this.prefix === '' || this.prefix === '/' },
+    isNotRoot () { return !this.isRootFolder },
+    isParentRootFolder () { return this.parentPrefix === '' || this.parentPrefix === '/' },
     parentPrefix () {
       const base = this.prefix.endsWith('/') ? this.prefix.substring(0, this.prefix.length - 1) : this.prefix
       const pos = base.lastIndexOf('/')
       return pos === -1 ? '' : base.substring(0, pos + 1)
-    },
-    parentPrefixDisplay () {
-      const base = this.prefix.endsWith('/') ? this.prefix.substring(0, this.prefix.length - 1) : this.prefix
-      const pos = base.lastIndexOf('/')
-      return pos === -1 ? '(back to top level)' : '(back to ' + base.substring(0, pos + 1) + ')'
     },
     filteredObjectList () {
       const filtered = []
