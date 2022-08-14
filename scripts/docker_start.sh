@@ -20,7 +20,7 @@ YB_SITE_URL="${YB_SITE_URL:?No YB_SITE_URL env var defined}"
 SERVER_HOSTNAME="${YB_HOSTNAME:-$(echo "${YB_SITE_URL}" | tr ':/' '  ' | awk '{print $2}')}"
 if [ -n "${YB_CERTBOT_ENABLED}" && "${YB_CERTBOT_ENABLED}" = "true" ] ; then
   YB_CERTBOT_EMAIL=${YB_CERTBOT_EMAIL:?YB_CERTBOT_ENABLED is true but YB_CERTBOT_EMAIL is not defined}
-  echo "Calling certbot register with email address: ${SC_CERTBOT_EMAIL}"
+  echo "Calling certbot register with email address: ${YB_CERTBOT_EMAIL}"
   certbot register --agree-tos -m "${YB_CERTBOT_EMAIL}" --non-interactive 2>&1 | tee -a ${LOG} || OK=0
   if [ ${OK} -ne 1 ] ; then
     echo 1>&2 " *** Error registering Certbot account: $(cat ${LOG})"
