@@ -1,69 +1,42 @@
-# s3vid
+s3vid
+=====
 
-## Build Setup
+# Features
 
-```bash
-# install dependencies
-$ yarn install
+* Transform an S3 bucket with videos into a private YouTube-like site for friends and family
+* Just point it at a source bucket, give it a destination bucket to write to, and let it run
+* ALL data is stored in the destination bucket, so you can destroy the container and bring it up later
+  * Useful for running initially on a CPU-optimized instance for the initial transformation, then run \
+    on a much cheaper instance for 24/7/365 service.
+* Automatic scanning
+* Always read-only from source
+* Source and dest can be in different AWS accounts
 
-# serve with hot reload at localhost:3000
-$ yarn dev
+## Anonymous user feature (if the site has been configured to allow anonymous visitors)
+  * Browse/search videos
+  * Watch videos!
+  * Create account (if the site has been configured to allow account registration)
 
-# build for production and launch server
-$ yarn build
-$ yarn start
+## Logged-in user features
+  * Browse/search videos
+  * Watch videos!
+  * Comment on videos
+  * Like videos
+  * Invite friends
+  * Set language to English or French (please add more translations!)
+  * Edit account info
+  * Delete account
 
-# generate static project
-$ yarn generate
-```
+## Admin user features
+  * Edit video metadata, view thumbnails, change selected thumbnail
+  * View media transform queue and job status
+  * Start new scans of source media
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
-
-## Special Directories
-
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+## Server/backend features
+  * Transient-friendly, ZERO persistent/important data is stored within the container.
+    * All durable data is persisted in the destination bucket; essentially, we use S3 as our database
+  * Automatic periodic scanning of source bucket for new media
+  * Add and change media metadata; edits are stored on the destination bucket, source media is never modified 
+  * Configurable output profiles. Default is DASH-mp4 with four profiles, supporting quality levels from better-than-HD to super-low bandwidth
+  * User account info is also stored on the destination bucket, optionally encrypted
+    * If encryption key is changed, admin can migrate users to the new key with web admin console
