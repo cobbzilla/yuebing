@@ -26,7 +26,8 @@ services:
     ports:
       - "3000:3000/tcp"
     build:
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
 #        YB_ADMIN_LOCALE: ${YB_ADMIN_LOCALE:-en_US}
 #        YB_ADMIN_OVERWRITE: ${YB_ADMIN_OVERWRITE:-true}
