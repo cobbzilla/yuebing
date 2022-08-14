@@ -1,4 +1,4 @@
-yuebing 🥮
+Yuebing 🥮
 ==========
 
 # Features
@@ -42,3 +42,14 @@ yuebing 🥮
     * If encryption key is changed, admin can migrate users to the new key with web admin console
 
 ### Why yuebing?
+[Oolong the rabbit](https://en.wikipedia.org/wiki/Oolong_(rabbit)) was an adorable and famous
+[early internet meme](https://duckduckgo.com/?q=oolong+rabbit&ia=images&iax=images). Oolong died in 2003,
+two years before a certain massively popular video service even existed.
+Oolong's successor was named Yuebing. Yuebing wasn't nearly as famous as Oolong, but did that even matter?
+Yuebing succeeded nonetheless.
+
+Perhaps more interestingly, yuebing means [mooncake](https://en.wikipedia.org/wiki/Mooncake)
+(Chinese: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
+Japanese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); mooncakes are very tasty and can be found in
+a wide variety of flavors and styles. Enjoy a time-honored regional style, or try an exotic cake from contemporary
+bakers who are exploring deliciously uncharted territory! There is truly something for everyone!
