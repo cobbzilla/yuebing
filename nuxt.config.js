@@ -3,17 +3,17 @@ export default {
   ssr: false,
 
   publicRuntimeConfig: {
-    title: process.env.SV_TITLE || 's3vid',
+    title: process.env.YB_TITLE || 'Yuebing 🥮',
 
     // Links in outbound emails will point back here
-    siteUrl: process.env.SV_SITE_URL || 'http://127.0.0.1:3000',
+    siteUrl: process.env.YB_SITE_URL || 'http://127.0.0.1:3000',
 
     // Set to true to allow anonymous browsing/viewing
     // WARNING: This can generate expensive bandwidth bills, depending on your site's traffic load
-    public: process.env.SV_PUBLIC ? !!JSON.parse(process.env.SV_PUBLIC) : false,
+    public: process.env.YB_PUBLIC ? !!JSON.parse(process.env.YB_PUBLIC) : false,
 
     // Set to true to allow people to sign up
-    allowRegistration: process.env.SV_ALLOW_REGISTRATION ? !!JSON.parse(process.env.SV_ALLOW_REGISTRATION) : false,
+    allowRegistration: process.env.YB_ALLOW_REGISTRATION ? !!JSON.parse(process.env.YB_ALLOW_REGISTRATION) : false,
 
     // If limitRegistration is set, the allowRegistration setting is ignored
     // The limitRegistration property can be either:
@@ -21,7 +21,7 @@ export default {
     //    addresses to allow registration from. The contents of this file can be a JSON array, or a flat
     //    text file with one email address per line
     // 2. An array object, containing the email addresses to allow registration from
-    limitRegistration: process.env.SV_LIMIT_REGISTRATION || null,
+    limitRegistration: process.env.YB_LIMIT_REGISTRATION || null,
 
     // To add support for a new locale:
     //  - Add the locale name to the 'locales' array below
@@ -32,58 +32,58 @@ export default {
     //    your new locale. This is for when your new locale appears a drop-down list, it will be translated
     //    into the user's language.
     locales: ['en_US', 'fr_FR'],
-    defaultLocale: process.env.SV_DEFAULT_LOCALE || 'en_US',
+    defaultLocale: process.env.YB_DEFAULT_LOCALE || 'en_US',
 
     // timeouts for various temporary tokens stored in redis
     timeout: {
-      verify: process.env.SV_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
-      resetPassword: process.env.SV_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60 // 1 hour
+      verify: process.env.YB_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
+      resetPassword: process.env.YB_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60 // 1 hour
     },
 
-    // Don't change this line. If you want to enable email, set the SV_EMAIL_HOST environment
+    // Don't change this line. If you want to enable email, set the YB_EMAIL_HOST environment
     // variable (and others, see below in privateRuntimeConfig for email settings)
-    emailEnabled: (typeof process.env.SV_EMAIL_HOST === 'string' && process.env.SV_EMAIL_HOST.length > 0)
+    emailEnabled: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0)
   },
 
   privateRuntimeConfig: {
     // Initial admin user. Set the password to create the admin user
     admin: {
       user: {
-        email: process.env.SV_ADMIN_EMAIL || 'admin@example.local',
-        password: process.env.SV_ADMIN_PASSWORD || null,
-        locale: process.env.SV_ADMIN_LOCALE || process.env.SV_DEFAULT_LOCALE || 'en_US'
+        email: process.env.YB_ADMIN_EMAIL || 'admin@example.local',
+        password: process.env.YB_ADMIN_PASSWORD || null,
+        locale: process.env.YB_ADMIN_LOCALE || process.env.YB_DEFAULT_LOCALE || 'en_US'
       },
-      overwrite: !!process.env.SV_ADMIN_OVERWRITE // set to true to overwrite existing admin user
+      overwrite: !!process.env.YB_ADMIN_OVERWRITE // set to true to overwrite existing admin user
     },
 
     // SMTP settings for sending email
     // If host is not set, emails will be disabled
     // Do not set edit the lines below.
-    // Instead, set the SV_EMAIL environment variables to the config you want
+    // Instead, set the YB_EMAIL environment variables to the config you want
     email: {
-      host: process.env.SV_EMAIL_HOST || null,
-      port: process.env.SV_EMAIL_PORT || 587,
-      user: process.env.SV_EMAIL_USER || null,
-      password: process.env.SV_EMAIL_PASSWORD || null,
-      secure: process.env.SV_EMAIL_SECURE || true,
-      fromEmail: process.env.SV_EMAIL_FROM || 'nobody@localhost'
+      host: process.env.YB_EMAIL_HOST || null,
+      port: process.env.YB_EMAIL_PORT || 587,
+      user: process.env.YB_EMAIL_USER || null,
+      password: process.env.YB_EMAIL_PASSWORD || null,
+      secure: process.env.YB_EMAIL_SECURE || true,
+      fromEmail: process.env.YB_EMAIL_FROM || 'nobody@localhost'
     },
 
     // redis is used for: server-side caching, the xform job queue, and web sessions
     redis: {
-      host: process.env.SV_REDIS_HOST || '127.0.0.1',
-      port: process.env.SV_REDIS_PORT || 6379,
+      host: process.env.YB_REDIS_HOST || '127.0.0.1',
+      port: process.env.YB_REDIS_PORT || 6379,
 
       // set to true to flush redis when the app starts (this will log out all users)
-      flushAtStartup: process.env.SV_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.SV_REDIS_FLUSH_AT_STARTUP) : false,
+      flushAtStartup: process.env.YB_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : false,
 
       // Cache duration for listings from S3, in milliseconds
-      listingCacheExpiration: process.env.SV_S3_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
+      listingCacheExpiration: process.env.YB_S3_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
 
       // Cache duration for manifests, in milliseconds
       // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`
       // file is newer than the cache's ctime
-      manifestCacheExpiration: process.env.SV_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000 // default 1 minute
+      manifestCacheExpiration: process.env.YB_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000 // default 1 minute
     },
 
     // A map of supported (media type) -> (config for the media type)
@@ -114,16 +114,16 @@ export default {
       // WARNING: if you change this, your user-storage location will be different, so
       // existing users will no longer be able to sign in. Login as admin and visit
       // the /admin/rotateKey page to migrate old users to the new encryption key
-      key: process.env.SV_USERDATA_KEY,
-      iv: process.env.SV_USERDATA_IV, // IV is optional, will be derived from key if empty
+      key: process.env.YB_USERDATA_KEY,
+      iv: process.env.YB_USERDATA_IV, // IV is optional, will be derived from key if empty
 
       // Passwords are stored as bcrypt hashes. How many rounds to use
-      bcryptRounds: process.env.SV_BCRYPT_ROUNDS || 12
+      bcryptRounds: process.env.YB_BCRYPT_ROUNDS || 12
     },
 
     session: {
       // How long web sessions last
-      expiration: process.env.SV_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
+      expiration: process.env.YB_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
     },
 
     // The server scans the source media for new content to transform
@@ -135,24 +135,24 @@ export default {
       // Only one scan runs at a time. If an active scan is already running when a new
       // interval is triggered, a concurrent scan will NOT be started.
       // If enabled, an initial scan will being shortly after startup
-      interval: process.env.SV_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
+      interval: process.env.YB_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
 
       // How long to wait before the initial startup scan
       // Zero or negative means disable initial scan
       // Minimum interval is 5 seconds. Lower settings are ignored.
-      initialDelay: process.env.SV_AUTOSCAN_INITIAL_DELAY || 1000 * 30, // default 30 seconds
+      initialDelay: process.env.YB_AUTOSCAN_INITIAL_DELAY || 1000 * 30, // default 30 seconds
 
       // Show stdout/stderr from transform commands? It is a LOT of output (ffmpeg for example)
       showTransformOutput: false,
 
       // How many concurrent transformations can be done
-      concurrency: process.env.SV_XFORM_CONCURRENCY || 2
+      concurrency: process.env.YB_XFORM_CONCURRENCY || 2
     }
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: process.env.SV_TITLE,
+    title: process.env.YB_TITLE,
     htmlAttrs: {
       lang: 'en'
     },

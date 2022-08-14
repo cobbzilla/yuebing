@@ -16,12 +16,12 @@ if [ -z "${SKIP_STRONG_DH_PARAMS}" ] ; then
 fi
 
 OK=1
-SV_SITE_URL="${SV_SITE_URL:?No SV_SITE_URL env var defined}"
-SERVER_HOSTNAME="${SV_HOSTNAME:-$(echo "${SV_SITE_URL}" | tr ':/' '  ' | awk '{print $2}')}"
-if [ -n "${SV_CERTBOT_ENABLED}" && "${SV_CERTBOT_ENABLED}" = "true" ] ; then
-  SV_CERTBOT_EMAIL=${SV_CERTBOT_EMAIL:?SV_CERTBOT_ENABLED is true but SV_CERTBOT_EMAIL is not defined}
+YB_SITE_URL="${YB_SITE_URL:?No YB_SITE_URL env var defined}"
+SERVER_HOSTNAME="${YB_HOSTNAME:-$(echo "${YB_SITE_URL}" | tr ':/' '  ' | awk '{print $2}')}"
+if [ -n "${YB_CERTBOT_ENABLED}" && "${YB_CERTBOT_ENABLED}" = "true" ] ; then
+  YB_CERTBOT_EMAIL=${YB_CERTBOT_EMAIL:?YB_CERTBOT_ENABLED is true but YB_CERTBOT_EMAIL is not defined}
   echo "Calling certbot register with email address: ${SC_CERTBOT_EMAIL}"
-  certbot register --agree-tos -m "${SV_CERTBOT_EMAIL}" --non-interactive 2>&1 | tee -a ${LOG} || OK=0
+  certbot register --agree-tos -m "${YB_CERTBOT_EMAIL}" --non-interactive 2>&1 | tee -a ${LOG} || OK=0
   if [ ${OK} -ne 1 ] ; then
     echo 1>&2 " *** Error registering Certbot account: $(cat ${LOG})"
     exit 1

@@ -4,9 +4,9 @@ const shasum = require('shasum')
 const c = require('../../shared')
 const s3cfg = require('../s3/s3client')
 
-const workbenchDir = process.env.SV_WORK_DIR.endsWith('/')
-  ? process.env.SV_WORK_DIR
-  : process.env.SV_WORK_DIR + '/'
+const workbenchDir = process.env.YB_WORK_DIR.endsWith('/')
+  ? process.env.YB_WORK_DIR
+  : process.env.YB_WORK_DIR + '/'
 
 const LAST_MODIFIED_FILE = 'lastModified'
 const SELECTED_THUMBNAIL_FILE = 'selectedThumbnail.json'

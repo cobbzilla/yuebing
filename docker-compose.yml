@@ -7,10 +7,10 @@ services:
       - "80:80/tcp"
       - "443:443/tcp"
     environment:
-      CERTBOT_EMAIL: ${SV_CERTBOT_EMAIL}
+      CERTBOT_EMAIL: ${YB_CERTBOT_EMAIL}
       # variable names are space-separated
       ENVSUBST_VARS: FQDN
-      FQDN: ${SV_HOSTNAME}
+      FQDN: ${YB_HOSTNAME}
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
@@ -28,48 +28,48 @@ services:
     build:
       dockerfile: ./Dockerfile
       args:
-#        SV_ADMIN_LOCALE: ${SV_ADMIN_LOCALE:-en_US}
-#        SV_ADMIN_OVERWRITE: ${SV_ADMIN_OVERWRITE:-true}
-        SV_ADMIN_PASSWORD: ${SV_ADMIN_PASSWORD:?Environment variable required but not defined:SV_ADMIN_PASSWORD}
-#        SV_ADMIN_USER: ${SV_ADMIN_USER:-admin@local.local}
-#        SV_ALLOW_REGISTRATION: ${SV_ALLOW_REGISTRATION:-false}
-#        SV_AUTOSCAN_INITIAL_DELAY: ${SV_AUTOSCAN_INITIAL_DELAY:--1}
-#        SV_AUTOSCAN_INTERVAL: ${SV_AUTOSCAN_INTERVAL:--1}
-#        SV_BCRYPT_ROUNDS: ${SV_BCRYPT_ROUNDS:-12}
-#        SV_DEFAULT_LOCALE: ${SV_DEFAULT_LOCALE:-en_US}
-        SV_DEST_ACCESS: ${SV_DEST_ACCESS:?Environment variable required but not defined:SV_DEST_ACCESS}
-        SV_DEST_BUCKET: ${SV_DEST_BUCKET:?Environment variable required but not defined:SV_DEST_BUCKET}
-#        SV_DEST_PREFIX: ${SV_DEST_PREFIX}
-#        SV_DEST_REGION: ${SV_DEST_REGION:-us-east-1}
-        SV_DEST_SECRET: ${SV_DEST_SECRET:?Environment variable required but not defined:SV_DEST_SECRET}
-#        SV_EMAIL_FROM: ${SV_EMAIL_FROM:-site-operator@example.org}
-#        SV_EMAIL_HOST: ${SV_EMAIL_HOST}
-#        SV_EMAIL_PASSWORD: ${SV_EMAIL_PASSWORD}
-#        SV_EMAIL_PORT: ${SV_EMAIL_PORT:-465}
-#        SV_EMAIL_SECURE: ${SV_EMAIL_SECURE}
-#        SV_EMAIL_USER: ${SV_EMAIL_USER}
-#        SV_HOSTNAME: ${SV_HOSTNAME}
-#        SV_LIMIT_REGISTRATION: ${SV_LIMIT_REGISTRATION}
-#        SV_PUBLIC: ${SV_PUBLIC:-false}
-#        SV_REDIS_FLUSH_AT_STARTUP: ${SV_REDIS_FLUSH_AT_STARTUP:-false}
-#        SV_REDIS_HOST: ${SV_REDIS_HOST:-redis}
-#        SV_REDIS_PORT: ${SV_REDIS_PORT:-6379}
-#        SV_S3_LIST_CACHE_EXPIRATION: ${SV_S3_LIST_CACHE_EXPIRATION:-300000)}
-#        SV_S3_MANIFEST_CACHE_EXPIRATION: ${SV_S3_MANIFEST_CACHE_EXPIRATION:-300000}
-#        SV_SESSION_EXPIRATION: ${SV_SESSION_EXPIRATION:-1576800000000}
-        SV_SITE_URL: ${SV_SITE_URL:?Environment variable required but not defined:SV_SITE_URL}
-        SV_SOURCE_ACCESS: ${SV_SOURCE_ACCESS:?Environment variable required but not defined:SV_SOURCE_ACCESS}
-        SV_SOURCE_BUCKET: ${SV_SOURCE_BUCKET:?Environment variable required but not defined:SV_SOURCE_BUCKET}
-#        SV_SOURCE_PREFIX: ${SV_SOURCE_PREFIX}
-#        SV_SOURCE_REGION: ${SV_SOURCE_REGION:-us-east-1}
-        SV_SOURCE_SECRET: ${SV_SOURCE_SECRET:?Environment variable required but not defined:SV_SOURCE_SECRET}
-#        SV_TIMEOUT_ACCOUNT_VERIFICATION: ${SV_TIMEOUT_ACCOUNT_VERIFICATION:-172800000}
-#        SV_TIMEOUT_RESET_PASSWORD: ${SV_TIMEOUT_RESET_PASSWORD:-3600000}
-#        SV_TITLE: ${SV_TITLE:-s3vid}
-#        SV_USERDATA_IV: ${SV_USERDATA_IV}
-#        SV_USERDATA_KEY: ${SV_USERDATA_KEY}
-#        SV_WORK_DIR: ${SV_WORK_DIR:-workbench}
-#        SV_XFORM_CONCURRENCY: ${SV_XFORM_CONCURRENCY:-2}
+#        YB_ADMIN_LOCALE: ${YB_ADMIN_LOCALE:-en_US}
+#        YB_ADMIN_OVERWRITE: ${YB_ADMIN_OVERWRITE:-true}
+        YB_ADMIN_PASSWORD: ${YB_ADMIN_PASSWORD:?Environment variable required but not defined:YB_ADMIN_PASSWORD}
+#        YB_ADMIN_USER: ${YB_ADMIN_USER:-admin@local.local}
+#        YB_ALLOW_REGISTRATION: ${YB_ALLOW_REGISTRATION:-false}
+#        YB_AUTOSCAN_INITIAL_DELAY: ${YB_AUTOSCAN_INITIAL_DELAY:--1}
+#        YB_AUTOSCAN_INTERVAL: ${YB_AUTOSCAN_INTERVAL:--1}
+#        YB_BCRYPT_ROUNDS: ${YB_BCRYPT_ROUNDS:-12}
+#        YB_DEFAULT_LOCALE: ${YB_DEFAULT_LOCALE:-en_US}
+        YB_DEST_ACCESS: ${YB_DEST_ACCESS:?Environment variable required but not defined:YB_DEST_ACCESS}
+        YB_DEST_BUCKET: ${YB_DEST_BUCKET:?Environment variable required but not defined:YB_DEST_BUCKET}
+#        YB_DEST_PREFIX: ${YB_DEST_PREFIX}
+#        YB_DEST_REGION: ${YB_DEST_REGION:-us-east-1}
+        YB_DEST_SECRET: ${YB_DEST_SECRET:?Environment variable required but not defined:YB_DEST_SECRET}
+#        YB_EMAIL_FROM: ${YB_EMAIL_FROM:-site-operator@example.org}
+#        YB_EMAIL_HOST: ${YB_EMAIL_HOST}
+#        YB_EMAIL_PASSWORD: ${YB_EMAIL_PASSWORD}
+#        YB_EMAIL_PORT: ${YB_EMAIL_PORT:-465}
+#        YB_EMAIL_SECURE: ${YB_EMAIL_SECURE}
+#        YB_EMAIL_USER: ${YB_EMAIL_USER}
+#        YB_HOSTNAME: ${YB_HOSTNAME}
+#        YB_LIMIT_REGISTRATION: ${YB_LIMIT_REGISTRATION}
+#        YB_PUBLIC: ${YB_PUBLIC:-false}
+#        YB_REDIS_FLUSH_AT_STARTUP: ${YB_REDIS_FLUSH_AT_STARTUP:-false}
+#        YB_REDIS_HOST: ${YB_REDIS_HOST:-redis}
+#        YB_REDIS_PORT: ${YB_REDIS_PORT:-6379}
+#        YB_S3_LIST_CACHE_EXPIRATION: ${YB_S3_LIST_CACHE_EXPIRATION:-300000)}
+#        YB_S3_MANIFEST_CACHE_EXPIRATION: ${YB_S3_MANIFEST_CACHE_EXPIRATION:-300000}
+#        YB_SESSION_EXPIRATION: ${YB_SESSION_EXPIRATION:-1576800000000}
+        YB_SITE_URL: ${YB_SITE_URL:?Environment variable required but not defined:YB_SITE_URL}
+        YB_SOURCE_ACCESS: ${YB_SOURCE_ACCESS:?Environment variable required but not defined:YB_SOURCE_ACCESS}
+        YB_SOURCE_BUCKET: ${YB_SOURCE_BUCKET:?Environment variable required but not defined:YB_SOURCE_BUCKET}
+#        YB_SOURCE_PREFIX: ${YB_SOURCE_PREFIX}
+#        YB_SOURCE_REGION: ${YB_SOURCE_REGION:-us-east-1}
+        YB_SOURCE_SECRET: ${YB_SOURCE_SECRET:?Environment variable required but not defined:YB_SOURCE_SECRET}
+#        YB_TIMEOUT_ACCOUNT_VERIFICATION: ${YB_TIMEOUT_ACCOUNT_VERIFICATION:-172800000}
+#        YB_TIMEOUT_RESET_PASSWORD: ${YB_TIMEOUT_RESET_PASSWORD:-3600000}
+#        YB_TITLE: ${YB_TITLE:-Yuebing 🥮}
+#        YB_USERDATA_IV: ${YB_USERDATA_IV}
+#        YB_USERDATA_KEY: ${YB_USERDATA_KEY}
+#        YB_WORK_DIR: ${YB_WORK_DIR:-workbench}
+#        YB_XFORM_CONCURRENCY: ${YB_XFORM_CONCURRENCY:-2}
 
 volumes:
   letsencrypt:

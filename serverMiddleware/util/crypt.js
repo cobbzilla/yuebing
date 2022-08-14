@@ -28,7 +28,7 @@ const rawIV = nuxt.privateRuntimeConfig.userEncryption.iv
 const CRYPTO_IV = normalizeIV(rawIV, KEY)
 
 if (!KEY) {
-  console.warn(` ****** SV_USERDATA_KEY env var (value=${rawKey}) is undefined or less than the minimum ${MIN_KEY_LEN} chars, encryption of user-data is DISABLED`)
+  console.warn(` ****** YB_USERDATA_KEY env var (value=${rawKey}) is undefined or less than the minimum ${MIN_KEY_LEN} chars, encryption of user-data is DISABLED`)
 }
 
 function encrypt (plainText, key = KEY, iv = CRYPTO_IV, outputEncoding = 'base64') {
