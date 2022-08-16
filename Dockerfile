@@ -4,9 +4,7 @@ RUN mkdir -p /usr/src/yuebing
 WORKDIR /usr/src/yuebing
 
 RUN apk update && apk upgrade && \
-    apk add redis python3 py3-pip certbot nginx curl ffmpeg mediainfo
-
-RUN pip install certbot-nginx
+    apk add curl ffmpeg mediainfo
 
 COPY . /usr/src/yuebing/
 
