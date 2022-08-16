@@ -74,9 +74,7 @@ async function listObjects (prefix, client, params, recursive = false) {
       truncated = response.IsTruncated
       // If truncated is true, assign the key of the last element in the response to the pageMarker variable.
       if (truncated) {
-        pageMarker = response.Contents.slice(-1)[0].Key
-        // Assign the pageMarker value to bucketParams so that the next iteration starts from the new pageMarker.
-        bucketParams.Marker = pageMarker
+        bucketParams.Marker = response.NextMarker
       }
       // At end of the list, response.truncated is false, and the function exits the while loop.
     } catch (err) {
