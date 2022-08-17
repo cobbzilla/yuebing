@@ -1,5 +1,6 @@
 export default {
   // titles and labels
+  anonymous_user_name: 'mysterious one',
   welcome_public: 'Welcome to {{ title }}!',
   welcome_user: 'Welcome to {{ title }}, {{user.firstName || user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}!',
   title_login: 'Sign In',
@@ -11,6 +12,8 @@ export default {
   title_profile: 'Account Information',
   button_profile: 'My Account',
   button_update: 'save',
+  info_profile_update: 'Your account information was successfully updated',
+  button_reset_password: 'Reset your password',
   button_delete_my_account: 'Delete my account (CANNOT BE UNDONE)',
   label_confirm_user_delete: 'Confirm deletion of your account. This action is irreversible!',
   label_firstName: 'First Name',
@@ -29,7 +32,10 @@ export default {
   button_send_password_reset_email: 'Send',
   button_set_new_password: 'Set Password',
   info_password_reset_email_sent: 'An email message was sent to {{ email }}, check your inbox for a link to reset your password',
+  info_password_reset_email_error: 'An error occurred and your message may not have been sent. Please try again later',
   info_password_reset_try_again: 'Try again',
+  info_verify_token_error: 'The verification token has expired or is otherwise invalid',
+  info_registration_not_allowed: 'The operator of {{ title }} has disabled account creation',
   button_invite_friends: 'Invite your friends to {{ title }}!',
   button_close_invite_friends: 'close',
   label_friend_emails: 'List of emails separated by commas, spaces or newlines',

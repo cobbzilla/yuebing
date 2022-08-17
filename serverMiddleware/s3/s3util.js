@@ -225,9 +225,9 @@ async function putObject (bucketParams) {
       Prefix: '',
       Key: key
     })
-    console.log(`putObject(${origKey}): params=${JSON.stringify(params)}`)
+    // console.log(`putObject(${origKey}): params=${JSON.stringify(params)}`)
     const data = await client.send(new PutObjectCommand(params))
-    console.log(`putObject(${origKey}): created object: ${params.Bucket}/${params.Key}`)
+    // console.log(`putObject(${origKey}): created object: ${params.Bucket}/${params.Key}`)
     return data || true
   } catch (err) {
     console.log(`putObject(${origKey}) error: ${err}`)

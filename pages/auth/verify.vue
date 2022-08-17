@@ -1,47 +1,61 @@
 <template>
-  <div>
-    <!-- Reset password request -->
-    <div v-if="resetPasswordHash">
-      <h2>
-        {{ messages.title_resetPassword }}
-      </h2>
-      <div v-if="tokenError">
-        {{ tokenError }}
-      </div>
-      <div>
-        <ValidationObserver ref="form">
-          <form @submit.prevent="handleSubmit">
+  <v-container>
+    <v-row v-if="tokenError">
+      <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
+        <b>{{ messages.info_verify_token_error.parseMessage({ error: tokenError }) }}</b>
+      </v-snackbar>
+    </v-row>
+    <v-row v-if="resetPasswordHash">
+      <v-container>
+        <v-row>
+          <v-col>
+            <!-- Reset password request -->
+            <h2>
+              {{ messages.title_resetPassword }}
+            </h2>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <ValidationObserver ref="form">
+              <form>
+                <div class="form-group">
+                  <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
+                    <v-text-field
+                      v-model="password"
+                      :label="messages.label_password"
+                      type="password"
+                      name="password"
+                      class="form-control"
+                      :class="{ 'is-invalid': submitted && errors.length>0 }"
+                    />
+                    <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+                  </ValidationProvider>
+                </div>
+              </form>
+            </ValidationObserver>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
-                <label htmlFor="password">{{ messages.label_newPassword }}</label>
-                <input
-                  v-model="password"
-                  type="password"
-                  name="password"
-                  class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
-                >
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
-              </ValidationProvider>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary" :disabled="userStatus.verifying">
+              <v-btn class="btn btn-primary" :disabled="userStatus.verifying" @click.stop="handleSubmit">
                 {{ messages.button_set_new_password }}
-              </button>
-              <img v-show="userStatus.verifying" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+              </v-btn>
             </div>
-          </form>
-        </ValidationObserver>
-      </div>
-    </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-row>
 
     <!-- Regular email account verification -->
-    <div v-else>
-      <div>
+    <v-row v-else>
+      <v-col>
         <div v-if="verifying">
           <div v-if="error">
-            <!-- Basic request error-->
-            {{ error }}
+            <v-snackbar v-model="showParamErrorSnackbar" :timeout="paramErrorSnackTimeout" color="error" centered>
+              <b>{{ error }}</b>
+            </v-snackbar>
           </div>
           <div v-else>
             <h2>
@@ -50,21 +64,25 @@
           </div>
         </div>
         <div v-else>
-          <div v-if="verifyErrorMessage" v-html="verifyErrorMessage" />
+          <div v-if="verifyErrorMessage">
+            <b>{{ verifyErrorMessage }}</b>
+          </div>
           <div v-else>
             <!-- should be unreachable... -->
             {{ messages.title_verifying_ended }}
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { VERIFY_EMAIL_PARAM, VERIFY_TOKEN_PARAM, VERIFY_RESET_PARAM, PASSWORD_RULES } from '@/shared/auth'
+import { UI_CONFIG } from '@/services/util'
 
 export default {
   name: 'VerifyUser',
@@ -76,7 +94,11 @@ export default {
       password: null,
       error: null,
       submitted: false,
-      verifying: true
+      verifying: true,
+      showErrorSnackbar: false,
+      errorSnackTimeout: -1,
+      showParamErrorSnackbar: false,
+      paramErrorSnackTimeout: -1
     }
   },
   computed: {
@@ -94,7 +116,7 @@ export default {
         Object.keys(this.userStatus.verifyError).forEach((field) => {
           const fieldErrors = this.userStatus.verifyError[field]
           for (const err of fieldErrors) {
-            errors += this.fieldError(field, err) + '<br/>'
+            errors += this.fieldError(field, err) + ', '
           }
         })
         return errors
@@ -111,8 +133,14 @@ export default {
     }
   },
   watch: {
-    userStatus (newStatus, oldStatus) {
+    userStatus (newStatus) {
       this.verifying = false
+      if (newStatus) {
+        if (newStatus.verifyError) {
+          this.showErrorSnackbar = true
+          this.errorSnackTimeout = UI_CONFIG.snackbarErrorTimeout
+        }
+      }
     }
   },
   created () {
@@ -138,11 +166,10 @@ export default {
     fieldError (field, error) {
       return fieldErrorMessage(field, error, this.messages)
     },
-    async handleSubmit (e) {
+    async handleSubmit () {
       this.submitted = true
-      const errors = await this.$refs.form.validate().then((success) => {
+      await this.$refs.form.validate().then((success) => {
         if (success) {
-          console.log('sending verify request off...')
           this.verify({
             email: this.email,
             token: this.token,
@@ -151,7 +178,6 @@ export default {
           })
         }
       })
-      console.log(`handleSubmit: received errors: ${JSON.stringify(errors)}`)
     }
   }
 }

@@ -1,91 +1,113 @@
 <template>
-  <div>
-    <h2>{{ messages.title_register }}</h2>
-    <ValidationObserver ref="form">
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="firstName">{{ messages.label_firstName }}</label>
-          <ValidationProvider v-slot="{ errors }" name="firstName" rules="required|min:2" immediate>
-            <input
-              v-model="user.firstName"
-              type="text"
-              name="firstName"
-              class="form-control"
-              :class="{ 'is-invalid': submitted && errors.length>0 }"
-            >
-            <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors[0]) }}</span>
-          </ValidationProvider>
-        </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <h2>{{ messages.title_register }}</h2>
+      </v-col>
+    </v-row>
+    <v-row v-if="allowRegistration">
+      <v-col>
+        <ValidationObserver ref="form">
+          <form>
+            <div class="form-group">
+              <label for="firstName">{{ messages.label_firstName }}</label>
+              <ValidationProvider v-slot="{ errors }" name="firstName" rules="required|min:2" immediate>
+                <v-text-field
+                  v-model="user.firstName"
+                  :label="messages.label_firstName"
+                  type="text"
+                  name="firstName"
+                  class="form-control"
+                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                />
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors[0]) }}</span>
+              </ValidationProvider>
+            </div>
 
-        <div class="form-group">
-          <ValidationProvider v-slot="{ errors }" name="lastName" rules="required|min:3" immediate>
-            <label for="lastName">{{ messages.label_lastName }}</label>
-            <input
-              v-model="user.lastName"
-              type="text"
-              name="lastName"
-              class="form-control"
-              :class="{ 'is-invalid': submitted && errors.length>0 }"
-            >
-            <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors[0]) }}</span>
-          </ValidationProvider>
-        </div>
+            <div class="form-group">
+              <ValidationProvider v-slot="{ errors }" name="lastName" rules="required|min:3" immediate>
+                <v-text-field
+                  v-model="user.lastName"
+                  :label="messages.label_lastName"
+                  type="text"
+                  name="lastName"
+                  class="form-control"
+                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                />
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors[0]) }}</span>
+              </ValidationProvider>
+            </div>
 
-        <div class="form-group">
-          <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
-            <label for="email">{{ messages.label_email }}</label>
-            <input
-              v-model="user.email"
-              type="text"
-              name="email"
-              class="form-control"
-              :class="{ 'is-invalid': submitted && errors.length>0 }"
-            >
-            <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
-          </ValidationProvider>
-        </div>
+            <div class="form-group">
+              <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+                <v-text-field
+                  v-model="user.email"
+                  :label="messages.label_email"
+                  type="text"
+                  name="email"
+                  class="form-control"
+                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                />
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+              </ValidationProvider>
+            </div>
 
-        <div class="form-group">
-          <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
-            <label htmlFor="password">{{ messages.label_password }}</label>
-            <input
-              v-model="user.password"
-              type="password"
-              name="password"
-              class="form-control"
-              :class="{ 'is-invalid': submitted && errors.length>0 }"
-            >
-            <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
-          </ValidationProvider>
-        </div>
+            <div class="form-group">
+              <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
+                <v-text-field
+                  v-model="user.password"
+                  :label="messages.label_password"
+                  type="password"
+                  name="password"
+                  class="form-control"
+                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                />
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+              </ValidationProvider>
+            </div>
 
-        <div v-if="supportedLocales.length > 1" class="form-group">
-          <ValidationProvider v-slot="{ errors }" name="locale" rules="required" immediate>
-            <label htmlFor="locale">{{ messages.label_locale }}</label>
-            <select v-model="user.locale" class="form-control">
-              <option v-for="loc in supportedLocales" :key="loc.name" :value="loc.name" :selected="localeSelected(loc.name)">
-                {{ loc.value }}
-              </option>
-            </select>
-            <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors[0]) }}</span>
-          </ValidationProvider>
-        </div>
-
+            <div v-if="supportedLocales.length > 1" class="form-group">
+              <ValidationProvider v-slot="{ errors }" name="locale" rules="required" immediate>
+                <v-select
+                  v-model="user.locale"
+                  :label="messages.label_locale"
+                  :items="supportedLocales"
+                  item-text="value"
+                  item-value="name"
+                  :value="userLocale"
+                  class="form-control"
+                />
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors[0]) }}</span>
+              </ValidationProvider>
+            </div>
+          </form>
+        </ValidationObserver>
+      </v-col>
+    </v-row>
+    <v-row v-if="allowRegistration">
+      <v-col>
         <div class="form-group">
-          <button class="btn btn-primary" :disabled="userStatus.registering">
+          <v-btn class="btn btn-primary" :disabled="userStatus.registering" @click.stop="handleSubmit">
             {{ messages.button_register }}
-          </button>
-          <img v-show="userStatus.registering" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==">
-          <router-link to="/signIn" class="btn btn-link">
-            {{ messages.button_login }}
-          </router-link>
+          </v-btn>
         </div>
-      </form>
-    </ValidationObserver>
-  </div>
+      </v-col>
+      <v-col align-self="end">
+        <NuxtLink to="/signIn" class="btn btn-link">
+          {{ messages.button_login }}
+        </NuxtLink>
+      </v-col>
+    </v-row>
+    <v-row v-if="!allowRegistration">
+      <v-col>
+        <h4>{{ messages.info_registration_not_allowed.parseMessage({title}) }}</h4>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { PASSWORD_RULES } from '@/shared/auth'
@@ -99,28 +121,46 @@ export default {
         lastName: '',
         email: '',
         password: '',
-        locale: DEFAULT_LOCALE
+        locale: null
       },
       submitted: false
     }
   },
   computed: {
-    ...mapState('user', ['userStatus']),
+    ...mapState('user', ['userStatus', 'registerError']),
     ...mapState(['browserLocale']),
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    passwordRules () { return PASSWORD_RULES }
+    allowRegistration () { return this.$config.allowRegistration },
+    passwordRules () { return PASSWORD_RULES },
+    userLocale () {
+      return this.user && this.user.locale
+        ? this.user.locale
+        : this.browserLocale
+          ? this.browserLocale
+          : DEFAULT_LOCALE
+    },
+    title () { return this.$config.title }
+  },
+  watch: {
+    browserLocale (newLocale) {
+      if (newLocale && this.user.locale === null) {
+        this.user.locale = newLocale
+      }
+    }
   },
   created () {
     if (this.browserLocale) {
       this.user.locale = this.browserLocale
+    } else {
+      this.fetchBrowserHeaders()
     }
   },
   methods: {
     ...mapActions('user', ['register']),
-    async handleSubmit (e) {
+    async handleSubmit () {
       this.submitted = true
-      const errors = await this.$refs.form.validate().then((success) => {
+      await this.$refs.form.validate().then((success) => {
         if (success) {
           this.register(this.user)
           return
@@ -130,10 +170,6 @@ export default {
           this.$refs.form.reset()
         })
       })
-      console.log(`handleSubmit: received errors: ${JSON.stringify(errors)}`)
-    },
-    localeSelected (loc) {
-      return this.user && this.user.locale ? loc === this.user.locale : loc === DEFAULT_LOCALE
     },
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'

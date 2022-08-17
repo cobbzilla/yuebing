@@ -1,26 +1,92 @@
 <template>
   <div>
-    <div v-if="user && userStatus && userStatus.loggedIn">
-      <h2>{{ messages.welcome_user.parseMessage({ user, title }) }}</h2>
-      <button @click="logOut()">{{ messages.button_logout }}</button>
-      <div>
-        <NuxtLink to="/profile">{{ messages.button_profile }}</NuxtLink>
-      </div>
-    </div>
-    <div v-else>
-      <h2>{{ messages.welcome_public.parseMessage({ title }) }}</h2>
-      <NuxtLink to="/signIn">{{ messages.button_login }}</NuxtLink>
-      <NuxtLink v-if="allowRegistration" to="/signUp">{{ messages.button_register }}</NuxtLink>
-    </div>
+    <v-app-bar
+      :clipped-left="clipped"
+      fixed
+      app
+    >
+      <NuxtLink to="/" style="text-decoration: none">
+        <v-toolbar-title v-text="title" />
+      </NuxtLink>
+      <v-spacer />
+      <v-btn
+        icon
+        @click.stop="rightDrawer = !rightDrawer"
+      >
+        <v-icon>mdi-account</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+    <v-navigation-drawer
+      v-model="rightDrawer"
+      :mini-variant="miniVariant"
+      :clipped="clipped"
+      fixed
+      right
+      app
+    >
+      <v-list>
+        <v-list-item
+          v-if="loggedIn"
+          to="/profile"
+          router
+          exact
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="messages.button_profile" />
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          v-if="loggedIn"
+          @click.stop="logOut()"
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="messages.button_logout" />
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          v-if="!loggedIn"
+          to="/signIn"
+          router
+          exact
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="messages.button_login" />
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          v-if="!loggedIn && allowRegistration"
+          to="/signUp"
+          router
+          exact
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="messages.button_register" />
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
   </div>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   name: 'SiteHeader',
+  data () {
+    return {
+      clipped: false,
+      drawer: false,
+      fixed: false,
+      miniVariant: false,
+      right: true,
+      rightDrawer: false
+    }
+  },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
@@ -36,10 +102,13 @@ export default {
             : this.user.email
         }
       }
-      return 'mysterious one'
+      return this.messages && this.messages.anonymous_user_name
+        ? this.messages.anonymous_user_name
+        : 'mysterious one'
     },
     allowRegistration () { return this.$config.allowRegistration },
-    title () { return this.$config.title }
+    title () { return this.$config.title },
+    loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn }
   },
   methods: {
     ...mapActions('user', ['logout']),

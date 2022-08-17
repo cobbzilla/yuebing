@@ -1,5 +1,6 @@
 export default {
   // titles and labels
+  anonymous_user_name: 'mystérieux',
   welcome_public: 'Bienvenue sur {{ title }}!',
   welcome_user: 'Bienvenue sur {{ title }}, {{user.firstName ? user.firstName : user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
   title_login: 'Connexion',
@@ -11,6 +12,8 @@ export default {
   title_profile: 'Information sur le compte',
   button_profile: 'Mon compte',
   button_update: 'commettre',
+  info_profile_update: 'Les informations de votre compte ont été mises à jour avec succès',
+  button_reset_password: 'Réinitialisez votre mot de passe',
   button_delete_my_account: 'Supprimer mon compte (IMPOSSIBLE D\'ÊTRE ANNULÉ)',
   label_confirm_user_delete: 'Confirmez la suppression de votre compte. Cette action est irréversible!',
   label_firstName: 'Prénom',
@@ -29,7 +32,10 @@ export default {
   button_send_password_reset_email: 'Envoyer',
   button_set_new_password: 'Définir le mot de passe',
   info_password_reset_email_sent: 'Un e-mail a été envoyé à {{ email }}, vérifiez votre boîte de réception pour un lien pour réinitialiser votre mot de passe',
+  info_password_reset_email_error: 'Une erreur s\'est produite et votre message n\'a peut-être pas été envoyé. Veuillez réessayer plus tard',
   info_password_reset_try_again: 'Réessayer',
+  info_verify_token_error: 'Le jeton de vérification a expiré ou est autrement invalide',
+  info_registration_not_allowed: 'L\'opérateur de {{ title }} a une création de compte désactivée',
   button_invite_friends: 'Invitez vos amis à {{ title }}!',
   button_close_invite_friends: 'ferme',
   label_friend_emails: 'Liste des e-mails séparés par des virgules, des espaces ou des retours à la ligne',

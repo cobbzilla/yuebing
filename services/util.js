@@ -2,6 +2,11 @@ import { USER_SESSION_HEADER } from '@/shared'
 
 const USER_LOCAL_STORAGE_KEY = 'user'
 
+const UI_CONFIG = {
+  snackbarErrorTimeout: 6000,
+  snackbarSuccessTimeout: 6000
+}
+
 function currentUser () {
   const userJson = localStorage.getItem(USER_LOCAL_STORAGE_KEY)
   try {
@@ -52,6 +57,6 @@ function handleJsonResponse (response) {
 }
 
 export {
-  USER_LOCAL_STORAGE_KEY,
+  USER_LOCAL_STORAGE_KEY, UI_CONFIG,
   currentUser, authHeader, authGet, authPostJson, handleJsonResponse
 }

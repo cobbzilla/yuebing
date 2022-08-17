@@ -1,71 +1,122 @@
 <template>
-  <div>
-    <h2>{{ messages.title_requestPasswordReset }}</h2>
-    <div v-if="resetError">
-      <b>{{ resetError }}</b>
-    </div>
-    <div v-if="resetSuccess">
-      <b>{{ messages.info_password_reset_email_sent.parseMessage({ email }) }}</b>
-    </div>
-    <div v-if="submitted">
-      <button @click="submitted = false">
-        {{ messages.info_password_reset_try_again }}
-      </button>
-    </div>
-    <form v-if="!submitted" @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="email">{{ messages.label_email }}</label>
-        <input v-model="email" type="text" name="email" class="form-control" :class="{ 'is-invalid': submitted && !email }" />
-        <div v-show="submitted && !email" class="invalid-feedback">
-          {{ requiredError('email') }}
-        </div>
-      </div>
-      <div class="form-group">
-        <button class="btn btn-primary" :disabled="disableSendButton">
-          {{ messages.button_send_password_reset_email }}
-        </button>
-        <img v-show="userStatus.requestingPasswordReset" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-        <router-link to="/signUp" class="btn btn-link">
+  <v-container>
+    <v-row>
+      <v-col>
+        <h2>{{ messages.title_requestPasswordReset }}</h2>
+        <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
+          <b>{{ messages.info_password_reset_email_error.parseMessage({ error: resetError }) }}</b>
+        </v-snackbar>
+        <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" centered>
+          <b>{{ messages.info_password_reset_email_sent.parseMessage({ email }) }}</b>
+        </v-snackbar>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <form v-if="!submitted">
+          <div class="form-group">
+            <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+              <v-text-field
+                v-model="email"
+                :label="messages.label_email"
+                type="text"
+                name="email"
+                class="form-control"
+                :class="{ 'is-invalid': submitted && !email }"
+              />
+              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+              <div v-show="submitted && !email" class="invalid-feedback">
+                {{ requiredError('email') }}
+              </div>
+            </ValidationProvider>
+          </div>
+          <div class="form-group">
+            <v-btn class="btn btn-primary" :disabled="disableSendButton" @click.stop="handleSubmit">
+              {{ messages.button_send_password_reset_email }}
+            </v-btn>
+          </div>
+        </form>
+      </v-col>
+    </v-row>
+    <v-row v-if="!userLoggedIn">
+      <v-col>
+        <v-btn
+          v-if="allowRegistration"
+          class="btn btn-primary"
+          to="/signUp"
+          nuxt
+          plain
+          right
+        >
           {{ messages.button_register }}
-        </router-link>
-        <router-link to="/signIn" class="btn btn-link">
+        </v-btn>
+        <v-btn class="btn btn-primary" to="/signIn" nuxt plain right>
           {{ messages.button_login }}
-        </router-link>
-      </div>
-    </form>
-  </div>
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-btn v-if="submitted" @click.stop="submitted = false">
+          {{ messages.info_password_reset_try_again }}
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { isValidEmail } from '@/shared/validation'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
+import { UI_CONFIG } from '@/services/util'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   name: 'RequestPasswordReset',
   data () {
     return {
       email: '',
-      submitted: false
+      submitted: false,
+      errorSnackTimeout: -1,
+      successSnackTimeout: -1,
+      showErrorSnackbar: false,
+      showSuccessSnackbar: false
     }
   },
   computed: {
-    ...mapState('user', ['userStatus']),
+    ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    resetSuccess () { return this.userStatus.passwordResetRequested },
+    resetSuccess () { return this.userStatus.passwordResetSuccess },
     resetError () { return this.userStatus.passwordResetRequestError },
     disableSendButton () {
       return this.userStatus.requestingPasswordReset || !isValidEmail(this.email)
-    }
+    },
+    allowRegistration () { return this.$config.allowRegistration },
+    userLoggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn }
   },
-  created () {
-    // reset login status
-    this.logout({ redirect: false })
+  watch: {
+    userStatus (newStat) {
+      if (newStat) {
+        if (newStat.passwordResetSuccess) {
+          this.showSuccessSnackbar = true
+          this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
+          return
+        } else if (newStat.passwordResetRequestError) {
+          this.showErrorSnackbar = true
+          this.errorSnackTimeout = UI_CONFIG.snackbarErrorTimeout
+          return
+        }
+      }
+      this.showSuccessSnackbar = false
+      this.showErrorSnackbar = false
+    }
   },
   methods: {
     ...mapActions('user', ['logout', 'requestPasswordReset']),
-    handleSubmit (e) {
+    handleSubmit () {
       this.submitted = true
       if (this.email) {
         const email = this.email
@@ -74,6 +125,9 @@ export default {
     },
     requiredError (field) {
       return fieldErrorMessage(field, 'required', this.messages)
+    },
+    fieldError (field, error) {
+      return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     }
   }
 }

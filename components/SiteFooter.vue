@@ -7,10 +7,12 @@
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
 import InviteFriends from '@/components/InviteFriends.vue'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   name: 'SiteFooter',
   components: { InviteFriends },

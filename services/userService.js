@@ -52,7 +52,6 @@ function requestPasswordReset (email) {
 }
 
 function updateUser (update) {
-  console.log(`userService.updateUser() called with: ${JSON.stringify(update)}`)
   return fetch('/api/user/update', a.authPostJson(update)).then(a.handleJsonResponse)
 }
 

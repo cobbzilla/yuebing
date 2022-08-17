@@ -7,7 +7,9 @@ export const state = () => ({
   user,
   userStatus: { loggedIn: !!user },
   loginError: null,
-  invitationResults: null
+  registerError: null,
+  invitationResults: null,
+  updateResults: null
 })
 
 export const actions = {
@@ -16,7 +18,7 @@ export const actions = {
     userService.login(email, password)
       .then(
         (user) => {
-          console.log(`login success! user=${JSON.stringify(user)}`)
+          // console.log(`login success! user=${JSON.stringify(user)}`)
           commit('loginSuccess', user)
           this.app.store.$router.push(user.admin ? '/admin' : '/')
         },
@@ -37,20 +39,14 @@ export const actions = {
 
   register ({ dispatch, commit }, user) {
     commit('registerRequest', user)
-
     userService.register(user)
       .then(
         (user) => {
           commit('registerSuccess', user)
           this.app.store.$router.push('/')
-          // setTimeout(() => {
-          // display success message after route change completes
-          // dispatch('alert/success', 'Registration successful', { root: true })
-          // })
         },
         (error) => {
           commit('registerFailure', error)
-          // dispatch('alert/error', error, { root: true })
         }
       )
   },
@@ -73,7 +69,7 @@ export const actions = {
     commit('requestPasswordResetRequest', { email })
     userService.requestPasswordReset(email)
       .then(
-        (ok) => {
+        () => {
           commit('requestPasswordResetSuccess', { user })
         },
         (error) => {
@@ -157,8 +153,10 @@ export const mutations = {
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user))
     state.user = user
     state.userStatus = { loggedIn: true }
+    state.registerError = null
   },
   registerFailure (state, error) {
+    state.registerError = error
     state.userStatus = {}
   },
 
@@ -178,7 +176,7 @@ export const mutations = {
     state.userStatus = { requestingPasswordReset: true }
   },
   requestPasswordResetSuccess (state) {
-    state.userStatus = { passwordResetRequested: true }
+    state.userStatus = { passwordResetSuccess: true }
   },
   requestPasswordResetFailure (state, { error }) {
     state.userStatus = { passwordResetRequestError: error }
@@ -186,14 +184,18 @@ export const mutations = {
 
   updateUserRequest (state, { update }) {
     state.userStatus = Object.assign({}, state.userStatus, { updating: true })
+    state.updateResults = null
   },
   updateUserSuccess (state, { results }) {
+    state.user = Object.assign(state.user, results)
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(state.user))
     state.userStatus.updating = null
     state.updateResults = results
   },
   updateUserFailure (state, { error }) {
     state.userStatus.updating = null
     state.userStatus = Object.assign({}, state.userStatus, { updating: null, updateError: error })
+    state.updateResults = null
   },
 
   deleteUserRequest (state) {

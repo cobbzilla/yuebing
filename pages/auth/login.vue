@@ -1,41 +1,71 @@
 <template>
-  <div>
-    <h2>{{ messages.title_login }}</h2>
+  <v-container>
+    <v-row>
+      <v-col>
+        <h2>{{ messages.title_login }}</h2>
+      </v-col>
+    </v-row>
     <div>
-      <ValidationObserver ref="form">
-        <form @submit.prevent="handleSubmit">
-          <div class="form-group">
-            <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
-              <label for="email">{{ messages.label_email }}</label>
-              <input v-model="email" type="text" name="email" class="form-control" :class="{ 'is-invalid': submitted && !email }" />
-              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
-              <span v-if="loginError && loginErr.email" v-show="submitted" class="is-invalid">{{ fieldError('email', loginErr.email[0]) }}</span>
-            </ValidationProvider>
-          </div>
-          <div class="form-group">
-            <ValidationProvider v-slot="{ errors }" name="password" rules="required" immediate>
-              <label htmlFor="password">{{ messages.label_password }}</label>
-              <input v-model="password" type="password" name="password" class="form-control" :class="{ 'is-invalid': submitted && !password }" />
-              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
-              <span v-if="loginError && loginErr.password" v-show="submitted" class="is-invalid">{{ fieldError('password', loginErr.password[0]) }}</span>
-            </ValidationProvider>
-          </div>
-          <div class="form-group">
-            <button class="btn btn-primary" :disabled="userStatus.loggingIn">
-              {{ messages.button_login }}
-            </button>
-            <img v-show="userStatus.loggingIn" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-            <router-link to="/signUp" class="btn btn-link">
-              {{ messages.button_register }}
-            </router-link>
-            <router-link to="/reset" class="btn btn-link">
-              {{ messages.button_forgot_password }}
-            </router-link>
-          </div>
-        </form>
-      </ValidationObserver>
+      <v-row>
+        <v-col>
+          <ValidationObserver ref="form">
+            <form>
+              <div class="form-group">
+                <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+                  <v-text-field
+                    v-model="email"
+                    :label="messages.label_email"
+                    type="text"
+                    name="email"
+                    class="form-control"
+                    :class="{ 'is-invalid': submitted && !email }"
+                  />
+                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+                  <span v-if="loginErr && loginErr.email" v-show="submitted" class="is-invalid">{{ fieldError('email', loginErr.email[0]) }}</span>
+                </ValidationProvider>
+              </div>
+              <div class="form-group">
+                <ValidationProvider v-slot="{ errors }" name="password" rules="required" immediate>
+                  <v-text-field
+                    v-model="password"
+                    :label="messages.label_password"
+                    type="password"
+                    name="password"
+                    class="form-control"
+                    :class="{ 'is-invalid': submitted && !password }"
+                  />
+                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+                  <span v-if="loginErr && loginErr.password" v-show="submitted" class="is-invalid">{{ fieldError('password', loginErr.password[0]) }}</span>
+                </ValidationProvider>
+              </div>
+              <div class="form-group">
+                <v-btn @click.stop="handleSubmit" class="btn btn-primary" :disabled="userStatus.loggingIn">
+                  {{ messages.button_login }}
+                </v-btn>
+                <v-btn
+                  v-if="allowRegistration"
+                  class="btn btn-primary"
+                  to="/signUp"
+                  nuxt
+                  plain
+                  right
+                >
+                  {{ messages.button_register }}
+                </v-btn>
+              </div>
+            </form>
+          </ValidationObserver>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <NuxtLink to="/reset" class="btn btn-link">
+            {{ messages.button_forgot_password }}
+          </NuxtLink>
+        </v-col>
+      </v-row>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -55,7 +85,8 @@ export default {
     ...mapState('user', ['userStatus', 'loginError']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    loginErr () { return this.loginError || false }
+    loginErr () { return this.loginError || false },
+    allowRegistration () { return this.$config.allowRegistration }
   },
   created () {
     // reset login status
