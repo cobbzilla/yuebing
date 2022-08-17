@@ -3,52 +3,65 @@
     <v-row>
       <v-col>
         <div v-if="showingInviteBlock">
-          <h2>
-            {{ messages.info_invite_friends.parseMessage({ title }) }}
-          </h2>
-          <h3 v-if="$config.limitRegistration">
-            {{ messages.info_invite_friends_limited_registration.parseMessage({ title }) }}
-          </h3>
-          <div v-if="invitationResults">
-            <div v-if="inviteSuccessCount > 0">
-              {{ messages.info_invitation_success_results.parseMessage({ successCount: inviteSuccessCount }) }}
-            </div>
-            <div v-if="inviteErrorCount > 0">
-              {{ messages.info_invitation_error_results.parseMessage({ errorCount: inviteErrorCount }) }}
-            </div>
-          </div>
-          <div>
-            <ValidationObserver ref="form">
-              <form>
-                <div class="form-group">
-                  <ValidationProvider v-slot="{ errors }" name="password" rules="max:1000" immediate>
-                    <v-text-field
-                      v-model="emails"
-                      :label="messages.label_friend_emails"
-                      type="text"
-                      name="emails"
-                      class="form-control"
-                      :class="{ 'is-invalid': submitted && errors.length>0 }"
-                    />
-                    <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors[0]) }}</span>
-                  </ValidationProvider>
+          <v-container>
+            <v-row>
+              <v-col>
+                <v-btn icon @click.stop="showingInviteBlock = false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <h2>
+                  {{ messages.info_invite_friends_header.parseMessage({ title }) }}
+                </h2>
+                <h4>
+                  {{ messages.info_invite_friends_subheader.parseMessage({ title }) }}
+                </h4>
+                <h3 v-if="$config.limitRegistration">
+                  {{ messages.info_invite_friends_limited_registration.parseMessage({ title }) }}
+                </h3>
+                <div v-if="invitationResults">
+                  <div v-if="inviteSuccessCount > 0">
+                    {{ messages.info_invitation_success_results.parseMessage({ successCount: inviteSuccessCount }) }}
+                  </div>
+                  <div v-if="inviteErrorCount > 0">
+                    {{ messages.info_invitation_error_results.parseMessage({ errorCount: inviteErrorCount }) }}
+                  </div>
                 </div>
-                <div class="form-group">
-                  <v-btn class="btn btn-primary" :disabled="userStatus.inviting" @click.stop="handleSubmit">
-                    {{ messages.button_send_invitations }}
-                  </v-btn>
+                <div>
+                  <ValidationObserver ref="form">
+                    <form>
+                      <div class="form-group">
+                        <ValidationProvider v-slot="{ errors }" name="password" rules="max:1000" immediate>
+                          <v-text-field
+                            v-model="emails"
+                            :label="messages.label_friend_emails"
+                            type="text"
+                            name="emails"
+                            class="form-control"
+                            :class="{ 'is-invalid': submitted && errors.length>0 }"
+                          />
+                          <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors[0]) }}</span>
+                        </ValidationProvider>
+                      </div>
+                      <div class="form-group">
+                        <v-btn class="btn btn-primary" :disabled="userStatus.inviting" @click.stop="handleSubmit">
+                          {{ messages.button_send_invitations }}
+                        </v-btn>
+                      </div>
+                    </form>
+                  </ValidationObserver>
                 </div>
-              </form>
-            </ValidationObserver>
-            <button @click.stop="showingInviteBlock = false">
-              {{ messages.button_close_invite_friends.parseMessage({ title }) }}
-            </button>
-          </div>
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
         <div v-else>
-          <button @click="showInvite()">
+          <v-btn @click.stop="showInvite()">
             {{ messages.button_invite_friends.parseMessage({ title }) }}
-          </button>
+          </v-btn>
         </div>
       </v-col>
     </v-row>
