@@ -18,6 +18,7 @@ export default {
   label_confirm_user_delete: 'Confirm deletion of your account. This action is irreversible!',
   label_firstName: 'First Name',
   label_lastName: 'Last Name',
+  label_name: 'Name',
   label_email: 'Email',
   label_password: 'Password',
   label_newPassword: 'New password',
@@ -181,6 +182,7 @@ export default {
   label_mediainfo_dateEncoded: 'Date Encoded',
 
   // Site Administration
+  button_admin: 'Site Configuration',
   admin_title_site_administration: '{{ title }} Administration',
   admin_title_source_administration: 'Source Administration',
   admin_title_user_administration: 'User Administration',
@@ -191,6 +193,24 @@ export default {
   admin_label_total_user_count: '{{ totalUserCount }} total users',
   admin_button_delete_user: 'Delete User',
   admin_label_confirm_user_delete: 'Please confirm deletion of the user: {{ email }}',
+
+  // Source Administration
+  admin_button_add_source: 'Add Source',
+  admin_title_add_source: 'Add Source',
+  admin_button_delete_source: 'Delete Source',
+  admin_label_confirm_source_delete: 'Please confirm deletion of the source: {{ source }}',
+  admin_label_source_name: 'Source Name',
+  admin_label_source_type: 'Source Type',
+  label_sourceType_s3: 'Amazon S3',
+  label_sourceType_local: 'Local filesystem',
+  label_sourceType_local_field_baseDir: 'Mount directory',
+  label_sourceType_local_field_mode: 'File/directory creation mode',
+  label_sourceType_s3_field_key: 'AWS Access Key',
+  label_sourceType_s3_field_secret: 'AWS Secret Key',
+  label_sourceType_s3_field_bucket: 'S3 Bucket',
+  label_sourceType_s3_field_region: 'AWS Region',
+  label_sourceType_s3_field_prefix: 'Bucket Prefix',
+  label_sourceType_s3_field_delimiter: 'Delimiter',
 
   // Transform Queue
   admin_label_firstEvent: 'first event',
@@ -203,7 +223,5 @@ export default {
   admin_label_migration_results: 'User migration results:',
   admin_label_migration_oldKey: 'Previous encryption key',
   admin_label_migration_oldIV: 'Previous initialization vector (IV) (if one was set)',
-  admin_button_migrate_users: 'Migrate Users',
-  admin_title_main_site: 'Back to {{ title }}'
-
+  admin_button_migrate_users: 'Migrate Users'
 }

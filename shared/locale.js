@@ -1,7 +1,6 @@
 /* eslint-disable curly,no-prototype-builtins,no-extend-native,dot-notation */
 const safeEval = require('safe-eval')
 const nuxt = require('../nuxt.config').default
-const u = require('./user')
 
 const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en_US'
 
@@ -121,16 +120,12 @@ function localesList (user, browserLocale) {
   })
 }
 
-function fieldErrorMessage (field, error, messages) {
-  return messages['error_field_' + error].parseMessage({ field: messages['label_' + field] })
-}
-
-function localizedUserSortFields (messages) {
-  return u.userSortFields().map((f) => { return { name: f, message: messages['label_' + f] } })
+function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
+  return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
 }
 
 export {
   DEFAULT_LOCALE, SUPPORTED_LOCALES,
-  localesList, localeMessages, localeMessagesForUser, localizedUserSortFields,
+  localesList, localeMessages, localeMessagesForUser,
   fieldErrorMessage
 }

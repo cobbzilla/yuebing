@@ -39,7 +39,7 @@
                 </ValidationProvider>
               </div>
               <div class="form-group">
-                <v-btn @click.stop="handleSubmit" class="btn btn-primary" :disabled="userStatus.loggingIn">
+                <v-btn class="btn btn-primary" :disabled="userStatus.loggingIn" @click.stop="handleSubmit">
                   {{ messages.button_login }}
                 </v-btn>
                 <v-btn
@@ -69,6 +69,7 @@
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 
@@ -94,7 +95,7 @@ export default {
   },
   methods: {
     ...mapActions('user', ['login', 'logout']),
-    handleSubmit (e) {
+    handleSubmit () {
       this.submitted = true
       const { email, password } = this
       if (email && password) {

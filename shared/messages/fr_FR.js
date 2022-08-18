@@ -18,6 +18,7 @@ export default {
   label_confirm_user_delete: 'Confirmez la suppression de votre compte. Cette action est irréversible!',
   label_firstName: 'Prénom',
   label_lastName: 'Nom',
+  label_name: 'Nom',
   label_email: 'E-mail',
   label_password: 'Mot de passe',
   label_newPassword: 'Nouveau mot de passe',
@@ -181,6 +182,7 @@ export default {
   label_mediainfo_dateEncoded: 'Date encodée',
 
   // Site Administration
+  button_admin: 'Configuration du site',
   admin_title_site_administration: '{{ title }} Administration',
   admin_title_source_administration: 'Administration des sources',
   admin_title_user_administration: 'Administration des utilisateurs',
@@ -191,6 +193,24 @@ export default {
   admin_label_total_user_count: '{{ totalUserCount }} utilisateurs au total',
   admin_button_delete_user: 'Supprimer l\'utilisateur',
   admin_label_confirm_user_delete: 'Veuillez confirmer la suppression de l\'utilisateur: {{ email }}',
+
+  // Source Administration
+  admin_button_add_source: 'Ajouter une source multimédia',
+  admin_title_add_source: 'Ajouter une source multimédia',
+  admin_button_delete_source: 'Supprimer la source multimédia',
+  admin_label_confirm_source_delete: 'Veuillez confirmer la suppression de la source multimédia: {{ source }}',
+  admin_label_source_name: 'Nom de la source multimédia',
+  admin_label_source_type: 'Type de source multimédia',
+  label_sourceType_s3: 'Amazon S3',
+  label_sourceType_local: 'Disque local',
+  label_sourceType_local_field_baseDir: 'Répertoire de montage',
+  label_sourceType_local_field_mode: 'Mode de création de fichiers / répertoires',
+  label_sourceType_s3_field_key: 'Clé d\'accès AWS',
+  label_sourceType_s3_field_secret: 'Clé secrète AWS',
+  label_sourceType_s3_field_bucket: 'Seau S3',
+  label_sourceType_s3_field_region: 'Région AWS',
+  label_sourceType_s3_field_prefix: 'Préfixe de seau',
+  label_sourceType_s3_field_delimiter: 'Délimiteur',
 
   // Transform Queue
   admin_label_firstEvent: 'premier événement',
@@ -203,6 +223,5 @@ export default {
   admin_label_migration_results: 'Résultats de la migration des utilisateurs:',
   admin_label_migration_oldKey: 'Clé de chiffrement précédente',
   admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (s\'il y en a un)',
-  admin_button_migrate_users: 'Migrer les utilisateurs',
-  admin_title_main_site: 'Retour à {{ title }}'
+  admin_button_migrate_users: 'Migrer les utilisateurs'
 }

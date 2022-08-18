@@ -16,7 +16,19 @@ export const state = () => ({
 
   deletingUser: false,
   deleteUserSuccess: null,
-  deleteUserError: null
+  deleteUserError: null,
+
+  findingSources: false,
+  sourceList: null,
+  sourceListError: null,
+
+  addingSource: false,
+  addSourceSuccess: null,
+  addSourceError: null,
+
+  deletingSource: false,
+  deleteSourceSuccess: null,
+  deleteSourceError: null
 })
 
 export const actions = {
@@ -62,6 +74,45 @@ export const actions = {
         },
         (error) => {
           commit('deleteUserFailure', { error })
+        }
+      )
+  },
+
+  findSources ({ commit }, { query }) {
+    commit('findSourcesRequest', { query })
+    adminService.findSources(query)
+      .then(
+        (results) => {
+          commit('findSourcesSuccess', { results })
+        },
+        (error) => {
+          commit('findSourcesFailure', { error })
+        }
+      )
+  },
+
+  addSource ({ commit }, { src }) {
+    commit('addSourceRequest', { src })
+    adminService.addSource(src)
+      .then(
+        (ok) => {
+          commit('addSourceSuccess', { ok, src })
+        },
+        (error) => {
+          commit('addSourceFailure', { error })
+        }
+      )
+  },
+
+  deleteSource ({ commit }, { src }) {
+    commit('deleteSourceRequest', { src })
+    adminService.deleteSource(src)
+      .then(
+        (ok) => {
+          commit('deleteSourceSuccess', { ok, src })
+        },
+        (error) => {
+          commit('deleteSourceFailure', { error })
         }
       )
   }
@@ -123,5 +174,48 @@ export const mutations = {
   deleteUserFailure (state, { error }) {
     state.deletingUser = false
     state.deleteUserError = error
+  },
+
+  findSourcesRequest (state, { query }) {
+    state.findingSources = true
+  },
+  findSourcesSuccess (state, { results }) {
+    state.sourceList = results
+    state.findingSources = false
+    state.findSourcesError = null
+  },
+  findSourcesFailure (state, { error }) {
+    state.findingSources = false
+    state.findSourcesError = error
+  },
+
+  addSourceRequest (state, { src }) {
+    state.addingSource = true
+  },
+  addSourceSuccess (state, { ok, src }) {
+    state.addingSource = false
+    state.addSourceSuccess = ok || true
+    state.addSourceError = null
+    state.sourceList.push(src)
+  },
+  addSourceFailure (state, { error }) {
+    state.addingSource = false
+    state.addSourceError = error
+  },
+
+  deleteSourceRequest (state, { src }) {
+    state.deletingSource = true
+  },
+  deleteSourceSuccess (state, { ok, src }) {
+    state.deletingSource = false
+    state.deleteSourceSuccess = ok || true
+    state.deleteSourceError = null
+    const newList = state.sourceList.filter(s => s.name !== src)
+    state.sourceList.splice(0, state.sourceList.length)
+    state.sourceList.push(...newList)
+  },
+  deleteSourceFailure (state, { error }) {
+    state.deletingSource = false
+    state.deleteSourceError = error
   }
 }

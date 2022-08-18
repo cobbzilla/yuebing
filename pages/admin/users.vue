@@ -95,8 +95,8 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { fieldErrorMessage, localeMessagesForUser, localizedUserSortFields } from '@/shared/locale'
-import { userSortFields } from '@/shared/user'
+import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
+import { userSortFields, localizedUserSortFields } from '@/shared/user'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 

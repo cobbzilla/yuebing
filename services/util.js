@@ -27,16 +27,22 @@ function authHeader () {
   }
 }
 
-function authGet (headers = null) {
+function authGet (headers = null) { return authReq('GET', headers) }
+function authDelete (headers = null) { return authReq('DELETE', headers) }
+
+function authReq (method, headers = null) {
   return {
-    method: 'GET',
+    method,
     headers: headers ? Object.assign({}, headers, authHeader()) : authHeader()
   }
 }
 
-function authPostJson (obj, headers = null) {
+function authPostJson (obj, headers = null) { return authDataJson(obj, 'POST', headers) }
+function authPutJson (obj, headers = null) { return authDataJson(obj, 'PUT', headers) }
+
+function authDataJson (obj, method, headers = null) {
   return {
-    method: 'POST',
+    method,
     headers: headers
       ? Object.assign({}, headers, authHeader(), { 'Content-Type': 'application/json' })
       : authHeader(),
@@ -58,5 +64,6 @@ function handleJsonResponse (response) {
 
 export {
   USER_LOCAL_STORAGE_KEY, UI_CONFIG,
-  currentUser, authHeader, authGet, authPostJson, handleJsonResponse
+  currentUser, authHeader, handleJsonResponse,
+  authGet, authPostJson, authPutJson, authDelete
 }

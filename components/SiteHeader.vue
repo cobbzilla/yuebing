@@ -37,6 +37,16 @@
           </v-list-item-content>
         </v-list-item>
         <v-list-item
+          v-if="admin"
+          to="/admin"
+          router
+          exact
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="messages.button_admin" />
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item
           v-if="loggedIn"
           @click.stop="logOut()"
         >
@@ -108,7 +118,8 @@ export default {
     },
     allowRegistration () { return this.$config.allowRegistration },
     title () { return this.$config.title },
-    loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn }
+    loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn },
+    admin () { return this.loggedIn && this.user.admin }
   },
   methods: {
     ...mapActions('user', ['logout']),

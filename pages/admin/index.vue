@@ -29,13 +29,6 @@
         </NuxtLink>
       </h3>
     </div>
-    <div>
-      <h3>
-        <NuxtLink to="/">
-          {{ messages.admin_title_main_site.parseMessage({ title }) }}
-        </NuxtLink>
-      </h3>
-    </div>
   </div>
 </template>
 

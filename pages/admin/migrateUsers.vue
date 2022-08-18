@@ -1,34 +1,58 @@
 <template>
-  <div>
-    <h2>
-      {{ messages.admin_title_migrate_users }}
-    </h2>
-    <div v-if="userMigrationResults">
-      {{ messages.admin_label_migration_results }}
-      <pre>{{ JSON.stringify(userMigrationResults, null, 2) }}</pre>
-    </div>
-    <form @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="oldKey">{{ messages.admin_label_migration_oldKey }}</label>
-        <input v-model="oldKey" type="text" name="oldKey" class="form-control" />
-      </div>
-      <div class="form-group">
-        <label for="oldIV">{{ messages.admin_label_migration_oldIV }}</label>
-        <input v-model="oldIV" type="text" name="oldIV" class="form-control" />
-      </div>
-      <div class="form-group">
-        <button class="btn btn-primary">
-          {{ messages.admin_button_migrate_users }}
-        </button>
-      </div>
-    </form>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <h2>
+          {{ messages.admin_title_migrate_users }}
+        </h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <div v-if="userMigrationResults">
+          {{ messages.admin_label_migration_results }}
+          <pre>{{ JSON.stringify(userMigrationResults, null, 2) }}</pre>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <form>
+          <div class="form-group">
+            <v-text-field
+              v-model="oldKey"
+              :label="messages.admin_label_migration_oldKey"
+              type="text"
+              name="oldKey"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <v-text-field
+              v-model="oldIV"
+              :label="messages.admin_label_migration_oldIV"
+              type="text"
+              name="oldIV"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <v-btn class="btn btn-primary" @click.stop="handleSubmit">
+              {{ messages.admin_button_migrate_users }}
+            </v-btn>
+          </div>
+        </form>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   name: 'MigrateUsers',
   data () {
@@ -45,7 +69,7 @@ export default {
   },
   methods: {
     ...mapActions('admin', ['migrateUsers']),
-    handleSubmit (e) {
+    handleSubmit () {
       const oldKey = this.oldKey
       const oldIV = this.oldIV
       this.migrateUsers({ oldKey, oldIV })

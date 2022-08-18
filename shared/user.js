@@ -10,8 +10,12 @@ const USER_SORT = {
 
 function userSortFields () { return Object.keys(USER_SORT) }
 
+function localizedUserSortFields (messages) {
+  return userSortFields().map((f) => { return { name: f, message: messages['label_' + f] } })
+}
+
 function sortByField (array, field, ascending) {
   return ascending ? array.sort(USER_SORT[field]) : array.sort(USER_SORT[field]).reverse()
 }
 
-export { userSortFields, sortByField }
+export { userSortFields, localizedUserSortFields, sortByField }
