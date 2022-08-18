@@ -16,13 +16,13 @@ async function head (req, res, path) {
 async function get (req, res, path) {
   const head = await s3util.headDestObject(path)
   if (!head) {
-    console.log(`proxy.get: HEAD request failed, returning 404 Not Found for path=${path}`)
+    console.log(`stream.get: HEAD request failed, returning 404 Not Found for path=${path}`)
     return api.notFound(res)
   }
 
   const range = (req.headers && req.headers.Range) ? req.headers.Range : null
   if (range) {
-    console.log(`>>>>> API: Proxying ${req.url}, prefix = ${path}, range = ${range}`)
+    console.log(`>>>>> API: Streaming ${req.url}, prefix = ${path}, range = ${range}`)
   }
 
   res.statusCode = 200
@@ -31,7 +31,7 @@ async function get (req, res, path) {
 }
 
 export default {
-  path: shared.PROXY_API,
+  path: shared.STREAM_API,
   async handler (req, res) {
     const user = await u.requireUser(req, res)
     if (!user) {

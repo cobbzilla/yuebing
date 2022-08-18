@@ -50,7 +50,15 @@ function localizedSourceTypes (messages) {
   return Object.keys(SOURCE_TYPES).map((f) => { return { name: f, message: messages[SOURCE_TYPE_LABEL_PREFIX + f] } })
 }
 
+const SOURCE_SORT = {
+  name: (s1, s2) => s1.name && s2.name && s1.name < s2.name
+}
+
+function sortByField (array, field, ascending) {
+  return ascending ? array.sort(SOURCE_SORT[field]) : array.sort(SOURCE_SORT[field]).reverse()
+}
+
 export {
   sourceTypeConfig, localizedSourceTypes,
-  localizedSourceConfigLabelPrefix, localizedSourceConfigLabel
+  localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, sortByField
 }

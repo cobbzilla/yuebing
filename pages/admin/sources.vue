@@ -5,7 +5,7 @@
         <h2>{{ messages.admin_title_source_administration }}</h2>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="totalSourceCount > 0">
       <v-col>
         <div>
           <ValidationObserver ref="form">
@@ -33,7 +33,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <table v-if="sourceList">
+        <table v-if="sourceList && sourceList.length > 0">
           <thead>
             <tr>
               <th>{{ messages.admin_label_source_name }}</th>
@@ -48,7 +48,7 @@
               <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
               <td>
-                <v-btn v-if="u.email !== user.email" @click.stop="delSource(src.name)">
+                <v-btn @click.stop="delSource(src.name)">
                   {{ messages.admin_button_delete_source }}
                 </v-btn>
               </td>
@@ -144,7 +144,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user']),
-    ...mapState('admin', ['sourceList', 'findingSources', 'addSourceError', 'deleteSourceError']),
+    ...mapState('admin', ['sourceList', 'totalSourceCount', 'findingSources', 'addSourceError', 'deleteSourceError']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     searchQuery () {
       return {
@@ -180,7 +180,7 @@ export default {
       await this.$refs.addSrcForm.validate().then((success) => {
         if (success) {
           console.log(`addSrc: would add source: ${JSON.stringify(this.newSource, null, 2)}`)
-          // this.addSource({ src: this.newSource })
+          this.addSource({ src: this.newSource })
           return
         }
         this.$nextTick(() => {

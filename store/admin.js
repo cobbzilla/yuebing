@@ -20,6 +20,7 @@ export const state = () => ({
 
   findingSources: false,
   sourceList: null,
+  totalSourceCount: null,
   sourceListError: null,
 
   addingSource: false,
@@ -180,7 +181,8 @@ export const mutations = {
     state.findingSources = true
   },
   findSourcesSuccess (state, { results }) {
-    state.sourceList = results
+    state.sourceList = results.list
+    state.totalSourceCount = results.total
     state.findingSources = false
     state.findSourcesError = null
   },

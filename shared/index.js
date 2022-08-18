@@ -24,14 +24,14 @@ function sessionParams (user, status) {
   return `?${USER_SESSION_QUERY_PARAM}=${user.session}`
 }
 
-const PROXY_API = '/api/s3/proxy'
+const STREAM_API = '/api/s3/stream'
 
 function proxyMediaUrl (asset, user, status) {
-  return `${PROXY_API}/${asset}${sessionParams(user, status)}`
+  return `${STREAM_API}/${asset}${sessionParams(user, status)}`
 }
 
 export {
-  USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM, PROXY_API,
+  USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM, STREAM_API,
   snooze, getExtension,
   sessionParams, proxyMediaUrl
 }

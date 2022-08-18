@@ -20,7 +20,7 @@ function metadata (path) {
 }
 
 function jsonAsset (path) {
-  return fetch(`${shared.PROXY_API}/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`${shared.STREAM_API}/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function fetchUserMediaInfo (path) {
