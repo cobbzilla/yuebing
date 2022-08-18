@@ -62,6 +62,7 @@ export default {
   button_hide_thumbnails: 'hide thumbnails',
   button_previous_thumbnail: 'previous',
   button_next_thumbnail: 'next',
+  thumbnail_alt_text: 'thumbnail image for {{ name }}',
   label_selected_thumbnail: '~ selected ~',
   button_select_thumbnail: 'select this thumbnail',
   info_no_thumbnails_found: '(no thumbnails found)',
@@ -181,6 +182,7 @@ export default {
 
   // Site Administration
   admin_title_site_administration: '{{ title }} Administration',
+  admin_title_source_administration: 'Source Administration',
   admin_title_user_administration: 'User Administration',
   admin_title_migrate_users: 'Migrate users from previous encryption key',
   admin_title_transform_queue: 'Media Transform Queue',

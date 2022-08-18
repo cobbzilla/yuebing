@@ -4,13 +4,14 @@ Yuebing 🥮
 # Features
 
 * Transform an S3 bucket with videos into a private YouTube-like site for friends and family
-* Just point it at a source bucket, give it a destination bucket to write to, and let it run
+* Give it a destination bucket to write to, point it at a source bucket, and let it run
 * ALL data is stored in the destination bucket, so you can destroy the container and bring it up later
   * Useful for running initially on a CPU-optimized instance for the initial transformation, then run \
     on a much cheaper instance for 24/7/365 service.
 * Automatic scanning
 * Always read-only from source
 * Source and dest can be in different AWS accounts
+* Fully internationalized! All user-visible text (and other locale-specific stuff) comes from localized resources
 
 ## Anonymous user feature (if the site has been configured to allow anonymous visitors)
   * Browse/search videos

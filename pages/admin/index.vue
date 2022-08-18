@@ -3,6 +3,13 @@
     <h2>{{ messages.admin_title_site_administration.parseMessage({ title }) }}</h2>
     <div>
       <h3>
+        <NuxtLink to="/admin/sources">
+          {{ messages.admin_title_source_administration }}
+        </NuxtLink>
+      </h3>
+    </div>
+    <div>
+      <h3>
         <NuxtLink to="/admin/users">
           {{ messages.admin_title_user_administration }}
         </NuxtLink>

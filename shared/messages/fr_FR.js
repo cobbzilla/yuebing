@@ -62,6 +62,7 @@ export default {
   button_hide_thumbnails: 'masquer les vignettes',
   button_previous_thumbnail: 'précédent',
   button_next_thumbnail: 'suivant',
+  thumbnail_alt_text: 'Image miniature pour {{name}}',
   label_selected_thumbnail: '~ vignette sélectionnée ~',
   button_select_thumbnail: 'sélectionnez cette vignette',
   info_no_thumbnails_found: '(aucune vignette trouvée)',
@@ -181,6 +182,7 @@ export default {
 
   // Site Administration
   admin_title_site_administration: '{{ title }} Administration',
+  admin_title_source_administration: 'Administration des sources',
   admin_title_user_administration: 'Administration des utilisateurs',
   admin_title_migrate_users: 'Migrer les utilisateurs à partir de la clé de chiffrement précédente',
   admin_title_transform_queue: 'File d\'attente de transformation multimédia',

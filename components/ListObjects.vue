@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <h3>{{ messages.title_browsing_folder.parseMessage({ folder: displayPrefix }) }}</h3>
     <div v-if="isNotRoot">
       <button @click="refresh(parentPrefix)">
@@ -17,7 +17,14 @@
         <div v-if="canView(obj)">
           <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.name}}">
             {{ filterName(obj.name) }}
-            <img v-if="thumbnail(obj)" :src="proxyUrl(thumbnail(obj))" width="200" height="200"></img>
+            <!--suppress HtmlExtraClosingTag -->
+            <img
+              v-if="thumbnail(obj)"
+              :src="proxyUrl(thumbnail(obj))"
+              width="200"
+              height="200"
+              :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+            ></img>
           </NuxtLink>
           <div v-if="thumbnail(obj)">
             <ThumbnailSelector :options="{ object: obj }" />
@@ -40,10 +47,11 @@
         {{ filterName(obj.name) }}
       </div>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
 import ThumbnailSelector from '../components/ThumbnailSelector'
@@ -53,6 +61,7 @@ import { findThumbnail } from '@/shared/mediainfo'
 import { proxyMediaUrl } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   name: 'ListObjects',
   components: {
@@ -97,7 +106,7 @@ export default {
     }
   },
   watch: {
-    objectList (newObjectList, oldObjectList) {
+    objectList (newObjectList) {
       if (Array.isArray(newObjectList)) {
         newObjectList.forEach((obj) => {
           const path = obj.name

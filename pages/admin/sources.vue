@@ -41,10 +41,12 @@
                     item-value="name"
                     value="ascending"
                     class="form-control"
-                  />
+                  >
+                  </v-select>
                   <v-btn class="btn btn-primary" :disabled="findingUsers" @click.stop="handleSubmit">
                     {{ messages.button_search }}
                   </v-btn>
+                  <img v-show="findingUsers" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
                 </div>
               </ValidationProvider>
             </form>
@@ -54,37 +56,33 @@
     </v-row>
     <v-row>
       <v-col>
-        <table v-if="userList">
+        <table v-if="userList" border="1">
           <thead>
-            <tr>
-              <th colspan="6">
-                {{ messages.admin_label_total_user_count.parseMessage({ totalUserCount }) }}
-              </th>
-            </tr>
-            <tr>
-              <th>{{ messages.label_email }}</th>
-              <th>{{ messages.label_firstName }}</th>
-              <th>{{ messages.label_lastName }}</th>
-              <th>{{ messages.label_locale }}</th>
-              <th>{{ messages.label_ctime }}</th>
-              <th>{{ messages.label_mtime }}</th>
-              <th>{{ messages.admin_button_delete_user }}</th>
-            </tr>
+          <tr><th colspan="6">{{ messages.admin_label_total_user_count.parseMessage({ totalUserCount }) }}</th></tr>
+          <tr>
+            <th>{{ messages.label_email }}</th>
+            <th>{{ messages.label_firstName }}</th>
+            <th>{{ messages.label_lastName }}</th>
+            <th>{{ messages.label_locale }}</th>
+            <th>{{ messages.label_ctime }}</th>
+            <th>{{ messages.label_mtime }}</th>
+            <th>{{ messages.admin_button_delete_user }}</th>
+          </tr>
           </thead>
           <tbody>
-            <tr v-for="(u, userIndex) in userList" :key="userIndex">
-              <td>{{ u.email }}</td>
-              <td>{{ u.firstName }}</td>
-              <td>{{ u.lastName }}</td>
-              <td>{{ u.locale }}</td>
-              <td>{{ messages.label_date_and_time.parseDateMessage(u.ctime, messages) }}</td>
-              <td>{{ messages.label_date_and_time.parseDateMessage(u.mtime, messages) }}</td>
-              <td>
-                <v-btn v-if="u.email !== user.email" @click.stop="delUser(u)">
-                  {{ messages.admin_button_delete_user }}
-                </v-btn>
-              </td>
-            </tr>
+          <tr v-for="(u, userIndex) in userList" :key="userIndex">
+            <td>{{ u.email }}</td>
+            <td>{{ u.firstName }}</td>
+            <td>{{ u.lastName }}</td>
+            <td>{{ u.locale }}</td>
+            <td>{{ messages.label_date_and_time.parseDateMessage(u.ctime, messages) }}</td>
+            <td>{{ messages.label_date_and_time.parseDateMessage(u.mtime, messages) }}</td>
+            <td>
+              <v-btn v-if="u.email !== user.email" @click.stop="delUser(u)">
+                {{ messages.admin_button_delete_user }}
+              </v-btn>
+            </td>
+          </tr>
           </tbody>
         </table>
       </v-col>
@@ -101,7 +99,7 @@ import { userSortFields } from '@/shared/user'
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
 export default {
-  name: 'ManageUsers',
+  name: 'ManageSources',
   data () {
     return {
       pageNumber: 1,
@@ -114,7 +112,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'userList']),
     ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'deleteUserError']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
@@ -157,7 +155,7 @@ export default {
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
-    handleSubmit () {
+    handleSubmit (e) {
       const query = this.searchQuery
       this.findUsers({ query })
     },
