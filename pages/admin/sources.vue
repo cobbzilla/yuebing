@@ -88,8 +88,6 @@
                   <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('name', errors[0]) }}</span>
                 </ValidationProvider>
                 <div v-for="(fieldConfig, fieldName) in sourceTypeConfiguration" :key="fieldName">
-<!--                  fieldName={{ fieldName }} JSON.stringify(fieldName)= {{ JSON.stringify(fieldName, null, 2) }}<br/>-->
-<!--                  fieldConfig.default={{ fieldConfig.default }} JSON.stringify(fieldConfig)= {{ JSON.stringify(fieldConfig, null, 2) }}<br/>-->
                   <ValidationProvider v-slot="{ errors }" :name="fieldName" :rules="fieldConfig.rules || ''" immediate>
                     <v-text-field
                       v-model="newSource.config[fieldName]"
@@ -179,13 +177,8 @@ export default {
       this.addSourceSubmitted = true
       await this.$refs.addSrcForm.validate().then((success) => {
         if (success) {
-          console.log(`addSrc: would add source: ${JSON.stringify(this.newSource, null, 2)}`)
           this.addSource({ src: this.newSource })
-          return
         }
-        this.$nextTick(() => {
-          this.$refs.form.reset()
-        })
       })
     },
     delSource (src) {

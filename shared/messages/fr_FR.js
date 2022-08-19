@@ -79,6 +79,7 @@ export default {
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
   error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
   error_field_readOnly: '{{ field }} ne peut pas être modifié',
+  error_field_alreadyExists: '{{thing}} avec {{field}} existe déjà',
   error_field_accountNotFound: 'Compte introuvable ou mot de passe incorrect',
 
   // Locale names -- add more translations if other locales are added
@@ -223,5 +224,8 @@ export default {
   admin_label_migration_results: 'Résultats de la migration des utilisateurs:',
   admin_label_migration_oldKey: 'Clé de chiffrement précédente',
   admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (s\'il y en a un)',
-  admin_button_migrate_users: 'Migrer les utilisateurs'
+  admin_button_migrate_users: 'Migrer les utilisateurs',
+
+  // Low-level errors
+  http_invalid_request_method: 'La méthode de la demande HTTP {{ method }} n\'est pas prise en charge par ce point de terminaison'
 }

@@ -78,6 +78,7 @@ export default {
   error_field_max: '{{ field }} is too long',
   error_field_email: '{{ field }} is not a valid email address',
   error_field_cannotDeleteSelf: 'You cannot delete yourself',
+  error_field_alreadyExists: '{{ thing }} with {{ field }} already exists',
   error_field_readOnly: '{{ field }} cannot be changed',
   error_field_accountNotFound: 'Account not found or password incorrect',
 
@@ -223,5 +224,8 @@ export default {
   admin_label_migration_results: 'User migration results:',
   admin_label_migration_oldKey: 'Previous encryption key',
   admin_label_migration_oldIV: 'Previous initialization vector (IV) (if one was set)',
-  admin_button_migrate_users: 'Migrate Users'
+  admin_button_migrate_users: 'Migrate Users',
+
+  // Low-level errors
+  http_invalid_request_method: 'The HTTP request method {{ method }} is not supported by this endpoint'
 }

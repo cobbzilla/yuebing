@@ -25,7 +25,7 @@ function notFound (res, message = null) {
 
 function serverError (res, message) {
   res.statusCode = 500
-  res.end(message)
+  res.end(`${message}`)
   return null
 }
 

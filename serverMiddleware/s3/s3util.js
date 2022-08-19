@@ -236,7 +236,7 @@ async function putObject (bucketParams) {
 }
 
 function destPut (bucketParams, errorMessage) {
-  putObject(bucketParams).then((result) => {
+  return putObject(bucketParams).then((result) => {
     if (typeof result === 'undefined') {
       console.warn(errorMessage)
     }

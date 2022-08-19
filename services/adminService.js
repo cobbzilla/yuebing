@@ -6,6 +6,7 @@ export const adminService = {
   migrateUsers,
   deleteUser,
   findSources,
+  findSource,
   addSource,
   deleteSource
 }
@@ -30,10 +31,14 @@ function findSources (query) {
   return fetch('/api/admin/sources', a.authPostJson(query || {})).then(a.handleJsonResponse)
 }
 
+function findSource (name) {
+  return fetch(`/api/admin/sources/${name}`, a.authGet()).then(a.handleJsonResponse)
+}
+
 function addSource (source) {
   return fetch('/api/admin/sources', a.authPutJson(source)).then(a.handleJsonResponse)
 }
 
-function deleteSource (deletion) {
-  return fetch('/api/admin/deleteSource', a.authPostJson(deletion)).then(a.handleJsonResponse)
+function deleteSource (source) {
+  return fetch(`/api/admin/sources/${source}`, a.authDelete()).then(a.handleJsonResponse)
 }

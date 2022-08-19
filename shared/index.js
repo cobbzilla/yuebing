@@ -30,8 +30,12 @@ function proxyMediaUrl (asset, user, status) {
   return `${STREAM_API}/${asset}${sessionParams(user, status)}`
 }
 
+const HTTP_INVALID_REQUEST_MESSAGE = 'http_invalid_request_method'
+
+
 export {
   USER_SESSION_HEADER, USER_SESSION_QUERY_PARAM, STREAM_API,
+  HTTP_INVALID_REQUEST_MESSAGE,
   snooze, getExtension,
   sessionParams, proxyMediaUrl
 }
