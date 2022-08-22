@@ -122,6 +122,9 @@ import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
 
+const crypto = require('crypto')
+const randomstring = require('randomstring')
+
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
 export default {
@@ -152,7 +155,12 @@ export default {
       }
     },
     sourceTypes () { return localizedSourceTypes(this.messages) },
-    sourceTypeConfiguration () { return sourceTypeConfig(this.newSource.type) }
+    sourceTypeConfiguration () { return sourceTypeConfig(this.newSource.type) },
+    encryptionAlgos () {
+      return crypto.getCiphers().map((c) => {
+        return { name: c, value: crypto.getCipherInfo(c).name }
+      })
+    }
   },
   created () {
     const query = this.searchQuery

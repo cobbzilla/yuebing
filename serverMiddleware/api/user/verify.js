@@ -1,11 +1,11 @@
-import bcrypt from 'bcryptjs'
+const bcrypt = require('bcryptjs')
 
-const nuxt = require('../../../nuxt.config').default
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
 
-const BCRYPT_ROUNDS = nuxt.privateRuntimeConfig.userEncryption.bcryptRounds
+const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
 export default {
   path: '/api/user/verify',

@@ -1,7 +1,7 @@
 const shared = require('../shared')
 const a = require('./util')
 
-export const s3Service = {
+export const sourceService = {
   listS3,
   metadata,
   jsonAsset,

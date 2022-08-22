@@ -1,6 +1,6 @@
 import config from '../nuxt.config'
 import { currentUser } from '~/services/util'
-import { s3Service } from '~/services/s3service'
+import { sourceService } from '@/services/sourceService'
 import { newMediaObject } from '@/shared/media'
 
 export const state = () => ({
@@ -37,7 +37,7 @@ export const actions = {
       console.log('fetchObjects: No user logged in and not a public instance, not calling API')
       commit('fetchObjectsSuccess', [])
     } else {
-      s3Service
+      sourceService
         .listS3(prefix)
         .then(
           objects => commit('fetchObjectsSuccess', objects),
@@ -52,7 +52,7 @@ export const actions = {
       console.log('fetchMetadata: No user logged in and not a public instance, not calling API')
       commit('fetchMetaSuccess', { path, meta: {} })
     } else {
-      s3Service
+      sourceService
         .metadata(path)
         .then(
           (meta) => {
@@ -70,7 +70,7 @@ export const actions = {
       console.log('fetchAsset: No user logged in and not a public instance, not calling API')
       commit('fetchAssetSuccess', { path, assetContents: null })
     } else {
-      s3Service
+      sourceService
         .jsonAsset(path)
         .then(
           (assetContents) => {
@@ -96,7 +96,7 @@ export const actions = {
       console.log('fetchUserMediaInfo: No user logged in and not a public instance, not calling API')
       commit('fetchUserMediaInfoSuccess', { path, values: {} })
     } else {
-      s3Service
+      sourceService
         .fetchUserMediaInfo(path)
         .then(
           (values) => {
@@ -115,7 +115,7 @@ export const actions = {
       console.log('updateUserMediaInfo: No user logged in and not a public instance, not calling API')
       commit('updateUserMediaInfoSuccess', { path, values })
     } else {
-      s3Service
+      sourceService
         .updateUserMediaInfo(path, values)
         .then(
           () => {
@@ -132,7 +132,7 @@ export const actions = {
       console.log('updateSelectedThumbnail: No user logged in and not a public instance, not calling API')
       commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
     } else {
-      s3Service
+      sourceService
         .updateSelectedThumbnail(path, thumbnailAsset)
         .then(
           () => {

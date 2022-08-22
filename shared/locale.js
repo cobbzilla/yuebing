@@ -124,8 +124,11 @@ function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
   return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
 }
 
-export {
-  DEFAULT_LOCALE, SUPPORTED_LOCALES,
-  localesList, localeMessages, localeMessagesForUser,
+module.exports = {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  localesList,
+  localeMessages,
+  localeMessagesForUser,
   fieldErrorMessage
 }

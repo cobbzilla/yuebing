@@ -3,12 +3,14 @@ const a = require('./util')
 export const adminService = {
   getQueue,
   findUsers,
-  migrateUsers,
+  migrateData,
   deleteUser,
   findSources,
   findSource,
   addSource,
-  deleteSource
+  deleteSource,
+  loadSiteConfig,
+  updateSiteConfig
 }
 
 function getQueue () {
@@ -19,8 +21,8 @@ function findUsers (query) {
   return fetch('/api/admin/users', a.authPostJson(query || {})).then(a.handleJsonResponse)
 }
 
-function migrateUsers (oldKey, oldIV) {
-  return fetch('/api/admin/migrateUsers', a.authPostJson({ oldKey, oldIV })).then(response => a.handleJsonResponse(response))
+function migrateData (oldKey, oldIV, oldAlgo) {
+  return fetch('/api/admin/migrateData', a.authPostJson({ oldKey, oldIV, oldAlgo })).then(response => a.handleJsonResponse(response))
 }
 
 function deleteUser (email) {
@@ -41,4 +43,12 @@ function addSource (source) {
 
 function deleteSource (source) {
   return fetch(`/api/admin/sources/${source}`, a.authDelete()).then(a.handleJsonResponse)
+}
+
+function loadSiteConfig () {
+  return fetch('/api/admin/config', a.authGet()).then(a.handleJsonResponse)
+}
+
+function updateSiteConfig (config) {
+  return fetch('/api/admin/config', a.authPostJson(config)).then(a.handleJsonResponse)
 }

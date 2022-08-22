@@ -11,7 +11,7 @@
           <form>
             <div class="form-group">
               <label for="firstName">{{ messages.label_firstName }}</label>
-              <ValidationProvider v-slot="{ errors }" name="firstName" rules="required|min:2" immediate>
+              <ValidationProvider v-slot="{ errors }" name="firstName" :rules="formRules.firstName" immediate>
                 <v-text-field
                   v-model="user.firstName"
                   :label="messages.label_firstName"
@@ -25,7 +25,7 @@
             </div>
 
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="lastName" rules="required|min:3" immediate>
+              <ValidationProvider v-slot="{ errors }" name="lastName" :rules="formRules.lastName" immediate>
                 <v-text-field
                   v-model="user.lastName"
                   :label="messages.label_lastName"
@@ -39,7 +39,7 @@
             </div>
 
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+              <ValidationProvider v-slot="{ errors }" name="email" :rules="formRules.email" immediate>
                 <v-text-field
                   v-model="user.email"
                   :label="messages.label_email"
@@ -53,7 +53,7 @@
             </div>
 
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
+              <ValidationProvider v-slot="{ errors }" name="password" :rules="formRules.password" immediate>
                 <v-text-field
                   v-model="user.password"
                   :label="messages.label_password"
@@ -110,7 +110,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
-import { PASSWORD_RULES } from '@/shared/auth'
+import { condensedRules } from '@/shared/validation'
 
 export default {
   name: 'UserRegistration',
@@ -132,7 +132,7 @@ export default {
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     allowRegistration () { return this.$config.allowRegistration },
-    passwordRules () { return PASSWORD_RULES },
+    formRules () { return condensedRules() },
     userLocale () {
       return this.user && this.user.locale
         ? this.user.locale

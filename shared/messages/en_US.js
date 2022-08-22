@@ -182,18 +182,25 @@ export default {
   label_mediainfo_frameRate: 'Frame Rate',
   label_mediainfo_dateEncoded: 'Date Encoded',
 
-  // Site Administration
+  // System Administration
   button_admin: 'Site Configuration',
   admin_title_site_administration: '{{ title }} Administration',
+  admin_title_manage_configuration: 'System Configuration',
   admin_title_source_administration: 'Source Administration',
   admin_title_user_administration: 'User Administration',
-  admin_title_migrate_users: 'Migrate users from previous encryption key',
+  admin_title_migrate_data: 'Migrate data from previous encryption key',
   admin_title_transform_queue: 'Media Transform Queue',
+
+  // Site Administration
+  admin_title_site_administration_publicConfig: 'Public Configuration',
+  admin_title_site_administration_privateConfig: 'Private Configuration',
 
   // User Administration
   admin_label_total_user_count: '{{ totalUserCount }} total users',
   admin_button_delete_user: 'Delete User',
   admin_label_confirm_user_delete: 'Please confirm deletion of the user: {{ email }}',
+
+  label_configCategory: 'Configuration category',
 
   // Source Administration
   admin_button_add_source: 'Add Source',
@@ -202,6 +209,10 @@ export default {
   admin_label_confirm_source_delete: 'Please confirm deletion of the source: {{ source }}',
   admin_label_source_name: 'Source Name',
   admin_label_source_type: 'Source Type',
+  admin_label_source_encryption_enable: 'Enable encryption',
+  admin_label_source_encryption_key: 'Encryption key',
+  admin_label_source_encryption_iv: 'Initialization vector (IV)',
+  admin_label_source_encryption_algo: 'Algorithm',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_local: 'Local filesystem',
   label_sourceType_local_field_baseDir: 'Mount directory',
@@ -221,10 +232,11 @@ export default {
   admin_label_eventDescription: 'description',
 
   // User Migration
-  admin_label_migration_results: 'User migration results:',
+  admin_label_migration_results: 'Migration results:',
   admin_label_migration_oldKey: 'Previous encryption key',
   admin_label_migration_oldIV: 'Previous initialization vector (IV) (if one was set)',
-  admin_button_migrate_users: 'Migrate Users',
+  admin_label_migration_oldAlgo: 'Previous algorithm (if one was set)',
+  admin_button_migrate_data: 'Migrate Data',
 
   // Low-level errors
   http_invalid_request_method: 'The HTTP request method {{ method }} is not supported by this endpoint'

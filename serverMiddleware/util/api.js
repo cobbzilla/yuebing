@@ -64,7 +64,13 @@ function newSessionResponse (res) {
   }
 }
 
-export {
-  okJson, forbidden, notFound, serverError, badRequest,
-  validationFailed, handleValidationError, newSessionResponse
+module.exports = {
+  okJson,
+  forbidden,
+  notFound,
+  serverError,
+  badRequest,
+  validationFailed,
+  handleValidationError,
+  newSessionResponse
 }

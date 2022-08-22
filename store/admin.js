@@ -5,9 +5,9 @@ export const state = () => ({
   loadingQueue: false,
   loadingQueueError: null,
 
-  migratingUsers: false,
-  userMigrationResults: null,
-  userMigrationError: null,
+  migratingData: false,
+  dataMigrationResults: null,
+  dataMigrationError: null,
 
   findingUsers: false,
   userList: null,
@@ -29,7 +29,14 @@ export const state = () => ({
 
   deletingSource: false,
   deleteSourceSuccess: null,
-  deleteSourceError: null
+  deleteSourceError: null,
+
+  loadingSiteConfig: false,
+  siteConfig: null,
+  siteConfigError: null,
+
+  updatingSiteConfig: false,
+  siteConfigUpdateError: null
 })
 
 export const actions = {
@@ -43,13 +50,13 @@ export const actions = {
       )
   },
 
-  migrateUsers ({ commit }, { oldKey, oldIV }) {
-    commit('migrateUsersRequest')
+  migrateData ({ commit }, { oldKey, oldIV, oldAlgo }) {
+    commit('migrateDataRequest')
     adminService
-      .migrateUsers(oldKey, oldIV)
+      .migrateData(oldKey, oldIV, oldAlgo)
       .then(
-        results => commit('migrateUsersSuccess', { results }),
-        error => commit('migrateUsersFailure', error)
+        results => commit('migrateDataSuccess', { results }),
+        error => commit('migrateDataFailure', error)
       )
   },
 
@@ -116,6 +123,32 @@ export const actions = {
           commit('deleteSourceFailure', { error })
         }
       )
+  },
+
+  loadSiteConfig ({ commit }) {
+    commit('loadSiteConfigRequest')
+    adminService.loadSiteConfig()
+      .then(
+        (config) => {
+          commit('loadSiteConfigSuccess', { config })
+        },
+        (error) => {
+          commit('loadSiteConfigFailure', { error })
+        }
+      )
+  },
+
+  updateSiteConfig ({ commit }, { config }) {
+    commit('updateSiteConfigRequest', { config })
+    adminService.updateSiteConfig(config)
+      .then(
+        (cfg) => {
+          commit('updateSiteConfigSuccess', { cfg })
+        },
+        (error) => {
+          commit('updateSiteConfigFailure', { error })
+        }
+      )
   }
 }
 
@@ -134,17 +167,17 @@ export const mutations = {
     state.loadingQueueError = error
   },
 
-  migrateUsersRequest (state) {
-    state.migratingUsers = true
+  migrateDataRequest (state) {
+    state.migratingData = true
   },
-  migrateUsersSuccess (state, { results }) {
-    state.userMigrationResults = results
-    state.userMigrationError = null
-    state.migratingUsers = false
+  migrateDataSuccess (state, { results }) {
+    state.dataMigrationResults = results
+    state.dataMigrationError = null
+    state.migratingData = false
   },
-  migrateUsersFailure (state, error) {
-    state.migratingUsers = false
-    state.userMigrationError = error
+  migrateDataFailure (state, error) {
+    state.migratingData = false
+    state.dataMigrationError = error
   },
 
   findUsersRequest (state, { query }) {
@@ -219,5 +252,31 @@ export const mutations = {
   deleteSourceFailure (state, { error }) {
     state.deletingSource = false
     state.deleteSourceError = error
+  },
+
+  loadSiteConfigRequest (state) {
+    state.loadingSiteConfig = true
+  },
+  loadSiteConfigSuccess (state, { config }) {
+    state.loadingSiteConfig = false
+    state.siteConfig = config
+    state.siteConfigError = null
+  },
+  loadSiteConfigFailure (state, { error }) {
+    state.loadingSiteConfig = false
+    state.siteConfigError = error
+  },
+
+  updateSiteConfigRequest (state, { config }) {
+    state.updatingSiteConfig = true
+  },
+  updateSiteConfigSuccess (state, { config }) {
+    state.updatingSiteConfig = false
+    state.siteConfig = config
+    state.siteConfigUpdateError = null
+  },
+  updateSiteConfigFailure (state, { error }) {
+    state.updatingSiteConfig = false
+    state.siteConfigUpdateError = error
   }
 }

@@ -1,18 +1,18 @@
 const path = require('path')
 const redis = require('../util/redis')
-const nuxt = require('../../nuxt.config').default
-const s3util = require('../s3/s3util')
 const util = require('../util/file')
+const u = require('../user/userUtil')
 const m = require('../../shared/media')
+const system = require('../util/config').SYSTEM
 
-const MANIFEST_CACHE_EXPIRATION = nuxt.privateRuntimeConfig.redis.manifestCacheExpiration
+const MANIFEST_CACHE_EXPIRATION = system.privateConfig.redis.manifestCacheExpiration
 
 async function flushCachedMetadata (sourcePath) {
   const cacheKey = util.redisMetaCacheKey(sourcePath)
   return await redis.del(cacheKey)
 }
 
-async function deriveMetadata (sourcePath) {
+async function deriveMetadata (source, sourcePath) {
   // Do we have this cached?
   const cacheKey = util.redisMetaCacheKey(sourcePath)
   const cachedMeta = JSON.parse(await redis.get(cacheKey))
@@ -23,9 +23,9 @@ async function deriveMetadata (sourcePath) {
       return cachedMeta
     }
     // check last-modified time on directory
-    const lastModified = await s3util.headDestObject(util.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE)
-    if (lastModified && lastModified.LastModified) {
-      const destModified = Date.parse(lastModified.LastModified)
+    const lastModified = await source.metadata(u.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE)
+    if (lastModified && lastModified.mtime) {
+      const destModified = new Date(lastModified.mtime)
       if (destModified > cachedMeta.ctime) {
         console.log(`deriveMetadata: destination modified after cache created, recreating for source: ${sourcePath}`)
       } else {
@@ -52,8 +52,8 @@ async function deriveMetadata (sourcePath) {
   }
 
   // find all assets
-  const prefix = util.canonicalDestDir(sourcePath) + m.ASSET_PREFIX
-  const assets = await s3util.listDest(prefix)
+  const prefix = u.canonicalDestDir(sourcePath) + m.ASSET_PREFIX
+  const assets = await source.list(prefix)
   assets.forEach((asset) => {
     // console.log(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
@@ -108,7 +108,7 @@ async function deriveMetadata (sourcePath) {
 
   // is there a selected thumbnail?
   try {
-    const selectedThumbnail = await s3util.readDestTextObject(util.canonicalDestDir(sourcePath) + util.SELECTED_THUMBNAIL_FILE)
+    const selectedThumbnail = await source.readFile(u.canonicalDestDir(sourcePath) + util.SELECTED_THUMBNAIL_FILE)
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
     console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)

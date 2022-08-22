@@ -1,3 +1,4 @@
+const vv = require('vee-validate')
 
 const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
 
@@ -23,7 +24,81 @@ function findValidEmails (muck, splitOn = /[\s,<>]+/g) {
   return list.filter(e => isValidEmail(e))
 }
 
-export {
+const VALIDATIONS = {
+  email: {
+    required: true,
+    min: 2,
+    max: 100,
+    email: true,
+    checkOnUpdate: false
+  },
+  password: {
+    required: true,
+    min: 8,
+    max: 100,
+    checkOnUpdate: false
+  },
+  firstName: {
+    required: false,
+    min: 2,
+    max: 100
+  },
+  lastName: {
+    required: false,
+    min: 2,
+    max: 100
+  },
+  locale: {
+    required: true
+  }
+}
+
+function validate (thing, isUpdate = false, rules = VALIDATIONS) {
+  const errors = {}
+  for (const field in Object.keys(thing)) {
+    if (rules[field]) {
+      if (isUpdate && rules[field].checkOnUpdate && rules[field].checkOnUpdate === false) {
+        continue
+      }
+      const fieldErrors = vv.validate(thing[field], rules[field])
+      if (fieldErrors) {
+        if (!errors[field]) {
+          errors[field] = []
+        }
+        errors[field].push(...fieldErrors)
+      }
+    }
+  }
+  return errors
+}
+
+const RULE_FIELDS = ['min', 'max', 'required', 'email', 'integer', 'one_of']
+function condenseFieldRules (fieldValidations) {
+  let result = ''
+  for (const rule of RULE_FIELDS) {
+    if (fieldValidations[rule]) {
+      if (result.length > 0) {
+        result += '|'
+      }
+      result += rule + ':' + fieldValidations[rule]
+    }
+  }
+  return result
+}
+
+function condensedRules () {
+  const condensed = {}
+  for (const field of Object.keys(VALIDATIONS)) {
+    condensed[field] = condenseFieldRules(VALIDATIONS[field])
+  }
+  return condensed
+}
+
+module.exports = {
   EMAIL_REGEX,
-  isExactRegexMatch, isValidEmail, findValidEmails
+  isExactRegexMatch,
+  isValidEmail,
+  findValidEmails,
+  validate,
+  condensedRules
 }

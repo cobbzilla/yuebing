@@ -1,4 +1,4 @@
-const s3 = require('@aws-sdk/client-s3')
+const { MobilettoNotFoundError } = require('mobiletto')
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
@@ -20,7 +20,7 @@ export default {
         (err) => {
           // It's OK, the user might not exist. We don't want to leak that information
           // back to the caller
-          if (err instanceof s3.NoSuchKey) {
+          if (err instanceof MobilettoNotFoundError) {
             return api.okJson(res, {})
           } else {
             const message = `requestPasswordReset: findUser error: ${err}`

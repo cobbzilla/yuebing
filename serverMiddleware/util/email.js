@@ -2,12 +2,12 @@ const fs = require('fs')
 const shasum = require('shasum')
 const nodemailer = require('nodemailer')
 const Handlebars = require('handlebars')
-const nuxt = require('../../nuxt.config').default
 const redis = require('../util/redis')
 const locale = require('../../shared/locale')
+const system = require('./config').SYSTEM
 
-const EMAIL_CONFIG = nuxt.privateRuntimeConfig.email
-const EMAIL_ENABLED = !!EMAIL_CONFIG.host
+const EMAIL_CONFIG = system.privateConfig.email
+const EMAIL_ENABLED = EMAIL_CONFIG.host
 
 const TEMPLATE_VERIFY_EMAIL = 'verifyEmail'
 const TEMPLATE_RESET_PASSWORD = 'resetPassword'
@@ -28,7 +28,6 @@ if (EMAIL_ENABLED) {
       compileTemplates(loc, templateName)
     }
   }
-
   // register helpers
   Handlebars.registerHelper('urlEscape', (src) => {
     return new Handlebars.SafeString(encodeURIComponent(src))
@@ -58,7 +57,7 @@ function compileTemplates (locale, template) {
   }
 }
 
-const MAIL_SENDER = EMAIL_CONFIG.host
+const MAIL_SENDER = EMAIL_ENABLED
   ? nodemailer.createTransport({
     host: EMAIL_CONFIG.host,
     port: EMAIL_CONFIG.port || 587,
@@ -74,7 +73,6 @@ const MAIL_SENDER = EMAIL_CONFIG.host
   : null
 
 const MAIL_FROM = EMAIL_CONFIG.fromEmail
-
 const MAIL_SENDING_LIMITS = {}
 
 // max 1 new invitation per week
@@ -121,13 +119,13 @@ async function sendEmail (to, locale, template, params) {
   }
 
   // inject config into params
-  const ctx = Object.assign({}, params, { config: nuxt.publicRuntimeConfig })
+  const ctx = Object.assign({}, params, { config: system.publicConfig })
 
   // record attempt to send mail -- limit is enforced above
   await redis.set(redisPrefix + '_' + Date.now(), '' + Date.now(), limit.period)
 
   // send the mail!
-  await MAIL_SENDER.sendMail({
+  MAIL_SENDER.sendMail({
     from: MAIL_FROM, // sender address
     to,
     subject: compiled[SUBJECT_TEMPLATE](ctx),
@@ -142,7 +140,9 @@ async function sendEmail (to, locale, template, params) {
   })
 }
 
-export {
-  TEMPLATE_VERIFY_EMAIL, TEMPLATE_RESET_PASSWORD, TEMPLATE_INVITATION,
+module.exports = {
+  TEMPLATE_VERIFY_EMAIL,
+  TEMPLATE_RESET_PASSWORD,
+  TEMPLATE_INVITATION,
   sendEmail
 }

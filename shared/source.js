@@ -58,7 +58,16 @@ function sortByField (array, field, ascending) {
   return ascending ? array.sort(SOURCE_SORT[field]) : array.sort(SOURCE_SORT[field]).reverse()
 }
 
+function extractSourceAndPath (from) {
+  const slash = from.indexOf('/')
+  const hasSlash = slash !== -1 && slash !== from.length
+  const sourceName = hasSlash ? from(0, slash) : from
+  const path = hasSlash ? from(slash + 1) : ''
+  return { sourceName, prefix: path }
+}
+
 export {
   sourceTypeConfig, localizedSourceTypes,
-  localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, sortByField
+  localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, sortByField,
+  extractSourceAndPath
 }

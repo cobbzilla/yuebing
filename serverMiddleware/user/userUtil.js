@@ -1,36 +1,29 @@
-const s3 = require('@aws-sdk/client-s3')
+const { MobilettoNotFoundError } = require('mobiletto')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
-const nuxt = require('../../nuxt.config').default
 const shared = require('../../shared')
 const auth = require('../../shared/auth')
 const loc = require('../../shared/locale')
 const valid = require('../../shared/validation')
-const validate = require('../util/validation')
-const crypt = require('../util/crypt')
-const s3util = require('../s3/s3util')
 const api = require('../util/api')
 const email = require('../util/email')
+const f = require('../util/file')
+const system = require('../util/config').SYSTEM
 
-const BCRYPT_ROUNDS = nuxt.privateRuntimeConfig.userEncryption.bcryptRounds
-const USER_ENC_KEY = nuxt.privateRuntimeConfig.userEncryption.key
-const SESSION_EXPIRATION = nuxt.privateRuntimeConfig.session.expiration
-
-const ADMIN = nuxt.privateRuntimeConfig.admin
+const ADMIN = system.privateConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
+const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
-const ALLOW_REGISTRATION = nuxt.publicRuntimeConfig.allowRegistration
-const PUBLIC = nuxt.publicRuntimeConfig.public
+const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
+const PUBLIC = system.publicConfig.public
 
-function userStorePrefix (key = USER_ENC_KEY) {
-  return `users_${shasum(`users:${key}`)}/`
-}
+const SESSION_EXPIRATION = system.privateConfig.session.expiration
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
-  const LIMIT_REG = nuxt.publicRuntimeConfig.limitRegistration
+  const LIMIT_REG = system.publicConfig.limitRegistration
   if (!LIMIT_REG) {
     return Promise.resolve(null)
   }
@@ -39,14 +32,14 @@ function initLimitRegistration () {
       // use as-is, it should be an array of email addresses
       return Promise.resolve(LIMIT_REG)
     } else {
-      throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+      throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
     }
   } else if (typeof LIMIT_REG === 'string') {
-    return s3util.readDestTextObject(LIMIT_REG).then((text) => {
+    return system.api.readFile(LIMIT_REG).then((text) => {
       if (text.trim().startsWith('[')) {
         const list = JSON.parse(text)
         if (list.length === 0 || typeof list[0] !== 'string') {
-          throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
+          throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
         }
         return list
       } else {
@@ -54,7 +47,7 @@ function initLimitRegistration () {
       }
     })
   } else {
-    throw new TypeError(`initLimitRegistration: invalid nuxt.publicRuntimeConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
+    throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
   }
 }
 
@@ -143,47 +136,10 @@ async function requireUser (req, res) {
 
 async function requireAdmin (req, res) {
   const user = await currentUser(req)
-  if (user && isAdmin(user)) {
+  if (user && await isAdmin(user)) {
     return user
   }
   return api.forbidden(res)
-}
-
-const USER_VALIDATIONS = {
-  email: {
-    required: true,
-    min: 2,
-    max: 100,
-    regex: valid.EMAIL_REGEX,
-    checkOnUpdate: false
-  },
-  password: {
-    required: true,
-    min: 8,
-    max: 100,
-    checkOnUpdate: false
-  },
-  firstName: {
-    required: false,
-    min: 2,
-    max: 100
-  },
-  lastName: {
-    required: false,
-    min: 2,
-    max: 100
-  }
-}
-
-const USER_UPDATE_VALIDATIONS = {}
-for (const field of Object.keys(USER_VALIDATIONS)) {
-  if (typeof USER_VALIDATIONS[field].checkOnUpdate === 'undefined' || USER_VALIDATIONS[field].checkOnUpdate !== false) {
-    USER_UPDATE_VALIDATIONS[field] = USER_VALIDATIONS[field]
-  }
-}
-
-function validateUser (u, isUpdate = false) {
-  return validate.validateObject(u, isUpdate ? USER_UPDATE_VALIDATIONS : USER_VALIDATIONS)
 }
 
 // adapted from https://stackoverflow.com/a/27724419
@@ -198,13 +154,18 @@ function UserValidationError (errors) {
   }
 }
 
-function userKey (email) {
-  return userStorePrefix() + shasum(USER_ENC_KEY + ':' + email.trim())
-}
+const USERS_PREFIX = 'users/'
+const userKey = email => USERS_PREFIX + shasum(email.trim())
 
-async function userExists (email) {
-  const head = await s3util.headDestObject(userKey(email))
-  return head && head.ContentLength && head.ContentLength > 0
+async function userExists (name) {
+  try {
+    return await system.api.metadata(userKey(name)).name
+  } catch (e) {
+    if (e instanceof MobilettoNotFoundError) {
+      return false
+    }
+    throw e
+  }
 }
 
 function registerInitialAdminUser (regRequest) {
@@ -234,7 +195,7 @@ function _registerUser (regRequest, successHandler, admin) {
     } else if (!LIMIT_REGISTRATION && !ALLOW_REGISTRATION) {
       throw regNotAllowed()
     }
-    const errors = validateUser(regRequest)
+    const errors = valid.validate(regRequest)
     if (Object.keys(errors).length > 0) {
       throw new UserValidationError(errors)
     }
@@ -259,10 +220,10 @@ function _registerUser (regRequest, successHandler, admin) {
 }
 
 const USER_VERIFY_PREFIX = 'verify_token_'
-const USER_VERIFY_EXPIRATION = nuxt.publicRuntimeConfig.timeout.verify || 1000 * 60 * 60 * 24 // 1 day
+const USER_VERIFY_EXPIRATION = system.publicConfig.timeout.verify || 1000 * 60 * 60 * 24 // 1 day
 
 const USER_RESET_PASSWORD_PREFIX = 'resetPassword_token_'
-const USER_RESET_PASSWORD_EXPIRATION = nuxt.publicRuntimeConfig.timeout.resetPassword || 1000 * 60 * 60 // 1 hour
+const USER_RESET_PASSWORD_EXPIRATION = system.publicConfig.timeout.resetPassword || 1000 * 60 * 60 // 1 hour
 
 function verificationKey (email) {
   return USER_VERIFY_PREFIX + shasum(USER_VERIFY_PREFIX + email)
@@ -322,12 +283,12 @@ function createUserRecord (user, successHandler) {
     const ctx = {
       user,
       token,
-      verifyUrl: nuxt.publicRuntimeConfig.siteUrl + auth.VERIFY_ENDPOINT +
+      verifyUrl: system.publicConfig.siteUrl + auth.VERIFY_ENDPOINT +
         '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
     email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
-      (ok) => {
+      () => {
         console.log(`createUserRecord: verification request sent to user: ${user.email}`)
       },
       (err) => {
@@ -335,19 +296,16 @@ function createUserRecord (user, successHandler) {
       }
     )
   }
-  const bucketParams = {
-    Key: userKey(user.email),
-    Body: crypt.encrypt(JSON.stringify(newUser))
-  }
-  s3util.putObject(bucketParams).then(
-    data => successHandler(data, newUser),
-    (error) => {
+  system.api.writeFile(userKey(user.email), JSON.stringify(newUser))
+    .then(count => successHandler(count, newUser))
+    .catch((error) => {
       console.error(`createUserRecord: Error writing user file: ${error}`)
+      throw error
     })
 }
 
 function updateUserRecord (proposed, successHandler) {
-  const errors = validateUser(proposed, true)
+  const errors = valid.validate(proposed, true)
   if (Object.keys(errors).length > 0) {
     throw new UserValidationError(errors)
   }
@@ -362,19 +320,17 @@ function updateUserRecord (proposed, successHandler) {
     if (update.admin) {
       delete update.admin
     }
-    const bucketParams = {
-      Key: userKey(user.email),
-      Body: crypt.encrypt(JSON.stringify(update))
-    }
-    console.log(`updateUserRecord: updating S3 with: ${JSON.stringify(update)}`)
-    return s3util.putObject(bucketParams).then(
-      data => successHandler(data, update),
+    console.log(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
+    return system.api.writeFile(userKey(user.email), JSON.stringify(update)).then(
+      count => successHandler(count, update),
       (error) => {
         console.error(`updateUserRecord: Error writing user file: ${error}`)
+        throw error
       })
   },
   (err) => {
     console.error(`updateUserRecord: findUser error: ${err}`)
+    throw err
   })
 }
 
@@ -389,7 +345,7 @@ function sendResetPasswordMessage (user) {
   const ctx = {
     user,
     token,
-    resetPasswordUrl: nuxt.publicRuntimeConfig.siteUrl + auth.VERIFY_ENDPOINT +
+    resetPasswordUrl: system.publicConfig.siteUrl + auth.VERIFY_ENDPOINT +
       '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
       '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token) +
       '&' + auth.VERIFY_RESET_PARAM + '=' + resetShasum(user.email, token)
@@ -405,13 +361,13 @@ function sendResetPasswordMessage (user) {
 }
 
 async function findUser (email) {
-  return JSON.parse(crypt.decrypt(await s3util.readDestTextObject(userKey(email))))
+  return JSON.parse(await system.api.readFile(userKey(email)))
 }
 
 async function sendInvitations (fromUser, emailList) {
   const ctx = {
     fromUser,
-    inviteLink: nuxt.publicRuntimeConfig.siteUrl + '/signUp'
+    inviteLink: system.publicConfig.siteUrl + '/signUp'
   }
   const successfulSends = {}
   const failedSends = {}
@@ -437,7 +393,7 @@ async function sendInvitations (fromUser, emailList) {
       } catch (e) {
         // NoSuchKey is an expected exception, we are just checking to make sure the user
         // does NOT exist before sending them an invitation to join. So it's OK to get this error
-        if (!(e instanceof s3.NoSuchKey)) {
+        if (!(e instanceof MobilettoNotFoundError)) {
           // For other errors, we should at least log
           console.error(`sendInvitations: unexpected findUser error: ${e}, we'll still send email to: ${recipient}`)
         }
@@ -465,10 +421,24 @@ if (ADMIN_USER) {
   console.log('userUtil: no admin user defined, not creating')
 }
 
-export {
-  userStorePrefix, userKey, startSession, cancelSessions, currentUser,
-  checkPassword, isCorrectVerifyToken, isCorrectResetPasswordToken,
-  isAdmin, requireUser, requireLoggedInUser, requireAdmin,
-  UserValidationError, registerUser, resetShasum, sendResetPasswordMessage,
-  findUser, validateUser, createUserRecord, updateUserRecord, sendInvitations
+module.exports = {
+  userKey,
+  startSession,
+  cancelSessions,
+  currentUser,
+  checkPassword,
+  isCorrectVerifyToken,
+  isCorrectResetPasswordToken,
+  isAdmin,
+  requireUser,
+  requireLoggedInUser,
+  requireAdmin,
+  UserValidationError,
+  registerUser,
+  resetShasum,
+  sendResetPasswordMessage,
+  findUser,
+  createUserRecord,
+  updateUserRecord,
+  sendInvitations
 }

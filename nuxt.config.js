@@ -39,12 +39,54 @@ export default {
     // timeouts for various temporary tokens stored in redis
     timeout: {
       verify: process.env.YB_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
-      resetPassword: process.env.YB_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60 // 1 hour
+      resetPassword: process.env.YB_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60, // 1 hour
+
+      configurable: {
+        verify: {
+          rules: 'required|integer|min:0|max:3153600000000',
+          format: 'duration',
+          default: 1000 * 60 * 60 * 24 * 2 // 2 days
+        },
+        resetPassword: {
+          rules: 'required|integer|min:0|max:3153600000000',
+          format: 'duration',
+          default: 1000 * 60 * 60 // 1 hour
+        }
+      }
     },
 
     // Don't change this line. If you want to enable email, set the YB_EMAIL_HOST environment
     // variable (and others, see below in privateRuntimeConfig for email settings)
-    emailEnabled: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0)
+    emailEnabled: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0),
+
+    configurable: {
+      title: {
+        rules: 'required|min:2|max:500'
+      },
+      siteUrl: {
+        rules: 'required|min:2|max:1024|regex:/^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/'
+      },
+      public: {
+        rules: 'required|one_of:true,false',
+        default: false
+      },
+      allowRegistration: {
+        rules: 'required|one_of:true,false',
+        default: false
+      },
+      limitRegistration: {
+        rules: 'max:1024',
+        default: null
+      },
+      locales: {
+        type: 'array',
+        elementRules: 'min:5|max:5|regex:/[a-z]{2}_[A-Z]{2}/'
+      },
+      emailEnabled: {
+        rules: 'required|one_of:true,false',
+        default: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0)
+      }
+    }
   },
 
   privateRuntimeConfig: {
@@ -68,7 +110,28 @@ export default {
       user: process.env.YB_EMAIL_USER || null,
       password: process.env.YB_EMAIL_PASSWORD || null,
       secure: process.env.YB_EMAIL_SECURE || true,
-      fromEmail: process.env.YB_EMAIL_FROM || 'nobody@localhost'
+      fromEmail: process.env.YB_EMAIL_FROM || 'nobody@localhost',
+      configurable: {
+        host: {
+          // eslint-disable-next-line no-useless-escape
+          rules: 'required|min:6|max:128|regex:/([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d])(\.([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d]))*/'
+        },
+        port: {
+          rules: 'required|integer|min:10|max:65000'
+        },
+        user: {
+          rules: 'required|min:2|max:100'
+        },
+        password: {
+          rules: 'required|min:2|max:100'
+        },
+        secure: {
+          rules: 'required|one_of:true,false'
+        },
+        fromEmail: {
+          rules: 'required|email|min:2|max:100'
+        }
+      }
     },
 
     // redis is used for: server-side caching, the xform job queue, and web sessions
@@ -79,13 +142,37 @@ export default {
       // set to true to flush redis when the app starts (this will log out all users)
       flushAtStartup: process.env.YB_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : false,
 
-      // Cache duration for listings from S3, in milliseconds
+      // Cache duration for listings from storage, in milliseconds
       listingCacheExpiration: process.env.YB_S3_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
 
       // Cache duration for manifests, in milliseconds
       // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`
       // file is newer than the cache's ctime
-      manifestCacheExpiration: process.env.YB_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000 // default 1 minute
+      manifestCacheExpiration: process.env.YB_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000, // default 1 minute
+
+      configurable: {
+        host: {
+          // eslint-disable-next-line no-useless-escape
+          rules: 'required|min:6|max:128|regex:/([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d])(\.([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d]))*/'
+        },
+        port: {
+          rules: 'required|integer|min:10|max:65000'
+        },
+        flushAtStartup: {
+          rules: 'required|one_of:true,false',
+          default: false
+        },
+        listingCacheExpiration: {
+          rules: 'required|integer|min:0|max:3153600000000',
+          format: 'duration',
+          default: 5 * 60 * 1000 // default 5 minutes
+        },
+        manifestCacheExpiration: {
+          rules: 'required|integer|min:0|max:3153600000000',
+          format: 'duration',
+          default: 60 * 1000 // default 1 minute
+        }
+      }
     },
 
     // A map of supported (media type) -> (config for the media type)
@@ -110,22 +197,50 @@ export default {
       }
     },
 
-    userEncryption: {
-      // Optional. Define these to encrypt user data stored on destination bucket
+    encryption: {
+      // Optional. Define these to encrypt data stored in destination bucket
       //
-      // WARNING: if you change this, your user-storage location will be different, so
-      // existing users will no longer be able to sign in. Login as admin and visit
-      // the /admin/rotateKey page to migrate old users to the new encryption key
-      key: process.env.YB_USERDATA_KEY,
-      iv: process.env.YB_USERDATA_IV, // IV is optional, will be derived from key if empty
+      // WARNING: if you change this, your data-storage location will be different, so
+      // existing users will no longer be able to sign in and nothing will really work.
+      // Login as admin and visit the /admin page to migrate to the new encryption key.
+      // You will need the old key/IV/algo combination to read the old data.
+      // Key rotation is expensive. We must read, decrypt, re-encrypt and re-write *everything* that is encrypted.
+      // It may take a long time. Also consider bandwidth costs between wherever this Nuxt server is running
+      // and wherever the storage is located.
+      key: process.env.YB_DATA_ENCRYPTION_KEY,
+      iv: process.env.YB_DATA_ENCRYPTION_IV, // IV is optional; if empty it is derived from key
+      algo: process.env.YB_DATA_ENCRYPTION_ALGO, // algo is optional; default is 'aes-256-cbc'
 
       // Passwords are stored as bcrypt hashes. How many rounds to use
-      bcryptRounds: process.env.YB_BCRYPT_ROUNDS || 12
+      bcryptRounds: process.env.YB_BCRYPT_ROUNDS || 12,
+
+      configurable: {
+        key: {
+          rules: 'max:1024'
+        },
+        iv: {
+          rules: 'max:1024'
+        },
+        algo: {
+          rules: 'max:50'
+        },
+        bcryptRounds: {
+          rules: 'required|integer|min:8|max:100'
+        }
+      }
     },
 
     session: {
       // How long web sessions last
-      expiration: process.env.YB_SESSION_EXPIRATION || 1000 * 60 * 60 * 24 // default 24 hours
+      expiration: process.env.YB_SESSION_EXPIRATION || 1000 * 60 * 60 * 24, // default 24 hours
+
+      configurable: {
+        expiration: {
+          rules: 'required|integer|min:0|max:3153600000000',
+          format: 'duration',
+          default: 1000 * 60 * 60 * 24
+        }
+      }
     },
 
     // The server scans the source media for new content to transform
@@ -148,7 +263,28 @@ export default {
       showTransformOutput: false,
 
       // How many concurrent transformations can be done
-      concurrency: process.env.YB_XFORM_CONCURRENCY || 2
+      concurrency: process.env.YB_XFORM_CONCURRENCY || 2,
+
+      configurable: {
+        interval: {
+          rules: 'required|integer|min:60000|max:3153600000000',
+          format: 'duration',
+          default: 1000 * 60 * 60 * 24 // default 24 hours
+        },
+        initialDelay: {
+          rules: 'required|integer|min:60000|max:3153600000000',
+          format: 'duration',
+          default: 1000 * 30 // default 30 seconds
+        },
+        showTransformOutput: {
+          rules: 'required|one_of:true,false',
+          default: false
+        },
+        concurrency: {
+          rules: 'requires|integer|min:1|max:10000',
+          default: 2
+        }
+      }
     }
   },
 

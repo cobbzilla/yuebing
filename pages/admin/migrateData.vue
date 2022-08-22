@@ -9,9 +9,9 @@
     </v-row>
     <v-row>
       <v-col>
-        <div v-if="userMigrationResults">
+        <div v-if="dataMigrationResults">
           {{ messages.admin_label_migration_results }}
-          <pre>{{ JSON.stringify(userMigrationResults, null, 2) }}</pre>
+          <pre>{{ JSON.stringify(dataMigrationResults, null, 2) }}</pre>
         </div>
       </v-col>
     </v-row>
@@ -37,8 +37,17 @@
             />
           </div>
           <div class="form-group">
+            <v-text-field
+              v-model="oldAlgo"
+              :label="messages.admin_label_migration_oldAlgo"
+              type="text"
+              name="oldIV"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
             <v-btn class="btn btn-primary" @click.stop="handleSubmit">
-              {{ messages.admin_button_migrate_users }}
+              {{ messages.admin_button_migrate_data }}
             </v-btn>
           </div>
         </form>
@@ -54,25 +63,27 @@ import { localeMessagesForUser } from '@/shared/locale'
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  name: 'MigrateUsers',
+  name: 'MigrateData',
   data () {
     return {
       oldKey: null,
-      oldIV: null
+      oldIV: null,
+      oldAlgo: null
     }
   },
   computed: {
-    ...mapState('admin', ['userMigrationResults']),
+    ...mapState('admin', ['dataMigrationResults']),
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) }
   },
   methods: {
-    ...mapActions('admin', ['migrateUsers']),
+    ...mapActions('admin', ['migrateData']),
     handleSubmit () {
       const oldKey = this.oldKey
       const oldIV = this.oldIV
-      this.migrateUsers({ oldKey, oldIV })
+      const oldAlgo = this.oldAlgo
+      this.migrateData({ oldKey, oldIV, oldAlgo })
     }
   }
 }

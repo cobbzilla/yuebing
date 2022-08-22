@@ -1,6 +1,15 @@
 <template>
   <div>
-    <h2>{{ messages.admin_title_site_administration.parseMessage({ title }) }}</h2>
+    <h2>
+      {{ messages.admin_title_site_administration.parseMessage({ title }) }}
+    </h2>
+    <div>
+      <h3>
+        <NuxtLink to="/admin/config">
+          {{ messages.admin_title_manage_configuration }}
+        </NuxtLink>
+      </h3>
+    </div>
     <div>
       <h3>
         <NuxtLink to="/admin/sources">
@@ -24,8 +33,8 @@
     </div>
     <div>
       <h3>
-        <NuxtLink to="/admin/migrateUsers">
-          {{ messages.admin_title_migrate_users }}
+        <NuxtLink to="/admin/migrateData">
+          {{ messages.admin_title_migrate_data }}
         </NuxtLink>
       </h3>
     </div>

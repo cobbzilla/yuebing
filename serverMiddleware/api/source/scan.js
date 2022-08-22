@@ -1,9 +1,9 @@
-const nuxt = require('../../../nuxt.config').default
 const m = require('../../../shared/media')
 const api = require('../../util/api')
+const system = require('../../util/config').SYSTEM
 const u = require('../../user/userUtil')
 const video = require('../../asset/xform')
-const s3util = require('../../s3/s3util')
+const src = require('../../source/sourceUtil')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
 const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
@@ -19,25 +19,29 @@ function autoscan () {
   if (CURRENT_AUTOSCAN_START) {
     console.warn(`${logPrefix} another scan is still running (started at ${CURRENT_AUTOSCAN_START}, not running`)
   } else {
-    try {
-      CURRENT_AUTOSCAN_START = new Date()
-      scan('', true)
-        .then((transforms) => {
-          console.log(`${logPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
-        },
-        (err) => {
-          console.error(`${logPrefix} scan error: ${err}`)
-        })
-    } catch (err) {
-      console.error(`${logPrefix} error scanning: ${err}`)
-    } finally {
-      console.log(`${logPrefix} finalizing: setting CURRENT_AUTOSCAN_START = null`)
-      CURRENT_AUTOSCAN_START = null
+    for (const sourceName of src.connectedSources()) {
+      const source = src.connect(sourceName)
+      const scanPrefix = `${logPrefix} (source ${sourceName}) `
+      try {
+        CURRENT_AUTOSCAN_START = new Date()
+        scan(source, true)
+          .then((transforms) => {
+            console.log(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
+          },
+          (err) => {
+            console.error(`${scanPrefix} scan error: ${err}`)
+          })
+      } catch (err) {
+        console.error(`${scanPrefix} error scanning: ${err}`)
+      } finally {
+        console.log(`${scanPrefix} finalizing: setting CURRENT_AUTOSCAN_START = null`)
+        CURRENT_AUTOSCAN_START = null
+      }
     }
   }
 }
 
-const AUTOSCAN = nuxt.privateRuntimeConfig.autoscan
+const AUTOSCAN = system.privateConfig.autoscan
 if (AUTOSCAN.interval > 0) {
   const autoScanInterval = Math.max(AUTOSCAN.interval, AUTOSCAN_MINIMUM_INTERVAL)
   setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval
@@ -51,24 +55,25 @@ if (AUTOSCAN.initialDelay > 0) {
   console.warn(' ~~~ AUTOSCAN (initial) is disabled ~~~')
 }
 
-async function scan (prefix, autoscan = false) {
-  const results = await s3util.listSource(prefix, true)
+async function scan (source, path, autoscan = false) {
+  const results = await source.list(path)
   const transforms = []
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
-    if (m.hasProfiles(result.name)) {
-      console.log(`>>>>> SCAN: queueing source: ${result.name}`)
+    const jobName = source.name + '/' + result.name
+    if (m.hasProfiles(jobName)) {
+      console.log(`>>>>> SCAN: queueing source: ${jobName}`)
       transforms.push(result)
       if (autoscan) {
         // perform synchronously for autoscan
-        video.transform(result.name).then((meta) => {
-          console.log(`SYNC-TRANSFORM-RESULT (${result.name}) = ${JSON.stringify(meta)}`)
+        video.transform(jobName).then((meta) => {
+          console.log(`SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
         setTimeout(() => {
-          video.transform(result.name).then((meta) => {
-            console.log(`ASYNC-TRANSFORM-RESULT (${result.name}) = ${JSON.stringify(meta)}`)
+          video.transform(jobName).then((meta) => {
+            console.log(`ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
       }
@@ -78,15 +83,15 @@ async function scan (prefix, autoscan = false) {
 }
 
 export default {
-  path: '/api/s3/scan',
+  path: '/api/source/scan',
   async handler (req, res) {
     const user = await u.requireLoggedInUser(req, res)
     if (!user) {
       return api.forbidden(res)
     }
-    const prefix = req.url === '/undefined' ? '' : req.url.startsWith('/') ? req.url.substring(1) : req.url
-    console.log(`>>>>> API: Scanning ${req.url}, prefix = ${prefix}`)
-    const transforms = await scan(prefix)
+    const { source, path } = src.extractSourceAndPathAndConnect(req.url)
+    console.log(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${path}`)
+    const transforms = await scan(source, path)
     return api.okJson(res, transforms)
   }
 }

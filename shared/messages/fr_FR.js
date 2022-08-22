@@ -182,13 +182,19 @@ export default {
   label_mediainfo_frameRate: 'Fréquence d\'images',
   label_mediainfo_dateEncoded: 'Date encodée',
 
-  // Site Administration
+  // System Administration
   button_admin: 'Configuration du site',
   admin_title_site_administration: '{{ title }} Administration',
+  admin_title_manage_configuration: 'Configuration du système',
   admin_title_source_administration: 'Administration des sources',
   admin_title_user_administration: 'Administration des utilisateurs',
-  admin_title_migrate_users: 'Migrer les utilisateurs à partir de la clé de chiffrement précédente',
+  admin_title_migrate_data: 'Migrer les données de la clé de chiffrement précédente',
   admin_title_transform_queue: 'File d\'attente de transformation multimédia',
+
+  // Site Administration
+  admin_title_site_administration_publicConfig: 'Configuration publique',
+  admin_title_site_administration_privateConfig: 'Configuration privée',
+  label_configCategory: 'Catégorie de configuration)',
 
   // User Administration
   admin_label_total_user_count: '{{ totalUserCount }} utilisateurs au total',
@@ -202,6 +208,10 @@ export default {
   admin_label_confirm_source_delete: 'Veuillez confirmer la suppression de la source multimédia: {{ source }}',
   admin_label_source_name: 'Nom de la source multimédia',
   admin_label_source_type: 'Type de source multimédia',
+  admin_label_source_encryption_enable: 'Activer le cryptage',
+  admin_label_source_encryption_key: 'Clé de cryptage',
+  admin_label_source_encryption_iv: 'Vecteur d\'initialisation (VI)',
+  admin_label_source_encryption_algo: 'Algorithme',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_local: 'Disque local',
   label_sourceType_local_field_baseDir: 'Répertoire de montage',
@@ -221,10 +231,11 @@ export default {
   admin_label_eventDescription: 'description',
 
   // User Migration
-  admin_label_migration_results: 'Résultats de la migration des utilisateurs:',
+  admin_label_migration_results: 'Résultats de la migration:',
   admin_label_migration_oldKey: 'Clé de chiffrement précédente',
-  admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (s\'il y en a un)',
-  admin_button_migrate_users: 'Migrer les utilisateurs',
+  admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (si un était réglé)',
+  admin_label_migration_oldAlgo: 'Algorithme précédent (si un était réglé)',
+  admin_button_migrate_data: 'Migrer les données',
 
   // Low-level errors
   http_invalid_request_method: 'La méthode de la demande HTTP {{ method }} n\'est pas prise en charge par ce point de terminaison'
