@@ -10,6 +10,7 @@ module.exports = async function (moduleOptions) {
   // Add middleware only with `nuxt dev` or `nuxt start`
   if (this.options.dev || this.options._start) {
     await system.connect()
+    this.addServerMiddleware('~/serverMiddleware/filters/lang')
     this.addServerMiddleware('~/serverMiddleware/api/user/authenticate')
     this.addServerMiddleware('~/serverMiddleware/api/user/register')
     this.addServerMiddleware('~/serverMiddleware/api/user/verify')

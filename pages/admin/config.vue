@@ -7,14 +7,7 @@
     </v-row>
     <v-row v-for="(cat, catIndex) in siteConfigCategories" :key="catIndex">
       <v-col>
-        <v-container>
-          <v-row>
-            <v-col>
-              <h3>{{ messages['admin_title_site_administration_'+cat] }}</h3>
-            </v-col>
-          </v-row>
-          <ConfigNode :options="{ config: siteConfig[cat], level: 0 }" />
-        </v-container>
+        <ConfigNode :options="{ config: siteConfig[cat], configLevel: 0, configPath: '', configLabel: 'admin_title_site_administration_'+cat }" />
       </v-col>
     </v-row>
   </v-container>

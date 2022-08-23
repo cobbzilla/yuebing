@@ -1,9 +1,8 @@
 const Redis = require('ioredis')
 const generators = require('redis-async-gen')
-const config = require('./config.js')
-const SYSTEM = config.SYSTEM
+const system = require('./config.js').SYSTEM
 
-const redisConfig = SYSTEM.privateConfig.redis
+const redisConfig = system.privateConfig.redis
 
 const redisClient = new Redis({
   host: redisConfig.host,

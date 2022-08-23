@@ -12,47 +12,56 @@ let CURRENT_AUTOSCAN_START = null
 let AUTOSCAN_COUNT = 1
 
 // autoscan
-function autoscan () {
+async function autoscan () {
   const logPrefix = `autoscan[${AUTOSCAN_COUNT}]:`
   AUTOSCAN_COUNT++
   console.log(`${logPrefix} starting`)
-  if (CURRENT_AUTOSCAN_START) {
-    console.warn(`${logPrefix} another scan is still running (started at ${CURRENT_AUTOSCAN_START}, not running`)
-  } else {
-    for (const sourceName of src.connectedSources()) {
-      const source = src.connect(sourceName)
-      const scanPrefix = `${logPrefix} (source ${sourceName}) `
-      try {
-        CURRENT_AUTOSCAN_START = new Date()
-        scan(source, true)
-          .then((transforms) => {
-            console.log(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
-          },
-          (err) => {
-            console.error(`${scanPrefix} scan error: ${err}`)
-          })
-      } catch (err) {
-        console.error(`${scanPrefix} error scanning: ${err}`)
-      } finally {
-        console.log(`${scanPrefix} finalizing: setting CURRENT_AUTOSCAN_START = null`)
-        CURRENT_AUTOSCAN_START = null
+  try {
+    if (CURRENT_AUTOSCAN_START) {
+      console.warn(`${logPrefix} another scan is still running (started at ${CURRENT_AUTOSCAN_START}, not running`)
+    } else {
+      const sources = src.connectedSources()
+      if (sources.length === 0) {
+        console.warn(`${logPrefix} no sources, nothing to scan`)
+        return
+      }
+      for (const sourceName of sources) {
+        const source = await src.connect(sourceName)
+        const scanPrefix = `${logPrefix} (source ${sourceName}) `
+        try {
+          CURRENT_AUTOSCAN_START = new Date()
+          scan(source, true)
+            .then((transforms) => {
+              console.log(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
+            },
+            (err) => { console.error(`${scanPrefix} scan error: ${err}`) })
+        } catch (err) {
+          console.error(`${scanPrefix} error scanning: ${err}`)
+        } finally {
+          console.log(`${scanPrefix} finalizing: setting CURRENT_AUTOSCAN_START = null`)
+          CURRENT_AUTOSCAN_START = null
+        }
       }
     }
+  } finally {
+    console.log(`${logPrefix} finished`)
   }
 }
 
 const AUTOSCAN = system.privateConfig.autoscan
-if (AUTOSCAN.interval > 0) {
-  const autoScanInterval = Math.max(AUTOSCAN.interval, AUTOSCAN_MINIMUM_INTERVAL)
-  setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval
-} else {
-  console.warn(' ~~~ AUTOSCAN (periodic) is disabled ~~~')
-}
-if (AUTOSCAN.initialDelay > 0) {
-  const initialDelay = Math.max(AUTOSCAN.initialDelay, AUTOSCAN_MINIMUM_INITIAL_DELAY)
-  setTimeout(() => autoscan(), initialDelay) // start an initial scan soon
-} else {
-  console.warn(' ~~~ AUTOSCAN (initial) is disabled ~~~')
+if (AUTOSCAN.enabled) {
+  if (AUTOSCAN.interval > 0) {
+    const autoScanInterval = Math.max(AUTOSCAN.interval, AUTOSCAN_MINIMUM_INTERVAL)
+    setInterval(() => autoscan(), autoScanInterval) // regular autoscan interval
+  } else {
+    console.warn(' ~~~ AUTOSCAN (periodic) is disabled ~~~')
+  }
+  if (AUTOSCAN.initialDelay > 0) {
+    const initialDelay = Math.max(AUTOSCAN.initialDelay, AUTOSCAN_MINIMUM_INITIAL_DELAY)
+    setTimeout(() => autoscan(), initialDelay) // start an initial scan soon
+  } else {
+    console.warn(' ~~~ AUTOSCAN (initial) is disabled ~~~')
+  }
 }
 
 async function scan (source, path, autoscan = false) {

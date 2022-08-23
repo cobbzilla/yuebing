@@ -64,26 +64,28 @@ export default {
         rules: 'required|min:2|max:500'
       },
       siteUrl: {
-        rules: 'required|min:2|max:1024|regex:/^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/'
+        rules: 'required|url|min:2|max:1024'
       },
       public: {
-        rules: 'required|one_of:true,false',
+        rules: 'required',
+        format: 'flag',
         default: false
       },
       allowRegistration: {
-        rules: 'required|one_of:true,false',
+        rules: 'required',
+        format: 'flag',
         default: false
       },
       limitRegistration: {
         rules: 'max:1024',
         default: null
       },
-      locales: {
-        type: 'array',
-        elementRules: 'min:5|max:5|regex:/[a-z]{2}_[A-Z]{2}/'
+      defaultLocale: {
+        rules: 'min:5|max:5|regex:/[a-z]{2}_[A-Z]{2}/'
       },
       emailEnabled: {
-        rules: 'required|one_of:true,false',
+        rules: 'required',
+        format: 'flag',
         default: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0)
       }
     }
@@ -114,7 +116,7 @@ export default {
       configurable: {
         host: {
           // eslint-disable-next-line no-useless-escape
-          rules: 'required|min:6|max:128|regex:/([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d])(\.([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d]))*/'
+          rules: 'required|host|min:6|max:128'
         },
         port: {
           rules: 'required|integer|min:10|max:65000'
@@ -126,7 +128,8 @@ export default {
           rules: 'required|min:2|max:100'
         },
         secure: {
-          rules: 'required|one_of:true,false'
+          rules: 'required',
+          format: 'flag'
         },
         fromEmail: {
           rules: 'required|email|min:2|max:100'
@@ -153,13 +156,14 @@ export default {
       configurable: {
         host: {
           // eslint-disable-next-line no-useless-escape
-          rules: 'required|min:6|max:128|regex:/([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d])(\.([A-Z\d]{1,63}|[A-Z\d][A-Z\d\-]{0,61}[A-Z\d]))*/'
+          rules: 'required|host|min:6|max:128'
         },
         port: {
           rules: 'required|integer|min:10|max:65000'
         },
         flushAtStartup: {
-          rules: 'required|one_of:true,false',
+          rules: 'required',
+          format: 'flag',
           default: false
         },
         listingCacheExpiration: {
@@ -245,8 +249,9 @@ export default {
 
     // The server scans the source media for new content to transform
     autoscan: {
+      enabled: process.env.YB_AUTOSCAN_ENABLED || true,
+
       // How frequently to auto-scan the source for new content
-      // Zero or negative means disable auto scanning
       // Otherwise, scan at this interval.
       // Minimum interval is 1 minute. Lower settings are ignored.
       // Only one scan runs at a time. If an active scan is already running when a new
@@ -255,9 +260,8 @@ export default {
       interval: process.env.YB_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
 
       // How long to wait before the initial startup scan
-      // Zero or negative means disable initial scan
       // Minimum interval is 5 seconds. Lower settings are ignored.
-      initialDelay: process.env.YB_AUTOSCAN_INITIAL_DELAY || 1000 * 30, // default 30 seconds
+      initialDelay: process.env.YB_AUTOSCAN_INITIAL_DELAY || 1000 * 60 * 2, // default 2 minutes
 
       // Show stdout/stderr from transform commands? It is a LOT of output (ffmpeg for example)
       showTransformOutput: false,
@@ -266,22 +270,30 @@ export default {
       concurrency: process.env.YB_XFORM_CONCURRENCY || 2,
 
       configurable: {
+        enabled: {
+          rules: 'required',
+          format: 'flag',
+          default: true
+        },
         interval: {
-          rules: 'required|integer|min:60000|max:3153600000000',
+          rules: 'integer|min:60000|max:3153600000000',
+          when: 'enabled',
           format: 'duration',
           default: 1000 * 60 * 60 * 24 // default 24 hours
         },
         initialDelay: {
-          rules: 'required|integer|min:60000|max:3153600000000',
+          rules: 'integer|min:60000|max:3153600000000',
+          when: 'enabled',
           format: 'duration',
           default: 1000 * 30 // default 30 seconds
         },
         showTransformOutput: {
-          rules: 'required|one_of:true,false',
+          rules: 'required',
+          format: 'flag',
           default: false
         },
         concurrency: {
-          rules: 'requires|integer|min:1|max:10000',
+          rules: 'required|integer|min:1|max:10000',
           default: 2
         }
       }
@@ -290,10 +302,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: process.env.YB_TITLE,
-    htmlAttrs: {
-      lang: 'en'
-    },
+    title: process.env.YB_TITLE || 'Yuebing 🥮',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },

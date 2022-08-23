@@ -2,6 +2,33 @@ const vv = require('vee-validate')
 
 const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
 
+// Sometimes we need regex validation and the regex contains a pipe character.
+// The pipe breaks vee-validation rule parsing, so we use these custom rules.
+const REGEX_VALIDATORS = {
+  url: /^(https?):\/\/[-a-zA-Z\d+&@#/%?=~_|!:,.;]*[-a-zA-Z\d+&@#/%=~_|]$/,
+  host: /([A-Zd]{1,63}|[A-Zd][A-Zd-]{0,61}[A-Zd])(.([A-Zd]{1,63}|[A-Zd][A-Zd-]{0,61}[A-Zd]))*/
+}
+
+function extendVee (vee) {
+  for (const field of Object.keys(REGEX_VALIDATORS)) {
+    vv.extend(field, {
+      getMessage (field, val) { return 'invalid' },
+      validate (value, field) {
+        if (!field) {
+          console.warn('validate: no field provided, returning true')
+          return true
+        }
+        try {
+          return REGEX_VALIDATORS[field].test(value)
+        } catch (e) {
+          console.error(`validate(field=${field}) error: ${e}`)
+          return false
+        }
+      }
+    })
+  }
+}
+
 function isExactRegexMatch (value, regex) {
   const match = value.match(regex)
   return match && match.length === 1 && match[0].length === value.length
@@ -72,7 +99,9 @@ function validate (thing, isUpdate = false, rules = VALIDATIONS) {
   return errors
 }
 
-const RULE_FIELDS = ['min', 'max', 'required', 'email', 'integer', 'one_of']
+const RULE_FIELDS = ['min', 'max', 'required', 'integer', 'email']
+RULE_FIELDS.push(...Object.keys(REGEX_VALIDATORS))
+
 function condenseFieldRules (fieldValidations) {
   let result = ''
   for (const rule of RULE_FIELDS) {
@@ -96,7 +125,9 @@ function condensedRules () {
 
 module.exports = {
   EMAIL_REGEX,
+  REGEX_VALIDATORS,
   isExactRegexMatch,
+  extendVee,
   isValidEmail,
   findValidEmails,
   validate,

@@ -124,9 +124,12 @@ function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
   return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
 }
 
+const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.indexOf('_')) : locale
+
 module.exports = {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  localeLang,
   localesList,
   localeMessages,
   localeMessagesForUser,

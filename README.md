@@ -12,6 +12,8 @@ Yuebing 🥮
 * Always read-only from source
 * Source and dest can be in different AWS accounts
 * Fully internationalized! All user-visible text (and other locale-specific stuff) comes from localized resources
+* Multiple sources
+* Full-featured admin console
 
 ## Anonymous user feature (if the site has been configured to allow anonymous visitors)
   * Browse/search videos

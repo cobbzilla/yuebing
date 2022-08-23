@@ -70,18 +70,7 @@ const SYSTEM = {
         SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
       }
     }
-    console.log(`SYSTEM: connected, publicConfig=\n${JSON.stringify(SYSTEM.publicConfig, null, 2)}`)
     return this
-  },
-  publicValue: (field) => {
-    return SYSTEM.publicConfig && SYSTEM.publicConfig[field]
-      ? SYSTEM.publicConfig[field]
-      : nuxt.publicRuntimeConfig[field]
-  },
-  privateValue: (field) => {
-    return SYSTEM.privateConfig && SYSTEM.privateConfig[field]
-      ? SYSTEM.privateConfig[field]
-      : nuxt.privateRuntimeConfig[field]
   },
   updateConfig: (newConfig) => {
     const errors = {}
