@@ -22,10 +22,7 @@ export const actions = {
           commit('loginSuccess', user)
           this.app.store.$router.push(user.admin ? '/admin' : '/')
         },
-        (error) => {
-          commit('loginFailure', { error })
-          // dispatch('alert/error', error, { root: true })
-        }
+        (error) => { commit('loginFailure', { error }) }
       )
   },
 
@@ -45,9 +42,7 @@ export const actions = {
           commit('registerSuccess', user)
           this.app.store.$router.push('/')
         },
-        (error) => {
-          commit('registerFailure', error)
-        }
+        (error) => { commit('registerFailure', error) }
       )
   },
 
@@ -59,9 +54,7 @@ export const actions = {
           commit('verifySuccess', { user })
           this.app.store.$router.push('/')
         },
-        (error) => {
-          commit('verifyFailure', { error })
-        }
+        (error) => { commit('verifyFailure', { error }) }
       )
   },
 
@@ -69,12 +62,8 @@ export const actions = {
     commit('requestPasswordResetRequest', { email })
     userService.requestPasswordReset(email)
       .then(
-        () => {
-          commit('requestPasswordResetSuccess', { user })
-        },
-        (error) => {
-          commit('requestPasswordResetFailure', { error })
-        }
+        () => { commit('requestPasswordResetSuccess', { user }) },
+        (error) => { commit('requestPasswordResetFailure', { error }) }
       )
   },
 
@@ -82,12 +71,8 @@ export const actions = {
     commit('updateUserRequest', { update })
     userService.updateUser(update)
       .then(
-        (results) => {
-          commit('updateUserSuccess', { results })
-        },
-        (error) => {
-          commit('updateUserFailure', { error })
-        }
+        (results) => { commit('updateUserSuccess', { results }) },
+        (error) => { commit('updateUserFailure', { error }) }
       )
   },
 
@@ -109,12 +94,8 @@ export const actions = {
     commit('inviteFriendsRequest', { emails })
     userService.inviteFriends(emails)
       .then(
-        (results) => {
-          commit('inviteFriendsSuccess', { results })
-        },
-        (error) => {
-          commit('inviteFriendsFailure', { error })
-        }
+        (results) => { commit('inviteFriendsSuccess', { results }) },
+        (error) => { commit('inviteFriendsFailure', { error }) }
       )
   },
 

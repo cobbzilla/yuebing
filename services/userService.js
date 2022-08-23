@@ -1,8 +1,11 @@
+import { authGet } from '@/services/util'
+
 const auth = require('../shared/auth')
 const a = require('./util')
 
 export const userService = {
   browserHeaders,
+  loadPublicConfig,
   login,
   logout,
   register,
@@ -14,6 +17,7 @@ export const userService = {
 }
 
 function browserHeaders () { return fetch('/api/user/headers', { method: 'POST', body: '{}' }).then(a.handleJsonResponse) }
+function loadPublicConfig () { return fetch('/api/user/config', { method: 'GET' }).then(a.handleJsonResponse) }
 
 function login (email, password) {
   return fetch('/api/user/authenticate', a.authPostJson({ email, password }))

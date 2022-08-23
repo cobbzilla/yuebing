@@ -7,7 +7,10 @@ export const state = () => ({
   fetchingHeaders: false,
   browserHeaders: null,
   browserHeaderError: null,
-  browserLocale: null
+  browserLocale: null,
+  publicConfig: null,
+  loadingPublicConfig: false,
+  loadingPublicConfigError: null
 })
 
 export const actions = {
@@ -21,6 +24,15 @@ export const actions = {
         (error) => {
           commit('browserHeadersFailure', { error })
         }
+      )
+  },
+
+  loadPublicConfig ({ commit }) {
+    commit('loadPublicConfigRequest')
+    userService.loadPublicConfig()
+      .then(
+        (config) => { commit('loadPublicConfigSuccess', { config }) },
+        (error) => { commit('loadPublicConfigFailure', { error }) }
       )
   }
 }
@@ -53,5 +65,19 @@ export const mutations = {
   browserHeadersFailure (state, { error }) {
     state.fetchingHeaders = false
     state.userStatus = { verifyError: error }
+  },
+
+  loadPublicConfigRequest (state) {
+    state.loadingPublicConfig = true
+    state.invitationError = null
+  },
+  loadPublicConfigSuccess (state, { config }) {
+    state.publicConfig = config
+    state.loadingPublicConfig = false
+    state.loadingPublicConfigError = null
+  },
+  loadPublicConfigFailure (state, { error }) {
+    state.loadingPublicConfig = false
+    state.loadingPublicConfigError = error
   }
 }

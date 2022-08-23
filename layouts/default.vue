@@ -16,13 +16,24 @@
 
 <script>
 // noinspection NpmUsedModulesInstalled
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DefaultLayout',
-  created () { this.fetchBrowserHeaders() },
+  head () {
+    return {
+      title: this.publicConfig && this.publicConfig.title ? this.publicConfig.title : this.$config.title
+    }
+  },
+  computed: {
+    ...mapState(['publicConfig'])
+  },
+  created () {
+    this.fetchBrowserHeaders()
+    this.loadPublicConfig()
+  },
   methods: {
-    ...mapActions(['fetchBrowserHeaders'])
+    ...mapActions(['fetchBrowserHeaders', 'loadPublicConfig'])
   }
 }
 </script>
