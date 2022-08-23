@@ -13,7 +13,8 @@ export default {
     }
     const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
     const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
-    const { source, path } = src.extractSourceAndPathAndConnect(p)
+    const { source, path } = await src.extractSourceAndPathAndConnect(p)
+    if (!source || !path) { return api.notFound() }
     const thumbPath = u.canonicalDestDir(path) + util.SELECTED_THUMBNAIL_FILE
     if (req.method === 'GET') {
       res.statusCode = 200

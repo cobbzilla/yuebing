@@ -98,7 +98,8 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = src.extractSourceAndPathAndConnect(req.url)
+    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
+    if (!source || !path) { return api.notFound() }
     console.log(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${path}`)
     const transforms = await scan(source, path)
     return api.okJson(res, transforms)

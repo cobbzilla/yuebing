@@ -11,7 +11,8 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = src.extractSourceAndPathAndConnect(req.url)
+    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
+    if (!source || !path) { return api.okJson(res, []) }
     console.log(`>>>>> API: Listing ${req.url}, source=${source.name}, prefix=${path}`)
     const results = await source.list(path)
     for (let i = 0; i < results.length; i++) {

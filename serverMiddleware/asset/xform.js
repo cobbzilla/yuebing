@@ -139,7 +139,7 @@ function deleteLocalFiles (outfile, profile, job, jobPrefix) {
 
 async function clearErrors (job, jobPrefix, sourcePath, profile) {
   q.recordJobEvent(job, `${jobPrefix}_clearing_errors`)
-  const { source, path } = src.extractSourceAndPathAndConnect(sourcePath)
+  const { source, path } = await src.extractSourceAndPathAndConnect(sourcePath)
   await source.clearErrors(path, profile.name)
   q.recordJobEvent(job, `${jobPrefix}_cleared_errors`)
 }
@@ -411,7 +411,7 @@ async function createArtifacts (job, localSourceFile) {
 
 async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
-  const { source, path } = src.extractSourceAndPathAndConnect(sourcePath)
+  const { source, path } = await src.extractSourceAndPathAndConnect(sourcePath)
   const mediaType = m.mediaType(path)
   const jobPrefix = `ensureSourceDownload_${mediaType}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)

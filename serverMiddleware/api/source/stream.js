@@ -46,7 +46,8 @@ export default {
     // adjust for undefined paths, chop leading / if present
     const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
 
-    const { source, path } = src.extractSourceAndPathAndConnect(p)
+    const { source, path } = await src.extractSourceAndPathAndConnect(p)
+    if (!source || !path) { return api.notFound() }
 
     // only HEAD and GET are allowed, return 404 for anything else
     switch (req.method) {

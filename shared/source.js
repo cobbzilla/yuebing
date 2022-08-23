@@ -11,16 +11,16 @@ const SOURCE_TYPES = {
   },
   s3: {
     key: {
-      rules: 'required|max:50'
+      rules: 'required|min:10|max:50'
     },
     secret: {
-      rules: 'required|max:100'
+      rules: 'required|min:10|max:100'
     },
     bucket: {
       rules: 'required|min:2|max:63'
     },
     region: {
-      default: 'required|us-east-1'
+      default: 'us-east-1'
     },
     prefix: {
       default: ''

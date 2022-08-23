@@ -14,7 +14,8 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = src.extractSourceAndPathAndConnect(req.url)
+    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
+    if (!source || !path) { return api.notFound() }
     const infoPath = u.canonicalDestDir(path) + USER_MEDIAINFO_JSON
     if (req.method === 'GET') {
       res.statusCode = 200

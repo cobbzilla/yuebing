@@ -123,7 +123,6 @@ import {
 } from '@/shared/source'
 
 const crypto = require('crypto')
-const randomstring = require('randomstring')
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
