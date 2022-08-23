@@ -1,33 +1,41 @@
 const vv = require('vee-validate')
+const rules = require('vee-validate/dist/rules')
 
 const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
 
 // Sometimes we need regex validation and the regex contains a pipe character.
 // The pipe breaks vee-validation rule parsing, so we use these custom rules.
 const REGEX_VALIDATORS = {
-  url: /^(https?):\/\/[-a-zA-Z\d+&@#/%?=~_|!:,.;]*[-a-zA-Z\d+&@#/%=~_|]$/,
-  host: /([A-Zd]{1,63}|[A-Zd][A-Zd-]{0,61}[A-Zd])(.([A-Zd]{1,63}|[A-Zd][A-Zd-]{0,61}[A-Zd]))*/
+  locale: /[a-z]{2}_[A-Z]{2}/,
+  host: /([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d])(.([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d]))*/i,
+  url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i
 }
 
-function extendVee (vee) {
-  for (const field of Object.keys(REGEX_VALIDATORS)) {
-    vv.extend(field, {
-      getMessage (field, val) { return 'invalid' },
+function extendVee () {
+  for (const [rule, validation] of Object.entries(rules)) {
+    // noinspection TypeScriptValidateTypes
+    vv.extend(rule, Object.assign({}, { ...validation }, { message: rule }))
+  }
+
+  for (const ruleName of Object.keys(REGEX_VALIDATORS)) {
+    vv.extend(ruleName, {
+      message (field, val) { return 'invalid' },
       validate (value, field) {
         if (!field) {
           console.warn('validate: no field provided, returning true')
           return true
         }
         try {
-          return REGEX_VALIDATORS[field].test(value)
+          return REGEX_VALIDATORS[ruleName].test(value)
         } catch (e) {
-          console.error(`validate(field=${field}) error: ${e}`)
+          console.warn(`validate(field=${field}) error: ${e}`)
           return false
         }
       }
     })
   }
 }
+extendVee()
 
 function isExactRegexMatch (value, regex) {
   const match = value.match(regex)
@@ -99,7 +107,9 @@ function validate (thing, isUpdate = false, rules = VALIDATIONS) {
   return errors
 }
 
-const RULE_FIELDS = ['min', 'max', 'required', 'integer', 'email']
+const RULE_FIELDS = [
+  'min', 'max', 'min_value', 'max_value', 'required', 'integer', 'email'
+]
 RULE_FIELDS.push(...Object.keys(REGEX_VALIDATORS))
 
 function condenseFieldRules (fieldValidations) {

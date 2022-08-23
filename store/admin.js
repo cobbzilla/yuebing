@@ -36,6 +36,7 @@ export const state = () => ({
   siteConfigError: null,
 
   updatingSiteConfig: false,
+  updateSiteSuccess: null,
   siteConfigUpdateError: null
 })
 
@@ -268,14 +269,17 @@ export const mutations = {
   },
 
   updateSiteConfigRequest (state, { config }) {
+    state.updateSiteSuccess = false
     state.updatingSiteConfig = true
   },
   updateSiteConfigSuccess (state, { config }) {
+    state.updateSiteSuccess = true
     state.updatingSiteConfig = false
     state.siteConfig = config
     state.siteConfigUpdateError = null
   },
   updateSiteConfigFailure (state, { error }) {
+    state.updateSiteSuccess = false
     state.updatingSiteConfig = false
     state.siteConfigUpdateError = error
   }

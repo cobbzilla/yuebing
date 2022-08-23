@@ -43,12 +43,12 @@ export default {
 
       configurable: {
         verify: {
-          rules: 'required|integer|min:0|max:3153600000000',
+          rules: 'required|integer|min_value:0|max_value:3153600000000',
           format: 'duration',
           default: 1000 * 60 * 60 * 24 * 2 // 2 days
         },
         resetPassword: {
-          rules: 'required|integer|min:0|max:3153600000000',
+          rules: 'required|integer|min_value:0|max_value:3153600000000',
           format: 'duration',
           default: 1000 * 60 * 60 // 1 hour
         }
@@ -81,7 +81,7 @@ export default {
         default: null
       },
       defaultLocale: {
-        rules: 'min:5|max:5|regex:/[a-z]{2}_[A-Z]{2}/'
+        rules: 'locale|min:5|max:5'
       },
       emailEnabled: {
         rules: 'required',
@@ -119,7 +119,7 @@ export default {
           rules: 'required|host|min:6|max:128'
         },
         port: {
-          rules: 'required|integer|min:10|max:65000'
+          rules: 'required|integer|min_value:10|max_value:65000'
         },
         user: {
           rules: 'required|min:2|max:100'
@@ -159,7 +159,7 @@ export default {
           rules: 'required|host|min:6|max:128'
         },
         port: {
-          rules: 'required|integer|min:10|max:65000'
+          rules: 'required|integer|min_value:10|max_value:65000'
         },
         flushAtStartup: {
           rules: 'required',
@@ -167,12 +167,12 @@ export default {
           default: false
         },
         listingCacheExpiration: {
-          rules: 'required|integer|min:0|max:3153600000000',
+          rules: 'required|integer|min_value:0|max_value:3153600000000',
           format: 'duration',
           default: 5 * 60 * 1000 // default 5 minutes
         },
         manifestCacheExpiration: {
-          rules: 'required|integer|min:0|max:3153600000000',
+          rules: 'required|integer|min_value:0|max_value:3153600000000',
           format: 'duration',
           default: 60 * 1000 // default 1 minute
         }
@@ -229,7 +229,7 @@ export default {
           rules: 'max:50'
         },
         bcryptRounds: {
-          rules: 'required|integer|min:8|max:100'
+          rules: 'required|integer|min_value:8|max_value:100'
         }
       }
     },
@@ -240,7 +240,7 @@ export default {
 
       configurable: {
         expiration: {
-          rules: 'required|integer|min:0|max:3153600000000',
+          rules: 'required|integer|min_value:0|max_value:3153600000000',
           format: 'duration',
           default: 1000 * 60 * 60 * 24
         }
@@ -276,13 +276,13 @@ export default {
           default: true
         },
         interval: {
-          rules: 'integer|min:60000|max:3153600000000',
+          rules: 'integer|min_value:60000|max_value:3153600000000',
           when: 'enabled',
           format: 'duration',
           default: 1000 * 60 * 60 * 24 // default 24 hours
         },
         initialDelay: {
-          rules: 'integer|min:60000|max:3153600000000',
+          rules: 'integer|min_value:60000|max_value:3153600000000',
           when: 'enabled',
           format: 'duration',
           default: 1000 * 30 // default 30 seconds
@@ -293,7 +293,7 @@ export default {
           default: false
         },
         concurrency: {
-          rules: 'required|integer|min:1|max:10000',
+          rules: 'required|integer|min_value:1|max_value:10000',
           default: 2
         }
       }

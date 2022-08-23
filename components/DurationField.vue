@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <ValidationProvider v-slot="{ errors }" :name="options.field" :rules="options.fieldRules" immediate>
+    <ValidationProvider v-slot="{ errors }" :name="field" :rules="fieldRules" immediate>
       <v-row>
         <v-col>
-          <b>{{ messages[options.fieldLabel] }}</b>
+          <b>{{ messages[fieldLabel] }}</b>
         </v-col>
       </v-row>
       <v-row>
@@ -15,6 +15,7 @@
             :full-width="false"
             name="days"
             class="form-control"
+            @change="$emit('update', {field, value: durationValue})"
           />
         </v-col>
         <v-col>
@@ -25,6 +26,7 @@
             :full-width="false"
             name="hours"
             class="form-control"
+            @change="$emit('update', {field, value: durationValue})"
           />
         </v-col>
         <v-col>
@@ -35,6 +37,7 @@
             :full-width="false"
             name="minutes"
             class="form-control"
+            @change="$emit('update', {field, value: durationValue})"
           />
         </v-col>
       </v-row>
@@ -59,10 +62,10 @@ const DAYS_MILLIS = HOURS_MILLIS * 24
 export default {
   name: 'DurationField',
   props: {
-    options: {
-      type: Object,
-      default () { return {} }
-    }
+    field: { type: String, default: null },
+    fieldLabel: { type: String, default: null },
+    fieldValue: { type: Number, default: null },
+    fieldRules: { type: String, default: null }
   },
   data () {
     return {
@@ -74,16 +77,21 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) }
+    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    durationValue () {
+      return ((this.days ? this.days : 0) * DAYS_MILLIS) +
+        ((this.hours ? this.hours : 0) * HOURS_MILLIS) +
+        ((this.minutes ? this.minutes : 0) * MINUTES_MILLIS)
+    }
   },
   created () {
-    this.days = Math.floor(this.options.fieldValue / DAYS_MILLIS)
-    this.hours = Math.floor((this.options.fieldValue % DAYS_MILLIS) / HOURS_MILLIS)
-    this.minutes = Math.floor((this.options.fieldValue % HOURS_MILLIS) / MINUTES_MILLIS)
+    this.days = Math.floor(this.fieldValue / DAYS_MILLIS)
+    this.hours = Math.floor((this.fieldValue % DAYS_MILLIS) / HOURS_MILLIS)
+    this.minutes = Math.floor((this.fieldValue % HOURS_MILLIS) / MINUTES_MILLIS)
   },
   methods: {
     fieldError (error) {
-      return error ? fieldErrorMessage(this.options.fieldLabel, error, this.messages, '') : '(no message)'
+      return error ? fieldErrorMessage(this.fieldLabel, error, this.messages, '') : '(no message)'
     }
   }
 }

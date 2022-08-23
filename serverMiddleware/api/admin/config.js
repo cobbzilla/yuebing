@@ -18,15 +18,21 @@ export default {
       }))
       res.end()
     } else if (req.method === 'POST') {
-      req.on('data', (data) => {
+      req.on('data', async (data) => {
         const newConfig = JSON.parse(data)
-        const errors = system.updateConfig(newConfig)
-        return errors
-          ? api.validationFailed(res, errors)
-          : api.okJson({
-            publicConfig: system.publicConfig,
-            privateConfig: system.privateConfig
-          })
+        try {
+          const errors = await system.updateConfig(newConfig)
+          return Object.keys(errors).length > 0
+            ? api.validationFailed(res, errors)
+            : api.okJson(res, {
+              publicConfig: system.publicConfig,
+              privateConfig: system.privateConfig
+            })
+        } catch (e) {
+          const message = `error updating config: ${JSON.stringify(e)}`
+          console.error(message)
+          return api.serverError(res, message)
+        }
       })
     } else {
       return api.badRequest(res, 'HTTP method must be GET or POST')

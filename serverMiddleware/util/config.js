@@ -23,23 +23,23 @@ const encryption = {
 
 const CONFIGS = ['public', 'private']
 
-function updateConfigAtLevel (topLevel, configLevel, configPath, errors) {
+async function updateConfigAtLevel (topLevel, configLevel, configPath, errors) {
   const configurable = configLevel.configurable
   if (configurable) {
     for (const field of Object.keys(configurable)) {
       const fieldConfig = configurable[field]
+      const fieldPath = configPath + '_' + field
       if (fieldConfig.rules) {
-        const fieldErrors = vv.validate(configLevel[field], fieldConfig.rules)
-        if (fieldErrors && Object.keys(fieldErrors) > 0) {
-          if (typeof errors[configPath + field] === 'undefined') {
-            errors[configPath + field] = []
+        const valid = await vv.validate(configLevel[field], fieldConfig.rules)
+        if (!valid.valid) {
+          if (typeof errors[fieldPath] === 'undefined') {
+            errors[fieldPath] = []
           }
-          errors[configPath + field].push(fieldErrors)
+          errors[fieldPath].push(...Object.keys(valid.failedRules))
         }
       }
-      if (typeof configLevel[field] === 'object') {
-        const newPath = (configPath.length > 0 ? configPath + '_' : '') + field + '_'
-        updateConfigAtLevel(topLevel, configLevel[field], newPath, errors)
+      if (configLevel[field] && typeof configLevel[field] === 'object') {
+        await updateConfigAtLevel(topLevel, configLevel[field], fieldPath, errors)
       }
     }
   }
@@ -53,7 +53,7 @@ const SYSTEM = {
   canonicalDestBase: null,
 
   connect: async () => {
-    if (!this.api) {
+    if (!SYSTEM.api) {
       const enc = !encryption.key ? null : encryption
       SYSTEM.api = await storage.connect('s3', key, secret, opts, enc)
       for (const config of CONFIGS) {
@@ -70,17 +70,29 @@ const SYSTEM = {
         SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
       }
     }
-    return this
+    return SYSTEM
   },
-  updateConfig: (newConfig) => {
+  updateConfig: async (newConfig) => {
     const errors = {}
+    const configs = {}
     for (const topLevel of Object.keys(newConfig)) {
-      const config = this[`${topLevel}Config`] || null
-      if (!config) {
+      if (!SYSTEM[topLevel]) {
         errors.push({ configCategory: ['invalid'] })
         continue
       }
-      updateConfigAtLevel(topLevel, config, '', errors)
+      configs[topLevel] = JSON.parse(JSON.stringify(SYSTEM[topLevel]))
+      await updateConfigAtLevel(topLevel, configs[topLevel], topLevel, errors)
+    }
+    if (Object.keys(errors).length === 0) {
+      for (const topLevel of Object.keys(newConfig)) {
+        if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(configs[topLevel])) {
+          console.log(`updateConfig(${topLevel}): not changed, not writing to storage`)
+        } else {
+          await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(configs[topLevel]))
+          SYSTEM[topLevel] = configs[topLevel]
+          console.log(`updateConfig(${topLevel}): SAVED NEW CONFIG`)
+        }
+      }
     }
     return errors
   },
