@@ -17,20 +17,24 @@ async function handleAdd (res, source) {
   try {
     return api.okJson(res, await s.createSource(source))
   } catch (e) {
-    return api.serverError(res, `Error creating source: ${e}`)
+    return api.serverError(res, `Error creating source: ${JSON.stringify(e)}`)
   }
 }
 
 async function handleDelete (res, name) {
   return await s.sourceExists(name).then(
-    (source) => {
-      s.deleteSource(source.name).then(
-        () => api.okJson(res, { deleted: true }),
-        (err) => {
-          const message = `handleDelete: error calling deleteSource: ${err}`
-          console.error(message)
-          return api.serverError(res, message)
-        })
+    (sourceName) => {
+      if (sourceName) {
+        s.deleteSource(sourceName).then(
+          () => api.okJson(res, { deleted: true }),
+          (err) => {
+            const message = `handleDelete: error calling deleteSource: ${err}`
+            console.error(message)
+            return api.serverError(res, message)
+          })
+      } else {
+        return api.notFound(res, name)
+      }
     },
     err => handleSourceError(res, err, name)
   )
@@ -47,17 +51,14 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const sourceName = req.url
+    const sourceName = req.url.startsWith('/') ? req.url.substring(1) : req.url
     let handler
     try {
       switch (req.method) {
-        case 'GET':
-          return await s.findSource(sourceName)
+        case 'GET': return await s.findSource(sourceName)
+        case 'DELETE': return await handleDelete(res, sourceName)
         case 'PUT':
           handler = handleAdd
-          break
-        case 'DELETE':
-          handler = handleDelete
           break
         case 'POST':
           handler = handleQuery

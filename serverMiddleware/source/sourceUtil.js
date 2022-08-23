@@ -6,7 +6,7 @@ const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 
 const SOURCES_PREFIX = 'sources/'
-const sourceKey = name => SOURCES_PREFIX + name
+const sourceKey = name => name.startsWith(SOURCES_PREFIX) ? name : SOURCES_PREFIX + name + '.json'
 
 function SourceError (source) {
   this.message = source
@@ -32,7 +32,8 @@ function searchMatches (source, searchTerms) {
 
 async function sourceExists (name) {
   try {
-    return await system.api.metadata(sourceKey(name)).name
+    const meta = await system.api.metadata(sourceKey(name))
+    return meta.name
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
       return false
@@ -82,7 +83,9 @@ async function createSource (source) {
   await mobiletto(source.type, source.key, source.secret, opts, enc)
 
   // save source
-  return await system.api.writeFile(sourceKey(source.name), JSON.stringify(source))
+  const now = Date.now()
+  const sourceRecord = Object.assign({}, source, { ctime: now, mtime: now })
+  return await system.api.writeFile(sourceKey(source.name), JSON.stringify(sourceRecord))
 }
 
 async function deleteSource (name) {

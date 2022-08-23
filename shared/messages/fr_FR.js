@@ -265,6 +265,8 @@ export default {
   admin_title_add_source: 'Ajouter une source multimédia',
   admin_button_delete_source: 'Supprimer la source multimédia',
   admin_label_confirm_source_delete: 'Veuillez confirmer la suppression de la source multimédia: {{ source }}',
+  admin_info_source_added: 'La nouvelle source \'{{ source }}\' a été ajoutée avec succès',
+  admin_info_source_add_error: 'Une erreur s\'est produite en ajoutant de la source \'{{ source }}\'',
   admin_label_source_name: 'Nom de la source multimédia',
   admin_label_source_type: 'Type de source multimédia',
   admin_label_source_readOnly: 'Mont en lecture seule?',

@@ -14,6 +14,7 @@
             </v-snackbar>
           </v-col>
         </v-row>
+        <!-- todo: show/hide config JSON for category -->
         <v-row v-for="(cat, catIndex) in configCategories" :key="catIndex">
           <v-col>
             <ConfigNode
@@ -99,7 +100,7 @@ export default {
       console.log(`OK -------- errors are ${JSON.stringify(errors)} and this.errors is ${this.errors}`)
     },
     onConfigUpdate (update) {
-      console.log(`onConfigUpdate(MAIN) received update: ${JSON.stringify(update)}`)
+      // console.log(`onConfigUpdate(MAIN) received update: ${JSON.stringify(update)}`)
       const parts = update.field.split('_')
       const pathParts = parts.slice(0, parts.length - 1)
       const varname = parts.slice(-1)[0]

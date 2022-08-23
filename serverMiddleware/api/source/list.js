@@ -11,16 +11,20 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
-    if (!source || !path) { return api.okJson(res, []) }
-    console.log(`>>>>> API: Listing ${req.url}, source=${source.name}, prefix=${path}`)
-    const results = await source.list(path)
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i]
-      if (result.mediaType && result.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
-        result.meta = await manifest.deriveMetadata(source, result.name)
+    try {
+      const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
+      if (!source || !path) { return api.okJson(res, []) }
+      console.log(`>>>>> API: Listing ${req.url}, source=${source.name}, prefix=${path}`)
+      const results = await source.list(path)
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i]
+        if (result.mediaType && result.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
+          result.meta = await manifest.deriveMetadata(source, result.name)
+        }
       }
+      return api.okJson(res, results)
+    } catch (e) {
+      return api.serverError(res, 'error listing')
     }
-    return api.okJson(res, results)
   }
 }

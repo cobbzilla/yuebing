@@ -20,6 +20,7 @@ const SOURCE_TYPES = {
       rules: 'required|min:2|max:63'
     },
     region: {
+      rules: 'required|min:5|max:20',
       default: 'us-east-1'
     },
     prefix: {

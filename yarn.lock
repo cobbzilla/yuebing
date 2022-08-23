@@ -7546,9 +7546,9 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mobiletto@^1.0.2:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.11.tgz#bc07906c288c6f716e21fab90f0603a608c16e51"
-  integrity sha512-6nSd4iQ+5XFIbR7zKBCJ2o+eWqGC0iFgAVw/+vL+zVE4RUr7WO+O50Ty6QCMpny8ZxNVmxX87/BFfSnuljQaPg==
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.12.tgz#e9b5b2e140777bf63db5b4e047d4b0c7f20cd627"
+  integrity sha512-+lni6AqVu11/6bugX6Pn0miIZe494BZa8DjFSQVyIVPvnufdXf4gglz13jj5NcVQzs7tSXmqo12QvQIV5onTaA==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"

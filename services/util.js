@@ -52,9 +52,15 @@ function authDataJson (obj, method, headers = null) {
 
 function handleJsonResponse (response) {
   return response.text().then((text) => {
-    const data = typeof text === 'string' ? JSON.parse(text) : 'null'
+    let data
+    try {
+      data = typeof text === 'string' ? JSON.parse(text) : null
+    } catch (e) {
+      console.log(`handleJsonResponse: error parsing: ${text}`)
+      data = null
+    }
     if (!response.ok) {
-      const error = text ? data : response.statusText
+      const error = data || (text || response.statusText)
       return Promise.reject(error)
     }
     // console.log(`handleJsonResponse returning: ${JSON.stringify(data, null, 2)}`)

@@ -267,6 +267,8 @@ export default {
   admin_title_add_source: 'Add Source',
   admin_button_delete_source: 'Delete Source',
   admin_label_confirm_source_delete: 'Please confirm deletion of the source: {{ source }}',
+  admin_info_source_added: 'The new source \'{{ source }}\' was successfully added',
+  admin_info_source_add_error: 'An error occurred adding source \'{{ source }}\'',
   admin_label_source_name: 'Source Name',
   admin_label_source_type: 'Source Type',
   admin_label_source_readOnly: 'Read-only?',

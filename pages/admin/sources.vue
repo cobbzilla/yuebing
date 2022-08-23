@@ -5,6 +5,34 @@
         <h2>{{ messages.admin_title_source_administration }}</h2>
       </v-col>
     </v-row>
+    <v-row v-if="showSuccessSnackbar && addSourceSuccess">
+      <v-col>
+        <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
+          <h4>
+            {{ messages.admin_info_source_added.parseMessage({ source: newSource.name }) }}
+          </h4>
+        </v-snackbar>
+      </v-col>
+    </v-row>
+    <v-row v-if="showErrorSnackbar && addSourceError">
+      <v-col>
+        <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
+          <h4>
+            {{ messages.admin_info_source_add_error.parseMessage({ source: newSource.name }) }}
+          </h4>
+          <small>
+            <vue-json-pretty
+              :data="addSourceError"
+              :show-line="false"
+              :show-double-quotes="false"
+              :select-on-click-node="false"
+              :highlight-selected-node="false"
+              :collapsed-on-click-brackets="false"
+            />
+          </small>
+        </v-snackbar>
+      </v-col>
+    </v-row>
     <v-row v-if="totalSourceCount > 0">
       <v-col>
         <div>
@@ -75,6 +103,7 @@
                   item-text="message"
                   item-value="name"
                   class="form-control"
+                  @change="setSourceTypeDefaults"
                 />
                 <ValidationProvider v-slot="{ errors }" name="name" rules="required|max:100" immediate>
                   <v-text-field
@@ -101,6 +130,7 @@
                       :label="messages[configFieldLabel(fieldName)]"
                       type="text"
                       :name="fieldName"
+                      :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
                       :class="{ 'is-invalid': errors.length>0 }"
                     />
@@ -110,6 +140,7 @@
                       :label="messages[configFieldLabel(fieldName)]"
                       type="text"
                       :name="fieldName"
+                      :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
                       :class="{ 'is-invalid': errors.length>0 }"
                     />
@@ -196,6 +227,7 @@ import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
+import { UI_CONFIG } from '@/services/util'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
@@ -208,6 +240,12 @@ export default {
       pageSize: 20,
       searchTerms: '',
       deleteConfirmCount: 0,
+
+      showSuccessSnackbar: false,
+      successSnackTimeout: -1,
+      showErrorSnackbar: false,
+      errorSnackTimeout: -1,
+
       newSource: {
         type: 's3',
         name: null,
@@ -223,7 +261,9 @@ export default {
   computed: {
     ...mapState(['publicConfig']),
     ...mapState('user', ['user']),
-    ...mapState('admin', ['sourceList', 'totalSourceCount', 'findingSources', 'addSourceError', 'deleteSourceError']),
+    ...mapState('admin', [
+      'sourceList', 'totalSourceCount', 'findingSources', 'addSourceSuccess', 'addSourceError', 'deleteSourceError'
+    ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     searchQuery () {
       return {
@@ -243,9 +283,35 @@ export default {
       return null
     }
   },
+  watch: {
+    addSourceError (newError) {
+      if (newError) {
+        // longer timeout for these kinds of things, more time to see the error
+        this.errorSnackTimeout = 2 * UI_CONFIG.snackbarErrorTimeout
+        this.showErrorSnackbar = true
+        this.showSuccessSnackbar = false
+      } else {
+        this.errorSnackTimeout = null
+        this.showErrorSnackbar = false
+      }
+    },
+    addSourceSuccess (ok) {
+      if (ok) {
+        // longer timeout for these kinds of things, more time to see the error
+        this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
+        this.showSuccessSnackbar = true
+        this.showErrorSnackbar = false
+        this.findSources({ query: this.searchQuery })
+      } else {
+        this.showSuccessSnackbar = false
+        this.successSnackTimeout = null
+      }
+    }
+  },
   created () {
     const query = this.searchQuery
     this.findSources({ query })
+    this.setSourceTypeDefaults()
   },
   methods: {
     ...mapActions('admin', ['findSources', 'addSource', 'deleteSource']),
@@ -263,6 +329,20 @@ export default {
     configFieldLabel (field) {
       return localizedSourceConfigLabel(this.newSource.type, field)
     },
+    setSourceTypeDefaults () {
+      this.newSource.opts = {}
+      const config = this.sourceTypeConfiguration
+      for (const field of Object.keys(config)) {
+        const fieldConfig = config[field]
+        if (fieldConfig.default) {
+          if (this.isOpt(field)) {
+            this.newSource.opts[field] = fieldConfig.default
+          } else {
+            this.newSource[field] = fieldConfig.default
+          }
+        }
+      }
+    },
     async addSrc () {
       this.addSourceSubmitted = true
       await this.$refs.addSrcForm.validate().then((success) => {
@@ -273,7 +353,7 @@ export default {
     },
     delSource (src) {
       if (this.deleteConfirmCount > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
-        confirm(this.messages.admin_label_confirm_source_delete.parseMessage({ src }))) {
+        confirm(this.messages.admin_label_confirm_source_delete.parseMessage({ source: src }))) {
         this.deleteConfirmCount++
         this.deleteSource({ src })
       } else {
