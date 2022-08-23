@@ -20,13 +20,15 @@ import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DefaultLayout',
-  head () {
-    return {
-      title: this.publicConfig && this.publicConfig.title ? this.publicConfig.title : this.$config.title
-    }
-  },
   computed: {
     ...mapState(['publicConfig'])
+  },
+  watch: {
+    publicConfig (newConfig) {
+      if (newConfig && newConfig.title) {
+        document.title = newConfig.title
+      }
+    }
   },
   created () {
     this.fetchBrowserHeaders()

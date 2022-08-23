@@ -4,6 +4,6 @@ const system = require('../../util/config').SYSTEM
 export default {
   path: '/api/user/config',
   handler (req, res) {
-    return api.okJson(res, JSON.stringify(system.publicConfig))
+    return api.okJson(res, system.publicConfig)
   }
 }
