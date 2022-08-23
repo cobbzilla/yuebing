@@ -70,13 +70,16 @@ async function createSource (source) {
   if (await sourceExists(source.name)) {
     throw new SourceError(`createSource: source exists: ${source.name}`)
   }
-  if (!source.config) {
-    throw new SourceError(`createSource: no config for ${source.name}`)
-  }
-  const opts = Object.assign({}, source.config.opts || {}, { readOnly: true })
+
+  // determine readOnly (default true) and options
+  const readOnly = typeof source.readOnly === 'boolean' ? source.readOnly : true
+  const opts = Object.assign({}, source.opts || {}, { readOnly })
+
+  // determine encryption
+  const enc = source.encryption && source.encryption.key ? source.encryption : null
 
   // test connection
-  await mobiletto(source.type, source.config.key, source.config.secret, opts)
+  await mobiletto(source.type, source.key, source.secret, opts, enc)
 
   // save source
   return await system.api.writeFile(sourceKey(source.name), JSON.stringify(source))

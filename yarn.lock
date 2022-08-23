@@ -10823,6 +10823,11 @@ vue-hot-reload-api@^2.3.0:
   resolved "https://registry.npmjs.org/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
 
+vue-json-pretty@^1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/vue-json-pretty/-/vue-json-pretty-1.9.1.tgz#98eaafc41cb7fa21190245f48eddcc51c225ddfd"
+  integrity sha512-j9xpIyfJ+thmfTE/XOCT2jdhW3O9ZDvl6tpsQckH40QxmDe47m+uezsFb4KxLsc8ud0wQDCS+uFhOK8LsGxq2g==
+
 vue-loader@^15.9.7:
   version "15.10.0"
   resolved "https://registry.npmjs.org/vue-loader/-/vue-loader-15.10.0.tgz"

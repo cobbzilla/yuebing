@@ -61,8 +61,8 @@ function sortByField (array, field, ascending) {
 function extractSourceAndPath (from) {
   const slash = from.indexOf('/')
   const hasSlash = slash !== -1 && slash !== from.length
-  const sourceName = hasSlash ? from(0, slash) : from
-  const path = hasSlash ? from(slash + 1) : ''
+  const sourceName = hasSlash ? from.substring(0, slash) : from
+  const path = hasSlash ? from.substring(slash + 1) : ''
   return { sourceName, prefix: path }
 }
 

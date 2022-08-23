@@ -87,10 +87,26 @@
                   />
                   <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('name', errors[0]) }}</span>
                 </ValidationProvider>
+                <v-checkbox
+                  v-model="newSource.readOnly"
+                  :label="messages.admin_label_source_readOnly"
+                  name="readOnly"
+                  class="form-control"
+                />
                 <div v-for="(fieldConfig, fieldName) in sourceTypeConfiguration" :key="fieldName">
                   <ValidationProvider v-slot="{ errors }" :name="fieldName" :rules="fieldConfig.rules || ''" immediate>
                     <v-text-field
-                      v-model="newSource.config[fieldName]"
+                      v-if="isOpt(fieldName)"
+                      v-model="newSource.opts[fieldName]"
+                      :label="messages[configFieldLabel(fieldName)]"
+                      type="text"
+                      :name="fieldName"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.length>0 }"
+                    />
+                    <v-text-field
+                      v-else
+                      v-model="newSource[fieldName]"
                       :label="messages[configFieldLabel(fieldName)]"
                       type="text"
                       :name="fieldName"
@@ -99,6 +115,61 @@
                     />
                     <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError(fieldName, errors[0]) }}</span>
                   </ValidationProvider>
+                </div>
+                <div>
+                  <v-checkbox
+                    v-model="newSource.encryption.enabled"
+                    :label="messages.admin_label_source_encryption_enable"
+                    name="encryptionEnabled"
+                    class="form-control"
+                  />
+                  <div v-if="newSource.encryption.enabled">
+                    <ValidationProvider v-slot="{ errors }" name="encryptionKey" rules="required|min:32" immediate>
+                      <v-text-field
+                        v-model="newSource.encryption.key"
+                        :label="messages.admin_label_source_encryption_key"
+                        type="text"
+                        name="encryptionKey"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.length>0 }"
+                      />
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionKey', errors[0]) }}</span>
+                    </ValidationProvider>
+                    <ValidationProvider v-slot="{ errors }" name="encryptionIV" rules="min:32" immediate>
+                      <v-text-field
+                        v-model="newSource.encryption.iv"
+                        :label="messages.admin_label_source_encryption_iv"
+                        type="text"
+                        name="encryptionIV"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.length>0 }"
+                      />
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionIV', errors[0]) }}</span>
+                    </ValidationProvider>
+                    <ValidationProvider v-slot="{ errors }" name="encryptionAlgo" rules="min:32" immediate>
+                      <v-select
+                        v-model="newSource.encryption.algo"
+                        :label="messages.admin_label_source_encryption_algo"
+                        name="encryptionAlgo"
+                        :items="encryptionAlgos"
+                        item-text="name"
+                        item-value="name"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.length>0 }"
+                      />
+                      <small v-if="newSource.encryption.algo">
+                        <vue-json-pretty
+                          :data="selectedAlgoDetails"
+                          :show-line="false"
+                          :show-double-quotes="false"
+                          :select-on-click-node="false"
+                          :highlight-selected-node="false"
+                          :collapsed-on-click-brackets="false"
+                        />
+                      </small>
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionAlgo', errors[0]) }}</span>
+                    </ValidationProvider>
+                  </div>
                 </div>
                 <div class="form-group">
                   <v-btn class="btn btn-primary" @click.stop="addSrc">
@@ -115,19 +186,22 @@
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
+
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { DEFAULT_ENCRYPTION_ALGO } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
 
-const crypto = require('crypto')
-
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
 export default {
   name: 'ManageSources',
+  components: { VueJsonPretty },
   data () {
     return {
       pageNumber: 1,
@@ -137,12 +211,17 @@ export default {
       newSource: {
         type: 's3',
         name: null,
-        config: {}
+        key: null,
+        secret: null,
+        readOnly: true,
+        opts: {},
+        encryption: { enabled: false, algo: DEFAULT_ENCRYPTION_ALGO }
       },
       addSourceSubmitted: false
     }
   },
   computed: {
+    ...mapState(['publicConfig']),
     ...mapState('user', ['user']),
     ...mapState('admin', ['sourceList', 'totalSourceCount', 'findingSources', 'addSourceError', 'deleteSourceError']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
@@ -155,10 +234,13 @@ export default {
     },
     sourceTypes () { return localizedSourceTypes(this.messages) },
     sourceTypeConfiguration () { return sourceTypeConfig(this.newSource.type) },
-    encryptionAlgos () {
-      return crypto.getCiphers().map((c) => {
-        return { name: c, value: crypto.getCipherInfo(c).name }
-      })
+    encryptionAlgos () { return this.publicConfig && this.publicConfig.crypto ? this.publicConfig.crypto : null },
+    selectedAlgoDetails () {
+      if (this.newSource.encryption.algo && this.encryptionAlgos) {
+        const algo = this.encryptionAlgos.find(enc => enc.name === this.newSource.encryption.algo)
+        return algo ? algo.info : null
+      }
+      return null
     }
   },
   created () {
@@ -170,6 +252,7 @@ export default {
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
+    isOpt (field) { return field !== 'key' && field !== 'secret' },
     srcConfigFieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages, localizedSourceConfigLabelPrefix(this.newSource.type)) : '(no message)'
     },

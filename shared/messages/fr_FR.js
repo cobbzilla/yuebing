@@ -267,6 +267,7 @@ export default {
   admin_label_confirm_source_delete: 'Veuillez confirmer la suppression de la source multimédia: {{ source }}',
   admin_label_source_name: 'Nom de la source multimédia',
   admin_label_source_type: 'Type de source multimédia',
+  admin_label_source_readOnly: 'Mont en lecture seule?',
   admin_label_source_encryption_enable: 'Activer le cryptage',
   admin_label_source_encryption_key: 'Clé de cryptage',
   admin_label_source_encryption_iv: 'Vecteur d\'initialisation (VI)',

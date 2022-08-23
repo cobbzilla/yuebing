@@ -358,12 +358,14 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    'vue-json-pretty/lib/styles.css'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/vee-validate.js',
-    '~/plugins/vuetify.js'
+    '~/plugins/vuetify.js',
+    '~/plugins/vue-json-pretty.js'
   ],
 
   // Don't load serverMiddleware here -- it's loaded via 'modules/api' below

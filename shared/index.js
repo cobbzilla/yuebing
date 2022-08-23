@@ -52,6 +52,8 @@ const ERROR_FILE_PREFIX = '_error_'
 const MULTIFILE_PLACEHOLDER = '%03d'
 const MULTIFILE_FIRST = '001'
 
+const DEFAULT_ENCRYPTION_ALGO = 'aes-256-cbc'
+
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
@@ -62,6 +64,7 @@ module.exports = {
   ERROR_FILE_PREFIX,
   MULTIFILE_PLACEHOLDER,
   MULTIFILE_FIRST,
+  DEFAULT_ENCRYPTION_ALGO,
   snooze,
   scrub,
   getExtension,

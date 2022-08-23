@@ -14,7 +14,11 @@ async function handleAdd (res, source) {
   if (await s.sourceExists(source.name)) {
     return api.handleValidationError(res, { name: 'alreadyExists' })
   }
-  return api.okJson(res, await s.createSource(source))
+  try {
+    return api.okJson(res, await s.createSource(source))
+  } catch (e) {
+    return api.serverError(res, `Error creating source: ${e}`)
+  }
 }
 
 async function handleDelete (res, name) {
