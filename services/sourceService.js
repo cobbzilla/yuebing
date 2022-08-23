@@ -12,11 +12,11 @@ export const sourceService = {
 }
 
 function listS3 (path) {
-  return fetch(`/api/s3/list/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`/api/source/list/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function metadata (path) {
-  return fetch(`/api/s3/meta/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`/api/source/meta/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function jsonAsset (path) {
@@ -24,17 +24,17 @@ function jsonAsset (path) {
 }
 
 function fetchUserMediaInfo (path) {
-  return fetch(`/api/s3/mediainfo/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`/api/source/mediainfo/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function updateUserMediaInfo (path, values) {
-  return fetch(`/api/s3/mediainfo/${path}`, a.authPostJson(values)).then(a.handleJsonResponse)
+  return fetch(`/api/source/mediainfo/${path}`, a.authPostJson(values)).then(a.handleJsonResponse)
 }
 
 function fetchSelectedThumbnail (path) {
-  return fetch(`/api/s3/thumbnail/${path}`, a.authGet()).then(a.handleJsonResponse)
+  return fetch(`/api/source/thumbnail/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function updateSelectedThumbnail (path, thumb) {
-  return fetch(`/api/s3/thumbnail/${path}`, a.authPostJson(thumb)).then(a.handleJsonResponse)
+  return fetch(`/api/source/thumbnail/${path}`, a.authPostJson(thumb)).then(a.handleJsonResponse)
 }
