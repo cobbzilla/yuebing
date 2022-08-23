@@ -23,23 +23,28 @@ const encryption = {
 
 const CONFIGS = ['public', 'private']
 
-async function updateConfigAtLevel (topLevel, configLevel, configPath, errors) {
-  const configurable = configLevel.configurable
+async function updateConfigAtLevel (topLevel, updateTarget, configTarget, configPath, errors) {
+  const configurable = updateTarget.configurable
   if (configurable) {
     for (const field of Object.keys(configurable)) {
+      if (updateTarget[field] === configTarget[field]) {
+        continue
+      }
       const fieldConfig = configurable[field]
       const fieldPath = configPath + '_' + field
       if (fieldConfig.rules) {
-        const valid = await vv.validate(configLevel[field], fieldConfig.rules)
-        if (!valid.valid) {
+        const valid = await vv.validate(configTarget[field], fieldConfig.rules)
+        if (valid.valid) {
+          // allow the field to be set
+          updateTarget[field] = configTarget[field]
+        } else {
           if (typeof errors[fieldPath] === 'undefined') {
             errors[fieldPath] = []
           }
           errors[fieldPath].push(...Object.keys(valid.failedRules))
         }
-      }
-      if (configLevel[field] && typeof configLevel[field] === 'object') {
-        await updateConfigAtLevel(topLevel, configLevel[field], fieldPath, errors)
+      } else if (configTarget[field] && typeof updateTarget[field] === 'object') {
+        await updateConfigAtLevel(topLevel, updateTarget[field], configTarget[field], fieldPath, errors)
       }
     }
   }
@@ -74,22 +79,22 @@ const SYSTEM = {
   },
   updateConfig: async (newConfig) => {
     const errors = {}
-    const configs = {}
+    const updatedConfig = {}
     for (const topLevel of Object.keys(newConfig)) {
       if (!SYSTEM[topLevel]) {
         errors.push({ configCategory: ['invalid'] })
         continue
       }
-      configs[topLevel] = JSON.parse(JSON.stringify(SYSTEM[topLevel]))
-      await updateConfigAtLevel(topLevel, configs[topLevel], topLevel, errors)
+      updatedConfig[topLevel] = JSON.parse(JSON.stringify(SYSTEM[topLevel]))
+      await updateConfigAtLevel(topLevel, updatedConfig[topLevel], newConfig[topLevel], topLevel, errors)
     }
     if (Object.keys(errors).length === 0) {
       for (const topLevel of Object.keys(newConfig)) {
-        if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(configs[topLevel])) {
+        if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(updatedConfig[topLevel])) {
           console.log(`updateConfig(${topLevel}): not changed, not writing to storage`)
         } else {
-          await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(configs[topLevel]))
-          SYSTEM[topLevel] = configs[topLevel]
+          await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(updatedConfig[topLevel]))
+          SYSTEM[topLevel] = updatedConfig[topLevel]
           console.log(`updateConfig(${topLevel}): SAVED NEW CONFIG`)
         }
       }

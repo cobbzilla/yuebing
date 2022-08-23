@@ -144,7 +144,7 @@ export const actions = {
     adminService.updateSiteConfig(config)
       .then(
         (cfg) => {
-          commit('updateSiteConfigSuccess', { cfg })
+          commit('updateSiteConfigSuccess', { config: cfg })
         },
         (error) => {
           commit('updateSiteConfigFailure', { error })

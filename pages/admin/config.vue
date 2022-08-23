@@ -57,7 +57,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('admin', ['loadingSiteConfig', 'siteConfig', 'siteConfigError', 'siteConfigUpdateError']),
+    ...mapState('admin', ['loadingSiteConfig', 'siteConfig', 'siteConfigError', 'updateSiteSuccess', 'siteConfigUpdateError']),
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
@@ -85,7 +85,7 @@ export default {
     this.loadSiteConfig()
   },
   methods: {
-    ...mapActions('admin', ['loadSiteConfig', 'updateSiteConfig', 'updateSiteSuccess']),
+    ...mapActions('admin', ['loadSiteConfig', 'updateSiteConfig']),
     async updateConfig () {
       this.savingSiteConfig = true
       const errors = await this.$refs.form.validate()
