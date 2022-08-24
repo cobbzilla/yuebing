@@ -21,7 +21,7 @@ export default {
       delete update.password
       delete update.hashedPassword
       try {
-        await u.updateUserRecord(update, api.newSessionResponse(res))
+        await u.updateUserRecord(update, u.newSessionResponse(res))
       } catch (e) {
         return api.handleValidationError(res, e)
       }

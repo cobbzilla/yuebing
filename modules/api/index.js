@@ -29,7 +29,7 @@ module.exports = async function (moduleOptions) {
     this.addServerMiddleware('~/serverMiddleware/api/admin/sources')
     this.addServerMiddleware('~/serverMiddleware/api/admin/users')
     this.addServerMiddleware('~/serverMiddleware/api/admin/deleteUser')
-    this.addServerMiddleware('~/serverMiddleware/api/admin/migrateData')
+    this.addServerMiddleware('~/serverMiddleware/api/admin/migrate')
     this.addServerMiddleware('~/serverMiddleware/api/admin/queue')
   }
 }

@@ -41,6 +41,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 
 import ConfigNode from '@/components/ConfigNode'
@@ -60,9 +61,9 @@ export default {
   computed: {
     ...mapState('admin', ['loadingSiteConfig', 'siteConfig', 'siteConfigError', 'updateSiteSuccess', 'siteConfigUpdateError']),
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    title () { return this.$config.title },
+    title () { return publicConfigField(this, 'title') },
     configCategories () { return this.config ? Object.keys(this.config) : null }
   },
   watch: {
@@ -70,7 +71,7 @@ export default {
       this.config = structuredClone(newConfig)
     },
     siteConfigUpdateError (newError) {
-      console.log(`siteConfigUpdateError received newError=${JSON.stringify(newError)}`)
+      console.log(`watch.siteConfigUpdateError: received newError=${JSON.stringify(newError)}`)
     },
     updateSiteSuccess (ok) {
       if (ok) {

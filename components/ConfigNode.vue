@@ -53,7 +53,7 @@
                 />
                 <small v-if="!isConfigurable(cfg)">{{ messages.hint_readonly }}</small>
               </div>
-              <span v-show="errors.length>0" class="is-invalid">{{ fieldError(configFullName(cfg), errors[0]) }}</span>
+              <span v-show="errors.length>0" class="is-invalid">{{ fieldError(configFullName(cfg), errors) }}</span>
             </ValidationProvider>
           </v-col>
           <v-col v-else>

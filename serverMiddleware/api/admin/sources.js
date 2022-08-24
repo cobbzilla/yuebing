@@ -1,7 +1,8 @@
-const c = require('../../../shared/index')
+const c = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const s = require('../../source/sourceUtil')
+const v = require('../../../shared/validation')
 
 function handleSourceError (res, e, sourceName) {
   if (e instanceof s.SourceNotFoundError) {
@@ -13,6 +14,10 @@ function handleSourceError (res, e, sourceName) {
 async function handleAdd (res, source) {
   if (await s.sourceExists(source.name)) {
     return api.handleValidationError(res, { name: 'alreadyExists' })
+  }
+  const errors = v.validate(source)
+  if (!c.empty(errors)) {
+    return api.handleValidationError(res, errors)
   }
   try {
     return api.okJson(res, await s.createSource(source))
@@ -55,7 +60,7 @@ export default {
     let handler
     try {
       switch (req.method) {
-        case 'GET': return await s.findSource(sourceName)
+        case 'GET': return api.okJson(await s.findSource(sourceName))
         case 'DELETE': return await handleDelete(res, sourceName)
         case 'PUT':
           handler = handleAdd

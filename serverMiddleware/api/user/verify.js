@@ -27,7 +27,7 @@ export default {
         }
       }
 
-      if (Object.keys(errors).length > 0) {
+      if (!c.empty(errors)) {
         return api.validationFailed(res, errors)
       }
 
@@ -48,7 +48,7 @@ export default {
             // set password so we can validate it
             user.password = password
             const errors = u.validateUser(user)
-            if (Object.keys(errors).length > 0) {
+            if (!c.empty(errors)) {
               return api.validationFailed(res, errors)
             }
             const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)

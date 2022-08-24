@@ -1,9 +1,12 @@
 
-const { mobiletto, MobilettoNotFoundError } = require('mobiletto')
+const { mobiletto, MobilettoNotFoundError, setLogLevel } = require('mobiletto')
+const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
+
+setLogLevel('silly')
 
 const SOURCES_PREFIX = 'sources/'
 const sourceKey = name => name.startsWith(SOURCES_PREFIX) ? name : SOURCES_PREFIX + name + '.json'
@@ -27,7 +30,7 @@ function SourceNotFoundError (source) {
 }
 
 function searchMatches (source, searchTerms) {
-  return (source.name && source.name.includes(searchTerms))
+  return (source.name && (source.name.includes(searchTerms) || source.name === c.SELF_SOURCE_NAME))
 }
 
 async function sourceExists (name) {
@@ -43,8 +46,11 @@ async function sourceExists (name) {
 }
 
 async function findSource (name) {
+  if (name === c.SELF_SOURCE_NAME) {
+    return system.source
+  }
   try {
-    return await system.api.readFile(sourceKey(name))
+    return JSON.parse((await system.api.readFile(sourceKey(name))).toString())
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
       throw new SourceNotFoundError(name)
@@ -61,7 +67,20 @@ async function listSources (query) {
       allSources.push(JSON.parse(await system.api.readFile(object.name)))
     }
   }
+  // push special source: self (dest)
+  allSources.push(system.source)
   return q.search(allSources, query, searchMatches, s.sortByField)
+}
+async function connectSource (source) {
+  // determine readOnly (default true) and options
+  const readOnly = typeof source.readOnly === 'boolean' ? source.readOnly : true
+  const opts = Object.assign({}, source.opts || {}, { readOnly })
+
+  // determine encryption
+  const enc = source.encryption && source.encryption.key ? source.encryption : null
+
+  // test connection
+  return await mobiletto(source.type, source.key, source.secret, opts, enc)
 }
 
 async function createSource (source) {
@@ -72,15 +91,8 @@ async function createSource (source) {
     throw new SourceError(`createSource: source exists: ${source.name}`)
   }
 
-  // determine readOnly (default true) and options
-  const readOnly = typeof source.readOnly === 'boolean' ? source.readOnly : true
-  const opts = Object.assign({}, source.opts || {}, { readOnly })
-
-  // determine encryption
-  const enc = source.encryption && source.encryption.key ? source.encryption : null
-
   // test connection
-  await mobiletto(source.type, source.key, source.secret, opts, enc)
+  await connectSource(source)
 
   // save source
   const now = Date.now()
@@ -89,6 +101,9 @@ async function createSource (source) {
 }
 
 async function deleteSource (name) {
+  if (name === c.SELF_SOURCE_NAME) {
+    throw new SourceError(`deleteSource: cannot delete self: ${name}`)
+  }
   if (!(await sourceExists(name))) {
     throw new SourceError(`deleteSource: source does not exist: ${name}`)
   }
@@ -105,7 +120,7 @@ async function connect (name) {
     return SOURCE_APIS[name]
   }
   const source = await findSource(name)
-  SOURCE_APIS[name] = await mobiletto(source.type, source.config.key, source.config.secret, source.config.opts)
+  SOURCE_APIS[name] = await connectSource(source)
   return SOURCE_APIS[name]
 }
 

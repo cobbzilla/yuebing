@@ -29,7 +29,7 @@
                       class="form-control"
                       :class="{ 'is-invalid': submitted && errors.length>0 }"
                     />
-                    <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+                    <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
                   </ValidationProvider>
                 </div>
               </form>
@@ -80,6 +80,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { empty } from '@/shared'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { VERIFY_EMAIL_PARAM, VERIFY_TOKEN_PARAM, VERIFY_RESET_PARAM, PASSWORD_RULES } from '@/shared/auth'
 import { UI_CONFIG } from '@/services/util'
@@ -110,8 +111,7 @@ export default {
       if (!this.userStatus.verifyError) {
         return null
       }
-      if (typeof this.userStatus.verifyError === 'object' &&
-        Object.keys(this.userStatus.verifyError).length > 0) {
+      if (typeof this.userStatus.verifyError === 'object' && !empty(this.userStatus.verifyError)) {
         let errors = ''
         Object.keys(this.userStatus.verifyError).forEach((field) => {
           const fieldErrors = this.userStatus.verifyError[field]

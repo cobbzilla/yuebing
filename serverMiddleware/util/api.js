@@ -1,4 +1,3 @@
-const u = require('../user/userUtil')
 
 function okJson (res, obj) {
   res.statusCode = 200
@@ -42,25 +41,10 @@ function validationFailed (res, errors) {
 }
 
 function handleValidationError (res, e) {
-  if (e instanceof u.UserValidationError) {
+  if (e.errors) {
     validationFailed(res, e.errors)
   } else {
     serverError(res, `Error: ${e}`)
-  }
-}
-
-function newSessionResponse (res) {
-  return (data, newUser) => {
-    if (data) {
-      u.startSession(newUser).then(
-        user => okJson(res, user),
-        (error) => {
-          console.error(`startSession: error starting session: ${error}`)
-          serverError(res, `Error: ${error}`)
-        })
-    } else {
-      serverError(res, 'Error')
-    }
   }
 }
 
@@ -71,6 +55,5 @@ module.exports = {
   serverError,
   badRequest,
   validationFailed,
-  handleValidationError,
-  newSessionResponse
+  handleValidationError
 }

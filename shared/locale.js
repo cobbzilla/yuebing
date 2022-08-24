@@ -121,7 +121,16 @@ function localesList (user, browserLocale) {
 }
 
 function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
-  return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
+  if (Array.isArray(error)) {
+    let message = ''
+    for (const e of error) {
+      if (message.length > 0) { message += ', ' }
+      message += messages['error_field_' + e].parseMessage({ field: messages[labelPrefix + field] })
+    }
+    return message
+  } else {
+    return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
+  }
 }
 
 const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.indexOf('_')) : locale

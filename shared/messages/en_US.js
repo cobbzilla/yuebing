@@ -79,11 +79,15 @@ export default {
   error_field_email: '{{ field }} is not a valid email address',
   error_field_cannotDeleteSelf: 'You cannot delete yourself',
   error_field_alreadyExists: '{{ thing }} with {{ field }} already exists',
-  error_field_readOnly: '{{ field }} cannot be changed',
+  error_field_readOnly: '{{ field }} is read-only',
   error_field_accountNotFound: 'Account not found or password incorrect',
   error_field_url: '{{ field }} is not a valid URL',
   error_field_host: '{{ field }} is not a valid hostname',
   error_field_locale: '{{ field }} is not a valid locale',
+  error_field_source: '{{ field }} is not a source name. Use only letters, numbers, and these special characters: period (.), hyphen (-) and underscore (_)',
+  error_field_notFound: '{{ field }} could not be located',
+  error_field_path: '{{ field }} is not a valid path',
+  error_field_cannotMirrorToSame: 'Read source and write source cannot be the same source',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'English (US)',
@@ -198,7 +202,7 @@ export default {
   admin_title_manage_configuration: 'System Configuration',
   admin_title_source_administration: 'Source Administration',
   admin_title_user_administration: 'User Administration',
-  admin_title_migrate_data: 'Migrate data from previous encryption key',
+  admin_title_migrate_data: 'Migrate Data',
   admin_title_transform_queue: 'Media Transform Queue',
 
   // Site Administration
@@ -270,6 +274,7 @@ export default {
   admin_info_source_added: 'The new source \'{{ source }}\' was successfully added',
   admin_info_source_add_error: 'An error occurred adding source \'{{ source }}\'',
   admin_label_source_name: 'Source Name',
+  admin_label_self_source: '{{ title }} storage',
   admin_label_source_type: 'Source Type',
   admin_label_source_readOnly: 'Read-only?',
   admin_label_source_encryption_enable: 'Enable encryption',
@@ -295,11 +300,19 @@ export default {
   admin_label_eventDescription: 'description',
 
   // User Migration
+  admin_label_migration_noSources: 'No sources defined',
   admin_label_migration_results: 'Migration results:',
-  admin_label_migration_oldKey: 'Previous encryption key',
-  admin_label_migration_oldIV: 'Previous initialization vector (IV) (if one was set)',
-  admin_label_migration_oldAlgo: 'Previous algorithm (if one was set)',
+  admin_label_migration_readSource: 'Source to migrate data from',
+  admin_label_migration_readPath: 'Read from path (blank for filesystem root)',
+  admin_label_readSource: 'Read source',
+  admin_label_readPath: 'Read path',
+  admin_label_migration_writeSource: 'Source to write data into',
+  admin_label_migration_writePath: 'Write to path (blank for filesystem root)',
+  admin_label_writeSource: 'Write source',
+  admin_label_writePath: 'Write path',
   admin_button_migrate_data: 'Migrate Data',
+  admin_info_migration_success: 'Data successfully migrated',
+  admin_info_migration_error: 'An error occurred while migrating data',
 
   // Low-level errors
   http_invalid_request_method: 'The HTTP request method {{ method }} is not supported by this endpoint'

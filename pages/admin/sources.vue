@@ -48,7 +48,7 @@
                     class="form-control"
                     :class="{ 'is-invalid': errors.length>0 }"
                   />
-                  <span v-show="errors.length>0" class="is-invalid">{{ fieldError('searchTerms', errors[0]) }}</span>
+                  <span v-show="errors.length>0" class="is-invalid">{{ fieldError('searchTerms', errors) }}</span>
                   <v-btn class="btn btn-primary" :disabled="findingSources" @click.stop="searchSources">
                     {{ messages.button_search }}
                   </v-btn>
@@ -72,11 +72,11 @@
           </thead>
           <tbody>
             <tr v-for="(src, srcIndex) in sourceList" :key="srcIndex">
-              <td>{{ src.name }}</td>
+              <td>{{ sourceName(src) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
               <td>
-                <v-btn @click.stop="delSource(src.name)">
+                <v-btn @click.stop="delSource(src.name)" v-if="!isSelfSource(src)">
                   {{ messages.admin_button_delete_source }}
                 </v-btn>
               </td>
@@ -105,7 +105,7 @@
                   class="form-control"
                   @change="setSourceTypeDefaults"
                 />
-                <ValidationProvider v-slot="{ errors }" name="name" rules="required|max:100" immediate>
+                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.source" immediate>
                   <v-text-field
                     v-model="newSource.name"
                     :label="messages.admin_label_source_name"
@@ -114,7 +114,7 @@
                     class="form-control"
                     :class="{ 'is-invalid': errors.length>0 }"
                   />
-                  <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('name', errors[0]) }}</span>
+                  <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('name', errors) }}</span>
                 </ValidationProvider>
                 <v-checkbox
                   v-model="newSource.readOnly"
@@ -144,7 +144,7 @@
                       class="form-control"
                       :class="{ 'is-invalid': errors.length>0 }"
                     />
-                    <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError(fieldName, errors[0]) }}</span>
+                    <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError(fieldName, errors) }}</span>
                   </ValidationProvider>
                 </div>
                 <div>
@@ -155,7 +155,7 @@
                     class="form-control"
                   />
                   <div v-if="newSource.encryption.enabled">
-                    <ValidationProvider v-slot="{ errors }" name="encryptionKey" rules="required|min:32" immediate>
+                    <ValidationProvider v-slot="{ errors }" name="encryptionKey" :rules="formRules.encryptionKey" immediate>
                       <v-text-field
                         v-model="newSource.encryption.key"
                         :label="messages.admin_label_source_encryption_key"
@@ -164,9 +164,9 @@
                         class="form-control"
                         :class="{ 'is-invalid': errors.length>0 }"
                       />
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionKey', errors[0]) }}</span>
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionKey', errors) }}</span>
                     </ValidationProvider>
-                    <ValidationProvider v-slot="{ errors }" name="encryptionIV" rules="min:32" immediate>
+                    <ValidationProvider v-slot="{ errors }" name="encryptionIV" :rules="formRules.encryptionIV" immediate>
                       <v-text-field
                         v-model="newSource.encryption.iv"
                         :label="messages.admin_label_source_encryption_iv"
@@ -175,7 +175,7 @@
                         class="form-control"
                         :class="{ 'is-invalid': errors.length>0 }"
                       />
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionIV', errors[0]) }}</span>
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionIV', errors) }}</span>
                     </ValidationProvider>
                     <ValidationProvider v-slot="{ errors }" name="encryptionAlgo" rules="min:32" immediate>
                       <v-select
@@ -198,7 +198,7 @@
                           :collapsed-on-click-brackets="false"
                         />
                       </small>
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionAlgo', errors[0]) }}</span>
+                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionAlgo', errors) }}</span>
                     </ValidationProvider>
                   </div>
                 </div>
@@ -222,8 +222,9 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { DEFAULT_ENCRYPTION_ALGO } from '@/shared'
+import { DEFAULT_ENCRYPTION_ALGO, SELF_SOURCE_NAME, publicConfigField } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
+import { condensedRules } from '~/shared/validation'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
@@ -265,6 +266,8 @@ export default {
       'sourceList', 'totalSourceCount', 'findingSources', 'addSourceSuccess', 'addSourceError', 'deleteSourceError'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    title () { return publicConfigField(this, 'title') },
+    formRules () { return condensedRules() },
     searchQuery () {
       return {
         pageNumber: this.pageNumber,
@@ -317,6 +320,12 @@ export default {
     ...mapActions('admin', ['findSources', 'addSource', 'deleteSource']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
+    },
+    isSelfSource (source) { return source.name === SELF_SOURCE_NAME },
+    sourceName (source) {
+      return this.isSelfSource(source)
+        ? this.messages.admin_label_self_source.parseMessage({ title: this.title })
+        : source.name
     },
     isOpt (field) { return field !== 'key' && field !== 'secret' },
     srcConfigFieldError (field, error) {

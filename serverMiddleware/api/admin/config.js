@@ -1,3 +1,4 @@
+const shared = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
@@ -22,7 +23,7 @@ export default {
         const newConfig = JSON.parse(data)
         try {
           const errors = await system.updateConfig(newConfig)
-          return Object.keys(errors).length > 0
+          return shared.okl(errors) > 0
             ? api.validationFailed(res, errors)
             : api.okJson(res, {
               publicConfig: system.publicConfig,

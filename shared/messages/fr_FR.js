@@ -78,12 +78,16 @@ export default {
   error_field_max: '{{ field }} est trop long',
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
   error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
-  error_field_readOnly: '{{ field }} ne peut pas être modifié',
+  error_field_readOnly: '{{ field }} est une source en lecture seule',
   error_field_alreadyExists: '{{thing}} avec {{field}} existe déjà',
   error_field_accountNotFound: 'Compte introuvable ou mot de passe incorrect',
   error_field_url: '{{ field }} n\'est pas une URL valide',
   error_field_host: '{{ field }} n\'est pas un nom d\'hôte valide',
   error_field_locale: '{{ field }} n\'est pas un localité valide',
+  error_field_source: '{{ field }} n\'est pas un nom source. Utilisez uniquement des lettres, des chiffres, et ces caractères spéciaux: période (.), trait d\'union (-) et soulignement (_)',
+  error_field_notFound: '{{ field }} ne pouvait pas être localisé',
+  error_field_path: '{{ field }} is not a valid path',
+  error_field_cannotMirrorToSame: 'La source de lecture et la source d\'écriture ne peut pas être la même',
 
   // Locale names -- add more translations if other locales are added
   locale_en_US: 'Anglais (EU)',
@@ -198,7 +202,7 @@ export default {
   admin_title_manage_configuration: 'Configuration du système',
   admin_title_source_administration: 'Administration des sources',
   admin_title_user_administration: 'Administration des utilisateurs',
-  admin_title_migrate_data: 'Migrer les données de la clé de chiffrement précédente',
+  admin_title_migrate_data: 'Migrer les données',
   admin_title_transform_queue: 'File d\'attente de transformation multimédia',
 
   // Site Administration
@@ -268,6 +272,7 @@ export default {
   admin_info_source_added: 'La nouvelle source \'{{ source }}\' a été ajoutée avec succès',
   admin_info_source_add_error: 'Une erreur s\'est produite en ajoutant de la source \'{{ source }}\'',
   admin_label_source_name: 'Nom de la source multimédia',
+  admin_label_self_source: '{{ title }} stockage',
   admin_label_source_type: 'Type de source multimédia',
   admin_label_source_readOnly: 'Mont en lecture seule?',
   admin_label_source_encryption_enable: 'Activer le cryptage',
@@ -293,11 +298,19 @@ export default {
   admin_label_eventDescription: 'description',
 
   // User Migration
+  admin_label_migration_noSources: 'Aucune source définie',
   admin_label_migration_results: 'Résultats de la migration:',
-  admin_label_migration_oldKey: 'Clé de chiffrement précédente',
-  admin_label_migration_oldIV: 'Vecteur d\'initialisation précédent (VI) (si un était réglé)',
-  admin_label_migration_oldAlgo: 'Algorithme précédent (si un était réglé)',
+  admin_label_migration_readSource: 'Source pour migrer les données de',
+  admin_label_migration_readPath: 'Lire depuis le chemin (blanc pour racine du système de fichiers)',
+  admin_label_readSource: 'Source pour migrer les données de',
+  admin_label_readPath: 'Lire depuis le chemin',
+  admin_label_migration_writeSource: 'Source pour écrire des données dans',
+  admin_label_writeSource: 'Source pour écrire des données dans',
+  admin_label_migration_writePath: 'Écrire sur chemin (blanc pour racine du système de fichiers)',
+  admin_label_writePath: 'Écrire sur chemin',
   admin_button_migrate_data: 'Migrer les données',
+  admin_info_migration_success: 'Les données ont migré avec succès',
+  admin_info_migration_error: 'Une erreur s\'est produite lors de la migration des données',
 
   // Low-level errors
   http_invalid_request_method: 'La méthode de la demande HTTP {{ method }} n\'est pas prise en charge par ce point de terminaison'

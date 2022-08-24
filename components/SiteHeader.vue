@@ -82,6 +82,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 
 // noinspection JSUnusedGlobalSymbols
@@ -99,7 +100,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     accountName () {
       if (this.user) {
@@ -116,8 +117,8 @@ export default {
         ? this.messages.anonymous_user_name
         : 'mysterious one'
     },
-    allowRegistration () { return this.$config.allowRegistration },
-    title () { return this.$config.title },
+    allowRegistration () { return publicConfigField(this, 'allowRegistration') },
+    title () { return publicConfigField(this, 'title') },
     loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn },
     admin () { return this.loggedIn && this.user.admin }
   },

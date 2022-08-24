@@ -3,12 +3,19 @@ const rules = require('vee-validate/dist/rules')
 
 const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
 
+const URL_PART_REGEX = /[A-Z\d.-_]+/i
+
+// we exclude some legal path chars that might be useful for injection attacks
+const PATH_REGEX = /[A-Z\d-._()+=:@/]*/i
+
 // Sometimes we need regex validation and the regex contains a pipe character.
 // The pipe breaks vee-validation rule parsing, so we use these custom rules.
 const REGEX_VALIDATORS = {
   locale: /[a-z]{2}_[A-Z]{2}/,
   host: /([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d])(.([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d]))*/i,
-  url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i
+  url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i,
+  source: URL_PART_REGEX,
+  path: PATH_REGEX
 }
 
 function extendVee () {
@@ -85,6 +92,29 @@ const VALIDATIONS = {
   },
   locale: {
     required: true
+  },
+  source: {
+    required: true,
+    source: true,
+    min: 3,
+    max: 100
+  },
+  encryptionKey: {
+    required: true,
+    min: 16,
+    max: 1024
+  },
+  encryptionIV: {
+    min: 16,
+    max: 1024
+  },
+  readPath: {
+    path: true,
+    max: 1024
+  },
+  writePath: {
+    path: true,
+    max: 1024
   }
 }
 

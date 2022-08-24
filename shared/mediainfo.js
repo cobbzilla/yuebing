@@ -1,6 +1,7 @@
 import { isThumbnailProfile, mediaProfileByName, mediaType } from '@/shared/media'
 
 const jp = require('jsonpath')
+const c = require('../shared')
 
 const META_FIELDS = {
 
@@ -198,16 +199,14 @@ function hasAssets (obj) {
   return obj && obj.meta &&
   obj.meta.status &&
   obj.meta.status.ready &&
-  typeof obj.meta.assets === 'object' &&
-  Object.keys(obj.meta.assets).length > 0
+  !c.empty(obj.meta.assets)
 }
 
 function hasProfileAssets (obj, profile) {
   return obj.meta &&
     obj.meta.status &&
     obj.meta.status.ready &&
-    typeof obj.meta.assets === 'object' &&
-    Object.keys(obj.meta.assets).length > 0 &&
+    !c.empty(obj.meta.assets) &&
     obj.meta.assets[profile] &&
     obj.meta.assets[profile].length > 0
 }
@@ -223,8 +222,7 @@ const DEFAULT_FIND_ASSET_RETURNER =
     : null
 
 function findAsset (obj, matcher, returner = DEFAULT_FIND_ASSET_RETURNER) {
-  if (!obj || !obj.meta || !(typeof obj.meta.assets === 'object') ||
-    Object.keys(obj.meta.assets).length === 0) {
+  if (!obj || !obj.meta || !(typeof obj.meta.assets === 'object') || c.empty(obj.meta.assets)) {
     return null
   }
   return returner(obj, Object.keys(obj.meta.assets).find((profile) => {

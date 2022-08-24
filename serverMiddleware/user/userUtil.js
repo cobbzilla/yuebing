@@ -3,13 +3,12 @@ const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
-const shared = require('../../shared')
+const c = require('../../shared')
 const auth = require('../../shared/auth')
 const loc = require('../../shared/locale')
 const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
-const f = require('../util/file')
 const system = require('../util/config').SYSTEM
 
 const ADMIN = system.privateConfig.admin
@@ -80,6 +79,21 @@ async function startSession (user) {
   return user
 }
 
+function newSessionResponse (res) {
+  return (data, newUser) => {
+    if (data) {
+      startSession(newUser).then(
+        user => api.okJson(res, user),
+        (error) => {
+          console.error(`newSessionResponse: error starting session: ${error}`)
+          api.serverError(res, `Error: ${error}`)
+        })
+    } else {
+      api.serverError(res, 'Error')
+    }
+  }
+}
+
 function cancelSessions (user) {
   const sessionSetKey = redisUserSessionSet(user)
   redis.smembers(sessionSetKey).then(async (members) => {
@@ -89,8 +103,8 @@ function cancelSessions (user) {
   }).then(() => redis.del(sessionSetKey))
 }
 
-const SESSION_HEADER = shared.USER_SESSION_HEADER
-const SESSION_PARAM = shared.USER_SESSION_QUERY_PARAM
+const SESSION_HEADER = c.USER_SESSION_HEADER
+const SESSION_PARAM = c.USER_SESSION_QUERY_PARAM
 const REDIS_SESSION_PREFIX = 'session_'
 const REDIS_SESSION_SET_PREFIX = 'session_SET_'
 
@@ -196,7 +210,7 @@ function _registerUser (regRequest, successHandler, admin) {
       throw regNotAllowed()
     }
     const errors = valid.validate(regRequest)
-    if (Object.keys(errors).length > 0) {
+    if (!c.empty(errors)) {
       throw new UserValidationError(errors)
     }
   } else if (admin && ADMIN.overwrite) {
@@ -306,7 +320,7 @@ function createUserRecord (user, successHandler) {
 
 function updateUserRecord (proposed, successHandler) {
   const errors = valid.validate(proposed, true)
-  if (Object.keys(errors).length > 0) {
+  if (!c.empty(errors)) {
     throw new UserValidationError(errors)
   }
 
@@ -424,6 +438,7 @@ if (ADMIN_USER) {
 module.exports = {
   userKey,
   startSession,
+  newSessionResponse,
   cancelSessions,
   currentUser,
   checkPassword,

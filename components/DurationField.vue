@@ -43,7 +43,7 @@
       </v-row>
       <v-row>
         <v-col cols="3">
-          <span v-show="errors.length>0" class="is-invalid">{{ fieldError(errors[0]) }}</span>
+          <span v-show="errors.length>0" class="is-invalid">{{ fieldError(errors) }}</span>
         </v-col>
       </v-row>
     </ValidationProvider>

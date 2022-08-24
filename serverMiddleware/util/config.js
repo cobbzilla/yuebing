@@ -53,6 +53,7 @@ async function updateConfigAtLevel (topLevel, updateTarget, configTarget, config
 
 const SYSTEM = {
   api: null,
+  source: { name: c.SELF_SOURCE_NAME },
   publicConfig: {},
   privateConfig: {},
   canonicalDestBase: null,
@@ -88,7 +89,7 @@ const SYSTEM = {
       updatedConfig[topLevel] = JSON.parse(JSON.stringify(SYSTEM[topLevel]))
       await updateConfigAtLevel(topLevel, updatedConfig[topLevel], newConfig[topLevel], topLevel, errors)
     }
-    if (Object.keys(errors).length === 0) {
+    if (c.empty(errors)) {
       for (const topLevel of Object.keys(newConfig)) {
         if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(updatedConfig[topLevel])) {
           console.log(`updateConfig(${topLevel}): not changed, not writing to storage`)

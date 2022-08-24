@@ -30,7 +30,7 @@ async function autoscan () {
         const scanPrefix = `${logPrefix} (source ${sourceName}) `
         try {
           CURRENT_AUTOSCAN_START = new Date()
-          scan(source, true)
+          scan(source, '', true)
             .then((transforms) => {
               console.log(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
             },

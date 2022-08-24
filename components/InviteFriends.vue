@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="$config.emailEnabled">
+  <v-container v-if="emailEnabled">
     <v-row>
       <v-col>
         <div v-if="showingInviteBlock">
@@ -19,7 +19,7 @@
                 <h4>
                   {{ messages.info_invite_friends_subheader.parseMessage({ title }) }}
                 </h4>
-                <h3 v-if="$config.limitRegistration">
+                <h3 v-if="limitRegistration">
                   {{ messages.info_invite_friends_limited_registration.parseMessage({ title }) }}
                 </h3>
                 <div v-if="invitationResults">
@@ -43,7 +43,7 @@
                             class="form-control"
                             :class="{ 'is-invalid': submitted && errors.length>0 }"
                           />
-                          <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors[0]) }}</span>
+                          <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors) }}</span>
                         </ValidationProvider>
                       </div>
                       <div class="form-group">
@@ -80,6 +80,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { okl, publicConfigField } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { findValidEmails } from '@/shared/validation'
 
@@ -94,14 +95,16 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'invitationResults']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    title () { return this.$config.title },
+    title () { return publicConfigField(this, 'title') },
+    emailEnabled () { return publicConfigField(this, 'emailEnabled') },
+    limitRegistration () { return publicConfigField(this, 'limitRegistration') },
     inviteSuccessCount () {
-      return this.invitationResults.success ? Object.keys(this.invitationResults.success).length : 0
+      return this.invitationResults.success ? okl(this.invitationResults.success) : 0
     },
     inviteErrorCount () {
-      return this.invitationResults.errors ? Object.keys(this.invitationResults.errors).length : 0
+      return this.invitationResults.errors ? okl(this.invitationResults.errors) : 0
     }
   },
   methods: {

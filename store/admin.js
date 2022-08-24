@@ -51,13 +51,13 @@ export const actions = {
       )
   },
 
-  migrateData ({ commit }, { oldKey, oldIV, oldAlgo }) {
-    commit('migrateDataRequest')
+  migrate ({ commit }, { migration }) {
+    commit('migrateRequest')
     adminService
-      .migrateData(oldKey, oldIV, oldAlgo)
+      .migrate(migration)
       .then(
-        results => commit('migrateDataSuccess', { results }),
-        error => commit('migrateDataFailure', error)
+        results => commit('migrateSuccess', { results }),
+        error => commit('migrateFailure', error)
       )
   },
 
@@ -168,15 +168,16 @@ export const mutations = {
     state.loadingQueueError = error
   },
 
-  migrateDataRequest (state) {
+  migrateRequest (state) {
     state.migratingData = true
   },
-  migrateDataSuccess (state, { results }) {
+  migrateSuccess (state, { results }) {
     state.dataMigrationResults = results
     state.dataMigrationError = null
     state.migratingData = false
   },
-  migrateDataFailure (state, error) {
+  migrateFailure (state, error) {
+    console.log(`migrateFailure: got error: ${JSON.stringify(error)}`)
     state.migratingData = false
     state.dataMigrationError = error
   },

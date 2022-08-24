@@ -33,7 +33,7 @@ import ThumbnailSelector from '../../components/ThumbnailSelector'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-import { proxyMediaUrl, getExtension } from '@/shared'
+import { proxyMediaUrl, getExtension, okl } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
 import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
@@ -127,7 +127,7 @@ export default {
 
     // there are a couple of cached places we can check for the metadata, or we fetch it
     const cachedObject = this.objectList.find(o => o.name === name)
-    if (cachedObject && cachedObject.meta && Object.keys(cachedObject.meta) > 1) {
+    if (cachedObject && cachedObject.meta && okl(cachedObject.meta) > 1) {
       console.log('video.created: found cached object with good meta, using it')
       this.object = cachedObject
       this.refreshMeta()

@@ -33,7 +33,7 @@
     </div>
     <div>
       <h3>
-        <NuxtLink to="/admin/migrateData">
+        <NuxtLink to="/admin/migrate">
           {{ messages.admin_title_migrate_data }}
         </NuxtLink>
       </h3>
@@ -42,16 +42,18 @@
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState } from 'vuex'
+import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'AdminIndex',
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    title () { return this.$config.title }
+    title () { return publicConfigField(this, 'title') }
   }
 }
 </script>

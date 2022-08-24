@@ -45,6 +45,14 @@ function scrub (path) {
     '_' + shasum(path)
 }
 
+const okl = obj => typeof obj === 'object' ? Object.keys(obj).length : 0
+
+const empty = thing =>
+  typeof thing === 'undefined' ||
+  thing === null ||
+  (thing.length && thing.length === 0) ||
+  (typeof thing === 'object' && okl(thing) === 0)
+
 const LAST_MODIFIED_FILE = 'lastModified'
 const SELECTED_THUMBNAIL_FILE = 'selectedThumbnail.json'
 const ERROR_FILE_PREFIX = '_error_'
@@ -53,6 +61,12 @@ const MULTIFILE_PLACEHOLDER = '%03d'
 const MULTIFILE_FIRST = '001'
 
 const DEFAULT_ENCRYPTION_ALGO = 'aes-256-cbc'
+
+const publicConfigField = (vue, field) => {
+  return vue && vue.publicConfig && vue.publicConfig[field] ? vue.publicConfig[field] : undefined
+}
+
+const SELF_SOURCE_NAME = ' ~ this ~ '
 
 module.exports = {
   USER_SESSION_HEADER,
@@ -65,6 +79,10 @@ module.exports = {
   MULTIFILE_PLACEHOLDER,
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
+  SELF_SOURCE_NAME,
+  publicConfigField,
+  okl,
+  empty,
   snooze,
   scrub,
   getExtension,

@@ -24,7 +24,7 @@
                 class="form-control"
                 :class="{ 'is-invalid': submitted && !email }"
               />
-              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
               <div v-show="submitted && !email" class="invalid-feedback">
                 {{ requiredError('email') }}
               </div>
@@ -68,6 +68,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { publicConfigField } from '~/shared'
 import { isValidEmail } from '@/shared/validation'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { UI_CONFIG } from '@/services/util'
@@ -87,14 +88,14 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     resetSuccess () { return this.userStatus.passwordResetSuccess },
     resetError () { return this.userStatus.passwordResetRequestError },
     disableSendButton () {
       return this.userStatus.requestingPasswordReset || !isValidEmail(this.email)
     },
-    allowRegistration () { return this.$config.allowRegistration },
+    allowRegistration () { return publicConfigField(this.publicConfig, this, 'allowRegistration') },
     userLoggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn }
   },
   watch: {

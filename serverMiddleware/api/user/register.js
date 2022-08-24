@@ -8,7 +8,7 @@ export default {
     req.on('data', async (data) => {
       const regRequest = JSON.parse(data.toString())
       try {
-        await u.registerUser(regRequest, api.newSessionResponse(res))
+        await u.registerUser(regRequest, u.newSessionResponse(res))
       } catch (e) {
         return api.handleValidationError(res, e)
       }

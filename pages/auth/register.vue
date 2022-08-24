@@ -8,7 +8,7 @@
     <v-row v-if="allowRegistration">
       <v-col>
         <ValidationObserver ref="form">
-          <form>
+          <form id="form">
             <div class="form-group">
               <label for="firstName">{{ messages.label_firstName }}</label>
               <ValidationProvider v-slot="{ errors }" name="firstName" :rules="formRules.firstName" immediate>
@@ -20,7 +20,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -34,7 +34,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -48,7 +48,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -62,7 +62,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -77,7 +77,7 @@
                   :value="userLocale"
                   class="form-control"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
           </form>
@@ -87,7 +87,7 @@
     <v-row v-if="allowRegistration">
       <v-col>
         <div class="form-group">
-          <v-btn class="btn btn-primary" :disabled="userStatus.registering" @click.stop="handleSubmit">
+          <v-btn class="btn btn-primary" :disabled="userStatus.registering || !user.email || !user.password" @click.stop="handleSubmit">
             {{ messages.button_register }}
           </v-btn>
         </div>
@@ -100,7 +100,7 @@
     </v-row>
     <v-row v-if="!allowRegistration">
       <v-col>
-        <h4>{{ messages.info_registration_not_allowed.parseMessage({title}) }}</h4>
+        <h4>{{ messages.info_registration_not_allowed.parseMessage({ title }) }}</h4>
       </v-col>
     </v-row>
   </v-container>
@@ -109,6 +109,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { publicConfigField } from '@/shared'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 
@@ -128,10 +129,10 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus', 'registerError']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    allowRegistration () { return this.$config.allowRegistration },
+    allowRegistration () { return publicConfigField(this, 'allowRegistration') },
     formRules () { return condensedRules() },
     userLocale () {
       return this.user && this.user.locale
@@ -140,7 +141,7 @@ export default {
           ? this.browserLocale
           : DEFAULT_LOCALE
     },
-    title () { return this.$config.title }
+    title () { return publicConfigField(this, 'title') }
   },
   watch: {
     browserLocale (newLocale) {
@@ -157,18 +158,14 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['fetchBrowserHeaders']),
     ...mapActions('user', ['register']),
     async handleSubmit () {
       this.submitted = true
       await this.$refs.form.validate().then((success) => {
         if (success) {
           this.register(this.user)
-          return
         }
-        // Wait until the models are updated in the UI
-        this.$nextTick(() => {
-          this.$refs.form.reset()
-        })
       })
     },
     fieldError (field, error) {

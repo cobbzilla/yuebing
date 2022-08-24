@@ -26,7 +26,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors) }}</span>
               </ValidationProvider>
             </div>
             <div class="form-group">
@@ -39,7 +39,7 @@
                   class="form-control"
                   :class="{ 'is-invalid': submitted && errors.length>0 }"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors) }}</span>
               </ValidationProvider>
             </div>
             <div v-if="supportedLocales.length > 1" class="form-group">
@@ -53,7 +53,7 @@
                   :value="userLocale"
                   class="form-control"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors[0]) }}</span>
+                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
           </form>

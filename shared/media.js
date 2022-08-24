@@ -1,3 +1,5 @@
+const c = require('../shared')
+
 const FILE_TYPE = 'file'
 const DIRECTORY_TYPE = 'dir'
 
@@ -55,7 +57,7 @@ for (const type in MEDIA) {
   //  * Define 'enabled: true' for profiles that do not have an 'enabled' property
   //  * Expand the magic 'from' property where found
   //  * Expand the magic 'subProfiles' property where found
-  if (typeConfig.profiles && Object.keys(typeConfig.profiles).length > 0) {
+  if (typeConfig.profiles && !c.empty(typeConfig.profiles)) {
     const typeProfiles = []
     const typeProfileMap = {}
     // Make a copy to avoid overwrites & simplify resolveFrom work
@@ -112,7 +114,7 @@ function mediaProfilesForSource (path) {
   }
 
   const typeConfig = MEDIA[type]
-  if (typeof typeConfig.profiles !== 'object' || Object.keys(typeConfig.profiles).length === 0) {
+  if (typeof typeConfig.profiles !== 'object' || c.empty(typeConfig.profiles)) {
     console.log(`mediaProfiles: no media profiles exist for mediaType ${type}, path: ${path}`)
     return null
   }

@@ -21,13 +21,8 @@ async function findUsers (query) {
   return q.search(allUsers, query, searchMatches, sharedUser.sortByField)
 }
 
-function migrateData (oldKey, oldIV, oldAlgo) {
-  // todo...
-  return false
-}
-
 function deleteUser (email) {
   return system.api.remove(u.userKey(email))
 }
 
-export { findUsers, migrateData, deleteUser }
+export { findUsers, deleteUser }

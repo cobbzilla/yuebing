@@ -20,7 +20,7 @@
                     class="form-control"
                     :class="{ 'is-invalid': submitted && !email }"
                   />
-                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors[0]) }}</span>
+                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
                   <span v-if="loginErr && loginErr.email" v-show="submitted" class="is-invalid">{{ fieldError('email', loginErr.email[0]) }}</span>
                 </ValidationProvider>
               </div>
@@ -33,13 +33,14 @@
                     name="password"
                     class="form-control"
                     :class="{ 'is-invalid': submitted && !password }"
+                    @keyup.enter="handleSubmit"
                   />
-                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors[0]) }}</span>
+                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
                   <span v-if="loginErr && loginErr.password" v-show="submitted" class="is-invalid">{{ fieldError('password', loginErr.password[0]) }}</span>
                 </ValidationProvider>
               </div>
               <div class="form-group">
-                <v-btn class="btn btn-primary" :disabled="userStatus.loggingIn" @click.stop="handleSubmit">
+                <v-btn class="btn btn-primary" :disabled="userStatus.loggingIn || !email || !password" @click.stop="handleSubmit">
                   {{ messages.button_login }}
                 </v-btn>
                 <v-btn
@@ -71,6 +72,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import { publicConfigField } from '@/shared'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 
 export default {
@@ -84,10 +86,10 @@ export default {
   },
   computed: {
     ...mapState('user', ['userStatus', 'loginError']),
-    ...mapState(['browserLocale']),
+    ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     loginErr () { return this.loginError || false },
-    allowRegistration () { return this.$config.allowRegistration }
+    allowRegistration () { return publicConfigField(this, 'allowRegistration') }
   },
   created () {
     // reset login status
