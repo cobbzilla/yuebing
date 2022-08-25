@@ -24,7 +24,7 @@ async function deriveMetadata (source, sourcePath) {
       return cachedMeta
     }
     // check last-modified time on directory
-    const lastModified = await source.safeMetadata(system.canonicalDestDir(sourceAndPath) + c.LAST_MODIFIED_FILE)
+    const lastModified = await source.safeMetadata(system.assetsDir(sourceAndPath) + c.LAST_MODIFIED_FILE)
     if (lastModified && lastModified.mtime) {
       const destModified = new Date(lastModified.mtime)
       if (destModified > cachedMeta.ctime) {
@@ -53,7 +53,7 @@ async function deriveMetadata (source, sourcePath) {
   }
 
   // find all assets
-  const prefix = system.canonicalDestDir(sourceAndPath)
+  const prefix = system.assetsDir(sourceAndPath)
   const assets = await system.api.find(prefix, m.ASSET_PREFIX)
   assets.forEach((asset) => {
     // console.log(`examining asset: ${asset}`)
@@ -109,7 +109,7 @@ async function deriveMetadata (source, sourcePath) {
 
   // is there a selected thumbnail?
   try {
-    const selectedThumbnail = await system.api.readFile(system.canonicalDestDir(sourceAndPath) + c.SELECTED_THUMBNAIL_FILE)
+    const selectedThumbnail = await system.api.readFile(system.assetsDir(sourceAndPath) + c.SELECTED_THUMBNAIL_FILE)
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
     console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)

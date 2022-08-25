@@ -112,6 +112,8 @@ async function currentUser (req) {
   let session = null
   if (req.headers && req.headers[SESSION_HEADER]) {
     session = req.headers[SESSION_HEADER]
+  } else if (req.headers && req.headers.cookie) {
+    session = req.headers.cookie
   } else if (req.url.includes('?')) {
     const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
     session = query && query.has(SESSION_PARAM) ? query.get(SESSION_PARAM) : null

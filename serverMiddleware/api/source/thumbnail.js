@@ -16,7 +16,7 @@ export default {
     const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
     const { source, pth } = await src.extractSourceAndPathAndConnect(p)
     if (!source || !pth) { return api.notFound() }
-    const thumbPath = system.canonicalDestDir(pth) + c.SELECTED_THUMBNAIL_FILE
+    const thumbPath = system.assetsDir(pth) + c.SELECTED_THUMBNAIL_FILE
     if (req.method === 'GET') {
       res.statusCode = 200
       await source.readFile(thumbPath, chunk => res.write(chunk))

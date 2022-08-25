@@ -17,7 +17,7 @@ export default {
     try {
       const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
       if (!source || !pth) { return api.notFound() }
-      const infoPath = system.canonicalDestDir(source.name + '/' + pth) + USER_MEDIAINFO_JSON
+      const infoPath = system.assetsDir(source.name + '/' + pth) + USER_MEDIAINFO_JSON
       if (req.method === 'GET') {
         res.statusCode = 200
         res.contentType = 'application/json'

@@ -70,12 +70,9 @@ const SYSTEM = {
       ? process.env.YB_WORK_DIR
       : process.env.YB_WORK_DIR + '/'
     : '/tmp/yuebing_workdir/',
-  canonicalWorkingDir: path => shasum(path) + '/',
-  canonicalSourceFile (path) {
-    const base = path.endsWith('/') ? path.substring(0, path.length - 1) : path
-    const slash = base.lastIndexOf('/')
-    const file = slash === -1 ? base : base.substring(slash)
-    const ext = c.getExtension(file).toLowerCase()
+  workingDir: path => SYSTEM.workbenchDir + shasum(path) + '/',
+  canonicalSourceFile (pth) {
+    const ext = c.getExtension(path.basename(pth)).toLowerCase()
     return 'source.' + ext
   },
 
@@ -132,24 +129,23 @@ const SYSTEM = {
     }
     return errors
   },
-  canonicalPrefix: 'assets/',
-  canonicalDestDir (path) {
+  assetsPrefix: 'assets/',
+  assetsDir (path) {
     const sha = shasum(path)
-    const canonical = this.canonicalPrefix +
+    return this.assetsPrefix +
       sha.substring(0, 2) +
       '/' + sha.substring(2, 4) +
       '/' + sha.substring(4, 6) +
       '/' + sha +
       '/'
-    return canonical
   },
   recordError: async (sourcePath, profile, error) => {
-    const path = SYSTEM.canonicalDestDir(sourcePath) + c.ERROR_FILE_PREFIX + profile + '_' + Date.now()
+    const path = SYSTEM.assetsDir(sourcePath) + c.ERROR_FILE_PREFIX + profile + '_' + Date.now()
     await SYSTEM.api.writeFile(path, `${error}`)
     console.log(`recordError: recorded: ${path} = ${error}`)
   },
   clearErrors: async (path, profile) => {
-    const prefix = SYSTEM.canonicalDestDir(path)
+    const prefix = SYSTEM.assetsDir(path)
     console.log(`clearErrors(${path}, ${profile}): looking for files with prefix: ${prefix}`)
     const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     if (files && files.length ? files.length : 0) {
@@ -160,14 +156,14 @@ const SYSTEM = {
     }
   },
   countErrors: async (sourcePath, profile) => {
-    const prefix = SYSTEM.canonicalDestDir(sourcePath)
+    const prefix = SYSTEM.assetsDir(sourcePath)
     const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     const count = files && files.length ? files.length : 0
     console.log(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
     return count
   },
   touchLastModified: async (sourcePath) => {
-    const path = SYSTEM.canonicalDestDir(sourcePath) + c.LAST_MODIFIED_FILE
+    const path = SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE
     await SYSTEM.api.writeFile(path, '' + Date.now())
     console.log(`touchLastModified: touched: ${path}`)
   }

@@ -146,7 +146,7 @@ async function clearErrors (job, jobPrefix, sourcePath, profile) {
 
 async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   const outfileSize = util.statSize(outfile)
-  const destPath = system.canonicalDestDir(sourcePath) + path.basename(outfile)
+  const destPath = system.assetsDir(sourcePath) + path.basename(outfile)
   const fileUp = fs.createReadStream(outfile)
   console.log(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
@@ -368,10 +368,10 @@ async function createArtifacts (job, localSourceFile) {
     if (profile.multiFile) {
       const outfilePrefix = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
       outfile = outfilePrefix + m.assetSuffix(mediaType) + c.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = system.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + c.MULTIFILE_FIRST + '.' + profile.ext
+      completedAssetKey = system.assetsDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + c.MULTIFILE_FIRST + '.' + profile.ext
     } else {
       outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
-      completedAssetKey = system.canonicalDestDir(sourcePath) + path.basename(outfile)
+      completedAssetKey = system.assetsDir(sourcePath) + path.basename(outfile)
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
@@ -402,7 +402,7 @@ async function ensureSourceDownloaded (job) {
   q.recordJobEvent(job, `${jobPrefix}_download_start`)
 
   // Does the local copy of the source exist already?
-  const file = system.workbenchDir + system.canonicalWorkingDir(sourcePath) + system.canonicalSourceFile(sourcePath)
+  const file = system.workingDir(sourcePath) + system.canonicalSourceFile(sourcePath)
   const size = util.statSize(file)
 
   if (size !== -1) {

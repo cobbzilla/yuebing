@@ -1,7 +1,9 @@
+const path = require('path')
 const shared = require('../../../shared')
+const m = require('../../../shared/media')
 const api = require('../../util/api')
+const system = require('../../util/config').SYSTEM
 const u = require('../../user/userUtil')
-const src = require('../../source/sourceUtil')
 
 async function head (req, res, source, path) {
   const head = await source.safeMetadata(path)
@@ -37,25 +39,27 @@ export default {
   async handler (req, res) {
     const user = await u.requireUser(req, res)
     if (!user) {
-      return
+      return api.forbidden(res)
     }
 
     // chop query if any
     const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
 
-    // adjust for undefined paths, chop leading / if present
-    const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
+    // chop leading / if present
+    const p = url.startsWith('/') ? url.substring(1) : req.url
 
-    const { source, pth } = await src.extractSourceAndPathAndConnect(p)
-    if (!source || !pth) { return api.notFound() }
+    // Can only stream assets, nothing else
+    if (!p.startsWith(system.assetsPrefix) || !path.basename(p).startsWith(m.ASSET_PREFIX)) {
+      return api.notFound(res, url)
+    }
 
     // only HEAD and GET are allowed, return 404 for anything else
     switch (req.method) {
       case 'HEAD':
-        await head(req, res, source, pth)
+        await head(req, res, system.api, p)
         break
       case 'GET':
-        await get(req, res, source, pth)
+        await get(req, res, system.api, p)
         break
       default:
         api.notFound(res)

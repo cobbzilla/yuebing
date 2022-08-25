@@ -11,6 +11,7 @@ module.exports = async function (moduleOptions) {
   if (this.options.dev || this.options._start) {
     await system.connect()
     this.addServerMiddleware('~/serverMiddleware/filters/lang')
+    this.addServerMiddleware('~/serverMiddleware/filters/cookie')
     this.addServerMiddleware('~/serverMiddleware/api/user/config')
     this.addServerMiddleware('~/serverMiddleware/api/user/authenticate')
     this.addServerMiddleware('~/serverMiddleware/api/user/register')
