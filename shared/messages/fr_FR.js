@@ -279,6 +279,7 @@ export default {
   admin_label_self_source: '{{ title }} stockage',
   admin_label_source_type: 'Type de source multimédia',
   admin_label_source_readOnly: 'Mont en lecture seule?',
+  admin_label_source_cacheSize: 'Lister la taille du cache (zéro à désactiver)',
   admin_label_source_encryption_enable: 'Activer le cryptage',
   admin_label_source_encryption_key: 'Clé de cryptage',
   admin_label_source_encryption_iv: 'Vecteur d\'initialisation (VI)',

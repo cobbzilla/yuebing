@@ -99,6 +99,12 @@ const VALIDATIONS = {
     min: 3,
     max: 100
   },
+  cacheSize: {
+    required: true,
+    integer: true,
+    min_value: 0,
+    max_value: 10000000
+  },
   encryptionKey: {
     required: true,
     min: 16,

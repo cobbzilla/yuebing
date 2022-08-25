@@ -6,18 +6,19 @@
         <div v-if="isNotRoot">
           <button @click="refresh(parentPrefix)">
             <span v-if="isParentRootFolder">{{ messages.button_back_to_root_folder }}</span>
-            <span v-else>{{ messages.button_back_to.parseMessage({ parentPrefix }) }}</span>
+            <span v-else>{{ messages.button_back_to.parseMessage({ prefix: parentPrefix }) }}</span>
           </button>
         </div>
       </v-col>
     </v-row>
     <v-row>
-      <v-col>
+      <v-col cols="auto">
         <v-card v-for="(obj, index) in filteredObjectList" :key="index">
           <div v-if="isDir(obj)">
-            <button @click="refresh(obj.path)">
-              {{ filterDirName(obj.name) }}
-            </button>
+            <v-btn icon @click.stop="refresh(obj.name)">
+              <v-icon>mdi-folder</v-icon>
+              <span>{{ filterDirName(obj.name) }}</span>
+            </v-btn>
           </div>
           <div v-else-if="hasMedia(obj)">
             <div v-if="canView(obj)">
@@ -41,9 +42,9 @@
               {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
             </div>
             <div v-if="mediaInfo(obj)">
-              <button @click="toggleMediaInfo(obj)">
+              <v-btn @click.stop="toggleMediaInfo(obj)">
                 {{ mediaInfoToggleButtonLabel(obj) }}
-              </button>
+              </v-btn>
               <div v-if="isSelectedMedia(obj)">
                 <MediaInfo :options="{ object: obj }" />
               </div>
@@ -64,7 +65,7 @@ import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
 import ThumbnailSelector from '../components/ThumbnailSelector'
 
-import { ALL_SOURCES, proxyMediaUrl } from '@/shared'
+import { proxyMediaUrl } from '@/shared'
 import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
@@ -87,7 +88,7 @@ export default {
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     displayPrefix () {
-      return this.prefix === '' || this.prefix === ALL_SOURCES
+      return this.prefix === ''
         ? '/'
         : this.prefix.endsWith('/')
           ? this.prefix.substring(0, this.prefix.length - 1)
@@ -105,7 +106,7 @@ export default {
       const filtered = []
       if (this.objectList && this.objectList.length && this.objectList.length > 0) {
         this.objectList.forEach((obj) => {
-          if (obj.name && obj.name !== this.prefix && (hasMediaType(obj) || isDirectory(obj))) {
+          if (obj.path && obj.path !== this.prefix && (hasMediaType(obj) || isDirectory(obj))) {
             filtered.push(obj)
           }
         })
@@ -117,8 +118,11 @@ export default {
     objectList (newObjectList) {
       if (Array.isArray(newObjectList)) {
         newObjectList.forEach((obj) => {
-          const path = obj.name
-          this.fetchMetadata({ path })
+          if (obj.path) {
+            this.fetchMetadata({ path: obj.path })
+          } else {
+            console.log(`watch.objectList: item in list does not have path: ${JSON.stringify(obj)}`)
+          }
         })
       }
     }

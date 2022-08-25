@@ -150,6 +150,17 @@
                   name="readOnly"
                   class="form-control"
                 />
+                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.cacheSize" immediate>
+                  <v-text-field
+                    v-model="newSource.cacheSize"
+                    :label="messages.admin_label_source_cacheSize"
+                    type="text"
+                    name="cacheSize"
+                    class="form-control"
+                    :class="{ 'is-invalid': errors.length>0 }"
+                  />
+                  <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('cacheSize', errors) }}</span>
+                </ValidationProvider>
                 <div v-for="(fieldConfig, fieldName) in sourceTypeConfiguration" :key="fieldName">
                   <ValidationProvider v-slot="{ errors }" :name="fieldName" :rules="fieldConfig.rules || ''" immediate>
                     <v-text-field
@@ -281,6 +292,7 @@ export default {
         key: null,
         secret: null,
         readOnly: true,
+        cacheSize: 100,
         opts: {},
         encryption: { enabled: false, algo: DEFAULT_ENCRYPTION_ALGO }
       },

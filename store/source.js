@@ -2,10 +2,9 @@ import config from '../nuxt.config'
 import { currentUser } from '@/services/util'
 import { sourceService } from '@/services/sourceService'
 import { newMediaObject } from '@/shared/media'
-import { ALL_SOURCES } from '@/shared'
 
 export const state = () => ({
-  prefix: ALL_SOURCES,
+  prefix: '',
   objectList: [],
   loadingObjects: false,
   loadingObjectsError: null,

@@ -54,8 +54,6 @@ const publicConfigField = (vue, field) => {
 
 const SELF_SOURCE_NAME = ' ~ this ~ '
 
-const ALL_SOURCES = '@'
-
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
@@ -68,7 +66,6 @@ module.exports = {
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
   SELF_SOURCE_NAME,
-  ALL_SOURCES,
   publicConfigField,
   okl,
   empty,

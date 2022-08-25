@@ -19,7 +19,7 @@ const MEDIA_TYPES = ['standard', 'video']
 
 const MEDIA = {}
 for (const mtype of MEDIA_TYPES) {
-  MEDIA[mtype] = require(`./media/${mtype}`)
+  MEDIA[mtype] = require(`./media/${mtype}`).default
 }
 
 function resolveFrom (profile, profileMap) {

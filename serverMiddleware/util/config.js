@@ -1,9 +1,9 @@
+const path = require('path')
 const vv = require('vee-validate')
 const storage = require('mobiletto')
 const shasum = require('shasum')
 const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
-const { MobilettoNotFoundError } = require('mobiletto')
 
 const key = process.env.YB_DEST_KEY
 const secret = process.env.YB_DEST_SECRET
@@ -13,7 +13,8 @@ const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 const opts = {
   region: process.env.YB_DEST_REGION,
   bucket: process.env.YB_DEST_BUCKET,
-  prefix: DEST_PREFIX
+  prefix: DEST_PREFIX,
+  cacheSize: process.env.YB_DEST_CACHE_SIZE || 200
 }
 
 const encryption = {
@@ -52,6 +53,13 @@ async function updateConfigAtLevel (topLevel, updateTarget, configTarget, config
   return errors
 }
 
+function isMatch (obj, prefix, matches) {
+  if (path.basename(obj.name).startsWith(prefix)) {
+    matches.push(obj)
+  }
+  return true
+}
+
 const SYSTEM = {
   api: null,
   source: { name: c.SELF_SOURCE_NAME },
@@ -68,8 +76,7 @@ const SYSTEM = {
     const slash = base.lastIndexOf('/')
     const file = slash === -1 ? base : base.substring(slash)
     const ext = c.getExtension(file).toLowerCase()
-    const canonical = 'source.' + ext
-    return canonical
+    return 'source.' + ext
   },
 
   connect: async () => {
@@ -89,9 +96,14 @@ const SYSTEM = {
         const merged = SYSTEM[`${config}Config`] = Object.assign({}, nuxt[`${config}RuntimeConfig`], storedConfig)
         SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
         SYSTEM.api.find =
-          async (dir, prefix) =>
-            (await SYSTEM.api.safeList(dir))
-              .filter(obj => obj.name.startsWith(prefix))
+          async (dir, prefix) => {
+            const pth = dir.endsWith('/') ? dir : dir + '/'
+            const matches = []
+            // noinspection ES6RedundantAwait
+            const visitor = async obj => await Promise.resolve(isMatch(obj, prefix, matches))
+            await SYSTEM.api.safeList(pth, { visitor })
+            return matches
+          }
       }
     }
     return SYSTEM

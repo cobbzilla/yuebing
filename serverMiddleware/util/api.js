@@ -1,3 +1,5 @@
+const { MobilettoNotFoundError } = require('mobiletto')
+const src = require('../source/sourceUtil')
 
 function okJson (res, obj) {
   res.statusCode = 200
@@ -48,6 +50,12 @@ function handleValidationError (res, e) {
   }
 }
 
+function handleSourceError (res, e) {
+  return (e instanceof src.SourceNotFoundError) || (e instanceof MobilettoNotFoundError)
+    ? notFound(res, e.message)
+    : serverError(res, 'error listing')
+}
+
 module.exports = {
   okJson,
   forbidden,
@@ -55,5 +63,6 @@ module.exports = {
   serverError,
   badRequest,
   validationFailed,
-  handleValidationError
+  handleValidationError,
+  handleSourceError
 }

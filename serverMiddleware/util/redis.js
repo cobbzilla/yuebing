@@ -47,6 +47,19 @@ async function findMatchingKeys (pattern) {
   return keys
 }
 
+async function removeMatchingKeys (pattern) {
+  return await applyToMatchingKeys(pattern, del)
+}
+
+async function applyToMatchingKeys (pattern, func) {
+  const { keysMatching } = generators.using(redisClient)
+  const results = []
+  for await (const key of keysMatching(pattern)) {
+    results.push(func(key))
+  }
+  return results
+}
+
 setTimeout(() => {
   if (redisConfig.flushAtStartup) {
     // start with an empty redis
@@ -58,4 +71,7 @@ setTimeout(() => {
   }
 }, 10)
 
-module.exports = { get, set, del, expire, sadd, smembers, flushall, findMatchingKeys }
+module.exports = {
+  get, set, del, expire, sadd, smembers, flushall,
+  findMatchingKeys, removeMatchingKeys, applyToMatchingKeys
+}

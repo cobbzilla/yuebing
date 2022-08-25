@@ -281,6 +281,7 @@ export default {
   admin_label_self_source: '{{ title }} storage',
   admin_label_source_type: 'Source Type',
   admin_label_source_readOnly: 'Read-only?',
+  admin_label_source_cacheSize: 'Listing cache size (zero to disable)',
   admin_label_source_encryption_enable: 'Enable encryption',
   admin_label_source_encryption_key: 'Encryption key',
   admin_label_source_encryption_iv: 'Initialization vector (IV)',

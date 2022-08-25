@@ -6,6 +6,7 @@ const m = require('../../shared/media')
 const s = require('../../shared/source')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
+const redis = require('../util/redis')
 
 setLogLevel('silly')
 
@@ -83,10 +84,12 @@ async function _listSources (query, { includeSelf = true }) {
   }
   return results
 }
+
 async function connectSource (source) {
   // determine readOnly (default true) and options
   const readOnly = typeof source.readOnly === 'boolean' ? source.readOnly : true
-  const opts = Object.assign({}, source.opts || {}, { readOnly })
+  const cacheSize = source.cacheSize || 0
+  const opts = Object.assign({}, source.opts || {}, { readOnly, cacheSize })
 
   // determine encryption
   const enc = source.encryption && source.encryption.key ? source.encryption : null
@@ -113,6 +116,7 @@ async function createSource (source) {
     const bytesWritten = await system.api.writeFile(sourceKey(source.name), JSON.stringify(sourceRecord))
     if (bytesWritten > 0) {
       listSourceCache.clear()
+      flushListCache()
     }
   } catch (e) {
     console.log(`createSource: error writing source file: ${e}`)
@@ -131,12 +135,12 @@ async function deleteSource (name) {
     const bytesWritten = await system.api.remove(sourceKey(name))
     if (bytesWritten > 0) {
       listSourceCache.clear()
+      flushListCache()
     }
   } catch (e) {
     console.log(`createSource: error writing source file: ${e}`)
     throw e
   }
-  return
 }
 
 const SOURCE_APIS = {}
@@ -163,10 +167,20 @@ async function extractSourceAndPathAndConnect (from) {
   return { source, pth }
 }
 
+const OBJECT_LIST_CACHE_PREFIX = 'objectListCache_'
+const objectListCacheKey = req => `${OBJECT_LIST_CACHE_PREFIX}${req.url}`
+
+function flushListCache () {
+  redis.removeMatchingKeys(OBJECT_LIST_CACHE_PREFIX + '*').then((results) => {
+    console.log(`flushListCache: flushed ${JSON.stringify(results)}`)
+  })
+}
+
 export {
   connect, connectedSources, extractSourceAndPathAndConnect,
   sourceExists, findSource,
   listSources, listSourcesWithoutSelf,
   createSource, deleteSource,
-  SourceError, SourceNotFoundError
+  SourceError, SourceNotFoundError,
+  objectListCacheKey, flushListCache
 }

@@ -20,7 +20,7 @@
     <v-row>
       <v-col>
         <!-- data -->
-        <div v-if="job">
+        <div v-if="job && job !== -1">
           <table>
             <thead>
               <tr>
@@ -112,7 +112,7 @@ export default {
     },
     displayJobDetails (j) {
       if (this.queue) {
-        this.job = this.job && this.job.sourcePath === j.sourcePath ? null : j
+        this.job = this.job && this.job.sourcePath === j.sourcePath ? -1 : j
       }
     }
   }
