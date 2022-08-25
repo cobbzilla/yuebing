@@ -56,9 +56,9 @@ import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
 import ThumbnailSelector from '../components/ThumbnailSelector'
 
+import { ALL_SOURCES, proxyMediaUrl } from '@/shared'
 import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
-import { proxyMediaUrl } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 
 // noinspection JSUnusedGlobalSymbols
@@ -79,7 +79,7 @@ export default {
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     displayPrefix () {
-      return this.prefix === ''
+      return this.prefix === '' || this.prefix === ALL_SOURCES
         ? '/'
         : this.prefix.endsWith('/')
           ? this.prefix.substring(0, this.prefix.length - 1)

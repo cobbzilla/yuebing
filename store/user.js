@@ -1,5 +1,5 @@
-import { userService } from '~/services/userService'
-import { USER_LOCAL_STORAGE_KEY } from '~/services/util'
+import { userService } from '@/services/userService'
+import { USER_LOCAL_STORAGE_KEY } from '@/services/util'
 
 const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 

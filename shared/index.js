@@ -2,8 +2,6 @@
 // Files in this directory are the only code shared between both client and server.
 // As such, code here should remain very simple. Constants. Stateless methods. Nothing too fancy.
 //
-
-const shasum = require('shasum')
 const nuxt = require('../nuxt.config').default
 
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -56,6 +54,8 @@ const publicConfigField = (vue, field) => {
 
 const SELF_SOURCE_NAME = ' ~ this ~ '
 
+const ALL_SOURCES = '@'
+
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
@@ -68,6 +68,7 @@ module.exports = {
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
   SELF_SOURCE_NAME,
+  ALL_SOURCES,
   publicConfigField,
   okl,
   empty,

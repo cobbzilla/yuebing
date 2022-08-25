@@ -1,3 +1,5 @@
+const { ALL_SOURCES } = require('./index')
+
 const SOURCE_TYPES = {
   local: {
     baseDir: {
@@ -60,6 +62,9 @@ function sortByField (array, field, ascending) {
 }
 
 function extractSourceAndPath (from) {
+  if (from.replaceAll('/', '') === ALL_SOURCES) {
+    return { sourceName: ALL_SOURCES, pth: '' }
+  }
   const slash = from.indexOf('/')
   const hasSlash = slash !== -1 && slash !== from.length
   const sourceName = hasSlash ? from.substring(0, slash) : from

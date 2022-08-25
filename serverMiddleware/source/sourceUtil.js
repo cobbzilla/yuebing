@@ -53,6 +53,15 @@ async function findSource (name) {
 }
 
 async function listSources (query) {
+  return await _listSources(query, { includeSelf: true })
+}
+
+async function listSourcesWithoutSelf (query) {
+  return await _listSources(query, { includeSelf: false })
+}
+
+// todo: cache these results, they change infrequently
+async function _listSources (query, { includeSelf = true }) {
   const objectList = await system.api.list(SOURCES_PREFIX)
   const allSources = []
   for (const object of objectList) {
@@ -60,8 +69,10 @@ async function listSources (query) {
       allSources.push(JSON.parse(await system.api.readFile(object.name)))
     }
   }
-  // push special source: self (dest)
-  allSources.push(system.source)
+  if (includeSelf) {
+    // push special source: self (dest)
+    allSources.push(system.source)
+  }
   return q.search(allSources, query, searchMatches, s.sortByField)
 }
 async function connectSource (source) {
@@ -129,6 +140,8 @@ async function extractSourceAndPathAndConnect (from) {
 
 export {
   connect, connectedSources, extractSourceAndPathAndConnect,
-  sourceExists, findSource, listSources, createSource, deleteSource,
+  sourceExists, findSource,
+  listSources, listSourcesWithoutSelf,
+  createSource, deleteSource,
   SourceError, SourceNotFoundError
 }

@@ -68,7 +68,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { publicConfigField } from '~/shared'
+import { publicConfigField } from '@/shared'
 import { isValidEmail } from '@/shared/validation'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { UI_CONFIG } from '@/services/util'

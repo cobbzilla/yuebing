@@ -252,7 +252,7 @@ import 'vue-json-pretty/lib/styles.css'
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_ENCRYPTION_ALGO, SELF_SOURCE_NAME, publicConfigField } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { condensedRules } from '~/shared/validation'
+import { condensedRules } from '@/shared/validation'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'

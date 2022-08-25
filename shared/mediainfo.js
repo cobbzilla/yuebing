@@ -1,7 +1,6 @@
-import { isThumbnailProfile, mediaProfileByName, mediaType } from '@/shared/media'
-
 const jp = require('jsonpath')
 const c = require('../shared')
+const { isThumbnailProfile, mediaProfileByName, mediaType } = require('./media')
 
 const META_FIELDS = {
 

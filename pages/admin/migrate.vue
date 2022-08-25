@@ -142,8 +142,8 @@ import 'vue-json-pretty/lib/styles.css'
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField, empty, SELF_SOURCE_NAME } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { condensedRules } from '~/shared/validation'
-import { UI_CONFIG } from '~/services/util'
+import { condensedRules } from '@/shared/validation'
+import { UI_CONFIG } from '@/services/util'
 
 // noinspection JSUnusedGlobalSymbols
 export default {
