@@ -1,29 +1,37 @@
 <template>
-  <div>
-    <h4 v-if="object && object.name">
-      {{ videoTitle }}
-    </h4>
-
-    <div v-if="isReady">
-      <VideoPlayer :options="videoOptions"></VideoPlayer>
-    </div>
-
-    <div v-if="mediaInfo()">
-      <button @click="toggleMediaInfo()">
-        <span v-if="showMediaInfo">{{ messages.button_hide_metadata }}</span>
-        <span v-else>{{ messages.button_show_metadata }}</span>
-      </button>
-      <MediaInfo v-if="showMediaInfo" :options="{ object }" />
-    </div>
-
-    <div v-if="thumbnail()">
-      <ThumbnailSelector :options="{ object }" />
-    </div>
-
-    <div v-if="error">
-      <h3>{{ error }}</h3>
-    </div>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <h4 v-if="object && object.name">
+          {{ videoTitle }}
+        </h4>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <div v-if="isReady">
+          <VideoPlayer :options="videoOptions"></VideoPlayer>
+        </div>
+        <div v-if="mediaInfo()">
+          <button @click="toggleMediaInfo()">
+            <span v-if="showMediaInfo">{{ messages.button_hide_metadata }}</span>
+            <span v-else>{{ messages.button_show_metadata }}</span>
+          </button>
+          <MediaInfo v-if="showMediaInfo" :options="{ object }" />
+        </div>
+        <div v-if="thumbnail()">
+          <ThumbnailSelector :options="{ object }" />
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <div v-if="error">
+          <h3>{{ error }}</h3>
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -81,18 +89,16 @@ export default {
         : {}
     },
     videoTitle () {
-      const mediaTitle = mediaInfoField('title')
+      const mediaTitle = this.mediaInfoField('title')
       return mediaTitle || this.name
     }
   },
   watch: {
     metadata (newMeta, oldMeta) {
-      if (newMeta && newMeta.path && newMeta.path.ctime && newMeta.path.assets) {
-        // fixme Don't know why, but there it is, metadata stored under a 'path' property
-        // My frontend development skills could be better. Sorry; this is hacky
-        this.object.meta = newMeta.path
+      if (newMeta && newMeta[this.name] && newMeta[this.name].ctime && newMeta[this.name].assets) {
+        this.object.meta = newMeta[this.name]
       } else {
-        this.object.meta = newMeta
+        this.object.meta = newMeta[this.name]
       }
       if (this.object.meta.selectedThumbnail) {
         this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail, this.user, this.status)
@@ -142,17 +148,7 @@ export default {
       this.refreshMeta()
     } else {
       console.log('nothing cached, fetching meta...')
-      const path = name
-      this.fetchMetadata({ path })
-      this.object = this.objectList.find(o => o.name === name)
-      if (!this.object) {
-        console.log('>>>> AFTER fetching meta, object not found in objectList, creating default/detached object')
-        this.object = {
-          name,
-          type: FILE_TYPE,
-          mediaType: VIDEO_MEDIA_TYPE
-        }
-      }
+      this.fetchMetadata({ path: name })
     }
   },
   methods: {
@@ -161,7 +157,7 @@ export default {
     refreshMeta () {
       if (this.name) {
         // get user media info
-        this.fetchUserMediaInfo(this.name)
+        this.fetchUserMediaInfo({ path: this.name })
       }
       const sources = this.videoOptions.sources
       if (hasAssets(this.object) && !this.hasSources) {

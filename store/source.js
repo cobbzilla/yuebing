@@ -164,7 +164,9 @@ export const mutations = {
     state.loadingMetadata = true
   },
   fetchMetaSuccess (state, { path, meta }) {
-    state.metadata = Object.assign({}, state.metadata, { path: meta })
+    const update = {}
+    update[path] = meta
+    state.metadata = Object.assign({}, state.metadata, update)
     state.loadingMetadataError = null
     state.loadingMetadata = false
     const found = state.objectList.find(o => o.name === path)
