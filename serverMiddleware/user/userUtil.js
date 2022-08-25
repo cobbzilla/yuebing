@@ -172,14 +172,8 @@ const USERS_PREFIX = 'users/'
 const userKey = email => USERS_PREFIX + shasum(email.trim())
 
 async function userExists (name) {
-  try {
-    return await system.api.metadata(userKey(name)).name
-  } catch (e) {
-    if (e instanceof MobilettoNotFoundError) {
-      return false
-    }
-    throw e
-  }
+  const user = await system.api.safeMetadata(userKey(name))
+  return user ? user.name : null
 }
 
 function registerInitialAdminUser (regRequest) {
@@ -436,6 +430,7 @@ if (ADMIN_USER) {
 }
 
 module.exports = {
+  USERS_PREFIX,
   userKey,
   startSession,
   newSessionResponse,

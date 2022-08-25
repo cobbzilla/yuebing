@@ -33,18 +33,6 @@ function proxyMediaUrl (asset, user, status) {
 
 const HTTP_INVALID_REQUEST_MESSAGE = 'http_invalid_request_method'
 
-const INCLUDE_ORIG_FILENAME_CHARS = 20
-function scrub (path) {
-  // replace all nonalphanumeric chars with underscores
-  const scrubbed = path.replace(/[\W_]+/g, '_')
-
-  // retain the first several characters, then add a hash
-  return (scrubbed.length < INCLUDE_ORIG_FILENAME_CHARS
-    ? scrubbed
-    : scrubbed.substring(scrubbed.length - INCLUDE_ORIG_FILENAME_CHARS, scrubbed.length)) +
-    '_' + shasum(path)
-}
-
 const okl = obj => typeof obj === 'object' ? Object.keys(obj).length : 0
 
 const empty = thing =>
@@ -84,7 +72,6 @@ module.exports = {
   okl,
   empty,
   snooze,
-  scrub,
   getExtension,
   sessionParams,
   proxyMediaUrl

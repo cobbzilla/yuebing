@@ -12,10 +12,10 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
-      if (!source || !path) { return api.okJson(res, []) }
-      console.log(`>>>>> API: Listing ${req.url}, source=${source.name}, prefix=${path}`)
-      const results = await source.list(path)
+      const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+      if (!source || !pth) { return api.okJson(res, []) }
+      console.log(`>>>>> API: Listing ${req.url}, source=${source.name}, prefix=${pth}`)
+      const results = await source.list(pth)
       for (let i = 0; i < results.length; i++) {
         const result = results[i]
         if (result.mediaType && result.mediaType !== m.UNKNOWN_MEDIA_TYPE) {

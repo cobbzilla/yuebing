@@ -34,15 +34,8 @@ function searchMatches (source, searchTerms) {
 }
 
 async function sourceExists (name) {
-  try {
-    const meta = await system.api.metadata(sourceKey(name))
-    return meta.name
-  } catch (e) {
-    if (e instanceof MobilettoNotFoundError) {
-      return false
-    }
-    throw e
-  }
+  const meta = await system.api.safeMetadata(sourceKey(name))
+  return meta ? meta.name : false
 }
 
 async function findSource (name) {
@@ -121,15 +114,17 @@ async function connect (name) {
   }
   const source = await findSource(name)
   SOURCE_APIS[name] = await connectSource(source)
+  SOURCE_APIS[name].name = name
   return SOURCE_APIS[name]
 }
 
 const connectedSources = () => Object.keys(SOURCE_APIS)
 
 async function extractSourceAndPathAndConnect (from) {
-  const { sourceName, path } = s.extractSourceAndPath(from)
+  const { sourceName, pth } = s.extractSourceAndPath(from)
   const source = await connect(sourceName)
-  return { source, path }
+  source.name = sourceName
+  return { source, pth }
 }
 
 export {

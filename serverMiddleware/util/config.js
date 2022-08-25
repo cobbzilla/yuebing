@@ -3,6 +3,7 @@ const storage = require('mobiletto')
 const shasum = require('shasum')
 const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
+const { MobilettoNotFoundError } = require('mobiletto')
 
 const key = process.env.YB_DEST_KEY
 const secret = process.env.YB_DEST_SECRET
@@ -56,7 +57,20 @@ const SYSTEM = {
   source: { name: c.SELF_SOURCE_NAME },
   publicConfig: {},
   privateConfig: {},
-  canonicalDestBase: null,
+  workbenchDir: process.env.YB_WORK_DIR
+    ? process.env.YB_WORK_DIR.endsWith('/')
+      ? process.env.YB_WORK_DIR
+      : process.env.YB_WORK_DIR + '/'
+    : '/tmp/yuebing_workdir/',
+  canonicalWorkingDir: path => shasum(path) + '/',
+  canonicalSourceFile (path) {
+    const base = path.endsWith('/') ? path.substring(0, path.length - 1) : path
+    const slash = base.lastIndexOf('/')
+    const file = slash === -1 ? base : base.substring(slash)
+    const ext = c.getExtension(file).toLowerCase()
+    const canonical = 'source.' + ext
+    return canonical
+  },
 
   connect: async () => {
     if (!SYSTEM.api) {
@@ -74,6 +88,10 @@ const SYSTEM = {
         }
         const merged = SYSTEM[`${config}Config`] = Object.assign({}, nuxt[`${config}RuntimeConfig`], storedConfig)
         SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
+        SYSTEM.api.find =
+          async (dir, prefix) =>
+            (await SYSTEM.api.safeList(dir))
+              .filter(obj => obj.name.startsWith(prefix))
       }
     }
     return SYSTEM
@@ -102,17 +120,15 @@ const SYSTEM = {
     }
     return errors
   },
+  canonicalPrefix: 'assets/',
   canonicalDestDir (path) {
-    const rawPrefix = SYSTEM.canonicalDestBase
-    const slug = c.scrub(path)
     const sha = shasum(path)
-    const prefix = rawPrefix.endsWith('/') ? rawPrefix : rawPrefix + '/'
-    const canonical = prefix + sha.substring(0, 2) +
+    const canonical = this.canonicalPrefix +
+      sha.substring(0, 2) +
       '/' + sha.substring(2, 4) +
       '/' + sha.substring(4, 6) +
-      '/' + slug +
+      '/' + sha +
       '/'
-    // console.log('canonicalDestDir(' + path + ') returning ' + canonical)
     return canonical
   },
   recordError: async (sourcePath, profile, error) => {
@@ -121,9 +137,9 @@ const SYSTEM = {
     console.log(`recordError: recorded: ${path} = ${error}`)
   },
   clearErrors: async (path, profile) => {
-    const prefix = SYSTEM.canonicalDestDir(path) + c.ERROR_FILE_PREFIX + profile
+    const prefix = SYSTEM.canonicalDestDir(path)
     console.log(`clearErrors(${path}, ${profile}): looking for files with prefix: ${prefix}`)
-    const files = await SYSTEM.api.list(prefix)
+    const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     if (files && files.length ? files.length : 0) {
       files.forEach((file) => {
         console.log(`clearErrors(${path}, ${profile}): deleting: ${file.name}`)
@@ -132,7 +148,8 @@ const SYSTEM = {
     }
   },
   countErrors: async (sourcePath, profile) => {
-    const files = await SYSTEM.api.list(SYSTEM.canonicalDestDir(sourcePath) + c.ERROR_FILE_PREFIX + profile)
+    const prefix = SYSTEM.canonicalDestDir(sourcePath)
+    const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     const count = files && files.length ? files.length : 0
     console.log(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
     return count

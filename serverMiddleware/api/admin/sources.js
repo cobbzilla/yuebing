@@ -3,6 +3,7 @@ const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const s = require('../../source/sourceUtil')
 const v = require('../../../shared/validation')
+const scan = require('../../source/scan')
 
 function handleSourceError (res, e, sourceName) {
   if (e instanceof s.SourceNotFoundError) {
@@ -49,6 +50,22 @@ async function handleQuery (res, query) {
   return api.okJson(res, await s.listSources(query))
 }
 
+const handleScan = sourceName => async (res, name) => {
+  if (sourceName !== name) {
+    throw new TypeError(`Expected source named ${sourceName} but received ${name}`)
+  }
+  try {
+    const source = await s.connect(name)
+    const transforms = await scan.scan(source)
+    return api.okJson(res, transforms)
+  } catch (e) {
+    if (e instanceof s.SourceNotFoundError) {
+      return api.notFound(res, e.message)
+    }
+    return api.serverError(res, `Error scanning ${name}: ${JSON.stringify(e)}`)
+  }
+}
+
 export default {
   path: '/api/admin/sources',
   async handler (req, res) {
@@ -67,6 +84,9 @@ export default {
           break
         case 'POST':
           handler = handleQuery
+          break
+        case 'PATCH':
+          handler = handleScan(sourceName)
           break
         default:
           return api.serverError(res, c.HTTP_INVALID_REQUEST_MESSAGE)

@@ -27,6 +27,10 @@ export const state = () => ({
   addSourceSuccess: null,
   addSourceError: null,
 
+  scanningSources: {},
+  scanSourceSuccess: {},
+  scanSourceError: {},
+
   deletingSource: false,
   deleteSourceSuccess: null,
   deleteSourceError: null,
@@ -65,12 +69,8 @@ export const actions = {
     commit('findUsersRequest', { query })
     adminService.findUsers(query)
       .then(
-        (results) => {
-          commit('findUsersSuccess', { results })
-        },
-        (error) => {
-          commit('findUsersFailure', { error })
-        }
+        (results) => { commit('findUsersSuccess', { results }) },
+        (error) => { commit('findUsersFailure', { error }) }
       )
   },
 
@@ -78,12 +78,8 @@ export const actions = {
     commit('deleteUserRequest', { email })
     adminService.deleteUser(email)
       .then(
-        (ok) => {
-          commit('deleteUserSuccess', { ok, email })
-        },
-        (error) => {
-          commit('deleteUserFailure', { error })
-        }
+        (ok) => { commit('deleteUserSuccess', { ok, email }) },
+        (error) => { commit('deleteUserFailure', { error }) }
       )
   },
 
@@ -91,12 +87,8 @@ export const actions = {
     commit('findSourcesRequest', { query })
     adminService.findSources(query)
       .then(
-        (results) => {
-          commit('findSourcesSuccess', { results })
-        },
-        (error) => {
-          commit('findSourcesFailure', { error })
-        }
+        (results) => { commit('findSourcesSuccess', { results }) },
+        (error) => { commit('findSourcesFailure', { error }) }
       )
   },
 
@@ -104,12 +96,17 @@ export const actions = {
     commit('addSourceRequest', { src })
     adminService.addSource(src)
       .then(
-        (ok) => {
-          commit('addSourceSuccess', { ok, src })
-        },
-        (error) => {
-          commit('addSourceFailure', { error })
-        }
+        (ok) => { commit('addSourceSuccess', { ok, src }) },
+        (error) => { commit('addSourceFailure', { error }) }
+      )
+  },
+
+  scanSource ({ commit }, { src }) {
+    commit('scanSourceRequest', { src })
+    adminService.scanSource(src)
+      .then(
+        (ok) => { commit('scanSourceSuccess', { ok, src }) },
+        (error) => { commit('scanSourceFailure', { src, error }) }
       )
   },
 
@@ -117,12 +114,8 @@ export const actions = {
     commit('deleteSourceRequest', { src })
     adminService.deleteSource(src)
       .then(
-        (ok) => {
-          commit('deleteSourceSuccess', { ok, src })
-        },
-        (error) => {
-          commit('deleteSourceFailure', { error })
-        }
+        (ok) => { commit('deleteSourceSuccess', { ok, src }) },
+        (error) => { commit('deleteSourceFailure', { error }) }
       )
   },
 
@@ -130,12 +123,8 @@ export const actions = {
     commit('loadSiteConfigRequest')
     adminService.loadSiteConfig()
       .then(
-        (config) => {
-          commit('loadSiteConfigSuccess', { config })
-        },
-        (error) => {
-          commit('loadSiteConfigFailure', { error })
-        }
+        (config) => { commit('loadSiteConfigSuccess', { config }) },
+        (error) => { commit('loadSiteConfigFailure', { error }) }
       )
   },
 
@@ -143,12 +132,8 @@ export const actions = {
     commit('updateSiteConfigRequest', { config })
     adminService.updateSiteConfig(config)
       .then(
-        (cfg) => {
-          commit('updateSiteConfigSuccess', { config: cfg })
-        },
-        (error) => {
-          commit('updateSiteConfigFailure', { error })
-        }
+        (cfg) => { commit('updateSiteConfigSuccess', { config: cfg }) },
+        (error) => { commit('updateSiteConfigFailure', { error }) }
       )
   }
 }
@@ -238,6 +223,28 @@ export const mutations = {
   addSourceFailure (state, { error }) {
     state.addingSource = false
     state.addSourceError = error
+  },
+
+  scanSourceRequest (state, { src }) {
+    const update = {}
+    update[src] = true
+    state.scanningSources = Object.assign({}, state.scanningSources, update)
+  },
+  scanSourceSuccess (state, { ok, src }) {
+    const update = {}
+    update[src] = false
+    state.scanningSources = Object.assign({}, state.scanningSources, update)
+    update[src] = ok || true
+    state.scanSourceSuccess = Object.assign({}, state.scanSourceSuccess, update)
+    update[src] = null
+    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+  },
+  scanSourceFailure (state, { src, error }) {
+    const update = {}
+    update[src] = false
+    state.scanningSources = Object.assign({}, state.scanningSources, update)
+    update[src] = error
+    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
   },
 
   deleteSourceRequest (state, { src }) {

@@ -4,7 +4,7 @@ const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
 
 async function head (req, res, source, path) {
-  const head = await source.metadata(path)
+  const head = await source.safeMetadata(path)
   if (head) {
     res.statusCode = 200
     res.end(head)
@@ -14,7 +14,7 @@ async function head (req, res, source, path) {
 }
 
 async function get (req, res, source, path) {
-  const head = await source.metadata(path)
+  const head = await source.safeMetadata(path)
   if (!head) {
     console.log(`stream.get: HEAD request failed, returning 404 Not Found for path=${path}`)
     return api.notFound(res)
@@ -46,16 +46,16 @@ export default {
     // adjust for undefined paths, chop leading / if present
     const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
 
-    const { source, path } = await src.extractSourceAndPathAndConnect(p)
-    if (!source || !path) { return api.notFound() }
+    const { source, pth } = await src.extractSourceAndPathAndConnect(p)
+    if (!source || !pth) { return api.notFound() }
 
     // only HEAD and GET are allowed, return 404 for anything else
     switch (req.method) {
       case 'HEAD':
-        await head(req, res, source, path)
+        await head(req, res, source, pth)
         break
       case 'GET':
-        await get(req, res, source, path)
+        await get(req, res, source, pth)
         break
       default:
         api.notFound(res)

@@ -39,6 +39,7 @@ function authReq (method, headers = null) {
 
 function authPostJson (obj, headers = null) { return authDataJson(obj, 'POST', headers) }
 function authPutJson (obj, headers = null) { return authDataJson(obj, 'PUT', headers) }
+function authPatchJson (obj, headers = null) { return authDataJson(obj, 'PATCH', headers) }
 
 function authDataJson (obj, method, headers = null) {
   return {
@@ -71,5 +72,5 @@ function handleJsonResponse (response) {
 export {
   USER_LOCAL_STORAGE_KEY, UI_CONFIG,
   currentUser, authHeader, handleJsonResponse,
-  authGet, authPostJson, authPutJson, authDelete
+  authGet, authPostJson, authPutJson, authPatchJson, authDelete
 }

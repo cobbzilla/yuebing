@@ -1,8 +1,8 @@
 const path = require('path')
+const c = require('../../shared')
+const m = require('../../shared/media')
 const redis = require('../util/redis')
 const util = require('../util/file')
-const u = require('../user/userUtil')
-const m = require('../../shared/media')
 const system = require('../util/config').SYSTEM
 
 const MANIFEST_CACHE_EXPIRATION = system.privateConfig.redis.manifestCacheExpiration
@@ -14,7 +14,7 @@ async function flushCachedMetadata (sourcePath) {
 
 async function deriveMetadata (source, sourcePath) {
   // Do we have this cached?
-  const cacheKey = util.redisMetaCacheKey(sourcePath)
+  const cacheKey = util.redisMetaCacheKey(source.name + ':' + sourcePath)
   const cachedMeta = JSON.parse(await redis.get(cacheKey))
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
@@ -23,7 +23,7 @@ async function deriveMetadata (source, sourcePath) {
       return cachedMeta
     }
     // check last-modified time on directory
-    const lastModified = await source.metadata(u.canonicalDestDir(sourcePath) + util.LAST_MODIFIED_FILE)
+    const lastModified = await source.safeMetadata(system.canonicalDestDir(source.name + ':' + sourcePath) + c.LAST_MODIFIED_FILE)
     if (lastModified && lastModified.mtime) {
       const destModified = new Date(lastModified.mtime)
       if (destModified > cachedMeta.ctime) {
@@ -52,8 +52,8 @@ async function deriveMetadata (source, sourcePath) {
   }
 
   // find all assets
-  const prefix = u.canonicalDestDir(sourcePath) + m.ASSET_PREFIX
-  const assets = await source.list(prefix)
+  const prefix = system.canonicalDestDir(sourcePath)
+  const assets = await system.api.find(prefix, m.ASSET_PREFIX)
   assets.forEach((asset) => {
     // console.log(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
@@ -108,7 +108,7 @@ async function deriveMetadata (source, sourcePath) {
 
   // is there a selected thumbnail?
   try {
-    const selectedThumbnail = await source.readFile(u.canonicalDestDir(sourcePath) + util.SELECTED_THUMBNAIL_FILE)
+    const selectedThumbnail = await system.api.readFile(system.canonicalDestDir(sourcePath) + c.SELECTED_THUMBNAIL_FILE)
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
     console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)

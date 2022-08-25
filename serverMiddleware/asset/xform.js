@@ -6,6 +6,7 @@ const { glob } = require('glob')
 const shellescape = require('shell-escape')
 const util = require('../util/file')
 const redis = require('../util/redis')
+const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')
 const system = require('../util/config').SYSTEM
@@ -109,9 +110,9 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
 }
 
 function multifilePrefix (outfile) {
-  const placeholder = outfile.lastIndexOf(util.MULTIFILE_PLACEHOLDER)
+  const placeholder = outfile.lastIndexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
-    const message = `multifilePrefix: expected to find placeholder (${util.MULTIFILE_PLACEHOLDER}) in outfile: ${outfile}`
+    const message = `multifilePrefix: expected to find placeholder (${c.MULTIFILE_PLACEHOLDER}) in outfile: ${outfile}`
     console.error(message)
     throw new TypeError(message)
   }
@@ -139,23 +140,8 @@ function deleteLocalFiles (outfile, profile, job, jobPrefix) {
 
 async function clearErrors (job, jobPrefix, sourcePath, profile) {
   q.recordJobEvent(job, `${jobPrefix}_clearing_errors`)
-  const { source, path } = await src.extractSourceAndPathAndConnect(sourcePath)
-  await source.clearErrors(path, profile.name)
+  await system.clearErrors(sourcePath, profile.name)
   q.recordJobEvent(job, `${jobPrefix}_cleared_errors`)
-}
-
-const DEFAULT_CHUNK_SIZE = 8192
-function streamToGenerator (reader, chunkSize = DEFAULT_CHUNK_SIZE) {
-  return (function* genFn () {
-    while (true) {
-      const val = reader.read(chunkSize)
-      if (val === null) {
-        break
-      } else {
-        yield val
-      }
-    }
-  })()
 }
 
 async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
@@ -165,8 +151,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   console.log(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
 
-  const uploader = streamToGenerator(fileUp)
-  if (await system.api.write(destPath, uploader()) == null) {
+  if (await system.api.write(destPath, fileUp) == null) {
     const message = `uploadAsset(${destPath}): error uploading asset (upload failed)`
     console.error(message)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset`, destPath)
@@ -174,7 +159,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     return message
   } else {
     // ensure it was uploaded
-    const head = await system.api.metadata(destPath)
+    const head = await system.api.safeMetadata(destPath)
     if (head && head.size && head.size === outfileSize) {
       // upload success!
       console.log(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
@@ -382,15 +367,15 @@ async function createArtifacts (job, localSourceFile) {
     // determine which destPath we will check to determine if the transform has completed
     if (profile.multiFile) {
       const outfilePrefix = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
-      outfile = outfilePrefix + m.assetSuffix(mediaType) + util.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = system.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + util.MULTIFILE_FIRST + '.' + profile.ext
+      outfile = outfilePrefix + m.assetSuffix(mediaType) + c.MULTIFILE_PLACEHOLDER + '.' + profile.ext
+      completedAssetKey = system.canonicalDestDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + c.MULTIFILE_FIRST + '.' + profile.ext
     } else {
       outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
       completedAssetKey = system.canonicalDestDir(sourcePath) + path.basename(outfile)
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
-    const destHead = await system.api.metadata(completedAssetKey)
+    const destHead = await system.api.safeMetadata(completedAssetKey)
     if (destHead && destHead.size && destHead.size > 0) {
       console.log(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
       q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
@@ -411,20 +396,19 @@ async function createArtifacts (job, localSourceFile) {
 
 async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
-  const { source, path } = await src.extractSourceAndPathAndConnect(sourcePath)
-  const mediaType = m.mediaType(path)
+  const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
+  const mediaType = m.mediaType(pth)
   const jobPrefix = `ensureSourceDownload_${mediaType}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)
 
   // Does the local copy of the source exist already?
-  const file = util.workbenchDir + util.canonicalWorkingDir(sourcePath) + util.canonicalSourceFile(sourcePath)
+  const file = system.workbenchDir + system.canonicalWorkingDir(sourcePath) + system.canonicalSourceFile(sourcePath)
   const size = util.statSize(file)
 
-  // const sourceBucketParams = Object.assign({}, s3cfg.sourceBucketParams, { Key: path })
   if (size !== -1) {
     // we have a file with some size. do a HEAD request for the source
     // we might already have the whole file
-    const head = await source.metadata(path)
+    const head = await source.safeMetadata(pth)
     if (head && head.size && head.size === size) {
       q.recordJobEvent(job, `${jobPrefix}_download_using_cached_source`)
       return file
@@ -437,31 +421,39 @@ async function ensureSourceDownloaded (job) {
   let head = null
   for (let i = 1; i <= MAX_TRIES; i++) {
     const attemptPrefix = `${jobPrefix}_download_attempt_${i}`
+    // let fd = null
     try {
+      // fd = fs.openSync(file, 'w', 0o600)
+      // const f = fs.createWriteStream(file, { fd })
       const f = fs.createWriteStream(file)
       const counter = { count: 0 }
-      await source.read(path, (chunk) => {
+      await source.read(pth, (chunk) => {
         counter.count += chunk ? chunk.length : 0
         f.write(chunk)
+      }, () => {
+        f.close(async (err) => {
+          console.error(`ensureSourceDownload: error closing file: ${file}: ${err}`)
+          // fs.fdatasyncSync(fd)
+          const downloadSize = util.statSize(file)
+          if (head == null) {
+            q.recordJobEvent(job, `${attemptPrefix}_HEAD_source`)
+            head = await source.safeMetadata(pth)
+          }
+          if (head && head.size && head.size === downloadSize) {
+            console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
+            q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
+            return file
+          }
+          let message
+          if (head && head.size) {
+            message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`
+          } else {
+            message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`
+          }
+          console.error(message)
+          q.recordJobEvent(job, `${attemptPrefix}_download_ERROR_size_mismatch`, message)
+        })
       })
-      const downloadSize = util.statSize(file)
-      if (head == null) {
-        q.recordJobEvent(job, `${attemptPrefix}_HEAD_source`)
-        head = await source.metadata(path)
-      }
-      if (head && head.size && head.size === downloadSize) {
-        console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
-        q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
-        return file
-      }
-      let message
-      if (head && head.size) {
-        message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) which does not match source size: ${head.ContentLength}`
-      } else {
-        message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`
-      }
-      console.error(message)
-      q.recordJobEvent(job, `${attemptPrefix}_download_ERROR_size_mismatch`, message)
     } catch (err) {
       console.log(`ensureSourceDownload: ERROR downloading source file: ${file}: ${err}`)
       q.recordJobEvent(job, `${attemptPrefix}_download_ERROR`, `${err}`)
@@ -480,11 +472,11 @@ async function transform (sourcePath) {
     return null
   }
 
-  const { sourceName, path } = s.extractSourceAndPath(sourcePath)
+  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
   const source = await src.connect(sourceName)
 
   console.log(`${logPrefix}) fetching metadata`)
-  const derivedMeta = await manifest.deriveMetadata(source, path)
+  const derivedMeta = await manifest.deriveMetadata(source, pth)
   if (derivedMeta && derivedMeta.status && derivedMeta.status.complete) {
     return derivedMeta
   }

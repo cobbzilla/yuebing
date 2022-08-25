@@ -1,4 +1,4 @@
-const util = require('../../util/file')
+const system = require('../../util/config').SYSTEM
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
@@ -14,9 +14,9 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
-    if (!source || !path) { return api.notFound() }
-    const infoPath = u.canonicalDestDir(path) + USER_MEDIAINFO_JSON
+    const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+    if (!source || !pth) { return api.notFound() }
+    const infoPath = system.canonicalDestDir(pth) + USER_MEDIAINFO_JSON
     if (req.method === 'GET') {
       res.statusCode = 200
       res.contentType = 'application/json'

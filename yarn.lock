@@ -118,10 +118,70 @@
   dependencies:
     tslib "^2.3.1"
 
-"@aws-sdk/client-s3@^3.141.0", "@aws-sdk/client-s3@^3.150.0":
+"@aws-sdk/client-s3@^3.141.0":
   version "3.154.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.154.0.tgz#f11b8eb514efeaefa57b76261e73a0512b59c887"
   integrity sha512-TUkUZUmDuQlh7N6455LNqjuky/iIhjvnISJzl+wMKyQUMX61FPDZMYDG7HXDEQGV7uaAvjaabKfyHVNdoi/SmA==
+  dependencies:
+    "@aws-crypto/sha1-browser" "2.0.0"
+    "@aws-crypto/sha256-browser" "2.0.0"
+    "@aws-crypto/sha256-js" "2.0.0"
+    "@aws-sdk/client-sts" "3.154.0"
+    "@aws-sdk/config-resolver" "3.130.0"
+    "@aws-sdk/credential-provider-node" "3.154.0"
+    "@aws-sdk/eventstream-serde-browser" "3.127.0"
+    "@aws-sdk/eventstream-serde-config-resolver" "3.127.0"
+    "@aws-sdk/eventstream-serde-node" "3.127.0"
+    "@aws-sdk/fetch-http-handler" "3.131.0"
+    "@aws-sdk/hash-blob-browser" "3.127.0"
+    "@aws-sdk/hash-node" "3.127.0"
+    "@aws-sdk/hash-stream-node" "3.127.0"
+    "@aws-sdk/invalid-dependency" "3.127.0"
+    "@aws-sdk/md5-js" "3.127.0"
+    "@aws-sdk/middleware-bucket-endpoint" "3.127.0"
+    "@aws-sdk/middleware-content-length" "3.127.0"
+    "@aws-sdk/middleware-expect-continue" "3.127.0"
+    "@aws-sdk/middleware-flexible-checksums" "3.127.0"
+    "@aws-sdk/middleware-host-header" "3.127.0"
+    "@aws-sdk/middleware-location-constraint" "3.127.0"
+    "@aws-sdk/middleware-logger" "3.127.0"
+    "@aws-sdk/middleware-recursion-detection" "3.127.0"
+    "@aws-sdk/middleware-retry" "3.127.0"
+    "@aws-sdk/middleware-sdk-s3" "3.127.0"
+    "@aws-sdk/middleware-serde" "3.127.0"
+    "@aws-sdk/middleware-signing" "3.130.0"
+    "@aws-sdk/middleware-ssec" "3.127.0"
+    "@aws-sdk/middleware-stack" "3.127.0"
+    "@aws-sdk/middleware-user-agent" "3.127.0"
+    "@aws-sdk/node-config-provider" "3.127.0"
+    "@aws-sdk/node-http-handler" "3.127.0"
+    "@aws-sdk/protocol-http" "3.127.0"
+    "@aws-sdk/signature-v4-multi-region" "3.130.0"
+    "@aws-sdk/smithy-client" "3.142.0"
+    "@aws-sdk/types" "3.127.0"
+    "@aws-sdk/url-parser" "3.127.0"
+    "@aws-sdk/util-base64-browser" "3.109.0"
+    "@aws-sdk/util-base64-node" "3.55.0"
+    "@aws-sdk/util-body-length-browser" "3.154.0"
+    "@aws-sdk/util-body-length-node" "3.55.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.142.0"
+    "@aws-sdk/util-defaults-mode-node" "3.142.0"
+    "@aws-sdk/util-stream-browser" "3.131.0"
+    "@aws-sdk/util-stream-node" "3.129.0"
+    "@aws-sdk/util-user-agent-browser" "3.127.0"
+    "@aws-sdk/util-user-agent-node" "3.127.0"
+    "@aws-sdk/util-utf8-browser" "3.109.0"
+    "@aws-sdk/util-utf8-node" "3.109.0"
+    "@aws-sdk/util-waiter" "3.127.0"
+    "@aws-sdk/xml-builder" "3.142.0"
+    entities "2.2.0"
+    fast-xml-parser "3.19.0"
+    tslib "^2.3.1"
+
+"@aws-sdk/client-s3@^3.150.0":
+  version "3.157.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.157.0.tgz#88500fed3a08634b99e23eab2c817010522fb0b9"
+  integrity sha512-xWlNzuEbWkgGwTFWPRfiYHfFE2W+Y8wakoiFBNvvh16nzPqjw6RGZYbydR2vvl69VMp1uQ9C2ZeD9Nagh8wtrw==
   dependencies:
     "@aws-crypto/sha1-browser" "2.0.0"
     "@aws-crypto/sha256-browser" "2.0.0"
@@ -446,10 +506,21 @@
   dependencies:
     tslib "^2.3.1"
 
-"@aws-sdk/lib-storage@^3.142.0", "@aws-sdk/lib-storage@^3.150.0":
+"@aws-sdk/lib-storage@^3.142.0":
   version "3.154.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/lib-storage/-/lib-storage-3.154.0.tgz#e00397915dace1900d1f5502f418c1cde7afbec9"
   integrity sha512-P4OiUM8LQjQquUHhJxzpIYKikNvSDfxz27gWO0YBk2DhSTmatdARntvGtjB6lWzQObsa1aOm7oHR6tHdOkJeiw==
+  dependencies:
+    "@aws-sdk/smithy-client" "3.142.0"
+    buffer "5.6.0"
+    events "3.3.0"
+    stream-browserify "3.0.0"
+    tslib "^2.3.1"
+
+"@aws-sdk/lib-storage@^3.150.0":
+  version "3.157.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-storage/-/lib-storage-3.157.0.tgz#e9fbba7d0a0d0a22db4eb3c7aeae735fab0eb212"
+  integrity sha512-RvhSzfcb9NCopjQp0GBL4j3zNhozr0xNuJqPDf0QwH1/qc8PzDnT+lrCZgqb2bO9EUV1wVnyvz79Rq4ajJD/BQ==
   dependencies:
     "@aws-sdk/smithy-client" "3.142.0"
     buffer "5.6.0"
@@ -7347,9 +7418,9 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mobiletto@^1.0.2:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.15.tgz#9e74c6767387732143581a3eb236bb07e2dcb447"
-  integrity sha512-2nFRicseTWFIiwaoUu0w2wuq5DGAEDwxpGnqyvt3nbcEJeZedx5rCZn9VKOc28tVi1rdAZ8N+5zlk5lLkARuSw==
+  version "1.0.19"
+  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.19.tgz#311b20e22e4c81855629a4126cd0f3a7f9e97c71"
+  integrity sha512-C15r2XuWR8LlJBupEIbwewGEEe9PjgbMXTYEFeU4JMDSqt36QeXzICWj5ttz7CmDddvlS/w0mMNNsn+4QkeZZg==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"

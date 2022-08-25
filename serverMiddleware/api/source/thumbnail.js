@@ -1,5 +1,6 @@
-const util = require('../../util/file')
+const system = require('../../util/config').SYSTEM
 const api = require('../../util/api')
+const c = require('../../../shared')
 const u = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 const src = require('../../source/sourceUtil')
@@ -13,9 +14,9 @@ export default {
     }
     const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
     const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
-    const { source, path } = await src.extractSourceAndPathAndConnect(p)
-    if (!source || !path) { return api.notFound() }
-    const thumbPath = u.canonicalDestDir(path) + util.SELECTED_THUMBNAIL_FILE
+    const { source, pth } = await src.extractSourceAndPathAndConnect(p)
+    if (!source || !pth) { return api.notFound() }
+    const thumbPath = system.canonicalDestDir(pth) + c.SELECTED_THUMBNAIL_FILE
     if (req.method === 'GET') {
       res.statusCode = 200
       await source.readFile(thumbPath, chunk => res.write(chunk))
@@ -29,7 +30,7 @@ export default {
             source.writeFile(thumbPath, thumbJson)
             api.okJson(res, thumbJson)
             // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
-            manifest.flushCachedMetadata(path)
+            manifest.flushCachedMetadata(pth)
           } else {
             const message = `thumbnail: error in HEAD request for selected thumbnail asset: ${thumbnailAsset}`
             console.error(message)

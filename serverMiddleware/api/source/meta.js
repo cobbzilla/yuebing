@@ -10,10 +10,10 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const { source, path } = await src.extractSourceAndPathAndConnect(req.url)
-    if (!source || !path) { return api.notFound() }
-    const meta = await manifest.deriveMetadata(source, path)
-    console.log(`>>>>> API: Meta ${req.url}, source=${source.name}, prefix = ${path} -- returning meta=${JSON.stringify(meta)}`)
+    const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+    if (!source || !pth) { return api.notFound() }
+    const meta = await manifest.deriveMetadata(source, pth)
+    console.log(`>>>>> API: Meta ${req.url}, source=${source.name}, prefix = ${pth} -- returning meta=${JSON.stringify(meta)}`)
     return api.okJson(res, meta)
   }
 }

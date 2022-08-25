@@ -1,4 +1,4 @@
-const util = require('../../util/file')
+const c = require('../../../shared')
 const m = require('../../../shared/media')
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
@@ -32,13 +32,13 @@ function transcode (sourcePath, sourceFile, profile, outfile) {
 
 function dash (sourcePath, sourceFile, profile, outfile) {
   // adjust output file to match what xform.js checks for, for multiFile profiles
-  const placeholder = outfile.indexOf(util.MULTIFILE_PLACEHOLDER)
+  const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
-    throw new TypeError(`dash: expected outfile to contain multifile placeholder (${util.MULTIFILE_PLACEHOLDER}): ${outfile}`)
+    throw new TypeError(`dash: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
   }
   const dashOutfile = outfile.substring(0, placeholder) +
-    util.MULTIFILE_FIRST +
-    outfile.substring(placeholder + util.MULTIFILE_PLACEHOLDER.length)
+    c.MULTIFILE_FIRST +
+    outfile.substring(placeholder + c.MULTIFILE_PLACEHOLDER.length)
   console.log(`dash: calculated dashOutfile = ${dashOutfile}`)
 
   const args = []

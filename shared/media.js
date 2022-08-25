@@ -90,7 +90,11 @@ for (const type in MEDIA) {
 
 function mediaType (path) {
   if (typeof path !== 'string') {
-    console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)})`)
+    try {
+      console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)})`)
+    } catch (e) {
+      console.warn(`mediaType: unexpected arg: ${path} (as JSON had error: ${e})`)
+    }
     return UNKNOWN_MEDIA_TYPE
   }
   if (path.endsWith('/')) {

@@ -67,6 +67,7 @@
               <th>{{ messages.admin_label_source_name }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
+              <th>{{ messages.admin_button_scan_source }}</th>
               <th>{{ messages.admin_button_delete_source }}</th>
             </tr>
           </thead>
@@ -76,7 +77,34 @@
               <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
               <td>
-                <v-btn @click.stop="delSource(src.name)" v-if="!isSelfSource(src)">
+                <div>
+                  <v-btn v-if="!isSelfSource(src) && !scanningSources[src.name]" @click.stop="scanSrc(src.name)">
+                    {{ messages.admin_button_scan_source }}
+                  </v-btn>
+                </div>
+                <div v-if="scanningSources[src.name]">
+                  <small>
+                    {{ messages.admin_info_scan_scanning }}
+                  </small>
+                </div>
+                <div v-if="scanSourceSuccess[src.name]">
+                  <small>
+                    {{ messages.admin_info_scan_successful }}
+                    <div>
+                      <NuxtLink to="/admin/queue">
+                        {{ messages.admin_title_transform_queue }}
+                      </NuxtLink>
+                    </div>
+                  </small>
+                </div>
+                <div v-if="scanSourceError[src.name]">
+                  <small>
+                    {{ messages.admin_info_scan_error }}
+                  </small>
+                </div>
+              </td>
+              <td>
+                <v-btn v-if="!isSelfSource(src)" :disabled="scanningSources[src.name]" @click.stop="delSource(src.name)">
                   {{ messages.admin_button_delete_source }}
                 </v-btn>
               </td>
@@ -263,7 +291,9 @@ export default {
     ...mapState(['publicConfig']),
     ...mapState('user', ['user']),
     ...mapState('admin', [
-      'sourceList', 'totalSourceCount', 'findingSources', 'addSourceSuccess', 'addSourceError', 'deleteSourceError'
+      'sourceList', 'totalSourceCount', 'findingSources',
+      'addSourceSuccess', 'addSourceError', 'deleteSourceError',
+      'scanningSources', 'scanSourceSuccess', 'scanSourceError'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return publicConfigField(this, 'title') },
@@ -317,7 +347,7 @@ export default {
     this.setSourceTypeDefaults()
   },
   methods: {
-    ...mapActions('admin', ['findSources', 'addSource', 'deleteSource']),
+    ...mapActions('admin', ['findSources', 'addSource', 'deleteSource', 'scanSource']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
@@ -368,7 +398,8 @@ export default {
       } else {
         this.deleteConfirmCount = 0
       }
-    }
+    },
+    scanSrc (src) { this.scanSource({ src }) }
   }
 }
 </script>

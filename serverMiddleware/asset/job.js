@@ -78,12 +78,16 @@ function enqueue (sourcePath) {
 function recordJobEvent (qjob, event, description = '') {
   const sourcePath = qjob.data.sourcePath
   const job = QUEUED_PATHS[sourcePath]
-  job.events.push({
-    name: event,
-    time: Date.now(),
-    description
-  })
-  console.log(`recordJobEvent(${sourcePath}): recorded event: ${event}${description ? `: ${description}` : ''}`)
+  if (job) {
+    job.events.push({
+      name: event,
+      time: Date.now(),
+      description
+    })
+    console.log(`recordJobEvent(${sourcePath}): recorded event: ${event}${description ? `: ${description}` : ''}`)
+  } else {
+    console.warn(`recordJobEvent(${sourcePath}): discarding event (path not queued: ${sourcePath}): ${event}${description ? `: ${description}` : ''}`)
+  }
 }
 
 function sortJobEvents (job) {
