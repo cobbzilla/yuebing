@@ -97,6 +97,9 @@ export default {
     this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
     this.fetchQueue()
   },
+  destroyed () {
+    if (this.interval) { clearInterval(this.interval) }
+  },
   beforeUnmount () {
     if (this.interval) {
       clearInterval(this.interval)

@@ -62,7 +62,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('s3', ['assetData', 'userMediaInfo']),
+    ...mapState('source', ['assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     infoFields () { return mediaInfoFields() },
@@ -101,7 +101,7 @@ export default {
     this.refreshMediaInfo()
   },
   methods: {
-    ...mapActions('s3', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
+    ...mapActions('source.js', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
     infoField (field) {
       return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : null
     },

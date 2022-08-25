@@ -103,7 +103,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('s3', ['updateSelectedThumbnail']),
+    ...mapActions('source.js', ['updateSelectedThumbnail']),
     toggleThumbnailSelection () { this.showThumbnailSelector = !this.showThumbnailSelector },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
     prevThumbnail () { this.thumbnailIndex-- },

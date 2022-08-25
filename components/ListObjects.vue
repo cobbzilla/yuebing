@@ -75,7 +75,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('s3', ['prefix', 'objectList', 'metadata']),
+    ...mapState('source', ['prefix', 'objectList', 'metadata']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     displayPrefix () {
@@ -120,7 +120,7 @@ export default {
     this.fetchObjects({ prefix })
   },
   methods: {
-    ...mapActions('s3', ['fetchObjects', 'fetchMetadata']),
+    ...mapActions('source.js', ['fetchObjects', 'fetchMetadata']),
     refresh (prefix) {
       this.fetchObjects({ prefix })
     },

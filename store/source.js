@@ -38,7 +38,7 @@ export const actions = {
       commit('fetchObjectsSuccess', [])
     } else {
       sourceService
-        .listS3(prefix)
+        .listObjects(prefix)
         .then(
           objects => commit('fetchObjectsSuccess', objects),
           error => commit('fetchObjectsFailure', error)

@@ -2,7 +2,7 @@ const shared = require('../shared')
 const a = require('./util')
 
 export const sourceService = {
-  listS3,
+  listObjects,
   metadata,
   jsonAsset,
   fetchUserMediaInfo,
@@ -11,7 +11,7 @@ export const sourceService = {
   updateSelectedThumbnail
 }
 
-function listS3 (path) {
+function listObjects (path) {
   return fetch(`/api/source/list/${path}`, a.authGet()).then(a.handleJsonResponse)
 }
 

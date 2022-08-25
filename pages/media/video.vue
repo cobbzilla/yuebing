@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('s3', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
+    ...mapState('source', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     hasSources () { return hasSourceVideos(this) },
@@ -156,7 +156,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('s3', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
+    ...mapActions('source.js', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
 
     refreshMeta () {
       if (this.name) {
