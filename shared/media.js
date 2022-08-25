@@ -15,9 +15,11 @@ function assetSuffix (mediaType) {
 
 const EXT_MAP = {}
 
-const MEDIA = {
-  standard: require('./media/standard').default,
-  video: require('./media/video.js').default
+const MEDIA_TYPES = ['standard', 'video']
+
+const MEDIA = {}
+for (const mtype of MEDIA_TYPES) {
+  MEDIA[mtype] = require(`./media/${mtype}`)
 }
 
 function resolveFrom (profile, profileMap) {

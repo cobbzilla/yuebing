@@ -1,4 +1,5 @@
-
+const LRU = require('lru-cache')
+const shasum = require('shasum')
 const { mobiletto, MobilettoNotFoundError, setLogLevel } = require('mobiletto')
 const c = require('../../shared')
 const m = require('../../shared/media')
@@ -60,20 +61,27 @@ async function listSourcesWithoutSelf (query) {
   return await _listSources(query, { includeSelf: false })
 }
 
-// todo: cache these results, they change infrequently
+const listSourceCache = new LRU({ max: 1000 })
+
 async function _listSources (query, { includeSelf = true }) {
-  const objectList = await system.api.list(SOURCES_PREFIX)
-  const allSources = []
-  for (const object of objectList) {
-    if (object.type === m.FILE_TYPE) {
-      allSources.push(JSON.parse(await system.api.readFile(object.name)))
+  const cacheKey = shasum((query ? JSON.stringify(query) : '~') + includeSelf)
+  let results = listSourceCache.get(cacheKey)
+  if (!results) {
+    const objectList = await system.api.list(SOURCES_PREFIX)
+    const allSources = []
+    for (const object of objectList) {
+      if (object.type === m.FILE_TYPE) {
+        allSources.push(JSON.parse(await system.api.readFile(object.name)))
+      }
     }
+    if (includeSelf) {
+      // push special source: self (dest)
+      allSources.push(system.source)
+    }
+    results = q.search(allSources, query, searchMatches, s.sortByField)
+    listSourceCache.set(cacheKey, results)
   }
-  if (includeSelf) {
-    // push special source: self (dest)
-    allSources.push(system.source)
-  }
-  return q.search(allSources, query, searchMatches, s.sortByField)
+  return results
 }
 async function connectSource (source) {
   // determine readOnly (default true) and options
@@ -101,7 +109,15 @@ async function createSource (source) {
   // save source
   const now = Date.now()
   const sourceRecord = Object.assign({}, source, { ctime: now, mtime: now })
-  return await system.api.writeFile(sourceKey(source.name), JSON.stringify(sourceRecord))
+  try {
+    const bytesWritten = await system.api.writeFile(sourceKey(source.name), JSON.stringify(sourceRecord))
+    if (bytesWritten > 0) {
+      listSourceCache.clear()
+    }
+  } catch (e) {
+    console.log(`createSource: error writing source file: ${e}`)
+    throw e
+  }
 }
 
 async function deleteSource (name) {
@@ -111,7 +127,16 @@ async function deleteSource (name) {
   if (!(await sourceExists(name))) {
     throw new SourceError(`deleteSource: source does not exist: ${name}`)
   }
-  return await system.api.remove(sourceKey(name))
+  try {
+    const bytesWritten = await system.api.remove(sourceKey(name))
+    if (bytesWritten > 0) {
+      listSourceCache.clear()
+    }
+  } catch (e) {
+    console.log(`createSource: error writing source file: ${e}`)
+    throw e
+  }
+  return
 }
 
 const SOURCE_APIS = {}

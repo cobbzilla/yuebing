@@ -1,52 +1,60 @@
 <template>
   <v-container>
-    <h3>{{ messages.title_browsing_folder.parseMessage({ folder: displayPrefix }) }}</h3>
-    <div v-if="isNotRoot">
-      <button @click="refresh(parentPrefix)">
-        <span v-if="isParentRootFolder">{{ messages.button_back_to_root_folder }}</span>
-        <span v-else>{{ messages.button_back_to.parseMessage({ parentPrefix }) }}</span>
-      </button>
-    </div>
-    <div v-for="(obj, index) in filteredObjectList" :key="index">
-      <div v-if="isDir(obj)">
-        <button @click="refresh(obj.name)">
-          {{ filterDirName(obj.name) }}
-        </button>
-      </div>
-      <div v-else-if="hasMedia(obj)">
-        <div v-if="canView(obj)">
-          <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.name}}">
-            {{ filterName(obj.name) }}
-            <!--suppress HtmlExtraClosingTag -->
-            <img
-              v-if="thumbnail(obj)"
-              :src="proxyUrl(thumbnail(obj))"
-              width="200"
-              height="200"
-              :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
-            ></img>
-          </NuxtLink>
-          <div v-if="thumbnail(obj)">
-            <ThumbnailSelector :options="{ object: obj }" />
-          </div>
-        </div>
-        <div v-else>
-          {{ messages.label_media_unprocessed }}
-          {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
-        </div>
-        <div v-if="mediaInfo(obj)">
-          <button @click="toggleMediaInfo(obj)">
-            {{ mediaInfoToggleButtonLabel(obj) }}
+    <v-row>
+      <v-col>
+        <h3>{{ messages.title_browsing_folder.parseMessage({ folder: displayPrefix }) }}</h3>
+        <div v-if="isNotRoot">
+          <button @click="refresh(parentPrefix)">
+            <span v-if="isParentRootFolder">{{ messages.button_back_to_root_folder }}</span>
+            <span v-else>{{ messages.button_back_to.parseMessage({ parentPrefix }) }}</span>
           </button>
-          <div v-if="isSelectedMedia(obj)">
-            <MediaInfo :options="{ object: obj }" />
-          </div>
         </div>
-      </div>
-      <div v-else>
-        {{ filterName(obj.name) }}
-      </div>
-    </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-card v-for="(obj, index) in filteredObjectList" :key="index">
+          <div v-if="isDir(obj)">
+            <button @click="refresh(obj.path)">
+              {{ filterDirName(obj.name) }}
+            </button>
+          </div>
+          <div v-else-if="hasMedia(obj)">
+            <div v-if="canView(obj)">
+              <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+                {{ filterName(obj.name) }}
+                <!--suppress HtmlExtraClosingTag -->
+                <img
+                  v-if="thumbnail(obj)"
+                  :src="proxyUrl(thumbnail(obj))"
+                  width="200"
+                  height="200"
+                  :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+                ></img>
+              </NuxtLink>
+              <div v-if="thumbnail(obj)">
+                <ThumbnailSelector :options="{ object: obj }" />
+              </div>
+            </div>
+            <div v-else>
+              {{ messages.label_media_unprocessed }}
+              {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
+            </div>
+            <div v-if="mediaInfo(obj)">
+              <button @click="toggleMediaInfo(obj)">
+                {{ mediaInfoToggleButtonLabel(obj) }}
+              </button>
+              <div v-if="isSelectedMedia(obj)">
+                <MediaInfo :options="{ object: obj }" />
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            {{ filterName(obj.name) }}
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

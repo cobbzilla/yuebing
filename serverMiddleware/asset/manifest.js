@@ -114,7 +114,7 @@ async function deriveMetadata (source, sourcePath) {
     console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)
   }
 
-  await redis.set(cacheKey, JSON.stringify(meta))
+  await redis.set(cacheKey, JSON.stringify(meta), MANIFEST_CACHE_EXPIRATION)
   // console.log('deriveMetadata returning: ' + JSON.stringify(meta))
   return meta
 }

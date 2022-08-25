@@ -7115,6 +7115,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+lru-cache@^7.14.0:
+  version "7.14.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.14.0.tgz#21be64954a4680e303a09e9468f880b98a0b3c7f"
+  integrity sha512-EIRtP1GrSJny0dqb50QXRUNBxHJhcpxHC++M5tD7RYbvLLn5KVWKsbyswSSqDuU15UFi3bgTQIY8nhDMeF6aDQ==
+
 luxon@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.0.1.tgz#6901111d10ad06fd267ad4e4128a84bef8a77299"
@@ -7418,12 +7423,13 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mobiletto@^1.0.2:
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.19.tgz#311b20e22e4c81855629a4126cd0f3a7f9e97c71"
-  integrity sha512-C15r2XuWR8LlJBupEIbwewGEEe9PjgbMXTYEFeU4JMDSqt36QeXzICWj5ttz7CmDddvlS/w0mMNNsn+4QkeZZg==
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.21.tgz#5e0aec60cb382d97b7852c94f19b153905691278"
+  integrity sha512-huaYn5cjalwp9reNOBjAn9+p0Myp+/y3QuftnUTDhx3TQW8zw5eM1Nr3T/vsEhL/rjRLE6rQZjouma38/nARRA==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"
+    lru-cache "^7.14.0"
     node-fetch-commonjs "^3.1.1"
     shasum "^1.0.2"
     winston "^3.8.1"
