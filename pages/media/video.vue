@@ -13,11 +13,11 @@
           <VideoPlayer :options="videoOptions"></VideoPlayer>
         </div>
         <div v-if="mediaInfo()">
-          <button @click="toggleMediaInfo()">
+          <v-btn @click.stop="toggleMediaInfo()">
             <span v-if="showMediaInfo">{{ messages.button_hide_metadata }}</span>
             <span v-else>{{ messages.button_show_metadata }}</span>
-          </button>
-          <MediaInfo v-if="showMediaInfo" :options="{ object }" />
+          </v-btn>
+          <MediaInfo v-if="showMediaInfo" :object="object" />
         </div>
         <div v-if="thumbnail()">
           <ThumbnailSelector :options="{ object }" />
@@ -35,6 +35,7 @@
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../../components/MediaInfo'
 import ThumbnailSelector from '../../components/ThumbnailSelector'
@@ -130,6 +131,7 @@ export default {
       return
     }
     this.name = name
+    this.object.name = name
 
     // there are a couple of cached places we can check for the metadata, or we fetch it
     const cachedObject = this.objectList.find(o => o.name === name)

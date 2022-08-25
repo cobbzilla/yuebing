@@ -1,37 +1,58 @@
 <template>
-  <div>
-    <div v-if="!showEditor">
-      {{ options.object.name }}:
-      <div v-for="(field, index) in infoFields" :key="index">
-        <div v-if="infoField(field)">
-          {{ field }}: {{ infoField(field) }}
+  <v-container>
+    <v-row>
+      <v-col>
+        <div v-if="!showEditor">
+          <h4 v-if="object && object.name">{{ object.name }}</h4>
+          <v-container>
+            <div v-for="(field, index) in infoFields" :key="index">
+              <v-row v-if="infoField(field)">
+                <v-col>
+                  {{ messages[`label_mediainfo_${field}`] }}
+                </v-col>
+                <v-col>
+                  {{ infoField(field) }}
+                </v-col>
+              </v-row>
+            </div>
+          </v-container>
         </div>
-      </div>
-    </div>
-
-    <button v-if="canEditMediainfo" class="btn btn-primary" @click="toggleEditButton()">
-      {{ editButtonLabel }}
-    </button>
-
-    <div v-if="showEditor">
-      <form @submit.prevent="updateMediaInfoValues">
-        <div v-for="(field, index) in editableInfoFields" :key="index">
-
-          <div class="form-group">
-            <label :for="field">{{ messages[`label_mediainfo_${field}`] }}</label>
-            <input v-model="infoFieldValues[field]" type="text" :name="field" class="form-control" />
-          </div>
-
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-btn v-if="canEditMediainfo" class="btn btn-primary" @click.stop="toggleEditButton()">
+          {{ editButtonLabel }}
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <div v-if="showEditor">
+          <form>
+            <div v-for="(field, index) in editableInfoFields" :key="index">
+              <div class="form-group">
+                <v-text-field
+                  v-model="infoFieldValues[field]"
+                  :label="messages[`label_mediainfo_${field}`]"
+                  type="text"
+                  :name="infoFieldValues[field]"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <v-btn class="btn btn-primary" @click.stop="updateMediaInfoValues">
+              {{ messages.button_update }}
+            </v-btn>
+          </form>
         </div>
-        <button class="btn btn-primary">
-          {{ messages.button_update }}
-        </button>
-      </form>
-    </div>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 
 import { mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
@@ -44,12 +65,7 @@ import { localeMessagesForUser } from '@/shared/locale'
 export default {
   name: 'MediaInfo',
   props: {
-    options: {
-      type: Object,
-      default () {
-        return {}
-      }
-    }
+    object: { type: Object, default: null }
   },
   data () {
     return {
@@ -68,28 +84,24 @@ export default {
     infoFields () { return mediaInfoFields() },
     canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn },
     editableInfoFields () { return editableMediaInfoFields() },
-    hasMediaInfoJsonPath () { return this.options.object && this.mediaInfoJsonPath },
+    hasMediaInfoJsonPath () { return this.object && this.mediaInfoJsonPath },
     editButtonLabel () { return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata' },
     getUserMediaInfo () {
-      return this.options.object && this.options.object.name &&
-      this.userMediaInfo && this.userMediaInfo[this.options.object.name]
-        ? this.userMediaInfo[this.options.object.name]
+      return this.object && this.object.name &&
+      this.userMediaInfo && this.userMediaInfo[this.object.name]
+        ? this.userMediaInfo[this.object.name]
         : {}
     }
   },
   watch: {
-    assetData (newAssetData, oldAssetData) {
-      // console.log(`MediaInfo.watch.assetData starting with newAssetData=${JSON.stringify(newAssetData)}`)
+    assetData (newAssetData) {
       if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
         this.mediaInfo = newAssetData[this.mediaInfoJsonPath]
-      } else {
-        console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
       }
     },
-    userMediaInfo (newInfo, oldInfo) {
-      console.log(`--------------- MediaInfo.watch.userMediaInfo: got new info: ${JSON.stringify(newInfo)}`)
-      if (this.options.object && this.options.object.name && newInfo[this.options.object.name]) {
-        const newMediaInfo = newInfo[this.options.object.name]
+    userMediaInfo (newInfo) {
+      if (this.object && this.object.name && newInfo[this.object.name]) {
+        const newMediaInfo = newInfo[this.object.name]
         Object.keys(newMediaInfo).forEach((prop) => {
           this.infoFieldValues[prop] = newMediaInfo[prop]
         })
@@ -97,7 +109,6 @@ export default {
     }
   },
   created () {
-    console.log('MediaInfo component created')
     this.refreshMediaInfo()
   },
   methods: {
@@ -109,26 +120,26 @@ export default {
       return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : ''
     },
     refreshMediaInfo () {
-      const obj = this.options.object
+      const obj = this.object
       if (obj && obj.name) {
         // get user media info
-        console.log(`refreshMediaInfo: fetching user media info for path: ${obj.name}`)
+        // console.log(`refreshMediaInfo: fetching user media info for path: ${obj.name}`)
         const path = obj.name
         this.fetchUserMediaInfo({ path })
       }
       if (hasAssets(obj) && !this.mediaInfoJsonPath) {
-        console.log(`MediaInfo.refreshMediaInfo started, this.mediaInfoJsonPath=${this.mediaInfoJsonPath}, obj=${JSON.stringify(obj)}`)
+        // console.log(`MediaInfo.refreshMediaInfo started, this.mediaInfoJsonPath=${this.mediaInfoJsonPath}, obj=${JSON.stringify(obj)}`)
         this.mediaInfoJsonPath = findAsset(obj, (assets, profile) => {
           const mediaProfile = mediaProfileByName(obj.mediaType, profile)
           return isMediaInfoJsonProfile(mediaProfile)
         })
         if (this.mediaInfoJsonPath) {
           const path = this.mediaInfoJsonPath
-          console.log(`MediaInfo.refreshMediaInfo fetching asset from: ${path}`)
+          // console.log(`MediaInfo.refreshMediaInfo fetching asset from: ${path}`)
           this.fetchAsset({ path })
         }
       } else {
-        console.log('refreshMediaInfo: mediaInfo already loaded for media, not replacing')
+        // console.log('refreshMediaInfo: mediaInfo already loaded for media, not replacing')
       }
     },
     toggleEditButton () {
@@ -143,8 +154,8 @@ export default {
         })
       }
     },
-    updateMediaInfoValues (e) {
-      const path = this.options.object.name
+    updateMediaInfoValues () {
+      const path = this.object.name
       const values = this.infoFieldValues
       this.updateUserMediaInfo({ path, values })
       this.showEditor = false
