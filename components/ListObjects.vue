@@ -120,7 +120,7 @@ export default {
     this.fetchObjects({ prefix })
   },
   methods: {
-    ...mapActions('source.js', ['fetchObjects', 'fetchMetadata']),
+    ...mapActions('source', ['fetchObjects', 'fetchMetadata']),
     refresh (prefix) {
       this.fetchObjects({ prefix })
     },

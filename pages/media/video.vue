@@ -156,7 +156,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('source.js', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
+    ...mapActions('source', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
 
     refreshMeta () {
       if (this.name) {

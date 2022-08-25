@@ -101,7 +101,7 @@ export default {
     this.refreshMediaInfo()
   },
   methods: {
-    ...mapActions('source.js', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
+    ...mapActions('source', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
     infoField (field) {
       return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : null
     },
