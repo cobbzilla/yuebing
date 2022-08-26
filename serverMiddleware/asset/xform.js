@@ -398,7 +398,7 @@ async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
   const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
   const mediaType = m.mediaType(pth)
-  const jobPrefix = `ensureSourceDownload_${mediaType}`
+  const jobPrefix = `ensureSourceDownload_${mediaType}_${path.basename(pth)}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)
 
   // Does the local copy of the source exist already?
@@ -421,19 +421,17 @@ async function ensureSourceDownloaded (job) {
   let head = null
   for (let i = 1; i <= MAX_TRIES; i++) {
     const attemptPrefix = `${jobPrefix}_download_attempt_${i}`
-    // let fd = null
     try {
-      // fd = fs.openSync(file, 'w', 0o600)
-      // const f = fs.createWriteStream(file, { fd })
       const f = fs.createWriteStream(file)
       const counter = { count: 0 }
-      await source.read(pth, (chunk) => {
+      const bytesRead = await source.read(pth, (chunk) => {
         counter.count += chunk ? chunk.length : 0
         f.write(chunk)
       }, () => {
         f.close(async (err) => {
-          console.error(`ensureSourceDownload: error closing file: ${file}: ${err}`)
-          // fs.fdatasyncSync(fd)
+          if (err) {
+            console.error(`ensureSourceDownload: error closing file: ${file}: ${err}`)
+          }
           const downloadSize = util.statSize(file)
           if (head == null) {
             q.recordJobEvent(job, `${attemptPrefix}_HEAD_source`)
@@ -454,6 +452,7 @@ async function ensureSourceDownloaded (job) {
           q.recordJobEvent(job, `${attemptPrefix}_download_ERROR_size_mismatch`, message)
         })
       })
+      console.log(`ensureSourceDownload: downloaded ${bytesRead} bytes on attempt ${attemptPrefix}`)
     } catch (err) {
       console.log(`ensureSourceDownload: ERROR downloading source file: ${file}: ${err}`)
       q.recordJobEvent(job, `${attemptPrefix}_download_ERROR`, `${err}`)

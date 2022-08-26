@@ -7,7 +7,12 @@
         </h3>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="!queue || queue.length === 0">
+      <v-col>
+        {{ messages.admin_label_xformQueueEmpty }}
+      </v-col>
+    </v-row>
+    <v-row v-else>
       <v-col>
         <!-- TOC -->
         <div v-for="(j, jobIndex) in queue" :key="jobIndex" @click="displayJobDetails(j)">

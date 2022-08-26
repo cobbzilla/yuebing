@@ -20,6 +20,7 @@
     </v-row>
     <v-row v-else>
       <v-col v-for="(obj, index) in filteredObjectList" :key="index">
+        <!-- directory card -->
         <v-card
           v-if="isDir(obj)"
           :min-height="minCardHeight"
@@ -35,6 +36,7 @@
             </v-icon>
           </v-card-text>
         </v-card>
+        <!-- media card, show thumbnail -->
         <v-card
           v-else-if="hasMedia(obj) && canView(obj)"
           :min-height="minCardHeight"
@@ -42,16 +44,23 @@
           :max-height="maxCardHeight"
           :max-width="maxCardWidth"
         >
-          <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
-            <v-card-title>{{ mediaTitle(obj) }}</v-card-title>
-            <img
-              v-if="thumbnail(obj)"
-              :src="proxyUrl(thumbnail(obj))"
-              width="200"
-              height="200"
-              :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
-            >
-          </NuxtLink>
+          <v-card-title>
+            <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+              {{ mediaTitle(obj) }}
+            </NuxtLink>
+          </v-card-title>
+          <v-card-text>
+            <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+              <img
+                v-if="thumbnail(obj)"
+                :src="proxyUrl(thumbnail(obj))"
+                width="200"
+                height="200"
+                :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+              >
+            </NuxtLink>
+          </v-card-text>
+
           <div v-if="mediaInfo(obj)">
             <v-btn @click.stop="toggleMediaInfo(obj)">
               {{ mediaInfoToggleButtonLabel(obj) }}
@@ -61,6 +70,7 @@
             </div>
           </div>
         </v-card>
+        <!-- media file, but of unknown type or not yet processed -->
         <v-card
           v-else-if="hasMedia(obj)"
           :min-height="minCardHeight"
@@ -76,6 +86,7 @@
             {{ JSON.stringify(obj.meta) }}
           </div>
         </v-card>
+        <!-- some other unknown file -->
         <v-card
           v-else
           :min-height="minCardHeight"

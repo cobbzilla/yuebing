@@ -305,6 +305,7 @@ export default {
   admin_label_eventTime: 'time',
   admin_label_eventName: 'événement',
   admin_label_eventDescription: 'description',
+  admin_label_xformQueueEmpty: 'Aucune tâche active',
 
   // User Migration
   admin_label_migration_noSources: 'Aucune source définie',
