@@ -46,7 +46,7 @@
                 {{ mediaInfoToggleButtonLabel(obj) }}
               </v-btn>
               <div v-if="isSelectedMedia(obj)">
-                <MediaInfo :options="{ object: obj }" />
+                <MediaInfo :object="obj" />
               </div>
             </div>
           </div>

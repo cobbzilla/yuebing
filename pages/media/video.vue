@@ -20,7 +20,7 @@
           <MediaInfo v-if="showMediaInfo" :object="object" />
         </div>
         <div v-if="thumbnail()">
-          <ThumbnailSelector :options="{ object }" />
+          <ThumbnailSelector :object="object" />
         </div>
       </v-col>
     </v-row>

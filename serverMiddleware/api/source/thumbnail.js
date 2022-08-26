@@ -3,7 +3,6 @@ const api = require('../../util/api')
 const c = require('../../../shared')
 const u = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
-const src = require('../../source/sourceUtil')
 
 export default {
   path: '/api/source/thumbnail',
@@ -12,35 +11,35 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const url = req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url
-    const p = url === '/undefined' ? '' : url.startsWith('/') ? url.substring(1) : req.url
-    const { source, pth } = await src.extractSourceAndPathAndConnect(p)
-    if (!source || !pth) { return api.notFound() }
+    const pth = req.url.startsWith('/') ? req.url.substring(1) : req.url
     const thumbPath = system.assetsDir(pth) + c.SELECTED_THUMBNAIL_FILE
     if (req.method === 'GET') {
       res.statusCode = 200
-      await source.readFile(thumbPath, chunk => res.write(chunk))
-      res.end()
+      res.contentType = 'application/json'
+      await system.api.read(thumbPath, chunk => res.write(chunk), () => res.end())
     } else if (req.method === 'POST') {
       req.on('data', (data) => {
         const thumbnailAsset = JSON.parse(data.toString())
-        source.metadata(thumbnailAsset).then((head) => {
+        system.api.metadata(thumbnailAsset).then(async (head) => {
           if (head && head.size && head.size > 0) {
             const thumbJson = JSON.stringify(thumbnailAsset)
-            source.writeFile(thumbPath, thumbJson)
-            api.okJson(res, thumbJson)
+            await system.api.writeFile(thumbPath, thumbJson)
             // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
-            manifest.flushCachedMetadata(pth)
+            manifest.flushCachedMetadata(pth).then(() => {
+              console.log('thumbnail: flushCachedMetadata finished')
+            })
+            return api.okJson(res, thumbJson)
+
           } else {
             const message = `thumbnail: error in HEAD request for selected thumbnail asset: ${thumbnailAsset}`
             console.error(message)
-            api.notFound(res, message)
+            return api.notFound(res, message)
           }
         },
         (err) => {
           const message = `thumbnail: selected thumbnail asset not found: ${thumbnailAsset}: ${err}`
           console.error(message)
-          api.notFound(res, message)
+          return api.notFound(res, message)
         })
       })
     } else {

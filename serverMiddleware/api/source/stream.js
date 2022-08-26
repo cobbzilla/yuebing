@@ -1,4 +1,5 @@
 const path = require('path')
+const mime = require('mime-types')
 const shared = require('../../../shared')
 const m = require('../../../shared/media')
 const api = require('../../util/api')
@@ -24,12 +25,14 @@ async function get (req, res, source, path) {
 
   const range = (req.headers && req.headers.Range) ? req.headers.Range : null
   if (range) {
-    console.log(`>>>>> API: Streaming ${req.url}, prefix = ${path}, range = ${range}`)
+    console.warn(`>>>>> API: Streaming ${req.url}, prefix = ${path}, range = ${range} NOT SUPPORTED`)
   }
 
   // todo -- write object to cache
   // then stream from cache as we apply ranges
   res.statusCode = 200
+  res.contentType = mime.contentType(path)
+  console.log(`stream >>>> set contentType = ${res.contentType} for path=${path}`)
   await source.read(path, chunk => res.write(chunk))
   res.end()
 }
