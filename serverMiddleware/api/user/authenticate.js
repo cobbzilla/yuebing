@@ -19,6 +19,7 @@ export default {
                     if (u.isAdmin(sessionUser)) {
                       sessionUser.admin = true
                     }
+                    api.setSessionCookie(res, sessionUser.session)
                     api.okJson(res, sessionUser)
                   },
                   (error) => {
@@ -35,8 +36,8 @@ export default {
               return api.validationFailed(res, ACCOUNT_NOT_FOUND)
             })
           },
-          (error) => {
-            console.error(`>>>>> API: Authenticate: error reading user record: ${error}`)
+          (err) => {
+            console.error(`>>>>> API: Authenticate: error reading user record: ${JSON.stringify(err)}`)
             return api.validationFailed(res, ACCOUNT_NOT_FOUND)
           }
         )

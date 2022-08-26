@@ -40,7 +40,7 @@
                 </ValidationProvider>
               </div>
               <div class="form-group">
-                <v-btn class="btn btn-primary" :disabled="userStatus.loggingIn || !email || !password" @click.stop="handleSubmit">
+                <v-btn class="btn btn-primary" :disabled="loginDisabled" @click.stop="handleSubmit">
                   {{ messages.button_login }}
                 </v-btn>
                 <v-btn
@@ -89,6 +89,7 @@ export default {
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
+    loginDisabled () { return this.userStatus.loggingIn || !this.email || !this.password },
     loginErr () { return this.loginError || false }
   },
   created () {
@@ -98,6 +99,7 @@ export default {
   methods: {
     ...mapActions('user', ['login', 'logout']),
     handleSubmit () {
+      if (this.loginDisabled) { return }
       this.submitted = true
       const { email, password } = this
       if (email && password) {

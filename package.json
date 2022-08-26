@@ -21,6 +21,7 @@
     "accept-language-parser": "^1.5.0",
     "bcryptjs": "^2.4.3",
     "bull": "^4.8.5",
+    "cookie": "^0.5.0",
     "core-js": "^3.19.3",
     "dashjs": "^4.4.1",
     "glob": "^8.0.3",

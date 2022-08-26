@@ -28,10 +28,14 @@ export const actions = {
 
   logout ({ commit }, { redirect = true }) {
     userService.logout()
-    commit('logout')
-    if (redirect) {
-      this.app.store.$router.push('/')
-    }
+      .then(() => {
+        commit('logout')
+        if (redirect) {
+          // force hard redirect
+          window.location.href = '/refresh'
+        }
+      },
+      (error) => { console.log(`logout error: ${error}`) })
   },
 
   register ({ dispatch, commit }, user) {

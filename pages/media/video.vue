@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h4 v-if="object && object.name">
+        <h4 v-if="object && object.path">
           {{ videoTitle }}
         </h4>
       </v-col>
@@ -42,10 +42,12 @@ import ThumbnailSelector from '../../components/ThumbnailSelector'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
-import { proxyMediaUrl, getExtension, okl } from '@/shared'
+import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
 import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
+
+const path = require('path')
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -91,7 +93,7 @@ export default {
     },
     videoTitle () {
       const mediaTitle = this.mediaInfoField('title')
-      return mediaTitle || this.name
+      return mediaTitle || chopFileExt(path.basename(this.path))
     }
   },
   watch: {
@@ -130,7 +132,7 @@ export default {
       return
     }
     this.name = name
-    this.object.name = name
+    this.object.path = name
 
     // there are a couple of cached places we can check for the metadata, or we fetch it
     const cachedObject = this.objectList.find(o => o.name === name)

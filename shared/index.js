@@ -39,6 +39,11 @@ const empty = thing =>
   (thing.length && thing.length === 0) ||
   (typeof thing === 'object' && okl(thing) === 0)
 
+const chopFileExt = (s) => {
+  const dot = s.indexOf('.')
+  return dot === -1 || dot === s.length ? s : s.substring(0, dot)
+}
+
 const LAST_MODIFIED_FILE = 'lastModified'
 const SELECTED_THUMBNAIL_FILE = 'selectedThumbnail.json'
 const ERROR_FILE_PREFIX = '_error_'
@@ -69,6 +74,7 @@ module.exports = {
   publicConfigField,
   okl,
   empty,
+  chopFileExt,
   snooze,
   getExtension,
   sessionParams,

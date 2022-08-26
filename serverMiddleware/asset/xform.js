@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { glob } = require('glob')
 const shellescape = require('shell-escape')
+const randomstring = require('randomstring')
 const util = require('../util/file')
 const redis = require('../util/redis')
 const c = require('../../shared')
@@ -422,7 +423,8 @@ async function ensureSourceDownloaded (job) {
   for (let i = 1; i <= MAX_TRIES; i++) {
     const attemptPrefix = `${jobPrefix}_download_attempt_${i}`
     try {
-      const f = fs.createWriteStream(file)
+      const tempFile = `${file}.ensureSourceDownload_${Date.now()}_${randomstring.generate(4)}`
+      const f = fs.createWriteStream(tempFile)
       const counter = { count: 0 }
       const bytesRead = await source.read(pth, (chunk) => {
         counter.count += chunk ? chunk.length : 0
@@ -430,14 +432,22 @@ async function ensureSourceDownloaded (job) {
       }, () => {
         f.close(async (err) => {
           if (err) {
-            console.error(`ensureSourceDownload: error closing file: ${file}: ${err}`)
+            console.error(`ensureSourceDownload: error closing file: ${tempFile}: ${err}`)
           }
-          const downloadSize = util.statSize(file)
+          const downloadSize = util.statSize(tempFile)
           if (head == null) {
             q.recordJobEvent(job, `${attemptPrefix}_HEAD_source`)
             head = await source.safeMetadata(pth)
           }
           if (head && head.size && head.size === downloadSize) {
+            const existingSize = util.statSize(file)
+            if (existingSize === head.size) {
+              console.log(`ensureSourceDownload: successfully downloaded source file, but someone else beat us to it: ${file}`)
+              fs.rmSync(tempFile)
+            } else {
+              console.log(`ensureSourceDownload: renaming temp download ${tempFile} -> ${file}`)
+              fs.renameSync(tempFile, file)
+            }
             console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
             q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
             return file
@@ -458,10 +468,17 @@ async function ensureSourceDownloaded (job) {
       q.recordJobEvent(job, `${attemptPrefix}_download_ERROR`, `${err}`)
     }
   }
-  // max tries exceeded
-  console.log(`ensureSourceDownload: downloaded file ${file} failed, max tries exceeded (${MAX_TRIES})`)
-  q.recordJobEvent(job, `${jobPrefix}_download_FAIL`, `max tries exceeded (${MAX_TRIES})`)
-  return null
+  const fileSize = util.statSize(file)
+  if (head && head.size && head.size === fileSize) {
+    console.log(`ensureSourceDownload: despite max tries exceeded (${MAX_TRIES}), file exists and is OK, continuing...`)
+    q.recordJobEvent(job, `${jobPrefix}_attemptsExceeded_download_SUCCESS`)
+    return file
+  } else {
+    // max tries exceeded
+    console.log(`ensureSourceDownload: downloaded file ${file} failed, max tries exceeded (${MAX_TRIES})`)
+    q.recordJobEvent(job, `${jobPrefix}_download_FAIL`, `max tries exceeded (${MAX_TRIES})`)
+    return null
+  }
 }
 
 async function transform (sourcePath) {

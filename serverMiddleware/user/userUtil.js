@@ -83,13 +83,13 @@ function newSessionResponse (res) {
   return (data, newUser) => {
     if (data) {
       startSession(newUser).then(
-        user => api.okJson(res, user),
-        (error) => {
-          console.error(`newSessionResponse: error starting session: ${error}`)
-          api.serverError(res, `Error: ${error}`)
-        })
+        (user) => {
+          api.setSessionCookie(res, user.session)
+          return api.okJson(res, user)
+        },
+        error => api.serverError(res, `Error: ${error}`))
     } else {
-      api.serverError(res, 'Error')
+      return api.serverError(res, 'Error')
     }
   }
 }
@@ -112,11 +112,11 @@ async function currentUser (req) {
   let session = null
   if (req.headers && req.headers[SESSION_HEADER]) {
     session = req.headers[SESSION_HEADER]
-  } else if (req.headers && req.headers.cookie) {
-    session = req.headers.cookie
   } else if (req.url.includes('?')) {
     const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
     session = query && query.has(SESSION_PARAM) ? query.get(SESSION_PARAM) : null
+  } else if (req.headers && req.headers.cookie) {
+    session = req.headers.cookie
   }
   if (!session) {
     return null

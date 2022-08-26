@@ -31,7 +31,8 @@ function login (email, password) {
 }
 
 function logout () {
-  // todo: invalidate the session on the server
+  // sends a Set-Cookie that invalidates whatever current cookie is set
+  return fetch('/api/user/logout', a.authGet()).then(a.handleJsonResponse)
 }
 
 function register (user) {

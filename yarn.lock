@@ -4277,6 +4277,11 @@ cookie@^0.3.1:
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
   integrity sha512-+IJOX0OqlHCszo2mBUq+SrEbCj6w7Kpffqx60zYbPTFaO4+yYgRjHwcZNpWvaTylDHaV7PPmBHzSecZiMhtPgw==
 
+cookie@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.5.0.tgz#d1f5d71adec6558c58f389987c366aa47e994f8b"
+  integrity sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==
+
 copy-concurrently@^1.0.0:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/copy-concurrently/-/copy-concurrently-1.0.5.tgz#92297398cae34937fcafd6ec8139c18051f0b5e0"
@@ -7423,9 +7428,9 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mobiletto@^1.0.2:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.24.tgz#14f114056f8632b41ae5ab34ba6a9ca3ccfb2cf1"
-  integrity sha512-JOu0Fb/J850R6jjruNahBiCCVzD9CuuJ0Ve/iz7KluTeq7wYxPToVKUsu7P3KDxpaI1vsYrUtQs8CRhA2HWprw==
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.25.tgz#bf9b3304c7cfe34638cffd7688b461675a41dbb0"
+  integrity sha512-GB0tnkLMoCg9XsFd+TkyIkyW6TWn6Rrw/icGawW++Tm3/kz30tEsGzhHaADdnsr9h15z5wSeQd/wbEE3ouXAMQ==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"

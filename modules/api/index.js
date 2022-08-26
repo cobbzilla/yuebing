@@ -15,6 +15,7 @@ module.exports = async function (moduleOptions) {
     this.addServerMiddleware('~/serverMiddleware/api/user/config')
     this.addServerMiddleware('~/serverMiddleware/api/user/authenticate')
     this.addServerMiddleware('~/serverMiddleware/api/user/register')
+    this.addServerMiddleware('~/serverMiddleware/api/user/logout')
     this.addServerMiddleware('~/serverMiddleware/api/user/verify')
     this.addServerMiddleware('~/serverMiddleware/api/user/requestPasswordReset')
     this.addServerMiddleware('~/serverMiddleware/api/user/update')

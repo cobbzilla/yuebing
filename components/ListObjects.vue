@@ -19,84 +19,79 @@
       </v-col>
     </v-row>
     <v-row v-else>
-      <v-col v-for="(obj, index) in filteredObjectList" :key="index">
-        <!-- directory card -->
-        <v-card
-          v-if="isDir(obj)"
-          :min-height="minCardHeight"
-          :min-width="minCardWidth"
-          :max-height="maxCardHeight"
-          :max-width="maxCardWidth"
-          @click.stop="refresh(obj.name)"
-        >
-          <v-card-title>{{ filterDirName(obj.name) }}</v-card-title>
-          <v-card-text>
-            <v-icon x-large>
-              mdi-folder
-            </v-icon>
-          </v-card-text>
-        </v-card>
-        <!-- media card, show thumbnail -->
-        <v-card
-          v-else-if="hasMedia(obj) && canView(obj)"
-          :min-height="minCardHeight"
-          :min-width="minCardWidth"
-          :max-height="maxCardHeight"
-          :max-width="maxCardWidth"
-        >
-          <v-card-title>
-            <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
-              {{ mediaTitle(obj) }}
-            </NuxtLink>
-          </v-card-title>
-          <v-card-text>
-            <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
-              <img
-                v-if="thumbnail(obj)"
-                :src="proxyUrl(thumbnail(obj))"
-                width="200"
-                height="200"
-                :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
-              >
-            </NuxtLink>
-          </v-card-text>
-
-          <div v-if="mediaInfo(obj)">
-            <v-btn @click.stop="toggleMediaInfo(obj)">
-              {{ mediaInfoToggleButtonLabel(obj) }}
-            </v-btn>
-            <div v-if="isSelectedMedia(obj)">
-              <MediaInfo :object="obj" />
+      <div v-for="(obj, index) in filteredObjectList" :key="index">
+        <v-spacer />
+        <v-col>
+          <!-- directory card -->
+          <v-card
+            v-if="isDir(obj)"
+            :min-height="minCardHeight"
+            :min-width="minCardWidth"
+            :max-height="maxCardHeight"
+            :max-width="maxCardWidth"
+            @click.stop="refresh(obj.name)"
+          >
+            <v-card-title>{{ filterDirName(obj.name) }}</v-card-title>
+            <v-card-text>
+              <v-icon x-large>
+                mdi-folder
+              </v-icon>
+            </v-card-text>
+          </v-card>
+          <!-- media card, show thumbnail -->
+          <v-card
+            v-else-if="hasMedia(obj) && canView(obj)"
+            :min-height="minCardHeight"
+            :min-width="minCardWidth"
+            :max-height="maxCardHeight"
+            :max-width="maxCardWidth"
+          >
+            <v-card-title>
+              <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+                {{ mediaTitle(obj) }}
+              </NuxtLink>
+            </v-card-title>
+            <v-card-text>
+              <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+                <img
+                  v-if="thumbnail(obj)"
+                  :src="proxyUrl(thumbnail(obj))"
+                  width="200"
+                  height="200"
+                  :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+                >
+              </NuxtLink>
+            </v-card-text>
+          </v-card>
+          <!-- media file, but of unknown type or not yet processed, or totally unknown
+          <v-card
+            v-else-if="hasMedia(obj)"
+            :min-height="minCardHeight"
+            :min-width="minCardWidth"
+            :max-height="maxCardHeight"
+            :max-width="maxCardWidth"
+          >
+            <v-card-title>{{ filterName(obj.name) }}</v-card-title>
+            <div>
+              {{ messages.label_media_unprocessed }}
             </div>
-          </div>
-        </v-card>
-        <!-- media file, but of unknown type or not yet processed -->
-        <v-card
-          v-else-if="hasMedia(obj)"
-          :min-height="minCardHeight"
-          :min-width="minCardWidth"
-          :max-height="maxCardHeight"
-          :max-width="maxCardWidth"
-        >
-          <v-card-title>{{ filterName(obj.name) }}</v-card-title>
-          <div>
-            {{ messages.label_media_unprocessed }}
-          </div>
-          <div>
-            {{ JSON.stringify(obj.meta) }}
-          </div>
-        </v-card>
-        <!-- some other unknown file -->
-        <v-card
-          v-else
-          :min-height="minCardHeight"
-          :min-width="minCardWidth"
-          :max-height="maxCardHeight"
-          :max-width="maxCardWidth"
-        >
-          <v-card-title>{{ filterName(obj.name) }}</v-card-title>
-        </v-card>
-      </v-col>
+            <div>
+              {{ JSON.stringify(obj.meta) }}
+            </div>
+          </v-card>
+          <v-card
+            v-else
+            :min-height="minCardHeight"
+            :min-width="minCardWidth"
+            :max-height="maxCardHeight"
+            :max-width="maxCardWidth"
+          >
+            <v-card-title>{{ filterName(obj.name) }}</v-card-title>
+          </v-card>
+          -->
+        </v-col>
+        <v-spacer />
+      </div>
     </v-row>
   </v-container>
 </template>
@@ -104,9 +99,8 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import MediaInfo from '../components/MediaInfo'
 
-import { proxyMediaUrl } from '@/shared'
+import { proxyMediaUrl, chopFileExt } from '@/shared'
 import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
@@ -114,17 +108,9 @@ import { localeMessagesForUser } from '@/shared/locale'
 // noinspection JSUnusedGlobalSymbols
 export default {
   name: 'ListObjects',
-  components: {
-    MediaInfo
-  },
-  data () {
-    return {
-      mediaInfoObjectPath: null
-    }
-  },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('source', ['prefix', 'objectList', 'metadata']),
+    ...mapState('source', ['prefix', 'objectList']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     minCardHeight () { return 200 },
@@ -158,30 +144,15 @@ export default {
       return filtered
     }
   },
-  watch: {
-    objectList (newObjectList) {
-      if (Array.isArray(newObjectList)) {
-        newObjectList.forEach((obj) => {
-          if (obj.path) {
-            this.fetchMetadata({ path: obj.path })
-          } else {
-            console.log(`watch.objectList: item in list does not have path: ${JSON.stringify(obj)}`)
-          }
-        })
-      }
-    }
-  },
   created () {
     const prefix = this.prefix
     this.fetchObjects({ prefix })
   },
   methods: {
-    ...mapActions('source', ['fetchObjects', 'fetchMetadata']),
-    refresh (prefix) {
-      this.fetchObjects({ prefix })
-    },
+    ...mapActions('source', ['fetchObjects']),
+    refresh (prefix) { this.fetchObjects({ prefix }) },
     filterName (name) {
-      return name.startsWith(this.prefix) ? name.substring(this.prefix.length) : name
+      return chopFileExt(name.startsWith(this.prefix) ? name.substring(this.prefix.length) : name)
     },
     filterDirName (name) {
       const n = this.filterName(name)
@@ -197,15 +168,6 @@ export default {
     },
     mediaInfo (obj) { return hasMediaInfo(obj) },
     thumbnail (obj) { return findThumbnail(obj) },
-    toggleMediaInfo (obj) {
-      this.mediaInfoObjectPath = this.isSelectedMedia(obj) ? this.mediaInfoObjectPath = null : obj.name
-    },
-    mediaInfoToggleButtonLabel (obj) {
-      return this.isSelectedMedia(obj) ? this.messages.button_hide_media_info : this.messages.button_show_media_info
-    },
-    isSelectedMedia (obj) {
-      return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name
-    },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) }
   }
 }

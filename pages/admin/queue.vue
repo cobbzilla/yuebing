@@ -15,10 +15,10 @@
     <v-row v-else>
       <v-col>
         <!-- TOC -->
-        <div v-for="(j, jobIndex) in queue" :key="jobIndex" @click="displayJobDetails(j)">
-          <h5>
+        <div v-for="(j, jobIndex) in queue" :key="jobIndex">
+          <v-btn @click.stop="displayJobDetails(j)" :color="jobColor(j)">
             {{ j.sourcePath }}: {{ new Date(j.firstEvent).toLocaleString('en-US') }} to {{ new Date(j.lastEvent).toLocaleString('en-US') }}
-          </h5>
+          </v-btn>
         </div>
       </v-col>
     </v-row>
@@ -118,6 +118,14 @@ export default {
     displayJobDetails (j) {
       if (this.queue) {
         this.job = this.job && this.job.sourcePath === j.sourcePath ? -1 : j
+      }
+    },
+    jobColor (j) {
+      if (j.jobStatus) {
+        if (j.jobStatus.completed) { return 'success' }
+        if (j.jobStatus.failed) { return 'error' }
+        if (j.jobStatus.running) { return 'warning' }
+        return 'info'
       }
     }
   }
