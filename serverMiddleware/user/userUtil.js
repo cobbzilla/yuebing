@@ -1,3 +1,4 @@
+const cookie = require('cookie')
 const { MobilettoNotFoundError } = require('mobiletto')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
@@ -116,7 +117,7 @@ async function currentUser (req) {
     const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
     session = query && query.has(SESSION_PARAM) ? query.get(SESSION_PARAM) : null
   } else if (req.headers && req.headers.cookie) {
-    session = req.headers.cookie
+    session = cookie.parse(req.headers.cookie)[c.USER_SESSION_HEADER]
   }
   if (!session) {
     return null
