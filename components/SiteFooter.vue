@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="user && user.email && canEmail">
+    <div v-if="user && user.email && canEmail && inviteFriendsEnabled">
       <InviteFriends />
     </div>
   </div>
@@ -21,7 +21,8 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    canEmail () { return publicConfigField(this, 'emailEnabled') }
+    canEmail () { return publicConfigField(this, 'emailEnabled') },
+    inviteFriendsEnabled () { return publicConfigField(this, 'inviteFriendsEnabled') }
   }
 }
 </script>

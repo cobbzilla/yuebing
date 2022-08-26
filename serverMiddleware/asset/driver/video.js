@@ -1,7 +1,7 @@
 const c = require('../../../shared')
 const m = require('../../../shared/media')
 
-const DEFAULT_FIRST_THUMBNAIL_OFFSET = '5.0'
+const DEFAULT_FIRST_THUMBNAIL_OFFSET = '3'
 
 const VIDEO_ASSET_SUFFIX = m.assetSuffix(m.VIDEO_MEDIA_TYPE)
 

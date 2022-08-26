@@ -1,58 +1,89 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-row>
       <v-col>
         <h3>{{ messages.title_browsing_folder.parseMessage({ folder: displayPrefix }) }}</h3>
         <div v-if="isNotRoot">
-          <button @click="refresh(parentPrefix)">
+          <v-btn @click.stop="refresh(parentPrefix)">
             <span v-if="isParentRootFolder">{{ messages.button_back_to_root_folder }}</span>
             <span v-else>{{ messages.button_back_to.parseMessage({ prefix: parentPrefix }) }}</span>
-          </button>
+          </v-btn>
         </div>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="auto">
-        <v-card v-for="(obj, index) in filteredObjectList" :key="index">
-          <div v-if="isDir(obj)">
-            <v-btn icon @click.stop="refresh(obj.name)">
-              <v-icon>mdi-folder</v-icon>
-              <span>{{ filterDirName(obj.name) }}</span>
+    <v-row v-if="!filteredObjectList || filteredObjectList.length === 0">
+      <v-col>
+        <h2>
+          {{ messages.info_search_no_results }}
+        </h2>
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col v-for="(obj, index) in filteredObjectList" :key="index">
+        <v-card
+          v-if="isDir(obj)"
+          :min-height="minCardHeight"
+          :min-width="minCardWidth"
+          :max-height="maxCardHeight"
+          :max-width="maxCardWidth"
+          @click.stop="refresh(obj.name)"
+        >
+          <v-card-title>{{ filterDirName(obj.name) }}</v-card-title>
+          <v-card-text>
+            <v-icon x-large>
+              mdi-folder
+            </v-icon>
+          </v-card-text>
+        </v-card>
+        <v-card
+          v-else-if="hasMedia(obj) && canView(obj)"
+          :min-height="minCardHeight"
+          :min-width="minCardWidth"
+          :max-height="maxCardHeight"
+          :max-width="maxCardWidth"
+        >
+          <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+            <v-card-title>{{ mediaTitle(obj) }}</v-card-title>
+            <img
+              v-if="thumbnail(obj)"
+              :src="proxyUrl(thumbnail(obj))"
+              width="200"
+              height="200"
+              :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+            >
+          </NuxtLink>
+          <div v-if="mediaInfo(obj)">
+            <v-btn @click.stop="toggleMediaInfo(obj)">
+              {{ mediaInfoToggleButtonLabel(obj) }}
             </v-btn>
-          </div>
-          <div v-else-if="hasMedia(obj)">
-            <div v-if="canView(obj)">
-              <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
-                {{ mediaTitle(obj) }}
-                <!--suppress HtmlExtraClosingTag -->
-                <img
-                  v-if="thumbnail(obj)"
-                  :src="proxyUrl(thumbnail(obj))"
-                  width="200"
-                  height="200"
-                  :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
-                ></img>
-              </NuxtLink>
-              <div v-if="thumbnail(obj)">
-                <ThumbnailSelector :options="{ object: obj }" />
-              </div>
-            </div>
-            <div v-else>
-              {{ messages.label_media_unprocessed }}
-              {{ filterName(obj.name) }} = {{ JSON.stringify(obj.meta) }}
-            </div>
-            <div v-if="mediaInfo(obj)">
-              <v-btn @click.stop="toggleMediaInfo(obj)">
-                {{ mediaInfoToggleButtonLabel(obj) }}
-              </v-btn>
-              <div v-if="isSelectedMedia(obj)">
-                <MediaInfo :object="obj" />
-              </div>
+            <div v-if="isSelectedMedia(obj)">
+              <MediaInfo :object="obj" />
             </div>
           </div>
-          <div v-else>
-            {{ filterName(obj.name) }}
+        </v-card>
+        <v-card
+          v-else-if="hasMedia(obj)"
+          :min-height="minCardHeight"
+          :min-width="minCardWidth"
+          :max-height="maxCardHeight"
+          :max-width="maxCardWidth"
+        >
+          <v-card-title>{{ filterName(obj.name) }}</v-card-title>
+          <div>
+            {{ messages.label_media_unprocessed }}
           </div>
+          <div>
+            {{ JSON.stringify(obj.meta) }}
+          </div>
+        </v-card>
+        <v-card
+          v-else
+          :min-height="minCardHeight"
+          :min-width="minCardWidth"
+          :max-height="maxCardHeight"
+          :max-width="maxCardWidth"
+        >
+          <v-card-title>{{ filterName(obj.name) }}</v-card-title>
         </v-card>
       </v-col>
     </v-row>
@@ -63,7 +94,6 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../components/MediaInfo'
-import ThumbnailSelector from '../components/ThumbnailSelector'
 
 import { proxyMediaUrl } from '@/shared'
 import { hasMediaType, isDirectory, isViewable, hasMediaInfo } from '@/shared/media'
@@ -74,12 +104,11 @@ import { localeMessagesForUser } from '@/shared/locale'
 export default {
   name: 'ListObjects',
   components: {
-    MediaInfo, ThumbnailSelector
+    MediaInfo
   },
   data () {
     return {
-      mediaInfoObjectPath: null,
-      showThumbnailSelector: false
+      mediaInfoObjectPath: null
     }
   },
   computed: {
@@ -87,6 +116,10 @@ export default {
     ...mapState('source', ['prefix', 'objectList', 'metadata']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    minCardHeight () { return 200 },
+    minCardWidth () { return 200 },
+    maxCardHeight () { return 400 },
+    maxCardWidth () { return 500 },
     displayPrefix () {
       return this.prefix === ''
         ? '/'
@@ -157,7 +190,7 @@ export default {
       this.mediaInfoObjectPath = this.isSelectedMedia(obj) ? this.mediaInfoObjectPath = null : obj.name
     },
     mediaInfoToggleButtonLabel (obj) {
-      return `${this.isSelectedMedia(obj) ? 'hide' : 'show'} media info`
+      return this.isSelectedMedia(obj) ? this.messages.button_hide_media_info : this.messages.button_show_media_info
     },
     isSelectedMedia (obj) {
       return this.mediaInfo(obj) && this.mediaInfoObjectPath === obj.name

@@ -70,9 +70,6 @@ export default {
     siteConfig (newConfig) {
       this.config = structuredClone(newConfig)
     },
-    siteConfigUpdateError (newError) {
-      console.log(`watch.siteConfigUpdateError: received newError=${JSON.stringify(newError)}`)
-    },
     updateSiteSuccess (ok) {
       if (ok) {
         this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
@@ -90,18 +87,11 @@ export default {
     ...mapActions('admin', ['loadSiteConfig', 'updateSiteConfig']),
     async updateConfig () {
       this.savingSiteConfig = true
-      const errors = await this.$refs.form.validate()
-        .then((success) => {
-          if (success) { this.updateSiteConfig({ config: this.config }) }
-        })
-        .catch((err) => {
-          console.log(`error calling updateSiteConfig: ${err} ${JSON.stringify(err)}`)
-        })
-        .finally(() => { this.savingSiteConfig = false })
-      console.log(`OK -------- errors are ${JSON.stringify(errors)} and this.errors is ${this.errors}`)
+      await this.$refs.form.validate().then((success) => {
+        if (success) { this.updateSiteConfig({ config: this.config }) }
+      }).finally(() => { this.savingSiteConfig = false })
     },
     onConfigUpdate (update) {
-      // console.log(`onConfigUpdate(MAIN) received update: ${JSON.stringify(update)}`)
       const parts = update.field.split('_')
       const pathParts = parts.slice(0, parts.length - 1)
       const varname = parts.slice(-1)[0]
@@ -109,7 +99,6 @@ export default {
       for (const part of pathParts) {
         target = target[part]
         if (typeof target === 'undefined') {
-          console.warn(`onConfigUpdate: invalid path: ${JSON.stringify(pathParts)} in update ${JSON.stringify(update)}`)
           return
         }
       }

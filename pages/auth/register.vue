@@ -5,7 +5,7 @@
         <h2>{{ messages.title_register }}</h2>
       </v-col>
     </v-row>
-    <v-row v-if="allowRegistration">
+    <v-row v-if="publicConfig.allowRegistration">
       <v-col>
         <ValidationObserver ref="form">
           <form id="form">
@@ -132,7 +132,6 @@ export default {
     ...mapState(['browserLocale', 'publicConfig']),
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    allowRegistration () { return publicConfigField(this, 'allowRegistration') },
     formRules () { return condensedRules() },
     userLocale () {
       return this.user && this.user.locale

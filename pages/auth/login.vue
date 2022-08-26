@@ -44,7 +44,7 @@
                   {{ messages.button_login }}
                 </v-btn>
                 <v-btn
-                  v-if="allowRegistration"
+                  v-if="publicConfig.allowRegistration"
                   class="btn btn-primary"
                   to="/signUp"
                   nuxt
@@ -72,7 +72,6 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { publicConfigField } from '@/shared'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 
 export default {
@@ -88,8 +87,7 @@ export default {
     ...mapState('user', ['userStatus', 'loginError']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    loginErr () { return this.loginError || false },
-    allowRegistration () { return publicConfigField(this, 'allowRegistration') }
+    loginErr () { return this.loginError || false }
   },
   created () {
     // reset login status

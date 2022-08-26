@@ -44,6 +44,7 @@ export default {
   info_invite_friends_subheader: 'Enter some email addresses here and we\'ll send them an invitation',
   info_invite_friends_limited_registration: 'The operator of {{ title }} has limited registration to specific people. You are welcome to send invites, but these users must also be added the the approved list of users by the site administrator before they\'ll be able to successfully create an account',
   info_invite_friends_disabled_no_email: 'The "invite friends" feature is disabled because email hasn\'t been configured on {{ title }}',
+  info_invite_friends_enabled_no_email: 'The "invite friends" feature is enabled but email hasn\'t been configured on {{ title }}, so it can\'t be used',
   info_invitation_success_results: 'Your invitation was successfully sent to {{ successCount }} friends',
   info_invitation_error_results: 'Your invitation could not be delivered to {{ errorCount }} friends',
 
@@ -58,7 +59,10 @@ export default {
   title_browsing_folder: 'Folder: {{ folder }}',
   button_back_to: 'Back to {{ prefix }}',
   button_back_to_root_folder: 'Back to top-level',
+  info_search_no_results: 'There are four hundred and four reasons that something should be here, but there\'s nothing here',
   label_media_unprocessed: '(unprocessed)',
+  button_show_media_info: 'show media info',
+  button_hide_media_info: 'hide media info',
   button_show_thumbnails: 'show thumbnails',
   button_hide_thumbnails: 'hide thumbnails',
   button_previous_thumbnail: 'previous',

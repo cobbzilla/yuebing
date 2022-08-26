@@ -41,6 +41,8 @@ export default {
       verify: process.env.YB_TIMEOUT_ACCOUNT_VERIFICATION || 1000 * 60 * 60 * 24 * 2, // 2 days
       resetPassword: process.env.YB_TIMEOUT_RESET_PASSWORD || 1000 * 60 * 60, // 1 hour
 
+      // the various 'configurable' sections provide metadata (validation rules/etc) for
+      // the admin "manage config" screen
       configurable: {
         verify: {
           rules: 'required|integer|min_value:0|max_value:3153600000000',
@@ -55,10 +57,15 @@ export default {
       }
     },
 
+    // When enabled, logged-in users will see an "invite friends" feature in page footer
+    inviteFriendsEnabled: process.env.YB_INVITE_FRIENDS_ENABLED || true,
+
     // Don't change this line. If you want to enable email, set the YB_EMAIL_HOST environment
     // variable (and others, see below in privateRuntimeConfig for email settings)
     emailEnabled: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0),
 
+    // the various 'configurable' sections provide metadata (validation rules/etc) for the "System
+    // Configuration" page in the admin panel, which allows most settings to be updated at runtime
     configurable: {
       title: {
         rules: 'required|min:2|max:500'
@@ -82,6 +89,11 @@ export default {
       },
       defaultLocale: {
         rules: 'locale|min:5|max:5'
+      },
+      inviteFriendsEnabled: {
+        rules: 'required',
+        format: 'flag',
+        default: true
       },
       emailEnabled: {
         rules: 'required',

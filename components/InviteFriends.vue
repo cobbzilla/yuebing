@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="emailEnabled">
+  <v-container v-if="emailEnabled && inviteFriendsEnabled">
     <v-row>
       <v-col>
         <div v-if="showingInviteBlock">
@@ -66,11 +66,21 @@
       </v-col>
     </v-row>
   </v-container>
+  <v-container v-else-if="!inviteFriendsEnabled">
+    <v-row>
+      <v-col>
+        <h4>
+          {{ messages.info_invite_friends_disabled_no_email.parseMessage({ title }) }}
+        </h4>
+      </v-col>
+    </v-row>
+  </v-container>
   <v-container v-else>
     <v-row>
       <v-col>
         <h4>
           {{ messages.info_invite_friends_disabled_no_email.parseMessage({ title }) }}
+          emailEnabled = {{ emailEnabled }} && inviteFriendsEnabled = {{ inviteFriendsEnabled }}
         </h4>
       </v-col>
     </v-row>
@@ -100,6 +110,7 @@ export default {
     title () { return publicConfigField(this, 'title') },
     emailEnabled () { return publicConfigField(this, 'emailEnabled') },
     limitRegistration () { return publicConfigField(this, 'limitRegistration') },
+    inviteFriendsEnabled () { return publicConfigField(this, 'inviteFriendsEnabled') },
     inviteSuccessCount () {
       return this.invitationResults.success ? okl(this.invitationResults.success) : 0
     },

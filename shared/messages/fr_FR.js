@@ -44,6 +44,7 @@ export default {
   info_invite_friends_subheader: 'Entrez quelques adresses e-mail ici et nous leur enverrons une invitation',
   info_invite_friends_limited_registration: 'L\'opérateur de {{ title }} a limité l\'inscription à des personnes spécifiques. Vous pouvez envoyer des invitations, mais ces utilisateurs doivent également être ajoutés à la liste approuvée des utilisateurs par l\'administrateur du site avant de pouvoir créer un compte avec succès',
   info_invite_friends_disabled_no_email: 'La fonctionnalité "inviter des amis" est désactivée car l\'e-mail n\'a pas été configuré sur {{ title }}',
+  info_invite_friends_enabled_no_email: 'La fonctionnalité "inviter des amis" est activée mais l\'e-mail n\'a pas été configuré sur {{ title }}, elle ne peut donc pas être utilisée',
   info_invitation_success_results: 'Votre invitation a été envoyée avec succès à {{ successCount }}amis',
   info_invitation_error_results: 'Votre invitation n\'a pas pu être envoyée à {{ errorCount }}amis',
 
@@ -58,7 +59,10 @@ export default {
   title_browsing_folder: 'Dossier: {{ folder }}',
   button_back_to: 'Retourner à {{ prefix }}',
   button_back_to_root_folder: 'Retour au niveau supérieur',
+  info_search_no_results: 'Il y a quatre cent quatre raisons pour lesquelles quelque chose devrait être ici, mais il n\'y a rien ici',
   label_media_unprocessed: '(non transformé)',
+  button_show_media_info: 'afficher les informations sur les médias',
+  button_hide_media_info: 'masquer les informations sur les médias',
   button_show_thumbnails: 'affiche des vignettes',
   button_hide_thumbnails: 'masquer les vignettes',
   button_previous_thumbnail: 'précédent',
