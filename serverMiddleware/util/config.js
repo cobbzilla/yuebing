@@ -25,6 +25,8 @@ const encryption = {
 
 const CONFIGS = ['public', 'private']
 
+const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
+
 async function updateConfigAtLevel (topLevel, updateTarget, configTarget, configPath, errors) {
   const configurable = updateTarget.configurable
   if (configurable) {
@@ -75,7 +77,15 @@ const SYSTEM = {
     const ext = c.getExtension(path.basename(pth)).toLowerCase()
     return 'source.' + ext
   },
-
+  userMediaInfoPath: (sourceName, pth) => SYSTEM.assetsDir(sourceName + '/' + pth) + USER_MEDIAINFO_JSON,
+  userMediaInfo: async (sourceName, pth) => {
+    try {
+      const userInfoJson = await SYSTEM.api.readFile(SYSTEM.userMediaInfoPath(sourceName, pth))
+      return JSON.parse(userInfoJson)
+    } catch (e) {
+      console.warn(`userMediaInfo(${sourceName}, ${pth}): ${e} (${JSON.stringify(e)})`)
+    }
+  },
   connect: async () => {
     if (!SYSTEM.api) {
       const enc = !encryption.key ? null : encryption

@@ -23,7 +23,7 @@
           <div v-else-if="hasMedia(obj)">
             <div v-if="canView(obj)">
               <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
-                {{ filterName(obj.name) }}
+                {{ mediaTitle(obj) }}
                 <!--suppress HtmlExtraClosingTag -->
                 <img
                   v-if="thumbnail(obj)"
@@ -146,6 +146,11 @@ export default {
     isDir (obj) { return isDirectory(obj) },
     hasMedia (obj) { return hasMediaType(obj) },
     canView (obj) { return isViewable(obj) },
+    mediaTitle (obj) {
+      return obj.mediainfo && obj.mediainfo.title
+        ? obj.mediainfo.title
+        : this.filterName(obj.name)
+    },
     mediaInfo (obj) { return hasMediaInfo(obj) },
     thumbnail (obj) { return findThumbnail(obj) },
     toggleMediaInfo (obj) {

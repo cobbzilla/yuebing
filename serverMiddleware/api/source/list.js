@@ -5,7 +5,6 @@ const system = require('../../util/config').SYSTEM
 const redis = require('../../util/redis')
 const u = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
-const s = require('../../../shared/source')
 const src = require('../../source/sourceUtil')
 
 const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
@@ -59,8 +58,23 @@ export default {
         }))
       }
       for (const obj of listing) {
-        if (!obj.meta && obj.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
-          obj.meta = await manifest.deriveMetadata(sourceApi[obj.source], obj.sourcePath)
+        if (obj.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
+          if (!obj.meta) {
+            obj.meta = await manifest.deriveMetadata(sourceApi[obj.source], obj.sourcePath)
+          }
+          if (!obj.mediainfo && m.hasMediaInfo(obj)) {
+            const mediaInfoProfile = Object.keys(obj.meta.assets)
+              .find(p => m.isMediaInfoJsonProfile(m.mediaProfileByName(obj.mediaType, p)))
+            if (mediaInfoProfile && mediaInfoProfile.length > 0) {
+              const mediaInfoPath = obj.meta.assets[mediaInfoProfile][0]
+              const mediaInfoJson = await system.api.readFile(mediaInfoPath)
+              obj.mediainfo = JSON.parse(mediaInfoJson)
+              const userMediaInfo = await system.userMediaInfo(obj.source, obj.sourcePath)
+              if (userMediaInfo) {
+                obj.mediainfo = Object.assign({}, obj.mediainfo, userMediaInfo)
+              }
+            }
+          }
         }
       }
       await redis.set(cacheKey, JSON.stringify(listing), LISTING_CACHE_EXPIRATION)

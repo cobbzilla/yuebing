@@ -10,7 +10,7 @@
     <v-row>
       <v-col>
         <div v-if="isReady">
-          <VideoPlayer :options="videoOptions"></VideoPlayer>
+          <VideoPlayer :options="videoOptions" />
         </div>
         <div v-if="mediaInfo()">
           <v-btn @click.stop="toggleMediaInfo()">
@@ -95,7 +95,7 @@ export default {
     }
   },
   watch: {
-    metadata (newMeta, oldMeta) {
+    metadata (newMeta) {
       if (newMeta && newMeta[this.name] && newMeta[this.name].ctime && newMeta[this.name].assets) {
         this.object.meta = newMeta[this.name]
       } else {
@@ -103,12 +103,11 @@ export default {
       }
       if (this.object.meta.selectedThumbnail) {
         this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail, this.user, this.status)
-        console.log(`watch.metadata: set poster: ${this.videoOptions.poster}`)
       }
       this.object = Object.assign({}, this.object) // force vue refresh
       this.refreshMeta()
     },
-    assetData (newAssetData, oldAssetData) {
+    assetData (newAssetData) {
       if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
         this.mediaInfoJson = newAssetData[this.mediaInfoJsonPath]
         const width = this.mediaInfoField('width')
@@ -120,7 +119,7 @@ export default {
           // console.log(`watch:assets -- set video width/height to ${this.videoOptions.width}/${this.videoOptions.height} from original ${width}/${height}`)
         }
       } else {
-        console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
+        // console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
       }
     }
   },
@@ -136,11 +135,9 @@ export default {
     // there are a couple of cached places we can check for the metadata, or we fetch it
     const cachedObject = this.objectList.find(o => o.name === name)
     if (cachedObject && cachedObject.meta && okl(cachedObject.meta) > 1) {
-      console.log('video.created: found cached object with good meta, using it')
       this.object = cachedObject
       this.refreshMeta()
     } else if (name in Object.keys(this.metadata)) {
-      console.log('video.created: found cached meta, using it')
       this.object = {
         name,
         type: FILE_TYPE,
@@ -149,8 +146,7 @@ export default {
       }
       this.refreshMeta()
     } else {
-      console.log('nothing cached, fetching meta...')
-      this.fetchMetadata({ path: name })
+      this.fetchMetadata({ path: this.object.path })
     }
   },
   methods: {
@@ -173,7 +169,6 @@ export default {
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
               const src = proxyMediaUrl(asset, this.user, this.userStatus)
-              console.log(`video.vue: pushing src = ${src}`)
               sources.push({
                 src,
                 type: mediaProfile.contentType
@@ -181,9 +176,8 @@ export default {
             }
           })
         })
-        console.log(`refreshMeta: added sources=${JSON.stringify(sources, null, 2)}`)
       } else {
-        console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
+        // console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
       }
     },
     mediaInfo () { return hasMediaInfo(this.object) },

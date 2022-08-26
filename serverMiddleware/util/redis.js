@@ -51,11 +51,11 @@ async function removeMatchingKeys (pattern) {
   return await applyToMatchingKeys(pattern, del)
 }
 
-async function applyToMatchingKeys (pattern, func) {
+async function applyToMatchingKeys (pattern, asyncFunc) {
   const { keysMatching } = generators.using(redisClient)
   const results = []
   for await (const key of keysMatching(pattern)) {
-    results.push(func(key))
+    results.push(await asyncFunc(key))
   }
   return results
 }

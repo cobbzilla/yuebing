@@ -121,11 +121,8 @@ export default {
     },
     refreshMediaInfo () {
       const obj = this.object
-      if (obj && obj.name) {
-        // get user media info
-        // console.log(`refreshMediaInfo: fetching user media info for path: ${obj.name}`)
-        const path = obj.name
-        this.fetchUserMediaInfo({ path })
+      if (obj && obj.path) {
+        this.fetchUserMediaInfo({ path: obj.path })
       }
       if (hasAssets(obj) && !this.mediaInfoJsonPath) {
         // console.log(`MediaInfo.refreshMediaInfo started, this.mediaInfoJsonPath=${this.mediaInfoJsonPath}, obj=${JSON.stringify(obj)}`)
@@ -155,7 +152,7 @@ export default {
       }
     },
     updateMediaInfoValues () {
-      const path = this.object.name
+      const path = this.object.path
       const values = this.infoFieldValues
       this.updateUserMediaInfo({ path, values })
       this.showEditor = false

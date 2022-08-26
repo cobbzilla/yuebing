@@ -172,7 +172,7 @@ const objectListCacheKey = req => `${OBJECT_LIST_CACHE_PREFIX}${req.url}`
 
 function flushListCache () {
   redis.removeMatchingKeys(OBJECT_LIST_CACHE_PREFIX + '*').then((results) => {
-    console.log(`flushListCache: flushed ${JSON.stringify(results)}`)
+    console.log(`flushListCache: flushed ${results.length ? results.length : '(undefined)'} list cache entries`)
   })
 }
 
