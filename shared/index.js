@@ -11,7 +11,7 @@ function getExtension (filename) {
   return filename.split('.').pop()
 }
 
-const USER_SESSION_HEADER = 'x-yuebing-session'
+const USER_SESSION_HEADER = 'x-yb-session'
 const USER_SESSION_QUERY_PARAM = 's'
 
 function sessionParams (user, status) {

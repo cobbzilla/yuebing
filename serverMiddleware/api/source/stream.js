@@ -42,7 +42,7 @@ export default {
   async handler (req, res) {
     const user = await u.requireUser(req, res)
     if (!user) {
-      return api.forbidden(res)
+      return api.okJson(res, {})
     }
 
     // chop query if any
