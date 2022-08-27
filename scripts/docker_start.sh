@@ -4,8 +4,13 @@ echo "" > ${LOG}  # start log with a blank line, we dump it sometimes when error
 
 set -m
 
-echo 1>&2 " *** Starting redis..."
+echo 1>&2 " *** Starting redis ..."
 redis-server &
 
-echo 1>&2 " *** Starting nuxt..."
-yarn start
+if [ -n "${1}" ] && [ "${1}" = "dev" ] ; then
+  echo 1>&2 " *** Starting nuxt (dev) ..."
+  yarn dev
+else
+  echo 1>&2 " *** Starting nuxt (production) ..."
+  yarn start
+fi
