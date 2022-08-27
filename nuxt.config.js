@@ -104,10 +104,10 @@ export default {
   },
 
   privateRuntimeConfig: {
-    // Initial admin user. Set the password to create the admin user
+    // Initial admin user, will be created if it does not exist
     admin: {
       user: {
-        email: process.env.YB_ADMIN_EMAIL || 'admin@example.local',
+        email: process.env.YB_ADMIN_EMAIL || null,
         password: process.env.YB_ADMIN_PASSWORD || null,
         locale: process.env.YB_ADMIN_LOCALE || process.env.YB_DEFAULT_LOCALE || 'en_US'
       },
@@ -430,6 +430,7 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    mode: 'production',
     transpile: ['vee-validate/dist/rules']
   }
 }
