@@ -6,7 +6,7 @@
       app
     >
       <NuxtLink to="/" style="text-decoration: none">
-        <v-toolbar-title v-text="title" />
+        <b><v-toolbar-title v-text="title" /></b>
       </NuxtLink>
       <v-spacer />
       <v-btn

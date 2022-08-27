@@ -80,6 +80,8 @@ export default {
   error_field_regex: '{{ field }} n\'est pas valide',
   error_field_min: '{{ field }} est trop court',
   error_field_max: '{{ field }} est trop long',
+  error_field_min_value: '{{ field }} est trop petit',
+  error_field_max_value: '{{ field }} est trop grand',
   error_field_email: '{{ field }} n\'est pas une adresse e-mail valide',
   error_field_cannotDeleteSelf: 'Vous ne pouvez pas vous supprimer',
   error_field_readOnly: '{{ field }} est une source en lecture seule',

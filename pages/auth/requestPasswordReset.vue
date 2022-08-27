@@ -13,7 +13,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <form v-if="!submitted">
+        <v-form v-if="!submitted" @submit.prevent="handleSubmit">
           <div class="form-group">
             <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
               <v-text-field
@@ -23,6 +23,7 @@
                 name="email"
                 class="form-control"
                 :class="{ 'is-invalid': submitted && !email }"
+                @keyup.enter="handleSubmit"
               />
               <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
               <div v-show="submitted && !email" class="invalid-feedback">
@@ -31,11 +32,11 @@
             </ValidationProvider>
           </div>
           <div class="form-group">
-            <v-btn class="btn btn-primary" :disabled="disableSendButton" @click.stop="handleSubmit">
+            <v-btn class="btn btn-primary" :disabled="disableSendButton" @click.stop="handleSubmit()">
               {{ messages.button_send_password_reset_email }}
             </v-btn>
           </div>
-        </form>
+        </v-form>
       </v-col>
     </v-row>
     <v-row v-if="!userLoggedIn">

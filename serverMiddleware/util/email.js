@@ -6,8 +6,28 @@ const redis = require('../util/redis')
 const locale = require('../../shared/locale')
 const system = require('./config').SYSTEM
 
-const EMAIL_CONFIG = system.privateConfig.email
-const EMAIL_ENABLED = EMAIL_CONFIG.host
+const emailEnabled = () => system.publicConfig.emailEnabled && !!system.privateConfig.email.host
+
+const CACHED_CONFIG = {
+  sender: null,
+  config: null,
+  getConfig () {
+    if (!emailEnabled()) { return null }
+    if (this.config === null) { this.config = system.privateConfig.email }
+    return this.config
+  },
+  flush () {
+    console.log('CACHED_CONFIG.flush called')
+    this.config = null
+  }
+}
+
+// reload the email configuration when it changes
+for (const field of Object.keys(system.privateConfig.email)) {
+  if (field !== 'configurable') {
+    system.registerConfigUpdateHandler(`privateConfig_email_${field}`, CACHED_CONFIG.flush)
+  }
+}
 
 const TEMPLATE_VERIFY_EMAIL = 'verifyEmail'
 const TEMPLATE_RESET_PASSWORD = 'resetPassword'
@@ -21,18 +41,16 @@ const TEMPLATE_FILES = [SUBJECT_TEMPLATE, MESSAGE_TXT_TEMPLATE, MESSAGE_HTML_TEM
 
 const COMPILED_TEMPLATES = {}
 
-if (EMAIL_ENABLED) {
-  // compile templates
-  for (const templateName of TEMPLATE_NAMES) {
-    for (const loc of locale.SUPPORTED_LOCALES) {
-      compileTemplates(loc, templateName)
-    }
+// compile templates
+for (const templateName of TEMPLATE_NAMES) {
+  for (const loc of locale.SUPPORTED_LOCALES) {
+    compileTemplates(loc, templateName)
   }
-  // register helpers
-  Handlebars.registerHelper('urlEscape', (src) => {
-    return new Handlebars.SafeString(encodeURIComponent(src))
-  })
 }
+// register helpers
+Handlebars.registerHelper('urlEscape', (src) => {
+  return new Handlebars.SafeString(encodeURIComponent(src))
+})
 
 function compileTemplates (locale, template) {
   if (COMPILED_TEMPLATES[locale] && COMPILED_TEMPLATES[locale][template]) {
@@ -57,22 +75,28 @@ function compileTemplates (locale, template) {
   }
 }
 
-const MAIL_SENDER = EMAIL_ENABLED
-  ? nodemailer.createTransport({
-    host: EMAIL_CONFIG.host,
-    port: EMAIL_CONFIG.port || 587,
-    secure: EMAIL_CONFIG.secure, // true for 465, false for other ports
-    auth: {
-      user: EMAIL_CONFIG.user || '',
-      pass: EMAIL_CONFIG.password || ''
-    },
-    tls: {
-      ciphers: 'SSLv3'
-    }
-  })
-  : null
+const mailSender = () => {
+  if (!emailEnabled()) { return null }
+  const cfg = CACHED_CONFIG.getConfig()
+  if (CACHED_CONFIG.sender === null) {
+    CACHED_CONFIG.sender = nodemailer.createTransport({
+      host: cfg.host,
+      port: cfg.port,
+      secure: cfg.secure,
+      auth: {
+        user: cfg.user || '',
+        pass: cfg.password || ''
+      },
+      tls: {
+        ciphers: 'SSLv3'
+      }
+    })
+  }
+  return CACHED_CONFIG.sender
+}
 
-const MAIL_FROM = EMAIL_CONFIG.fromEmail
+const fromEmail = () => CACHED_CONFIG.getConfig().fromEmail
+
 const MAIL_SENDING_LIMITS = {}
 
 // max 1 new invitation per week
@@ -98,7 +122,7 @@ function EmailRateLimitExceededError (limit) {
 }
 
 async function sendEmail (to, locale, template, params) {
-  if (!EMAIL_ENABLED) {
+  if (!emailEnabled()) {
     console.log(`sendEmail(${to}, ${locale}, ${template}): email not enabled, not sending`)
     return
   }
@@ -125,8 +149,8 @@ async function sendEmail (to, locale, template, params) {
   await redis.set(redisPrefix + '_' + Date.now(), '' + Date.now(), limit.period)
 
   // send the mail!
-  MAIL_SENDER.sendMail({
-    from: MAIL_FROM, // sender address
+  mailSender().sendMail({
+    from: fromEmail(), // sender address
     to,
     subject: compiled[SUBJECT_TEMPLATE](ctx),
     text: compiled[MESSAGE_TXT_TEMPLATE](ctx),

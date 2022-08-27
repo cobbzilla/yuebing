@@ -15,7 +15,7 @@
     <v-row>
       <v-col>
         <ValidationObserver ref="form">
-          <form>
+          <v-form @submit.prevent="handleSubmit">
             <div class="form-group">
               <ValidationProvider v-slot="{ errors }" name="firstName" rules="required|min:2" immediate>
                 <v-text-field
@@ -56,7 +56,7 @@
                 <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
-          </form>
+          </v-form>
         </ValidationObserver>
       </v-col>
     </v-row>

@@ -29,7 +29,7 @@
     <v-row>
       <v-col>
         <div v-if="showEditor">
-          <form>
+          <v-form @submit.prevent="updateMediaInfoValues">
             <div v-for="(field, index) in editableInfoFields" :key="index">
               <div class="form-group">
                 <v-text-field
@@ -44,7 +44,7 @@
             <v-btn class="btn btn-primary" @click.stop="updateMediaInfoValues">
               {{ messages.button_update }}
             </v-btn>
-          </form>
+          </v-form>
         </div>
       </v-col>
     </v-row>

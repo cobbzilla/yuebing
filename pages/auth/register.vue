@@ -8,7 +8,7 @@
     <v-row v-if="allowRegistration">
       <v-col>
         <ValidationObserver ref="form">
-          <form id="form">
+          <v-form id="form" @submit.prevent="handleSubmit">
             <div class="form-group">
               <label for="firstName">{{ messages.label_firstName }}</label>
               <ValidationProvider v-slot="{ errors }" name="firstName" :rules="formRules.firstName" immediate>
@@ -80,7 +80,7 @@
                 <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
-          </form>
+          </v-form>
         </ValidationObserver>
       </v-col>
     </v-row>

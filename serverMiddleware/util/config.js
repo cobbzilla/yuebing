@@ -27,34 +27,6 @@ const CONFIGS = ['public', 'private']
 
 const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 
-async function updateConfigAtLevel (topLevel, updateTarget, configTarget, configPath, errors) {
-  const configurable = updateTarget.configurable
-  if (configurable) {
-    for (const field of Object.keys(configurable)) {
-      if (updateTarget[field] === configTarget[field]) {
-        continue
-      }
-      const fieldConfig = configurable[field]
-      const fieldPath = configPath + '_' + field
-      if (fieldConfig.rules) {
-        const valid = await vv.validate(configTarget[field], fieldConfig.rules)
-        if (valid.valid) {
-          // allow the field to be set
-          updateTarget[field] = configTarget[field]
-        } else {
-          if (typeof errors[fieldPath] === 'undefined') {
-            errors[fieldPath] = []
-          }
-          errors[fieldPath].push(...Object.keys(valid.failedRules))
-        }
-      } else if (configTarget[field] && typeof updateTarget[field] === 'object') {
-        await updateConfigAtLevel(topLevel, updateTarget[field], configTarget[field], fieldPath, errors)
-      }
-    }
-  }
-  return errors
-}
-
 function isMatch (obj, prefix, matches) {
   if (path.basename(obj.name).startsWith(prefix)) {
     matches.push(obj)
@@ -115,16 +87,65 @@ const SYSTEM = {
     }
     return SYSTEM
   },
+  configUpdateHandlers: {},
+  registerConfigUpdateHandler (fieldPath, handler) {
+    SYSTEM.configUpdateHandlers[fieldPath] = handler
+  },
+  updateConfigAtLevel: async (topLevel, updateTarget, configTarget, configPath, errors, handlers) => {
+    const configurable = updateTarget.configurable
+    if (configurable) {
+      for (const field of Object.keys(configurable)) {
+        if (updateTarget[field] === configTarget[field]) {
+          continue
+        }
+        const fieldConfig = configurable[field]
+        const fieldPath = configPath + '_' + field
+        if (fieldConfig.rules) {
+          const valid = await vv.validate(configTarget[field], fieldConfig.rules)
+          if (valid.valid) {
+            // allow the field to be set
+            updateTarget[field] = configTarget[field]
+            const updateHandler = SYSTEM.configUpdateHandlers[fieldPath]
+            if (updateHandler) {
+              handlers.add(updateHandler)
+            }
+          } else {
+            if (typeof errors[fieldPath] === 'undefined') {
+              errors[fieldPath] = []
+            }
+            errors[fieldPath].push(...Object.keys(valid.failedRules))
+          }
+        } else if (updateTarget[field] === null) {
+          updateTarget[field] = configTarget[field]
+        } else if (configTarget[field] && typeof updateTarget[field] === 'object') {
+          await SYSTEM.updateConfigAtLevel(topLevel, updateTarget[field], configTarget[field], fieldPath, errors, handlers)
+        }
+      }
+    } else {
+      for (const field of Object.keys(updateTarget)) {
+        if (typeof configTarget[field] === 'object' &&
+          configTarget[field] !== null &&
+          updateTarget[field] !== null &&
+          typeof updateTarget[field] === 'object') {
+          const fieldPath = configPath + '_' + field
+          await SYSTEM.updateConfigAtLevel(topLevel, updateTarget[field], configTarget[field], fieldPath, errors, handlers)
+        }
+      }
+    }
+    return errors
+  },
   updateConfig: async (newConfig) => {
     const errors = {}
     const updatedConfig = {}
+    const updateHandlers = new Set()
+    const update = SYSTEM.updateConfigAtLevel
     for (const topLevel of Object.keys(newConfig)) {
       if (!SYSTEM[topLevel]) {
         errors.push({ configCategory: ['invalid'] })
         continue
       }
       updatedConfig[topLevel] = JSON.parse(JSON.stringify(SYSTEM[topLevel]))
-      await updateConfigAtLevel(topLevel, updatedConfig[topLevel], newConfig[topLevel], topLevel, errors)
+      await update(topLevel, updatedConfig[topLevel], newConfig[topLevel], topLevel, errors, updateHandlers)
     }
     if (c.empty(errors)) {
       for (const topLevel of Object.keys(newConfig)) {
@@ -133,6 +154,9 @@ const SYSTEM = {
         } else {
           await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(updatedConfig[topLevel]))
           SYSTEM[topLevel] = updatedConfig[topLevel]
+          for (const handler of updateHandlers) {
+            handler()
+          }
           console.log(`updateConfig(${topLevel}): SAVED NEW CONFIG`)
         }
       }

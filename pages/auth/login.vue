@@ -9,7 +9,7 @@
       <v-row>
         <v-col>
           <ValidationObserver ref="form">
-            <form>
+            <v-form @submit.prevent="handleSubmit">
               <div class="form-group">
                 <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
                   <v-text-field
@@ -54,7 +54,7 @@
                   {{ messages.button_register }}
                 </v-btn>
               </div>
-            </form>
+            </v-form>
           </ValidationObserver>
         </v-col>
       </v-row>

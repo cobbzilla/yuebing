@@ -37,7 +37,7 @@
       <v-col>
         <div>
           <ValidationObserver ref="form">
-            <form>
+            <v-form @submit.prevent="searchSources">
               <ValidationProvider v-slot="{ errors }" name="searchTerms" rules="max:200" immediate>
                 <div class="form-group">
                   <v-text-field
@@ -47,6 +47,7 @@
                     name="searchTerms"
                     class="form-control"
                     :class="{ 'is-invalid': errors.length>0 }"
+                    @keyup.enter="searchSources"
                   />
                   <span v-show="errors.length>0" class="is-invalid">{{ fieldError('searchTerms', errors) }}</span>
                   <v-btn class="btn btn-primary" :disabled="findingSources" @click.stop="searchSources">
@@ -54,7 +55,7 @@
                   </v-btn>
                 </div>
               </ValidationProvider>
-            </form>
+            </v-form>
           </ValidationObserver>
         </div>
       </v-col>
@@ -123,7 +124,7 @@
           </v-row>
           <v-row>
             <ValidationObserver ref="addSrcForm">
-              <form id="addSrcForm">
+              <v-form id="addSrcForm" @submit.prevent="addSrc">
                 <v-select
                   v-model="newSource.type"
                   :label="messages.admin_label_source_type"
@@ -246,7 +247,7 @@
                     {{ messages.admin_button_add_source }}
                   </v-btn>
                 </div>
-              </form>
+              </v-form>
             </ValidationObserver>
           </v-row>
         </v-container>

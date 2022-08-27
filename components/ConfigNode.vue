@@ -16,6 +16,7 @@
                   :label="messages[`admin_label_${configFullName(cfg)}`]"
                   :name="configFullName(cfg)"
                   class="form-control"
+                  dense
                   :readonly="!isConfigurable(cfg)"
                   @change="$emit('update', {field: configFullName(cfg), value: configData[cfg]})"
                 />
@@ -48,6 +49,7 @@
                   :type="cfg.toLowerCase().includes('password') ? 'password' : 'text'"
                   :name="configFullName(cfg)"
                   class="form-control"
+                  dense
                   :readonly="!isConfigurable(cfg)"
                   @change="$emit('update', {field: configFullName(cfg), value: configData[cfg]})"
                 />
@@ -111,7 +113,7 @@ export default {
       return this.config && this.config.configurable && this.config.configurable[field]
     },
     hasSubConfig (field) {
-      return this.config && typeof this.config[field] === 'object' && !Array.isArray(this.config[field])
+      return this.config && typeof this.config[field] === 'object' && this.config[field] !== null && !Array.isArray(this.config[field])
     },
     configFullName (field) {
       return this.configPath.length > 0 ? this.configPath + '_' + field : field
@@ -161,8 +163,10 @@ export default {
       return field && error ? fieldErrorMessage(field, error, this.messages, 'admin_label_') : '(no message)'
     },
     onConfigUpdate (update) {
-      console.log(`onConfigUpdate(configPath=${this.configPath}}) received update: ${JSON.stringify(update)}`)
-      this.$emit('update', update)
+      // console.log(`onConfigUpdate(configPath=${this.configPath}}) received update: ${JSON.stringify(update)}`)
+      this.$emit('update', this.configLevel === 0
+        ? update
+        : { field: this.configPath + '_' + update.field, value: update.value })
     }
   }
 }

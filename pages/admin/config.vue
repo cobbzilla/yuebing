@@ -1,6 +1,6 @@
 <template>
   <ValidationObserver ref="form">
-    <form>
+    <v-form @submit.prevent="updateConfig">
       <v-container>
         <v-row>
           <v-col>
@@ -34,7 +34,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </form>
+    </v-form>
   </ValidationObserver>
 </template>
 

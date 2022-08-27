@@ -1,52 +1,45 @@
 <template>
   <v-container>
-    <ValidationProvider v-slot="{ errors }" :name="field" :rules="fieldRules" immediate>
-      <v-row>
-        <v-col>
-          <b>{{ messages[fieldLabel] }}</b>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-select
-            v-model="days"
-            :label="messages.label_duration_days"
-            :items="[...Array(365).keys()]"
-            :full-width="false"
-            name="days"
-            class="form-control"
-            @change="$emit('update', {field, value: durationValue})"
-          />
-        </v-col>
-        <v-col>
-          <v-select
-            v-model="hours"
-            :label="messages.label_duration_hours"
-            :items="[...Array(24).keys()]"
-            :full-width="false"
-            name="hours"
-            class="form-control"
-            @change="$emit('update', {field, value: durationValue})"
-          />
-        </v-col>
-        <v-col>
-          <v-select
-            v-model="minutes"
-            :label="messages.label_duration_minutes"
-            :items="[...Array(60).keys()]"
-            :full-width="false"
-            name="minutes"
-            class="form-control"
-            @change="$emit('update', {field, value: durationValue})"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="3">
-          <span v-show="errors.length>0" class="is-invalid">{{ fieldError(errors) }}</span>
-        </v-col>
-      </v-row>
-    </ValidationProvider>
+    <v-row>
+      <v-col>
+        <b>{{ messages[fieldLabel] }}</b>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-select
+          v-model="days"
+          :label="messages.label_duration_days"
+          :items="[...Array(365).keys()]"
+          :full-width="false"
+          name="days"
+          class="form-control"
+          @change="$emit('update', {field, value: durationValue})"
+        />
+      </v-col>
+      <v-col>
+        <v-select
+          v-model="hours"
+          :label="messages.label_duration_hours"
+          :items="[...Array(24).keys()]"
+          :full-width="false"
+          name="hours"
+          class="form-control"
+          @change="$emit('update', {field, value: durationValue})"
+        />
+      </v-col>
+      <v-col>
+        <v-select
+          v-model="minutes"
+          :label="messages.label_duration_minutes"
+          :items="[...Array(60).keys()]"
+          :full-width="false"
+          name="minutes"
+          class="form-control"
+          @change="$emit('update', {field, value: durationValue})"
+        />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

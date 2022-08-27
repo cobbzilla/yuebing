@@ -32,7 +32,7 @@
                 </div>
                 <div>
                   <ValidationObserver ref="form">
-                    <form>
+                    <v-form @submit.prevent="handleSubmit">
                       <div class="form-group">
                         <ValidationProvider v-slot="{ errors }" name="password" rules="max:1000" immediate>
                           <v-text-field
@@ -42,6 +42,7 @@
                             name="emails"
                             class="form-control"
                             :class="{ 'is-invalid': submitted && errors.length>0 }"
+                            @keyup.enter="handleSubmit"
                           />
                           <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors) }}</span>
                         </ValidationProvider>
@@ -51,7 +52,7 @@
                           {{ messages.button_send_invitations }}
                         </v-btn>
                       </div>
-                    </form>
+                    </v-form>
                   </ValidationObserver>
                 </div>
               </v-col>

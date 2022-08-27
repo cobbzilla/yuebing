@@ -68,7 +68,7 @@
     <v-row v-else-if="sourcesLoaded">
       <v-col>
         <ValidationObserver ref="form">
-          <form v-if="filteredSourceList" id="form">
+          <v-form v-if="filteredSourceList" id="form" @submit.prevent="handleSubmit">
             <div class="form-group">
               <ValidationProvider v-slot="{ errors }" name="readSource" rules="required" immediate>
                 <v-select
@@ -127,7 +127,7 @@
                 {{ messages.admin_button_migrate_data }}
               </v-btn>
             </div>
-          </form>
+          </v-form>
         </ValidationObserver>
       </v-col>
     </v-row>
