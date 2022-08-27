@@ -219,6 +219,7 @@ export default {
   admin_label_publicConfig_public: 'Est-ce public?',
   admin_label_publicConfig_allowRegistration: 'Autoriser l\'inscription?',
   admin_label_publicConfig_limitRegistration: 'Limiter l\'inscription?',
+  admin_label_publicConfig_inviteFriendsEnabled: 'Montrer «Inviter des amis» à des utilisateurs connectés?',
   admin_label_publicConfig_locales: 'Localités',
   admin_label_publicConfig_defaultLocale: 'Localité standard',
   admin_label_publicConfig_emailEnabled: 'Le courrier électronique est-il activé?',

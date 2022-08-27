@@ -219,6 +219,7 @@ export default {
   admin_label_publicConfig_public: 'Public?',
   admin_label_publicConfig_allowRegistration: 'Allow Registration?',
   admin_label_publicConfig_limitRegistration: 'Limit Registration',
+  admin_label_publicConfig_inviteFriendsEnabled: 'Show \'Invite Friends\' to logged-in users?',
   admin_label_publicConfig_locales: 'Locales',
   admin_label_publicConfig_defaultLocale: 'Default Locale',
   admin_label_publicConfig_emailEnabled: 'Email Enabled?',
