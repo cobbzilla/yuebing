@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/yuebing
 WORKDIR /usr/src/yuebing
 
 RUN apk update && apk upgrade && \
-    apk add curl ffmpeg mediainfo
+    apk add curl redis ffmpeg mediainfo
 
 COPY . /usr/src/yuebing/
 
