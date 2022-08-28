@@ -16,4 +16,4 @@ To use your own favicons, you have some choices:
    Set the environment variable `YB_FAVICON_DIR=my-icons`when you run the app,
    and your favicons will be served<br/><br/>
 3. **Full control**<br/>
-   Edit nuxt.config.js, change the `head` block to deliver whatever favicons you want.<br/><br/>
+   Edit [`nuxt.config.js`](../nuxt.config.js), change the `head` block to deliver whatever favicons you want.<br/><br/>

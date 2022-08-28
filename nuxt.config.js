@@ -259,7 +259,7 @@ export default {
 
     // The server scans the source media for new content to transform
     autoscan: {
-      enabled: process.env.YB_AUTOSCAN_ENABLED || true,
+      enabled: process.env.YB_AUTOSCAN_ENABLED || false,
 
       // How frequently to auto-scan the source for new content
       // Otherwise, scan at this interval.

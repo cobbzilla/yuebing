@@ -1,5 +1,5 @@
 Yuebing Developer Documentation
--------------------------------
+===============================
 
 # Setup
 Yuebing requires [nodejs version 16 LTS](https://nodejs.org/en/download/), please ensure you have the correct version:
@@ -13,6 +13,14 @@ Once you've installed node, you'll also need yarn:
 Now that you've got node and yarn, you can install all the project dependencies:
 
     yarn install
+
+# Environment variables
+To run yuebing, it requires some "bootstrap" environment variables.
+
+Copy the `env.example` to `.env` and edit it.
+
+You will at least need to set the email/password for the admin user, and the S3 bucket configuration for
+where configuration and assets will be stored. The rest can be configured from yuebing at runtime.
 
 # Run Yuebing locally
 ## Production 

@@ -10,7 +10,7 @@
     "docker-build": "docker build -t yuebing:nuxt .",
     "docker-run": "bash -c \"docker run -it --env-file <(sed -e 's/^export //' < .env) --env HOST=0.0.0.0 --publish 127.0.0.1:3000:3000/tcp yuebing:nuxt\"",
     "docker-build-dev": "docker build -t yuebing:nuxt-dev -f Dockerfile.dev .",
-    "docker-run-dev": "bash -c \"docker run -it -ulimit nofile=10000000:10000000 --mount type=bind,source=\"$(pwd)\",target=/usr/src/yuebing --env-file <(sed -e 's/^export //' < .env) --env HOST=0.0.0.0 --publish 127.0.0.1:3000:3000/tcp yuebing:nuxt-dev\"",
+    "docker-run-dev": "bash -c \"docker run -it --ulimit nofile=500000:500000 --mount type=bind,source=\"$(pwd)\",target=/usr/src/yuebing --env-file <(sed -e 's/^export //' < .env) --env HOST=0.0.0.0 --publish 127.0.0.1:3000:3000/tcp yuebing:nuxt-dev\"",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "lintfix": "yarn lint:js --fix"
