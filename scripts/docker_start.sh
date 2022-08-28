@@ -14,8 +14,8 @@ sleep 2s # wait for redis logs to fly by
 
 if [ -n "${1}" ] && [ "${1}" = "dev" ] ; then
   echo 1>&2 " *** Starting nuxt (dev) date=$(date) ..."
-  yarn install && yarn dev
+  yarn dev
 else
   echo 1>&2 " *** Starting nuxt (production) date=$(date) ..."
-  yarn install && yarn start
+  yarn start
 fi

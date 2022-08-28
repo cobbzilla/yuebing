@@ -68,7 +68,5 @@ Your value for ${req}: "
     echo "export ${req}=${ENV_VALUE}" >> "${ENV_FILE}" || die "Error writing ${req} env var to ${ENV_FILE}"
     chmod 0600 "${ENV_FILE}" || die "Error setting permissions (0600) on ${ENV_FILE}"
     continue
-  else
-    grep "${req}" "${ENV_FILE}" | grep -v '#'
   fi
 done
