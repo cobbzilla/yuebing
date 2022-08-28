@@ -64,21 +64,27 @@ right?
   * Public with limited registration: media shown to everyone, but only approved email addresses can create accounts
   * Totally public: media shown to everyone, and anyone can create a user account
 * Fully internationalized! All user-visible text (and other locale-specific stuff) comes from localized resources
+  * [Help the community, translate Yuebing to new languages!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
 * Full-featured admin console
+* **One thing I admit still totally sucks:**
+  * The "discovery experience" consists in *navigating a directory hierarchy*. That is **super lame**, but we had to start somewhere.
+  * We will add support for proper search, tagging, suggestions, etc.
+  * OK, there's actually a lot of stuff that still sucks, and this is totally 1.0 software, but the stuff that works is pretty cool
 * Coming soon:
   * Support for more media types (audio, images, etc)
+  * Auto-tagging and search
   * Likes and comments
   * User-uploaded media
   * New "source type": Another Yuebing instance!
     * Federation between friendly instances: unified search, user accounts, etc
 
 ## Anonymous user feature (if the site has been configured to allow anonymous visitors)
-* Browse/search media
+* Browse media
 * Watch media!
 * Create account (if the site has been configured to allow account registration)
 
 ## Logged-in user features
-* Browse/search media
+* Browse media
 * Watch media!
 * Comment on media (coming soon!)
 * Like media (coming soon!)
