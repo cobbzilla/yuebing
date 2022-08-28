@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",

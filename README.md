@@ -134,20 +134,20 @@ To run from source, you'll need nodejs v16+ and yarn
     yarn docker-run-dev    # Fastest build & startup, dev docker image
     yarn docker-run        # Faster at runtime, production docker image
 
-See the [developer docs](./docs/developer.md) for more info
+See the [developer docs](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) for more info
 
 ## Configuration
 To play around with Yuebing, it's fine to start it without configuring anything.
 Run `yuebing` and you'll be prompted to enter the minimal config when it starts.
 
-If you plan on running Yuebing for a while, see the [configuration docs](./docs/config.md) for
+If you plan on running Yuebing for a while, see the [configuration docs](https://github.com/cobbzilla/yuebing/blob/master/docs/config.md) for
 more info on how to set things up.
 
 ### nginx config
 Yuebing is merely a Nuxt app, and expects that you'll put nginx (or some other web server) in
 front of it to handle SSL, rate limiting if needed, etc.
 
-If you're using nginx, here is a [sample config](./docs/sample-yuebing-nginx.conf) you can use.
+If you're using nginx, here is a [sample config](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) you can use.
 
 ## Why yuebing?
 [Oolong the rabbit](https://en.wikipedia.org/wiki/Oolong_(rabbit)) was an adorable and famous
