@@ -1,7 +1,4 @@
 #!/bin/sh
-LOG=/var/log/docker_start.log
-echo "" > ${LOG}  # start log with a blank line, we dump it sometimes when errors occur
-
 set -m
 set -e
 

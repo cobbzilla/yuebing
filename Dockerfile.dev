@@ -1,6 +1,8 @@
 FROM node:16.16.0-alpine3.16
 
 RUN mkdir -p /usr/src/yuebing
+RUN mkdir -p /usr/src/scratch
+
 WORKDIR /usr/src/yuebing
 
 RUN apk update && apk upgrade && \

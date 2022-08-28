@@ -259,6 +259,7 @@ export default {
 
     // The server scans the source media for new content to transform
     autoscan: {
+      // When autoscan is disabled, you can still manually scan sources from the web admin console
       enabled: process.env.YB_AUTOSCAN_ENABLED || false,
 
       // How frequently to auto-scan the source for new content

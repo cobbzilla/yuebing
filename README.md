@@ -1,6 +1,9 @@
 Yuebing 🥮
 ==========
 
+# Quick Start
+    yarn docker-run
+
 # Features
 
 * Transform an S3 bucket with videos into a private YouTube-like site for friends and family

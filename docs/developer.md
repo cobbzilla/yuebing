@@ -33,8 +33,13 @@ where configuration and assets will be stored. The rest can be configured from y
 # Run Yuebing with Docker
 
 ## Production
-    yarn docker-build
+Is your `.env` file in good order? Let's run Yuebing!
+
     yarn docker-run
+
+The first time you run this, it will build the docker image. To build the image without launching:
+
+    yarn docker-build
 
 ## Development
 The development docker image is lightweight and quick to build.
@@ -43,8 +48,11 @@ It mounts the yuebing directory inside the container, so we don't have to copy e
 
 The dev container runs `yarn dev` instead of `yarn start`, so we're also able to skip the long `yarn build` step. 
 
-    yarn docker-build-dev
     yarn docker-run-dev
+
+The first time you run this, it will build the docker image. To build the image without launching:
+
+    yarn docker-build-dev
 
 ### Resource limits
 When running the docker dev container, you may run up against some resource limits. A common one that causes
