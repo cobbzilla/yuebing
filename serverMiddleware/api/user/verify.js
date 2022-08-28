@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 
+const c = require('../../../shared')
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
