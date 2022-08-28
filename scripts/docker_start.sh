@@ -7,7 +7,7 @@ ulimit -f unlimited
 echo 1>&2 " *** Starting redis, date=$(date)..."
 redis-server &
 
-sleep 4s # wait for redis logs to fly by
+sleep 2s # wait for redis logs to fly by
 
 ./scripts/ensure_env.sh
 . .env
