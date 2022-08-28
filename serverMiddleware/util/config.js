@@ -85,6 +85,7 @@ const SYSTEM = {
           }
       }
     }
+    console.log(`connect: SYSTEM connected, workDir=${SYSTEM.workbenchDir}`)
     return SYSTEM
   },
   configUpdateHandlers: {},
