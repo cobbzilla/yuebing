@@ -56,7 +56,7 @@
         </v-list-item>
         <v-list-item
           v-if="!loggedIn"
-          to="signInUrl"
+          :to="signInUrl"
           router
           exact
         >
