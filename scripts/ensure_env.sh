@@ -39,6 +39,8 @@ YB_DEST_KEY
 YB_DEST_SECRET
 "
 
+PASSWORDS="YB_ADMIN_PASSWORD YB_DEST_KEY YB_DEST_SECRET"
+
 NOTICE_SHOWN=0
 for req in ${REQUIRED} ; do
   if [ -z "$(grep "${req}" "${ENV_FILE}" | grep -v '#')" ] ; then
@@ -55,7 +57,13 @@ ${req} : $(grep -B1 "${req}" "${BASE_DIR}"/env.example | head -1 | tr -d '#')
 Your value for ${req}: "
     ENV_VALUE=""
     while [ -z "${ENV_VALUE}" ] ; do
-      read -r ENV_VALUE
+      if [ -z "$(echo "${PASSWORDS}" | grep "${req}")" ] ; then
+        read -r ENV_VALUE
+      else
+        stty -echo
+        read -r ENV_VALUE
+        stty echo
+      fi
     done
     echo "export ${req}=${ENV_VALUE}" >> "${ENV_FILE}" || die "Error writing ${req} env var to ${ENV_FILE}"
     chmod 0600 "${ENV_FILE}" || die "Error setting permissions (0600) on ${ENV_FILE}"
