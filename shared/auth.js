@@ -3,8 +3,8 @@ const VERIFY_TOKEN_PARAM = 't'
 const VERIFY_RESET_PARAM = 'r'
 const VERIFY_PASSWORD_PARAM = 'p'
 const VERIFY_ENDPOINT = '/verify'
-
-const PASSWORD_RULES = 'required|min:8'
+const LOGIN_ENDPOINT = '/signIn'
+const REGISTER_ENDPOINT = '/signUp'
 
 module.exports = {
   VERIFY_ENDPOINT,
@@ -12,5 +12,6 @@ module.exports = {
   VERIFY_TOKEN_PARAM,
   VERIFY_RESET_PARAM,
   VERIFY_PASSWORD_PARAM,
-  PASSWORD_RULES
+  LOGIN_ENDPOINT,
+  REGISTER_ENDPOINT
 }

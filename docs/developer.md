@@ -45,3 +45,9 @@ The dev container runs `yarn dev` instead of `yarn start`, so we're also able to
 
     yarn docker-build-dev
     yarn docker-run-dev
+
+### Resource limits
+When running the docker dev container, you may run up against some resource limits. A common one that causes
+problems is the "max filesystem watches" setting. Increase it using `sysctl`:
+
+    sysctl -w fs.inotify.max_user_watches=500000

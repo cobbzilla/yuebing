@@ -44,14 +44,14 @@
         <v-btn
           v-if="allowRegistration"
           class="btn btn-primary"
-          to="/signUp"
+          :to="signUpUrl"
           nuxt
           plain
           right
         >
           {{ messages.button_register }}
         </v-btn>
-        <v-btn class="btn btn-primary" to="/signIn" nuxt plain right>
+        <v-btn class="btn btn-primary" :to="signInUrl" nuxt plain right>
           {{ messages.button_login }}
         </v-btn>
       </v-col>
@@ -70,6 +70,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
+import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
 import { isValidEmail } from '@/shared/validation'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { UI_CONFIG } from '@/services/util'
@@ -91,6 +92,8 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    signInUrl () { return LOGIN_ENDPOINT },
+    signUpUrl () { return REGISTER_ENDPOINT },
     resetSuccess () { return this.userStatus.passwordResetSuccess },
     resetError () { return this.userStatus.passwordResetRequestError },
     disableSendButton () {

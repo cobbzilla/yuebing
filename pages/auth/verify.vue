@@ -20,7 +20,7 @@
             <ValidationObserver ref="form">
               <v-form @submit.prevent="handleSubmit">
                 <div class="form-group">
-                  <ValidationProvider v-slot="{ errors }" name="password" :rules="passwordRules" immediate>
+                  <ValidationProvider v-slot="{ errors }" name="password" :rules="formRules.password" immediate>
                     <v-text-field
                       v-model="password"
                       :label="messages.label_password"
@@ -82,7 +82,8 @@
 import { mapState, mapActions } from 'vuex'
 import { empty } from '@/shared'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
-import { VERIFY_EMAIL_PARAM, VERIFY_TOKEN_PARAM, VERIFY_RESET_PARAM, PASSWORD_RULES } from '@/shared/auth'
+import { VERIFY_EMAIL_PARAM, VERIFY_TOKEN_PARAM, VERIFY_RESET_PARAM } from '@/shared/auth'
+import { condensedRules } from '@/shared/validation'
 import { UI_CONFIG } from '@/services/util'
 
 export default {
@@ -106,7 +107,7 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    passwordRules () { return PASSWORD_RULES },
+    formRules () { return condensedRules() },
     verifyErrorMessage () {
       if (!this.userStatus.verifyError) {
         return null

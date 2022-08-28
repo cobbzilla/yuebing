@@ -294,7 +294,7 @@ function createUserRecord (user, successHandler) {
     const ctx = {
       user,
       token,
-      verifyUrl: system.publicConfig.siteUrl + auth.VERIFY_ENDPOINT +
+      verifyUrl: c.normalizeUrl(system.publicConfig.siteUrl, auth.VERIFY_ENDPOINT) +
         '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
@@ -356,7 +356,7 @@ function sendResetPasswordMessage (user) {
   const ctx = {
     user,
     token,
-    resetPasswordUrl: system.publicConfig.siteUrl + auth.VERIFY_ENDPOINT +
+    resetPasswordUrl: c.normalizeUrl(system.publicConfig.siteUrl, auth.VERIFY_ENDPOINT) +
       '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
       '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token) +
       '&' + auth.VERIFY_RESET_PARAM + '=' + resetShasum(user.email, token)
@@ -378,7 +378,7 @@ async function findUser (email) {
 async function sendInvitations (fromUser, emailList) {
   const ctx = {
     fromUser,
-    inviteLink: system.publicConfig.siteUrl + '/signUp'
+    inviteLink: c.normalizeUrl(system.publicConfig.siteUrl, auth.REGISTER_ENDPOINT)
   }
   const successfulSends = {}
   const failedSends = {}

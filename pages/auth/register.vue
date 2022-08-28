@@ -93,7 +93,7 @@
         </div>
       </v-col>
       <v-col align-self="end">
-        <NuxtLink to="/signIn" class="btn btn-link">
+        <NuxtLink :to="signInUrl" class="btn btn-link">
           {{ messages.button_login }}
         </NuxtLink>
       </v-col>
@@ -110,6 +110,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
+import { LOGIN_ENDPOINT } from '@/shared/auth'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 
@@ -132,6 +133,7 @@ export default {
     ...mapState(['browserLocale', 'publicConfig']),
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    signInUrl () { return LOGIN_ENDPOINT },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
     formRules () { return condensedRules() },
     userLocale () {

@@ -46,7 +46,7 @@
                 <v-btn
                   v-if="allowRegistration"
                   class="btn btn-primary"
-                  to="/signUp"
+                  :to="signUpUrl"
                   nuxt
                   plain
                   right
@@ -73,6 +73,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
+import { REGISTER_ENDPOINT } from '@/shared/auth'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 
 export default {
@@ -88,6 +89,7 @@ export default {
     ...mapState('user', ['userStatus', 'loginError']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    signUpUrl () { return REGISTER_ENDPOINT },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
     loginDisabled () { return this.userStatus.loggingIn || !this.email || !this.password },
     loginErr () { return this.loginError || false }

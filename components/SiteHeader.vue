@@ -56,7 +56,7 @@
         </v-list-item>
         <v-list-item
           v-if="!loggedIn"
-          to="/signIn"
+          to="signInUrl"
           router
           exact
         >
@@ -66,7 +66,7 @@
         </v-list-item>
         <v-list-item
           v-if="!loggedIn && allowRegistration"
-          to="/signUp"
+          :to="signUpUrl"
           router
           exact
         >
@@ -83,6 +83,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
+import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
 import { localeMessagesForUser } from '@/shared/locale'
 
 // noinspection JSUnusedGlobalSymbols
@@ -102,6 +103,8 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    signInUrl () { return LOGIN_ENDPOINT },
+    signUpUrl () { return REGISTER_ENDPOINT },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {

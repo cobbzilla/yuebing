@@ -335,13 +335,13 @@ export default {
     extendRoutes (routes, resolve) {
       routes.push({
         name: 'Sign In',
-        path: '/signIn',
+        path: require(resolve(__dirname, 'shared/auth')).LOGIN_ENDPOINT,
         component: resolve(__dirname, 'pages/auth/login.vue'),
         chunkName: 'pages/auth/login'
       })
       routes.push({
         name: 'Sign Up',
-        path: '/signUp',
+        path: require(resolve(__dirname, 'shared/auth')).REGISTER_ENDPOINT,
         component: resolve(__dirname, 'pages/auth/register.vue'),
         chunkName: 'pages/auth/register'
       })

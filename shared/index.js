@@ -29,6 +29,11 @@ function proxyMediaUrl (asset, user, status) {
   return `${STREAM_API}/${asset}${sessionParams(user, status)}`
 }
 
+function normalizeUrl (base, path) {
+  return (base.endsWith('/') ? base : base + '/') +
+    (path.startsWith('/') ? path.substring(1) : path)
+}
+
 const HTTP_INVALID_REQUEST_MESSAGE = 'http_invalid_request_method'
 
 const okl = obj => typeof obj === 'object' ? Object.keys(obj).length : 0
@@ -78,5 +83,6 @@ module.exports = {
   snooze,
   getExtension,
   sessionParams,
+  normalizeUrl,
   proxyMediaUrl
 }
