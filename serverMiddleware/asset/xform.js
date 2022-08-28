@@ -442,14 +442,14 @@ async function ensureSourceDownloaded (job) {
           if (head && head.size && head.size === downloadSize) {
             const existingSize = util.statSize(file)
             if (existingSize === head.size) {
-              console.log(`ensureSourceDownload: successfully downloaded source file, but someone else beat us to it: ${file}`)
+              console.log(`ensureSourceDownload: successfully downloaded source file, but someone else beat us to it (using their file): ${file}`)
               fs.rmSync(tempFile)
             } else {
               console.log(`ensureSourceDownload: renaming temp download ${tempFile} -> ${file}`)
               fs.renameSync(tempFile, file)
+              console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
+              q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
             }
-            console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
-            q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
             return file
           }
           let message
