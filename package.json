@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -14,6 +14,9 @@
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "lintfix": "yarn lint:js --fix"
+  },
+  "bin": {
+    "yuebing": "./yuebing"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.141.0",
