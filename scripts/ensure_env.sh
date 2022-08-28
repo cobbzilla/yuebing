@@ -9,6 +9,7 @@ Welcome to Yuebing!
 =====================================================================
 GitHub: https://github.com/cobbzilla/yuebing
 npm: https://www.npmjs.com/package/yuebing
+DockerHub: https://hub.docker.com/repository/docker/cobbzilla/yuebing
 =====================================================================
 Looks like this is the first time you are launching Yuebing!
 

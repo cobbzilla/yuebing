@@ -6,15 +6,47 @@ It uses Amazon S3 as the backend storage system, and sports many advanced featur
 ### Source
 * [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
 * [yuebing on npm](https://www.npmjs.com/package/yuebing)
+* [yuebing on DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
 # Contents
+* [Inspiration](#Inspiration)
 * [Features](#Features)
 * [Installation and usage](#Installation-and-usage)
+  * [Docker](#Docker)
   * [npm package](#npm-package)
   * [From source](#From-source)
 * [Configuration](#Configuration)
   * [nginx config](#nginx-config)
 * [Why Yuebing?](#Why-yuebing?)
+
+## Inspiration
+Last year my mom spent a ton of time (and money!) to organize and digitize an archive of old family videos.
+Some of these were quite old, going back to the 1950's. Really beautiful, classic stuff.
+
+We wanted to privately share these with family, but *not with big tech*.
+Going with "free" video hosting from a major provider was off the table.
+
+What we were looking for:
+* Self-hosted, but totally **hands-off easy** to run and maintain
+* Supported the latest (or at least recently decent) video streaming formats, including adaptive bitrate
+* Videos play on any device, desktop or mobile
+* Encrypted storage, thus able to use public cloud storage solutions with some confidence
+* Essentially "stateless", store all important stuff in one place that is highly resilient (like S3)
+  * **I don't want to worry about backups!**
+  * (This was a nice to have. As it turns out nothing out there has anything like this. Yuebing does!)
+* After running a beefy instance to transcode everything, tear it down and run something very cheap long-run
+  * You can run Yuebing for under $10/month; less down the road as we optimize Yuebing's footprint
+
+I took a couple of weeks to survey what was out there. I started to greatly relax my requirements, and still
+could find nothing decent. I looked at several open source projects, I'm not saying which because they all had
+multiple glaring flaws.
+
+So, I decided, how hard could it be? You wire up S3 to ffmpeg, put a decently modern frontend on it, and you're done,
+right?
+
+.... uh, OK, I'm about a month in at this point, but it's too much fun! I hope you enjoy it too!
+
+### **Let's make self-hosting video sites super-easy!**
 
 ## Features
 * Transform an S3 bucket with videos into a private video site for friends and family!
@@ -37,6 +69,8 @@ It uses Amazon S3 as the backend storage system, and sports many advanced featur
   * Support for more media types (audio, images, etc)
   * Likes and comments
   * User-uploaded media
+  * New "source type": Another Yuebing instance!
+    * Federation between friendly instances: unified search, user accounts, etc
 
 ## Anonymous user feature (if the site has been configured to allow anonymous visitors)
 * Browse/search media
@@ -68,7 +102,12 @@ It uses Amazon S3 as the backend storage system, and sports many advanced featur
   * If encryption key is changed, admin can migrate users to the new key with web admin console
 
 ## Installation and usage
-You can install and run `yuebing` via npm or directly from source.
+You can install and run `yuebing` via docker, npm or directly from source.
+
+### Docker
+If you have docker, you can get started with Yuebing quickly:
+
+    docker run -it cobbzilla/yuebing
 
 ### npm package
     # install globally with npm
@@ -105,7 +144,7 @@ If you plan on running Yuebing for a while, see the [configuration docs](./docs/
 more info on how to set things up.
 
 ### nginx config
-Yuebing is merely Nuxt app, and expects that you'll put nginx (or some other web server) in
+Yuebing is merely a Nuxt app, and expects that you'll put nginx (or some other web server) in
 front of it to handle SSL, rate limiting if needed, etc.
 
 If you're using nginx, here is a [sample config](./docs/sample-yuebing-nginx.conf) you can use.
@@ -113,7 +152,8 @@ If you're using nginx, here is a [sample config](./docs/sample-yuebing-nginx.con
 ## Why yuebing?
 [Oolong the rabbit](https://en.wikipedia.org/wiki/Oolong_(rabbit)) was an adorable and famous
 [early internet meme](https://duckduckgo.com/?q=oolong+rabbit&ia=images&iax=images). Oolong died in 2003,
-two years before a certain massively popular video service even existed.
+two years before a certain massively popular video service even existed!
+
 Oolong's successor was named Yuebing. Yuebing wasn't nearly as famous as Oolong, but did that even matter?
 Yuebing succeeded nonetheless.
 
@@ -121,4 +161,4 @@ Perhaps more interestingly, yuebing means [mooncake](https://en.wikipedia.org/wi
 (Chinese: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
 Japanese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); mooncakes are very tasty and can be found in
 a wide variety of flavors and styles. Enjoy a time-honored regional style, or try an exotic cake from contemporary
-bakers who are exploring deliciously uncharted territory! There is truly something for everyone!
+bakers who are exploring deliciously uncharted territory! There is truly a yuebing for everyone!
