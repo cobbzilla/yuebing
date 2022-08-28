@@ -22,8 +22,6 @@ if [[ -z "$(docker image ls | grep "${DOCKER_REPO}" | grep "${DOCKER_TAG}")" ]] 
   yarn docker-build-dev || die "Error building docker dev image"
 fi
 
-"${SCRIPT_DIR}"/check_required_env.sh || die "Not all required environment variables are defined"
-
 YB_WORK_DIR=$("${SCRIPT_DIR}"/ensure_work_dir.sh "${BASE_DIR}")
 if [[ -z "${YB_WORK_DIR}" ]] ; then
   die "Error initializing YB_WORK_DIR"

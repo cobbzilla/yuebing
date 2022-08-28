@@ -1,12 +1,29 @@
 Yuebing 🥮
 ==========
+Yuebing is a private video hosting service. It uses Amazon S3 as the backend storage system.
 
-# Quick Start
-    yarn docker-run
+### Source
+* [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
+* [yuebing on npm](https://www.npmjs.com/package/yuebing)
+
+## Fast Start
+    ./yuebing
+
+## Running from Source
+To build/run from source, you'll need:
+* node v16+
+* yarn
+
+Then run:
+
+    yarn install
+    yarn docker-run-dev    # Fastest build & startup, dev docker image
+    yarn docker-run        # Faster at runtime, production docker image
+
+See the [developer docs](./docs/developer.md) for more info
 
 # Features
-
-* Transform an S3 bucket with videos into a private YouTube-like site for friends and family
+* Transform an S3 bucket with videos into a private video site for friends and family
 * Give it a destination bucket to write to, point it at a source bucket, and let it run
 * ALL data is stored in the destination bucket, so you can destroy the container and bring it up later
   * Useful for running initially on a CPU-optimized instance for the initial transformation, then run \

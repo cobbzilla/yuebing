@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-function show_notice () {
+show_notice () {
   echo "
 =====================================================================
 Welcome to Yuebing!
@@ -24,7 +24,7 @@ If you want to get started fast:
   "
 }
 
-function die () {
+die () {
   echo >&2 "${0}: ${1}"
   exit 1
 }
@@ -41,8 +41,8 @@ YB_DEST_SECRET
 
 NOTICE_SHOWN=0
 for req in ${REQUIRED} ; do
-  if [[ -z "$(grep "${req}" "${ENV_FILE}" | grep -v '#')" ]] ; then
-    if [[ ${NOTICE_SHOWN} -eq 0 ]] ; then
+  if [ -z "$(grep "${req}" "${ENV_FILE}" | grep -v '#')" ] ; then
+    if [ ${NOTICE_SHOWN} -eq 0 ] ; then
       show_notice
       NOTICE_SHOWN=1
     fi
@@ -54,7 +54,7 @@ ${req} : $(grep -B1 "${req}" "${BASE_DIR}"/env.example | head -1 | tr -d '#')
 -------------------------------------------------------------------------------
 Your value for ${req}: "
     ENV_VALUE=""
-    while [[ -z "${ENV_VALUE}" ]] ; do
+    while [ -z "${ENV_VALUE}" ] ; do
       read -r ENV_VALUE
     done
     echo "export ${req}=${ENV_VALUE}" >> "${ENV_FILE}" || die "Error writing ${req} env var to ${ENV_FILE}"
