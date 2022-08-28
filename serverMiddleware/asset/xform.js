@@ -423,6 +423,15 @@ async function ensureSourceDownloaded (job) {
   for (let i = 1; i <= MAX_TRIES; i++) {
     const attemptPrefix = `${jobPrefix}_download_attempt_${i}`
     try {
+      if (head !== null) {
+        // check temp file again, it may already exist
+        const size = util.statSize(file)
+        if (size !== -1 && head.size && head.size === size) {
+          console.log(`ensureSourceDownload: before downloaded source file, it already correctly exists, using it: ${file}`)
+          q.recordJobEvent(job, `${jobPrefix}_download_using_cached_source_attempt_${i}`)
+          return file
+        }
+      }
       const tempFile = `${file}.ensureSourceDownload_${Date.now()}_${randomstring.generate(4)}`
       const f = fs.createWriteStream(tempFile)
       const counter = { count: 0 }
