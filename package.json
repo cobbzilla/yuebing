@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -13,7 +13,11 @@
     "docker-run-dev": "bash -c \"docker run -it --ulimit nofile=500000:500000 --mount type=bind,source=\"$(pwd)\",target=/usr/src/yuebing --env-file <(sed -e 's/^export //' < .env) --env HOST=0.0.0.0 --publish 127.0.0.1:3000:3000/tcp yuebing:nuxt-dev\"",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "lintfix": "yarn lint:js --fix"
+    "lintfix": "yarn lint:js --fix",
+    "yuebing": "node index.js"
+  },
+  "bin": {
+    "yuebing": "./yuebing"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.141.0",
