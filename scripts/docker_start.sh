@@ -4,16 +4,18 @@ set -e
 
 ulimit -f unlimited
 
-echo 1>&2 " *** Starting redis ..."
+echo 1>&2 " *** Starting redis, date=$(date)..."
 redis-server &
+
+sleep 4s # wait for redis logs to fly by
 
 ./scripts/ensure_env.sh
 . .env
 
 if [ -n "${1}" ] && [ "${1}" = "dev" ] ; then
-  echo 1>&2 " *** Starting nuxt (dev) ..."
+  echo 1>&2 " *** Starting nuxt (dev), date=$(date) ..."
   yarn dev
 else
-  echo 1>&2 " *** Starting nuxt (production) ..."
+  echo 1>&2 " *** Starting nuxt (production), date=$(date) ..."
   yarn start
 fi
