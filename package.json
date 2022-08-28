@@ -14,7 +14,7 @@
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "lintfix": "yarn lint:js --fix",
-    "yuebing": "node index.js"
+    "yuebing": "node scripts/launcher.js"
   },
   "bin": {
     "yuebing": "./yuebing"

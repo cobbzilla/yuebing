@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 
 const c = require('../../../shared')
 const auth = require('../../../shared/auth')
+const valid = require('../../../shared/validation')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
@@ -48,7 +49,7 @@ export default {
           if (resetPasswordHash) {
             // set password so we can validate it
             user.password = password
-            const errors = u.validateUser(user)
+            const errors = valid.validate(user)
             if (!c.empty(errors)) {
               return api.validationFailed(res, errors)
             }
