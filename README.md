@@ -30,12 +30,14 @@ What we were looking for:
 * Self-hosted, but totally **hands-off easy** to run and maintain
 * Supported the latest (or at least recently decent) video streaming formats, including adaptive bitrate
 * Videos play on any device, desktop or mobile
+* With a high-bandwidth connection, video quality is awesome; as good as it gets
+  * **Even with a crappy connection**, playback is decent quality and *doesn't skip or buffer*
 * Encrypted storage, thus able to use public cloud storage solutions with some confidence
-* Essentially stateless, store all important stuff in one place that is highly resilient (like S3)
+* Stateless server: persist anything important to storage that is highly resilient (perhaps S3?)
   * **I don't want to worry about backups!**
-  * (This was a nice to have. As it turns out nothing out there has anything like this. Yuebing does!)
-* After running a beefy instance to transcode everything, tear it down and run something very cheap long-run
-  * You can run Yuebing for under $10/month; less down the road as we optimize Yuebing's footprint
+  * *This was a nice to have. As it turns out nothing out there has anything like this. Yuebing does!*
+* After running a beefy instance to transcode everything, tear it down and run something cheaper for the long-run
+  * You can run Yuebing for under $10/month; and hopefully even less down the road as we optimize Yuebing's footprint
 
 I took a couple of weeks to survey what was out there. I started to greatly relax my requirements, and still
 could find nothing decent. I looked at several open source projects, I'm not saying which because they all had
