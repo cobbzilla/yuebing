@@ -411,6 +411,12 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     mode: 'production',
-    transpile: ['vee-validate/dist/rules']
+    transpile: ['vee-validate/dist/rules'],
+    extend (config) {
+      config.module.rules.push({
+        test: /^README.md$/i,
+        use: 'ignore-loader'
+      })
+    }
   }
 }
