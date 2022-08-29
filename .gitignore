@@ -92,3 +92,4 @@ sw.*
 # other temp files
 tmp
 *~
+dump.rdb

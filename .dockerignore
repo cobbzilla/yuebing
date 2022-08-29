@@ -7,3 +7,4 @@ tmp
 .cache
 /logs
 *.log
+dump.rdb
