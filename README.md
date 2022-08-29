@@ -48,7 +48,7 @@ right?
 
 .... uh, OK, I'm about a month in at this point, but it's too much fun! I hope you enjoy it too!
 
-### **Let's make self-hosting video sites super-easy!**
+### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Let's make self-hosting video sites super-easy!**</a>
 
 ## Features
 * Transform an S3 bucket with videos into a private video site for friends and family!
