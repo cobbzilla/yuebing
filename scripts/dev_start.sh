@@ -8,7 +8,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DOCKER_REPO="cobbzilla/yuebing"
+DOCKER_REPO="cobbzilla/yuebing-dev"
 DOCKER_TAG="latest"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
 

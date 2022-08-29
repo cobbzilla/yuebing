@@ -8,7 +8,7 @@ const ACCOUNT_NOT_FOUND = { email: ['accountNotFound'] }
 export default {
   path: '/api/user/authenticate',
   handler (req, res) {
-    logger.log(`>>>>> API: Authenticate ${req.url} ....`)
+    logger.info(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
       if (typeof loginRequest.email === 'string' && loginRequest.email.length > 1) {

@@ -17,7 +17,7 @@ export default {
         results => api.okJson(res, results),
         (err) => {
           const message = `users: findUsers error: ${err}`
-          logger.log(message)
+          logger.info(message)
           return api.serverError(res, message)
         }
       )

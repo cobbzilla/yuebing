@@ -79,7 +79,7 @@ export default {
           }
         },
         (err) => {
-          logger.log(`verify: findUser error: ${err}`)
+          logger.info(`verify: findUser error: ${err}`)
           return api.validationFailed(res, { email: ['invalid'] })
         })
     })

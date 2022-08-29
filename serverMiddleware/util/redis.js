@@ -65,7 +65,7 @@ setTimeout(() => {
   if (redisConfig.flushAtStartup) {
     // start with an empty redis
     flushall().then(
-      () => { logger.log(' ***** redis: FLUSHED *****') },
+      () => { logger.info(' ***** redis: FLUSHED *****') },
       (err) => {
         if (err) { logger.error(` ***** redis: ERROR calling flushall: ${err}`) }
       })

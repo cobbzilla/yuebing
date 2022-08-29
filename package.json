@@ -1,14 +1,14 @@
 {
   "name": "yuebing",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "docker-build": "docker build -t yuebing:nuxt .",
+    "docker-build": "docker build -t cobbzilla/yuebing:latest .",
     "docker-run": "scripts/prod_start.sh",
-    "docker-build-dev": "docker build -t yuebing:nuxt-dev -f Dockerfile.dev .",
+    "docker-build-dev": "docker build -t cobbzilla/yuebing-dev:latest -f Dockerfile.dev .",
     "docker-run-dev": "scripts/dev_start.sh",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",

@@ -34,7 +34,7 @@ export default {
               api.okJson(res, info)
             })
             .catch((err) => {
-              logger.log(`error writing mediainfo file ${infoPath}: ${err}`)
+              logger.info(`error writing mediainfo file ${infoPath}: ${err}`)
               return api.serverError(res, 'error writing mediainfo file')
             })
         })
