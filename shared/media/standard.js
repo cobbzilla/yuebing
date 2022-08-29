@@ -4,7 +4,7 @@ export default {
 
   operations: {
     mediainfo: {
-      minFileSize: 512 // 512 bytes, very conservative. Even an essentially empty file clocks in just over 2k
+      minFileSize: 64 // 64 bytes, very conservative. Even an essentially empty file clocks in just over 2k
     }
   },
 

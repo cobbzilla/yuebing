@@ -18,7 +18,7 @@ const q = require('./job')
 
 const MAX_XFORM_ERRORS = 3
 
-const SHOW_XFORM_OUTPUT = system.privateConfig.autoscan.showTransformOutput
+const showTransformOutput = () => system.privateConfig.autoscan.showTransformOutput
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
   ensureSourceDownloaded(job).then((file) => {
@@ -86,7 +86,7 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
           throw err
         }
       })
-    } else if (SHOW_XFORM_OUTPUT) {
+    } else if (showTransformOutput()) {
       logger.debug(`stdout >>>>>> ${data}`)
     }
   })
@@ -99,7 +99,7 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
           throw err
         }
       })
-    } else if (SHOW_XFORM_OUTPUT) {
+    } else if (showTransformOutput()) {
       logger.debug(`stdout >>>>>> ${data}`)
     }
   })
@@ -244,6 +244,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
 
     if (profile.multiFile) {
       const outfilePrefix = multifilePrefix(outfile)
+      logger.debug(`${logPrefix} MULTI-FILE: globbing multifilePrefix=${outfilePrefix}`)
       await glob(outfilePrefix + '*', async (err, files) => {
         logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
         if (err) {
@@ -268,6 +269,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
       // stat the outfile -- it should be at least a minimum size
       const outfileSize = util.statSize(outfile)
       const minAssetSize = m.minFileSize(sourcePath, profile.operation)
+      logger.debug(`${logPrefix} SINGLE-FILE: comparing outfileSize=${outfileSize} < minAssetSize=${minAssetSize}`)
       if (outfileSize < minAssetSize) {
         util.deleteFile(outfile)
         const message = `${logPrefix} profile/operation ${profile.name}/${profile.operation} (min size ${minAssetSize} not met) for outfile ${outfile}`
