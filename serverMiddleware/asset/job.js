@@ -12,7 +12,12 @@ const QUEUED_PATHS = {}
 const redisConfig = system.privateConfig.redis
 const MAX_CONCURRENCY = system.privateConfig.autoscan.concurrency
 
+const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
+
 function cleanupWorkingDir (sourcePath) {
+  if (!cleanupTemporaryAssets()) {
+    logger.warn(`cleanupWorkingDir(${sourcePath}): cleanup disabled, retaining directory`)
+  }
   const workingDir = system.workingDir(sourcePath)
   try {
     fs.rmSync(workingDir, { force: true, recursive: true })

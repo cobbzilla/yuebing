@@ -19,6 +19,7 @@ const q = require('./job')
 const MAX_XFORM_ERRORS = 3
 
 const showTransformOutput = () => system.privateConfig.autoscan.showTransformOutput
+const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
   ensureSourceDownloaded(job).then((file) => {
@@ -122,6 +123,10 @@ function multifilePrefix (outfile) {
 }
 
 function deleteLocalFiles (outfile, profile, job, jobPrefix) {
+  if (!cleanupTemporaryAssets()) {
+    logger.warn(`deleteLocalFiles: deletion disabled, retaining outfile(s) ${outfile} for profile ${profile}`)
+    return
+  }
   if (profile.multiFile) {
     const outfilePrefix = multifilePrefix(outfile)
     glob(outfilePrefix + '*', (err, files) => {

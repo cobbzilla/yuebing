@@ -277,6 +277,10 @@ export default {
       // Show stdout/stderr from transform commands? It is a LOT of output (ffmpeg for example)
       showTransformOutput: false,
 
+      // Delete temp files after transforming media.
+      // It can be useful to disable this when debugging problematic media transforms
+      cleanupTemporaryAssets: true,
+
       // How many concurrent transformations can be done
       concurrency: process.env.YB_AUTOSCAN_XFORM_CONCURRENCY || 2,
 
@@ -302,6 +306,11 @@ export default {
           rules: 'required',
           format: 'flag',
           default: false
+        },
+        cleanupTemporaryAssets: {
+          rules: 'required',
+          format: 'flag',
+          default: true
         },
         concurrency: {
           rules: 'required|integer|min_value:1|max_value:10000',
