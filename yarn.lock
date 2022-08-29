@@ -8050,9 +8050,9 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mobiletto@^1.0.2:
-  version "1.0.39"
-  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.39.tgz#e893fef2458051b310a3f0ecfff036402a140c5f"
-  integrity sha512-V0nVk5Dceg8r+oHultY2GbBnSfbKh+wuofX9bETUga0DhrQbQNwpYes5QNt6lwPKjDwxxJ0KekwKMqATCj4Omg==
+  version "1.0.40"
+  resolved "https://registry.yarnpkg.com/mobiletto/-/mobiletto-1.0.40.tgz#7cec70622097b80729d21b562f42cba6df3d7547"
+  integrity sha512-kQOg9dsQ2oPSshau7LdrD+C4Nh0jN6K2t1v/ubJ0ueQrErwLWK23S7SXtVHXsWLcErrKPTgR7XXcPbO2kJ0oIQ==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"
