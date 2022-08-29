@@ -20,6 +20,7 @@ const MAX_XFORM_ERRORS = 3
 
 const showTransformOutput = () => system.privateConfig.autoscan.showTransformOutput
 const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
+const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
   ensureSourceDownloaded(job).then((file) => {
@@ -164,7 +165,11 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     const message = `uploadAsset(${destPath}): error uploading asset (upload failed)`
     logger.error(message)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset`, destPath)
-    await system.api.remove(destPath)
+    if (deleteIncompleteUploads()) {
+      await system.api.remove(destPath)
+    } else {
+      logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+    }
     return message
   } else {
     setTimeout(async () => {
@@ -181,7 +186,11 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
         const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
         logger.error(message)
         q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
-        await system.api.remove(destPath)
+        if (deleteIncompleteUploads()) {
+          await system.api.remove(destPath)
+        } else {
+          logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+        }
         return message
       }
     }, UPLOAD_CONFIRM_DELAY)

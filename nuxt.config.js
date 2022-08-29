@@ -281,6 +281,10 @@ export default {
       // It can be useful to disable this when debugging problematic media transforms
       cleanupTemporaryAssets: true,
 
+      // Delete incomplete uploads
+      // It can be useful to disable this when debugging problematic storage
+      deleteIncompleteUploads: true,
+
       // How many concurrent transformations can be done
       concurrency: process.env.YB_AUTOSCAN_XFORM_CONCURRENCY || 2,
 
@@ -308,6 +312,11 @@ export default {
           default: false
         },
         cleanupTemporaryAssets: {
+          rules: 'required',
+          format: 'flag',
+          default: true
+        },
+        deleteIncompleteUploads: {
           rules: 'required',
           format: 'flag',
           default: true
