@@ -8,8 +8,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DOCKER_REPO="cobbzilla"
-DOCKER_TAG="yuebing"
+DOCKER_REPO="cobbzilla/yuebing"
+DOCKER_TAG="latest"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
 
 function die () {
@@ -19,7 +19,7 @@ function die () {
 
 if [[ -z "$(docker image ls | grep "${DOCKER_REPO}" | grep "${DOCKER_TAG}")" ]] ; then
   cd "${BASE_DIR}" || die "Error trying to change directories to ${BASE_DIR}"
-  docker build -t yuebing:nuxt . || die "Error building docker production image"
+  docker build -t ${DOCKER_REPO}:${DOCKER_TAG} . || die "Error building docker production image"
 fi
 
 YB_WORK_DIR=$("${SCRIPT_DIR}"/ensure_work_dir.sh "${BASE_DIR}")
