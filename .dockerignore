@@ -1,1 +1,9 @@
 .env
+*~
+tmp
+.idea
+*.iml
+.DS_Store
+.cache
+/logs
+*.log
