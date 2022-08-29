@@ -31,7 +31,7 @@ What we were looking for:
 * Supported the latest (or at least recently decent) video streaming formats, including adaptive bitrate
 * Videos play on any device, desktop or mobile
 * Encrypted storage, thus able to use public cloud storage solutions with some confidence
-* Essentially "stateless", store all important stuff in one place that is highly resilient (like S3)
+* Essentially stateless, store all important stuff in one place that is highly resilient (like S3)
   * **I don't want to worry about backups!**
   * (This was a nice to have. As it turns out nothing out there has anything like this. Yuebing does!)
 * After running a beefy instance to transcode everything, tear it down and run something very cheap long-run
