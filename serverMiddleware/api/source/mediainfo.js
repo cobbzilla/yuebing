@@ -1,4 +1,6 @@
 const system = require('../../util/config').SYSTEM
+const logger = system.logger
+
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
@@ -32,7 +34,7 @@ export default {
               api.okJson(res, info)
             })
             .catch((err) => {
-              console.log(`error writing mediainfo file ${infoPath}: ${err}`)
+              logger.log(`error writing mediainfo file ${infoPath}: ${err}`)
               return api.serverError(res, 'error writing mediainfo file')
             })
         })

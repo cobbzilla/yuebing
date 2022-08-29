@@ -1,5 +1,7 @@
 const fs = require('fs')
 const shasum = require('shasum')
+const system = require('./config').SYSTEM
+const logger = system.logger
 
 function statSize (file) {
   const stats = fs.statSync(file, { throwIfNoEntry: false })
@@ -12,7 +14,7 @@ function statSize (file) {
 function deleteFile (path) {
   fs.unlink(path, (err) => {
     if (err) {
-      console.error('Error deleting path: ' + path)
+      logger.error('Error deleting path: ' + path)
     }
   })
 }

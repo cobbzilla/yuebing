@@ -1,12 +1,14 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 const ACCOUNT_NOT_FOUND = { email: ['accountNotFound'] }
 
 export default {
   path: '/api/user/authenticate',
   handler (req, res) {
-    console.log(`>>>>> API: Authenticate ${req.url} ....`)
+    logger.log(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
       if (typeof loginRequest.email === 'string' && loginRequest.email.length > 1) {
@@ -23,21 +25,21 @@ export default {
                     api.okJson(res, sessionUser)
                   },
                   (error) => {
-                    console.error(`>>>>> API: Authenticate: error starting session: ${error}`)
+                    logger.error(`>>>>> API: Authenticate: error starting session: ${error}`)
                     api.serverError(res, `Error: ${error}`)
                   })
               } else {
-                console.log(`>>>>> API: Authenticate: wrong password (ok was ${ok})`)
+                logger.info(`>>>>> API: Authenticate: wrong password (ok was ${ok})`)
                 return api.validationFailed(res, ACCOUNT_NOT_FOUND)
               }
             },
             (err) => {
-              console.log(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
+              logger.info(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
               return api.validationFailed(res, ACCOUNT_NOT_FOUND)
             })
           },
           (err) => {
-            console.error(`>>>>> API: Authenticate: error reading user record: ${JSON.stringify(err)}`)
+            logger.error(`>>>>> API: Authenticate: error reading user record: ${JSON.stringify(err)}`)
             return api.validationFailed(res, ACCOUNT_NOT_FOUND)
           }
         )

@@ -1,9 +1,18 @@
 const path = require('path')
+const winston = require('winston')
 const vv = require('vee-validate')
 const storage = require('mobiletto')
 const shasum = require('shasum')
 const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
+
+const logger = winston.createLogger({
+  level: process.env.YB_LOG_LEVEL || 'warn',
+  format: winston.format.simple(),
+  transports: process.env.YB_LOG_FILE
+    ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
+    : [new winston.transports.Console()]
+})
 
 const key = process.env.YB_DEST_KEY
 const secret = process.env.YB_DEST_SECRET
@@ -35,6 +44,7 @@ function isMatch (obj, prefix, matches) {
 }
 
 const SYSTEM = {
+  logger,
   api: null,
   source: { name: c.SELF_SOURCE_NAME },
   publicConfig: {},
@@ -55,7 +65,7 @@ const SYSTEM = {
       const userInfoJson = await SYSTEM.api.readFile(SYSTEM.userMediaInfoPath(sourceName, pth))
       return JSON.parse(userInfoJson)
     } catch (e) {
-      console.warn(`userMediaInfo(${sourceName}, ${pth}): ${e} (${JSON.stringify(e)})`)
+      logger.warn(`userMediaInfo(${sourceName}, ${pth}): ${e} (${JSON.stringify(e)})`)
     }
   },
   connect: async () => {
@@ -69,7 +79,7 @@ const SYSTEM = {
         try {
           storedConfig = JSON.parse(await SYSTEM.api.readFile(configFile))
         } catch (e) {
-          console.log(`config: error reading stored config (${configFile}): ${JSON.stringify(e)}`)
+          logger.info(`config: error reading stored config (${configFile}): ${JSON.stringify(e)}`)
           storedConfig = {}
         }
         const merged = SYSTEM[`${config}Config`] = Object.assign({}, nuxt[`${config}RuntimeConfig`], storedConfig)
@@ -85,7 +95,7 @@ const SYSTEM = {
           }
       }
     }
-    console.log(`connect: SYSTEM connected, workDir=${SYSTEM.workbenchDir}`)
+    logger.info(`connect: SYSTEM connected, workDir=${SYSTEM.workbenchDir}`)
     return SYSTEM
   },
   configUpdateHandlers: {},
@@ -151,14 +161,14 @@ const SYSTEM = {
     if (c.empty(errors)) {
       for (const topLevel of Object.keys(newConfig)) {
         if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(updatedConfig[topLevel])) {
-          console.log(`updateConfig(${topLevel}): not changed, not writing to storage`)
+          logger.info(`updateConfig(${topLevel}): not changed, not writing to storage`)
         } else {
           await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(updatedConfig[topLevel]))
           SYSTEM[topLevel] = updatedConfig[topLevel]
           for (const handler of updateHandlers) {
             handler()
           }
-          console.log(`updateConfig(${topLevel}): SAVED NEW CONFIG`)
+          logger.info(`updateConfig(${topLevel}): SAVED NEW CONFIG`)
         }
       }
     }
@@ -177,15 +187,15 @@ const SYSTEM = {
   recordError: async (sourcePath, profile, error) => {
     const path = SYSTEM.assetsDir(sourcePath) + c.ERROR_FILE_PREFIX + profile + '_' + Date.now()
     await SYSTEM.api.writeFile(path, `${error}`)
-    console.log(`recordError: recorded: ${path} = ${error}`)
+    logger.info(`recordError: recorded: ${path} = ${error}`)
   },
   clearErrors: async (path, profile) => {
     const prefix = SYSTEM.assetsDir(path)
-    console.log(`clearErrors(${path}, ${profile}): looking for files with prefix: ${prefix}`)
+    logger.info(`clearErrors(${path}, ${profile}): looking for files with prefix: ${prefix}`)
     const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     if (files && files.length ? files.length : 0) {
       files.forEach((file) => {
-        console.log(`clearErrors(${path}, ${profile}): deleting: ${file.name}`)
+        logger.info(`clearErrors(${path}, ${profile}): deleting: ${file.name}`)
         SYSTEM.api.remove(file.name)
       })
     }
@@ -194,13 +204,13 @@ const SYSTEM = {
     const prefix = SYSTEM.assetsDir(sourcePath)
     const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
     const count = files && files.length ? files.length : 0
-    console.log(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
+    logger.info(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
     return count
   },
   touchLastModified: async (sourcePath) => {
     const path = SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE
     await SYSTEM.api.writeFile(path, '' + Date.now())
-    console.log(`touchLastModified: touched: ${path}`)
+    logger.info(`touchLastModified: touched: ${path}`)
   }
 }
 

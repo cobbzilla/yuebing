@@ -6,6 +6,7 @@ const m = require('../../shared/media')
 const s = require('../../shared/source')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 const redis = require('../util/redis')
 
 setLogLevel('silly')
@@ -119,7 +120,7 @@ async function createSource (source) {
       flushListCache()
     }
   } catch (e) {
-    console.log(`createSource: error writing source file: ${e}`)
+    logger.warn(`createSource: error writing source file: ${e}`)
     throw e
   }
 }
@@ -138,7 +139,7 @@ async function deleteSource (name) {
       flushListCache()
     }
   } catch (e) {
-    console.log(`createSource: error writing source file: ${e}`)
+    logger.warn(`createSource: error writing source file: ${e}`)
     throw e
   }
 }
@@ -172,7 +173,7 @@ const objectListCacheKey = req => `${OBJECT_LIST_CACHE_PREFIX}${req.url}`
 
 function flushListCache () {
   redis.removeMatchingKeys(OBJECT_LIST_CACHE_PREFIX + '*').then((results) => {
-    console.log(`flushListCache: flushed ${results.length ? results.length : '(undefined)'} list cache entries`)
+    logger.info(`flushListCache: flushed ${results.length ? results.length : '(undefined)'} list cache entries`)
   })
 }
 

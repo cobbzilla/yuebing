@@ -11,6 +11,7 @@ const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 const src = require('../source/sourceUtil')
 const manifest = require('./manifest')
 const q = require('./job')
@@ -81,12 +82,12 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
     if (saveStdout) {
       stream.write(data, (err) => {
         if (err) {
-          console.log(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
+          logger.debug(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
           throw err
         }
       })
     } else if (SHOW_XFORM_OUTPUT) {
-      console.log(`stdout >>>>>> ${data}`)
+      logger.debug(`stdout >>>>>> ${data}`)
     }
   })
 
@@ -94,17 +95,17 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
     if (saveStderr) {
       stream.write(data, (err) => {
         if (err) {
-          console.log(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
+          logger.debug(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
           throw err
         }
       })
     } else if (SHOW_XFORM_OUTPUT) {
-      console.log(`stdout >>>>>> ${data}`)
+      logger.debug(`stdout >>>>>> ${data}`)
     }
   })
 
   xform.on('close', (code) => {
-    console.log(`${logPrefix}  exited with code ${code}`)
+    logger.debug(`${logPrefix}  exited with code ${code}`)
     q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
     closeHandler(code)
   })
@@ -114,7 +115,7 @@ function multifilePrefix (outfile) {
   const placeholder = outfile.lastIndexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
     const message = `multifilePrefix: expected to find placeholder (${c.MULTIFILE_PLACEHOLDER}) in outfile: ${outfile}`
-    console.error(message)
+    logger.error(message)
     throw new TypeError(message)
   }
   return outfile.substring(0, placeholder)
@@ -125,7 +126,7 @@ function deleteLocalFiles (outfile, profile, job, jobPrefix) {
     const outfilePrefix = multifilePrefix(outfile)
     glob(outfilePrefix + '*', (err, files) => {
       if (err) {
-        console.error(`deleteLocalFiles: glob error: ${err}`)
+        logger.error(`deleteLocalFiles: glob error: ${err}`)
         return
       }
       files.forEach((f) => {
@@ -149,12 +150,12 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   const outfileSize = util.statSize(outfile)
   const destPath = system.assetsDir(sourcePath) + path.basename(outfile)
   const fileUp = fs.createReadStream(outfile)
-  console.log(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
+  logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
 
   if (await system.api.write(destPath, fileUp) == null) {
     const message = `uploadAsset(${destPath}): error uploading asset (upload failed)`
-    console.error(message)
+    logger.error(message)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset`, destPath)
     await system.api.remove(destPath)
     return message
@@ -163,14 +164,14 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     const head = await system.api.safeMetadata(destPath)
     if (head && head.size && head.size === outfileSize) {
       // upload success!
-      console.log(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
+      logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
       await system.touchLastModified(sourcePath)
       await redis.del(util.redisMetaCacheKey(sourcePath))
       q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
       return null
     } else {
       const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
-      console.error(message)
+      logger.error(message)
       q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
       await system.api.remove(destPath)
       return message
@@ -188,40 +189,40 @@ async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile,
       const sizeOk = size >= minSize
       if (!sizeOk) {
         const message = `${logPrefix} asset file was too small (${size} < ${minSize}): ${file}`
-        console.error(message)
+        logger.error(message)
         errorMessage = message
       }
       return sizeOk
     })
   } else {
     const message = `${logPrefix} somehow errorMessage === null but multifiles is not an array: ${JSON.stringify(multifiles)}`
-    console.error(message)
+    logger.error(message)
     errorMessage = message
   }
   if (errorMessage === null) {
     // OK, upload all the thumbnails
     for (let i = 0; i < multifiles.length; i++) {
       const f = multifiles[i]
-      console.log(`${logPrefix} uploading: ${f} ...`)
+      logger.debug(`${logPrefix} uploading: ${f} ...`)
       const msg = await uploadAsset(sourcePath, f, job, jobPrefix)
       if (msg != null) {
-        console.log(`${logPrefix} ERROR uploading (${f}) ${msg}`)
+        logger.debug(`${logPrefix} ERROR uploading (${f}) ${msg}`)
         errorMessage = msg
         break
       } else {
-        console.log(`${logPrefix} upload ${f} SUCCESS`)
+        logger.debug(`${logPrefix} upload ${f} SUCCESS`)
       }
     }
   }
   if (errorMessage !== null) {
-    console.error(errorMessage)
+    logger.error(errorMessage)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_multi_output`, errorMessage)
     await system.recordError(sourcePath, profile.name, errorMessage)
   } else {
-    console.log(`${logPrefix} clearing errors after successful upload)`)
+    logger.debug(`${logPrefix} clearing errors after successful upload)`)
     await clearErrors(job, jobPrefix, sourcePath, profile)
   }
-  console.log(`${logPrefix} deleting local outfiles (${errorMessage ? `ERROR: ${errorMessage}` : 'after successful upload'})`)
+  logger.debug(`${logPrefix} deleting local outfiles (${errorMessage ? `ERROR: ${errorMessage}` : 'after successful upload'})`)
   deleteLocalFiles(outfile, profile, job, jobPrefix)
 }
 
@@ -231,10 +232,10 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
   const jobPrefix = `${mediaType}_${profile.name}_handleOutputFiles`
 
   return async (code) => {
-    console.log(`${logPrefix} starting with outfile ${outfile} and exit code ${code}`)
+    logger.debug(`${logPrefix} starting with outfile ${outfile} and exit code ${code}`)
     if (code !== 0) {
       const message = `${logPrefix} child process exited with code ${code}`
-      console.warn(message)
+      logger.warn(message)
       q.recordJobEvent(job, `${jobPrefix}_ERROR_exit_code_nonzero`, `${code}`)
       await system.recordError(sourcePath, profile.name, message)
       deleteLocalFiles(outfile, profile, job, jobPrefix)
@@ -244,20 +245,20 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
     if (profile.multiFile) {
       const outfilePrefix = multifilePrefix(outfile)
       await glob(outfilePrefix + '*', async (err, files) => {
-        console.log(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
+        logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
         if (err) {
           const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
-          console.error(message)
+          logger.error(message)
           q.recordJobEvent(job, `${jobPrefix}_ERROR_listing_files`, `${err}`)
           await system.recordError(sourcePath, profile.name, message)
           deleteLocalFiles(outfile, profile, job, jobPrefix)
         } else if (files && files.length && files.length > 0) {
-          console.log(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
+          logger.debug(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
           q.recordJobEvent(job, `${jobPrefix}_found_files`, `${files.length} files matched`)
           await handleMultiOutputFiles(sourcePath, profile, files, outfile, job, jobPrefix)
         } else {
           const message = `${logPrefix}  GLOB: No files matched!`
-          console.error(message)
+          logger.error(message)
           q.recordJobEvent(job, `${jobPrefix}_ERROR_no_files_matched`)
           await system.recordError(sourcePath, profile.name, message)
           deleteLocalFiles(outfile, profile, job, jobPrefix)
@@ -270,22 +271,22 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
       if (outfileSize < minAssetSize) {
         util.deleteFile(outfile)
         const message = `${logPrefix} profile/operation ${profile.name}/${profile.operation} (min size ${minAssetSize} not met) for outfile ${outfile}`
-        console.warn(message)
+        logger.warn(message)
         q.recordJobEvent(job, `${jobPrefix}_ERROR_min_size`, message)
         await system.recordError(sourcePath, profile.name, message)
       } else {
         // file is OK, we can upload it to dest
-        console.log(`${logPrefix} uploading ${outfile} ...`)
+        logger.debug(`${logPrefix} uploading ${outfile} ...`)
         const msg = await uploadAsset(sourcePath, outfile, job, jobPrefix)
         if (msg != null) {
-          console.error(`${logPrefix} ERROR: ${msg}`)
+          logger.error(`${logPrefix} ERROR: ${msg}`)
           q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading`, msg)
           await system.recordError(sourcePath, profile.name, msg)
         } else {
-          console.log(`${logPrefix} upload ${outfile} SUCCESS`)
+          logger.debug(`${logPrefix} upload ${outfile} SUCCESS`)
           q.recordJobEvent(job, `${jobPrefix}_upload_success`)
         }
-        console.log(`${logPrefix} clearing errors and deleting local files (after successful upload)`)
+        logger.debug(`${logPrefix} clearing errors and deleting local files (after successful upload)`)
         await clearErrors(job, jobPrefix, sourcePath, profile)
         deleteLocalFiles(outfile, profile, job, jobPrefix)
       }
@@ -305,14 +306,14 @@ function mediaTransform (job, file, profile, outfile) {
   q.recordJobEvent(job, `${jobPrefix}_start`)
   const sourcePath = job.data.sourcePath
   const logPrefix = `${mediaType}:transform(${sourcePath}, ${file}, ${profile.name}):`
-  console.log(`${logPrefix} starting with outfile ${outfile}`)
+  logger.debug(`${logPrefix} starting with outfile ${outfile}`)
   if (typeof profile.operation === 'undefined') {
-    console.log(`${logPrefix} no operation defined on profile, skipping: profile=${JSON.stringify(profile)}`)
+    logger.debug(`${logPrefix} no operation defined on profile, skipping: profile=${JSON.stringify(profile)}`)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_invalid_operation`)
     return
   }
   if (!profile.enabled) {
-    console.log(`${logPrefix} profile not enabled, skipping`)
+    logger.debug(`${logPrefix} profile not enabled, skipping`)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_not_enabled`)
     return
   }
@@ -328,13 +329,13 @@ function mediaTransform (job, file, profile, outfile) {
   }
   const args = xform(sourcePath, file, profile, outfile)
   const outputHandler = handleOutputFiles(job, sourcePath, profile, outfile)
-  console.log(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
+  logger.debug(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
   q.recordJobEvent(job, `${jobPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
   runTransformCommand(job, profile, outfile, args, (code) => {
     q.recordJobEvent(job, `${jobPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
     outputHandler(code).then(() => {
       q.recordJobEvent(job, `${jobPrefix}_outputHandler_COMPLETE`)
-      console.log(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
+      logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
     })
   })
   q.recordJobEvent(job, `${jobPrefix}_DONE`)
@@ -343,13 +344,13 @@ function mediaTransform (job, file, profile, outfile) {
 async function createArtifacts (job, localSourceFile) {
   const sourcePath = job.data.sourcePath
 
-  console.log('createArtifacts: starting with file: ' + localSourceFile)
+  logger.debug('createArtifacts: starting with file: ' + localSourceFile)
   q.recordJobEvent(job, 'artifacts_start')
 
   const mediaType = m.mediaType(sourcePath)
   const profiles = m.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
-    console.log(`createArtifacts: no media profiles exist for path: ${sourcePath} (returning basic meta)`)
+    logger.debug(`createArtifacts: no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     q.recordJobEvent(job, 'artifacts_ERROR_no_profiles')
     return
   }
@@ -358,7 +359,7 @@ async function createArtifacts (job, localSourceFile) {
     const artifactPrefix = `artifact_${name}`
     const profile = profiles[name]
     if (!profile.enabled) {
-      console.log(`createArtifacts: profile disabled, skipping: ${name}`)
+      logger.debug(`createArtifacts: profile disabled, skipping: ${name}`)
       continue
     }
 
@@ -378,13 +379,13 @@ async function createArtifacts (job, localSourceFile) {
     q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
     const destHead = await system.api.safeMetadata(completedAssetKey)
     if (destHead && destHead.size && destHead.size > 0) {
-      console.log(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
+      logger.debug(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
       q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
       continue
     }
     const errCount = await system.countErrors(sourcePath, name)
     if (errCount >= MAX_XFORM_ERRORS) {
-      console.warn(`createArtifacts: transcoding artifact for profile ${name} has failed too many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, giving up`)
+      logger.warn(`createArtifacts: transcoding artifact for profile ${name} has failed too many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, giving up`)
       q.recordJobEvent(job, `${artifactPrefix}_ERROR_err_count_exceeded`, `more than ${MAX_XFORM_ERRORS} errors, not retrying`)
       continue
     }
@@ -416,7 +417,7 @@ async function ensureSourceDownloaded (job) {
     }
   }
 
-  console.log(`ensureSourceDownload: downloading source to file: ${file}`)
+  logger.debug(`ensureSourceDownload: downloading source to file: ${file}`)
   fs.mkdirSync(path.dirname(file), { recursive: true })
   const MAX_TRIES = 10
   let head = null
@@ -427,7 +428,7 @@ async function ensureSourceDownloaded (job) {
         // check temp file again, it may already exist
         const size = util.statSize(file)
         if (size !== -1 && head.size && head.size === size) {
-          console.log(`ensureSourceDownload: before downloaded source file, it already correctly exists, using it: ${file}`)
+          logger.debug(`ensureSourceDownload: before downloaded source file, it already correctly exists, using it: ${file}`)
           q.recordJobEvent(job, `${jobPrefix}_download_using_cached_source_attempt_${i}`)
           return file
         }
@@ -441,7 +442,7 @@ async function ensureSourceDownloaded (job) {
       }, () => {
         f.close(async (err) => {
           if (err) {
-            console.error(`ensureSourceDownload: error closing file: ${tempFile}: ${err}`)
+            logger.error(`ensureSourceDownload: error closing file: ${tempFile}: ${err}`)
           }
           const downloadSize = util.statSize(tempFile)
           if (head == null) {
@@ -451,12 +452,12 @@ async function ensureSourceDownloaded (job) {
           if (head && head.size && head.size === downloadSize) {
             const existingSize = util.statSize(file)
             if (existingSize === head.size) {
-              console.log(`ensureSourceDownload: successfully downloaded source file, but someone else beat us to it (using their file): ${file}`)
+              logger.debug(`ensureSourceDownload: successfully downloaded source file, but someone else beat us to it (using their file): ${file}`)
               fs.rmSync(tempFile)
             } else {
-              console.log(`ensureSourceDownload: renaming temp download ${tempFile} -> ${file}`)
+              logger.debug(`ensureSourceDownload: renaming temp download ${tempFile} -> ${file}`)
               fs.renameSync(tempFile, file)
-              console.log(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
+              logger.debug(`ensureSourceDownload: successfully downloaded complete source file: ${file}`)
               q.recordJobEvent(job, `${attemptPrefix}_download_SUCCESS`)
             }
             return file
@@ -467,24 +468,24 @@ async function ensureSourceDownloaded (job) {
           } else {
             message = `ensureSourceDownload: downloaded file ${file} (size=${downloadSize}) but could never read ContentLength from HEAD: ${JSON.stringify(head)}`
           }
-          console.error(message)
+          logger.error(message)
           q.recordJobEvent(job, `${attemptPrefix}_download_ERROR_size_mismatch`, message)
         })
       })
-      console.log(`ensureSourceDownload: downloaded ${bytesRead} bytes on attempt ${attemptPrefix}`)
+      logger.debug(`ensureSourceDownload: downloaded ${bytesRead} bytes on attempt ${attemptPrefix}`)
     } catch (err) {
-      console.log(`ensureSourceDownload: ERROR downloading source file: ${file}: ${err}`)
+      logger.debug(`ensureSourceDownload: ERROR downloading source file: ${file}: ${err}`)
       q.recordJobEvent(job, `${attemptPrefix}_download_ERROR`, `${err}`)
     }
   }
   const fileSize = util.statSize(file)
   if (head && head.size && head.size === fileSize) {
-    console.log(`ensureSourceDownload: despite max tries exceeded (${MAX_TRIES}), file exists and is OK, continuing...`)
+    logger.debug(`ensureSourceDownload: despite max tries exceeded (${MAX_TRIES}), file exists and is OK, continuing...`)
     q.recordJobEvent(job, `${jobPrefix}_attemptsExceeded_download_SUCCESS`)
     return file
   } else {
     // max tries exceeded
-    console.log(`ensureSourceDownload: downloaded file ${file} failed, max tries exceeded (${MAX_TRIES})`)
+    logger.debug(`ensureSourceDownload: downloaded file ${file} failed, max tries exceeded (${MAX_TRIES})`)
     q.recordJobEvent(job, `${jobPrefix}_download_FAIL`, `max tries exceeded (${MAX_TRIES})`)
     return null
   }
@@ -493,28 +494,28 @@ async function ensureSourceDownloaded (job) {
 async function transform (sourcePath) {
   const logPrefix = `transform(${sourcePath}):`
   if (!m.hasProfiles(sourcePath)) {
-    console.warn(`${logPrefix} no profiles exist, not transforming`)
+    logger.warn(`${logPrefix} no profiles exist, not transforming`)
     return null
   }
 
   const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
   const source = await src.connect(sourceName)
 
-  console.log(`${logPrefix}) fetching metadata`)
+  logger.debug(`${logPrefix}) fetching metadata`)
   const derivedMeta = await manifest.deriveMetadata(source, pth)
   if (derivedMeta && derivedMeta.status && derivedMeta.status.complete) {
     return derivedMeta
   }
   if (q.isQueued(sourcePath)) {
     if (q.isStaleJob(sourcePath)) {
-      console.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
+      logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
     } else {
-      console.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
+      logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
       return derivedMeta
     }
   }
 
-  console.log(`${logPrefix} adding to jobQueue: ${sourcePath}`)
+  logger.debug(`${logPrefix} adding to jobQueue: ${sourcePath}`)
   q.enqueue(sourcePath)
   return derivedMeta
 }

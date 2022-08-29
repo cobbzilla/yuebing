@@ -3,6 +3,7 @@ const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
 const scan = require('../../source/scan')
 const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 scan.initAutoscan(system.privateConfig.autoscan)
 
@@ -15,7 +16,7 @@ export default {
     }
     const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
     if (!source || !pth) { return api.notFound() }
-    console.log(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${pth}`)
+    logger.info(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${pth}`)
     const transforms = await scan.scan(source, pth)
     return api.okJson(res, transforms)
   }

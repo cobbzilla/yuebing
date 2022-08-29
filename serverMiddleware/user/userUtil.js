@@ -11,6 +11,7 @@ const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 
 const ADMIN = system.privateConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
@@ -54,7 +55,7 @@ function initLimitRegistration () {
 let LIMIT_REGISTRATION = null
 initLimitRegistration().then((list) => { LIMIT_REGISTRATION = list }, (err) => { throw err })
 if (LIMIT_REGISTRATION) {
-  console.log(`****** userUtil: initialized LIMIT_REGISTRATION=${JSON.stringify(LIMIT_REGISTRATION)}`)
+  logger.info(`****** userUtil: initialized LIMIT_REGISTRATION=${JSON.stringify(LIMIT_REGISTRATION)}`)
 }
 
 function isAdmin (userOrEmail) {
@@ -126,7 +127,7 @@ async function currentUser (req) {
     const val = await redis.get(REDIS_SESSION_PREFIX + session)
     return val ? JSON.parse(val) : null
   } catch (e) {
-    console.log(`currentUser: error ${e}`)
+    logger.info(`currentUser: error ${e}`)
     return null
   }
 }
@@ -187,7 +188,7 @@ function registerInitialAdminUser (regRequest) {
     regRequest.lastName = 'admin'
   }
   return _registerUser(regRequest, () => {
-    console.log(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
+    logger.info(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
   }, true)
 }
 
@@ -218,7 +219,7 @@ function _registerUser (regRequest, successHandler, admin) {
   return userExists(regRequest.email).then((exists) => {
     if (exists) {
       if (admin) {
-        console.log(`admin user already exists: ${regRequest.email}`)
+        logger.info(`admin user already exists: ${regRequest.email}`)
       } else {
         return Promise.resolve(() => {
           throw new UserValidationError({ email: ['alreadyRegistered'] })
@@ -261,7 +262,7 @@ async function isCorrectToken (email, token, key) {
     }
     return correct
   } catch (e) {
-    console.log(`isCorrectToken: error reading from redis: ${e}`)
+    logger.info(`isCorrectToken: error reading from redis: ${e}`)
   }
 }
 
@@ -289,7 +290,7 @@ function createUserRecord (user, successHandler) {
     const token = '' + Math.floor(Math.random() * 1000000)
     const key = verificationKey(user.email)
     redis.set(key, token, USER_VERIFY_EXPIRATION).then(() => {
-      console.log(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
+      logger.info(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
     })
     const ctx = {
       user,
@@ -300,17 +301,17 @@ function createUserRecord (user, successHandler) {
     }
     email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
       () => {
-        console.log(`createUserRecord: verification request sent to user: ${user.email}`)
+        logger.info(`createUserRecord: verification request sent to user: ${user.email}`)
       },
       (err) => {
-        console.error(`createUserRecord: ERROR sending verification request to user: ${user.email}: ${err}`)
+        logger.error(`createUserRecord: ERROR sending verification request to user: ${user.email}: ${err}`)
       }
     )
   }
   system.api.writeFile(userKey(user.email), JSON.stringify(newUser))
     .then(count => successHandler(count, newUser))
     .catch((error) => {
-      console.error(`createUserRecord: Error writing user file: ${error}`)
+      logger.error(`createUserRecord: Error writing user file: ${error}`)
       throw error
     })
 }
@@ -331,16 +332,16 @@ function updateUserRecord (proposed, successHandler) {
     if (update.admin) {
       delete update.admin
     }
-    console.log(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
+    logger.info(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
     return system.api.writeFile(userKey(user.email), JSON.stringify(update)).then(
       count => successHandler(count, update),
       (error) => {
-        console.error(`updateUserRecord: Error writing user file: ${error}`)
+        logger.error(`updateUserRecord: Error writing user file: ${error}`)
         throw error
       })
   },
   (err) => {
-    console.error(`updateUserRecord: findUser error: ${err}`)
+    logger.error(`updateUserRecord: findUser error: ${err}`)
     throw err
   })
 }
@@ -351,7 +352,7 @@ function sendResetPasswordMessage (user) {
   const token = '' + Math.floor(Math.random() * 1000000)
   const key = resetPasswordKey(user.email)
   redis.set(key, token, USER_RESET_PASSWORD_EXPIRATION).then(() => {
-    console.log(`resetPassword: created password reset token for user: ${user.email}: ${key}`)
+    logger.info(`resetPassword: created password reset token for user: ${user.email}: ${key}`)
   })
   const ctx = {
     user,
@@ -363,10 +364,10 @@ function sendResetPasswordMessage (user) {
   }
   email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_RESET_PASSWORD, ctx).then(
     (ok) => {
-      console.log(`resetPassword: message sent to user: ${user.email}`)
+      logger.info(`resetPassword: message sent to user: ${user.email}`)
     },
     (err) => {
-      console.error(`resetPassword: ERROR sending to user: ${user.email}: ${err}`)
+      logger.error(`resetPassword: ERROR sending to user: ${user.email}: ${err}`)
     }
   )
 }
@@ -406,16 +407,16 @@ async function sendInvitations (fromUser, emailList) {
         // does NOT exist before sending them an invitation to join. So it's OK to get this error
         if (!(e instanceof MobilettoNotFoundError)) {
           // For other errors, we should at least log
-          console.error(`sendInvitations: unexpected findUser error: ${e}, we'll still send email to: ${recipient}`)
+          logger.error(`sendInvitations: unexpected findUser error: ${e}, we'll still send email to: ${recipient}`)
         }
       }
       return email.sendEmail(recipient, fromUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_INVITATION, ctx).then(
         (ok) => {
-          console.log(`resetPassword: invitation sent to: ${recipient}`)
+          logger.info(`resetPassword: invitation sent to: ${recipient}`)
           successfulSends[recipient] = Date.now()
         },
         (err) => {
-          console.error(`resetPassword: ERROR sending invitation to: ${recipient}: ${JSON.stringify(err)}`)
+          logger.error(`resetPassword: ERROR sending invitation to: ${recipient}: ${JSON.stringify(err)}`)
           failedSends[recipient] = err
         })
     }))
@@ -429,7 +430,7 @@ async function sendInvitations (fromUser, emailList) {
 if (ADMIN_USER) {
   registerInitialAdminUser(ADMIN_USER)
 } else {
-  console.log('userUtil: no admin user defined, not creating')
+  logger.info('userUtil: no admin user defined, not creating')
 }
 
 module.exports = {

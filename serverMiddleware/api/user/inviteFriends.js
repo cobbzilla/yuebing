@@ -1,6 +1,8 @@
 const api = require('../../util/api')
 const valid = require('../../../shared/validation')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/user/inviteFriends',
@@ -19,7 +21,7 @@ export default {
         results => api.okJson(res, results),
         (err) => {
           const message = `inviteFriends: sendInvitations error: ${err}`
-          console.error(message)
+          logger.error(message)
           return api.serverError(res, message)
         })
     })

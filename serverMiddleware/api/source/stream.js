@@ -4,6 +4,7 @@ const shared = require('../../../shared')
 const m = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
+const logger = system.logger
 const u = require('../../user/userUtil')
 
 async function head (req, res, source, path) {
@@ -19,20 +20,20 @@ async function head (req, res, source, path) {
 async function get (req, res, source, path) {
   const head = await source.safeMetadata(path)
   if (!head) {
-    console.log(`stream.get: HEAD request failed, returning 404 Not Found for path=${path}`)
+    logger.info(`stream.get: HEAD request failed, returning 404 Not Found for path=${path}`)
     return api.notFound(res)
   }
 
   const range = (req.headers && req.headers.Range) ? req.headers.Range : null
   if (range) {
-    console.warn(`>>>>> API: Streaming ${req.url}, prefix = ${path}, range = ${range} NOT SUPPORTED`)
+    logger.warn(`>>>>> API: Streaming ${req.url}, prefix = ${path}, range = ${range} NOT SUPPORTED`)
   }
 
   // todo -- write object to cache
   // then stream from cache as we apply ranges
   res.statusCode = 200
   res.contentType = mime.contentType(path)
-  console.log(`stream >>>> set contentType = ${res.contentType} for path=${path}`)
+  logger.info(`stream >>>> set contentType = ${res.contentType} for path=${path}`)
   await source.read(path, chunk => res.write(chunk))
   res.end()
 }

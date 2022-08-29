@@ -6,6 +6,7 @@ const valid = require('../../../shared/validation')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
@@ -78,7 +79,7 @@ export default {
           }
         },
         (err) => {
-          console.log(`verify: findUser error: ${err}`)
+          logger.log(`verify: findUser error: ${err}`)
           return api.validationFailed(res, { email: ['invalid'] })
         })
     })

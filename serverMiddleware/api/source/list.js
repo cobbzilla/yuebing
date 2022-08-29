@@ -6,6 +6,7 @@ const redis = require('../../util/redis')
 const u = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 const src = require('../../source/sourceUtil')
+const logger = system.logger
 
 const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
 
@@ -38,7 +39,7 @@ export default {
               return api.list(pth)
             },
             (err) => {
-              console.error(`error connecting to ${sc}: ${err}`)
+              logger.error(`error connecting to ${sc}: ${err}`)
               throw err
             })
       }

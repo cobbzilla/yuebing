@@ -1,6 +1,8 @@
 const q = require('../../asset/job')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/admin/queue',
@@ -9,7 +11,7 @@ export default {
     if (!user) {
       return
     }
-    console.log(`>>>>> API: Queue ${req.url}`)
+    logger.info(`>>>>> API: Queue ${req.url}`)
     const queue = q.getQueue()
     return api.okJson(res, queue)
   }

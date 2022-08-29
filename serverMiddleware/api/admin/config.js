@@ -3,6 +3,8 @@ const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 
+const logger = system.logger
+
 export default {
   path: '/api/admin/config',
   async handler (req, res) {
@@ -31,7 +33,7 @@ export default {
             })
         } catch (e) {
           const message = `error updating config: ${JSON.stringify(e)}`
-          console.error(message)
+          logger.error(message)
           return api.serverError(res, message)
         }
       })

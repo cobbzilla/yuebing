@@ -2,6 +2,8 @@ const { MobilettoNotFoundError } = require('mobiletto')
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/user/requestPasswordReset',
@@ -24,7 +26,7 @@ export default {
             return api.okJson(res, {})
           } else {
             const message = `requestPasswordReset: findUser error: ${err}`
-            console.log(message)
+            logger.warn(message)
             return api.serverError(res, message)
           }
         })

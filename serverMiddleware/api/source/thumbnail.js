@@ -1,4 +1,6 @@
 const system = require('../../util/config').SYSTEM
+const logger = system.logger
+
 const api = require('../../util/api')
 const c = require('../../../shared')
 const u = require('../../user/userUtil')
@@ -26,19 +28,19 @@ export default {
             await system.api.writeFile(thumbPath, thumbJson)
             // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
             manifest.flushCachedMetadata(pth).then(() => {
-              console.log('thumbnail: flushCachedMetadata finished')
+              logger.info('thumbnail: flushCachedMetadata finished')
             })
             return api.okJson(res, thumbJson)
 
           } else {
             const message = `thumbnail: error in HEAD request for selected thumbnail asset: ${thumbnailAsset}`
-            console.error(message)
+            logger.error(message)
             return api.notFound(res, message)
           }
         },
         (err) => {
           const message = `thumbnail: selected thumbnail asset not found: ${thumbnailAsset}: ${err}`
-          console.error(message)
+          logger.error(message)
           return api.notFound(res, message)
         })
       })

@@ -1,6 +1,8 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const userAdmin = require('../../user/userAdmin')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/admin/users',
@@ -15,7 +17,7 @@ export default {
         results => api.okJson(res, results),
         (err) => {
           const message = `users: findUsers error: ${err}`
-          console.log(message)
+          logger.log(message)
           return api.serverError(res, message)
         }
       )

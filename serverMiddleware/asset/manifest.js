@@ -4,6 +4,7 @@ const m = require('../../shared/media')
 const redis = require('../util/redis')
 const util = require('../util/file')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 
 const MANIFEST_CACHE_EXPIRATION = system.privateConfig.redis.manifestCacheExpiration
 
@@ -20,7 +21,7 @@ async function deriveMetadata (source, sourcePath) {
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
     if (Date.now() - cachedMeta.ctime < MANIFEST_CACHE_EXPIRATION) {
-      // console.log(`deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
+      // logger.info(`deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
       return cachedMeta
     }
     // check last-modified time on directory
@@ -28,16 +29,16 @@ async function deriveMetadata (source, sourcePath) {
     if (lastModified && lastModified.mtime) {
       const destModified = new Date(lastModified.mtime)
       if (destModified > cachedMeta.ctime) {
-        console.log(`deriveMetadata: destination modified after cache created, recreating for source: ${sourcePath}`)
+        logger.info(`deriveMetadata: destination modified after cache created, recreating for source: ${sourcePath}`)
       } else {
         // the cache is valid!
         return cachedMeta
       }
     } else {
-      console.log(`deriveMetadata recalculating because lastModified file does not exist or is newer than cache for sourcePath: ${sourcePath}`)
+      logger.info(`deriveMetadata recalculating because lastModified file does not exist or is newer than cache for sourcePath: ${sourcePath}`)
     }
   } else {
-    console.log(`deriveMetadata no data in cache, recalculating for: ${sourcePath}`)
+    logger.info(`deriveMetadata no data in cache, recalculating for: ${sourcePath}`)
   }
 
   const meta = {
@@ -48,7 +49,7 @@ async function deriveMetadata (source, sourcePath) {
 
   const profiles = m.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
-    console.log(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
+    logger.info(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return meta
   }
 
@@ -56,7 +57,7 @@ async function deriveMetadata (source, sourcePath) {
   const prefix = system.assetsDir(sourceAndPath)
   const assets = await system.api.find(prefix, m.ASSET_PREFIX)
   assets.forEach((asset) => {
-    // console.log(`examining asset: ${asset}`)
+    // logger.info(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
@@ -65,7 +66,7 @@ async function deriveMetadata (source, sourcePath) {
       const foundProfile = (at !== -1 && at > underscore && at < dot)
         ? base.substring(underscore + 1, at)
         : base.substring(underscore + 1, dot)
-      // console.log(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
+      // logger.info(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
       if (foundProfile in profiles) {
         const prof = profiles[foundProfile]
         if (prof.enabled) {
@@ -112,11 +113,11 @@ async function deriveMetadata (source, sourcePath) {
     const selectedThumbnail = await system.api.readFile(system.assetsDir(sourceAndPath) + c.SELECTED_THUMBNAIL_FILE)
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
-    console.log(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)
+    logger.info(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)
   }
 
   await redis.set(cacheKey, JSON.stringify(meta), MANIFEST_CACHE_EXPIRATION)
-  // console.log('deriveMetadata returning: ' + JSON.stringify(meta))
+  // logger.info('deriveMetadata returning: ' + JSON.stringify(meta))
   return meta
 }
 

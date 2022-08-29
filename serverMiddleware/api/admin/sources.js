@@ -4,6 +4,8 @@ const u = require('../../user/userUtil')
 const s = require('../../source/sourceUtil')
 const v = require('../../../shared/validation')
 const scan = require('../../source/scan')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 function handleSourceError (res, e, sourceName) {
   if (e instanceof s.SourceNotFoundError) {
@@ -35,7 +37,7 @@ async function handleDelete (res, name) {
           () => api.okJson(res, { deleted: true }),
           (err) => {
             const message = `handleDelete: error calling deleteSource: ${err}`
-            console.error(message)
+            logger.error(message)
             return api.serverError(res, message)
           })
       } else {

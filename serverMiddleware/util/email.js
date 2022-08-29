@@ -5,6 +5,7 @@ const Handlebars = require('handlebars')
 const redis = require('../util/redis')
 const locale = require('../../shared/locale')
 const system = require('./config').SYSTEM
+const logger = system.logger
 
 const emailEnabled = () => system.publicConfig.emailEnabled && !!system.privateConfig.email.host
 
@@ -17,7 +18,7 @@ const CACHED_CONFIG = {
     return this.config
   },
   flush () {
-    console.log('CACHED_CONFIG.flush called')
+    logger.info('CACHED_CONFIG.flush called')
     this.config = null
   }
 }
@@ -60,7 +61,7 @@ function compileTemplates (locale, template) {
   for (const templateFile of TEMPLATE_FILES) {
     fs.readFile(`${templatePrefix}/${templateFile}`, 'utf8', (err, data) => {
       if (err) {
-        console.error(err)
+        logger.error(err)
         throw err
       } else {
         if (!COMPILED_TEMPLATES[locale]) {
@@ -123,7 +124,7 @@ function EmailRateLimitExceededError (limit) {
 
 async function sendEmail (to, locale, template, params) {
   if (!emailEnabled()) {
-    console.log(`sendEmail(${to}, ${locale}, ${template}): email not enabled, not sending`)
+    logger.info(`sendEmail(${to}, ${locale}, ${template}): email not enabled, not sending`)
     return
   }
   // what is our limit for sending these types of messages?
@@ -133,7 +134,7 @@ async function sendEmail (to, locale, template, params) {
   if (sendReceipts && sendReceipts.length >= limit.count) {
     throw new EmailRateLimitExceededError(limit)
   }
-  console.log(`sendEmail(${to}, ${locale}, ${template}) starting`)
+  logger.info(`sendEmail(${to}, ${locale}, ${template}) starting`)
 
   const compiled = COMPILED_TEMPLATES[locale] && COMPILED_TEMPLATES[locale][template]
     ? COMPILED_TEMPLATES[locale][template]
@@ -157,9 +158,9 @@ async function sendEmail (to, locale, template, params) {
     html: compiled[MESSAGE_HTML_TEMPLATE](ctx)
   }, (err, result) => {
     if (err) {
-      console.log(`sendMail: error sending mail: ${err}`)
+      logger.info(`sendMail: error sending mail: ${err}`)
     } else if (result) {
-      console.log(`sendMail: sent mail: ${JSON.stringify(result)}`)
+      logger.info(`sendMail: sent mail: ${JSON.stringify(result)}`)
     }
   })
 }

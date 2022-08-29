@@ -1,10 +1,12 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/user/update',
   handler (req, res) {
-    console.log(`>>>>> API: Update ${req.url} ....`)
+    logger.info(`>>>>> API: Update ${req.url} ....`)
     req.on('data', async (data) => {
       const caller = await u.requireLoggedInUser(req, res)
       if (!caller) {
@@ -14,7 +16,7 @@ export default {
 
       // email field cannot be changed
       if (update.email !== caller.email) {
-        console.warn(`update: caller (${caller.email}) tried to change email address to ${update.email}`)
+        logger.warn(`update: caller (${caller.email}) tried to change email address to ${update.email}`)
         return api.validationFailed(res, { email: ['readOnly'] })
       }
       // we don't want to update these anyway

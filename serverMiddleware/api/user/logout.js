@@ -1,5 +1,7 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/user/logout',
@@ -10,7 +12,7 @@ export default {
         api.clearSessionCookie(res, user.session)
       }
     } catch (e) {
-      console.warn(`logout: ${e}`)
+      logger.warn(`logout: ${e}`)
     }
     return api.okJson(res, {})
   }

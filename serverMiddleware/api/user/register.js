@@ -1,10 +1,12 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/user/register',
   handler (req, res) {
-    console.log(`>>>>> API: Register ${req.url} ....`)
+    logger.info(`>>>>> API: Register ${req.url} ....`)
     req.on('data', async (data) => {
       const regRequest = JSON.parse(data.toString())
       try {

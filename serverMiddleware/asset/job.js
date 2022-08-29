@@ -1,6 +1,7 @@
 const fs = require('fs')
 const Queue = require('bull')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 
 const XFORM_QUEUE_NAME = 'xform'
 const XFORM_JOB_NAME = 'xform-job'
@@ -16,7 +17,7 @@ function cleanupWorkingDir (sourcePath) {
   try {
     fs.rmSync(workingDir, { force: true, recursive: true })
   } catch (e) {
-    console.warn(`cleanupWorkingDir: error removing: ${workingDir}: ${e}`)
+    logger.warn(`cleanupWorkingDir: error removing: ${workingDir}: ${e}`)
   }
 }
 function initializeQueue (processFunction) {
@@ -26,9 +27,9 @@ function initializeQueue (processFunction) {
 
     JOB_QUEUE.on('active', (job, result) => {
       if (job.data.sourcePath) {
-        console.log(`jobQueue.on(active): job (${job.data.sourcePath}) STARTING with result=${JSON.stringify(result)}`)
+        logger.info(`jobQueue.on(active): job (${job.data.sourcePath}) STARTING with result=${JSON.stringify(result)}`)
       } else {
-        console.warn(`jobQueue.on(active): job (with missing data.sourcePath: ${JSON.stringify(job)}) STARTING with result=${JSON.stringify(result)}`)
+        logger.warn(`jobQueue.on(active): job (with missing data.sourcePath: ${JSON.stringify(job)}) STARTING with result=${JSON.stringify(result)}`)
       }
       job.data.jobStatus = { running: true }
       recordJobEvent(job, 'QUEUE_ACTIVE')
@@ -36,9 +37,9 @@ function initializeQueue (processFunction) {
 
     JOB_QUEUE.on('completed', (job, result) => {
       if (job.data.sourcePath) {
-        console.log(`jobQueue.on(completed): job (${job.data.sourcePath}) COMPLETED with result=${JSON.stringify(result)}`)
+        logger.info(`jobQueue.on(completed): job (${job.data.sourcePath}) COMPLETED with result=${JSON.stringify(result)}`)
       } else {
-        console.warn(`jobQueue.on(completed): job (with missing data.sourcePath: ${JSON.stringify(job)}) COMPLETED with result=${JSON.stringify(result)}`)
+        logger.warn(`jobQueue.on(completed): job (with missing data.sourcePath: ${JSON.stringify(job)}) COMPLETED with result=${JSON.stringify(result)}`)
       }
       recordJobEvent(job, 'QUEUE_COMPLETED')
       job.data.done = true
@@ -48,9 +49,9 @@ function initializeQueue (processFunction) {
 
     JOB_QUEUE.on('failed', (job, result) => {
       if (job.data.sourcePath) {
-        console.log(`jobQueue.on(failed): job (${job.data.sourcePath}) FAILED with result=${JSON.stringify(result)}`)
+        logger.info(`jobQueue.on(failed): job (${job.data.sourcePath}) FAILED with result=${JSON.stringify(result)}`)
       } else {
-        console.log(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
+        logger.info(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
       }
       recordJobEvent(job, 'QUEUE_FAILED')
       job.data.done = true
@@ -98,9 +99,9 @@ function recordJobEvent (qjob, event, description = '') {
       time: Date.now(),
       description
     })
-    console.log(`recordJobEvent(${sourcePath}): recorded event: ${event}${description ? `: ${description}` : ''}`)
+    logger.info(`recordJobEvent(${sourcePath}): recorded event: ${event}${description ? `: ${description}` : ''}`)
   } else {
-    console.warn(`recordJobEvent(${sourcePath}): discarding event (path not queued: ${sourcePath}): ${event}${description ? `: ${description}` : ''}`)
+    logger.warn(`recordJobEvent(${sourcePath}): discarding event (path not queued: ${sourcePath}): ${event}${description ? `: ${description}` : ''}`)
   }
 }
 

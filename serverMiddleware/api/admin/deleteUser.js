@@ -1,6 +1,8 @@
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const userAdmin = require('../../user/userAdmin')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 export default {
   path: '/api/admin/deleteUser',
@@ -24,13 +26,13 @@ export default {
             () => api.okJson(res, { deleted: true }),
             (err) => {
               const message = `deleteUser: error calling userAdmin.deleteUser: ${err}`
-              console.error(message)
+              logger.error(message)
               return api.serverError(res, message)
             })
         },
         (err) => {
           const message = `deleteUser: findUser error: ${err}`
-          console.error(message)
+          logger.error(message)
           return api.serverError(res, message)
         }
       )

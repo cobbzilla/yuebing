@@ -1,6 +1,7 @@
 const Redis = require('ioredis')
 const generators = require('redis-async-gen')
 const system = require('./config.js').SYSTEM
+const logger = system.logger
 
 const redisConfig = system.privateConfig.redis
 
@@ -64,14 +65,22 @@ setTimeout(() => {
   if (redisConfig.flushAtStartup) {
     // start with an empty redis
     flushall().then(
-      () => { console.log(' ***** redis: FLUSHED *****') },
+      () => { logger.log(' ***** redis: FLUSHED *****') },
       (err) => {
-        if (err) { console.error(` ***** redis: ERROR calling flushall: ${err}`) }
+        if (err) { logger.error(` ***** redis: ERROR calling flushall: ${err}`) }
       })
   }
 }, 10)
 
 module.exports = {
-  get, set, del, expire, sadd, smembers, flushall,
-  findMatchingKeys, removeMatchingKeys, applyToMatchingKeys
+  get,
+  set,
+  del,
+  expire,
+  sadd,
+  smembers,
+  flushall,
+  findMatchingKeys,
+  removeMatchingKeys,
+  applyToMatchingKeys
 }

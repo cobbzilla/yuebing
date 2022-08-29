@@ -1,5 +1,7 @@
 const c = require('../../../shared')
 const m = require('../../../shared/media')
+const system = require('../../util/config').SYSTEM
+const logger = system.logger
 
 const DEFAULT_FIRST_THUMBNAIL_OFFSET = '3'
 
@@ -39,7 +41,7 @@ function dash (sourcePath, sourceFile, profile, outfile) {
   const dashOutfile = outfile.substring(0, placeholder) +
     c.MULTIFILE_FIRST +
     outfile.substring(placeholder + c.MULTIFILE_PLACEHOLDER.length)
-  console.log(`dash: calculated dashOutfile = ${dashOutfile}`)
+  logger.info(`dash: calculated dashOutfile = ${dashOutfile}`)
 
   const args = []
   args.push('-i')
