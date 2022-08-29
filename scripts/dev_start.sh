@@ -8,8 +8,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DOCKER_REPO="yuebing"
-DOCKER_TAG="nuxt-dev"
+DOCKER_REPO="cobbzilla"
+DOCKER_TAG="yuebing"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
 
 function die () {
