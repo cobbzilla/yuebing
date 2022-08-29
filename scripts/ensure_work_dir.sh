@@ -7,6 +7,8 @@ function die () {
 
 BASE_DIR="${1:?no base dir provided}"
 
+. "${BASE_DIR}"/.env
+
 if [[ -z "${YB_WORK_DIR}" ]] ; then
   YB_WORK_DIR=/tmp/yuebing_workdir
 elif [[ ${YB_WORK_DIR} == ${BASE_DIR}* ]] ; then
