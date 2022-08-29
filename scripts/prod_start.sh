@@ -19,7 +19,11 @@ function die () {
 
 if [[ -z "$(docker image ls | grep "${DOCKER_REPO}" | grep "${DOCKER_TAG}")" ]] ; then
   cd "${BASE_DIR}" || die "Error trying to change directories to ${BASE_DIR}"
-  docker build -t ${DOCKER_REPO}:${DOCKER_TAG} . || die "Error building docker production image"
+  if [[ -n "${YUEBING_DEV}" ]] ; then
+    docker build -t "${DOCKER_REPO}":"${DOCKER_TAG}" . || die "Error building docker production image"
+  else
+    docker pull "${DOCKER_REPO}":"${DOCKER_TAG}" || die "Error pulling docker repo: ${DOCKER_REPO}:${DOCKER_TAG}"
+  fi
 fi
 
 YB_WORK_DIR=$("${SCRIPT_DIR}"/ensure_work_dir.sh "${BASE_DIR}")
