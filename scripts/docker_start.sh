@@ -9,8 +9,13 @@ redis-server &
 
 sleep 2s # wait for redis logs to fly by
 
+# Ensure required env vars are set
 ./scripts/ensure_env.sh
-. .env
+
+# Ensure YB_WORK_DIR is always /usr/src/scratch in docker container
+mv .env .env-orig
+( grep -v YB_WORK_DIR .env-orig | sed -e 's/^export //' ; echo "YB_WORK_DIR=/usr/src/scratch" ) > .env
+rm -f .env-orig
 
 if [ -n "${1}" ] && [ "${1}" = "dev" ] ; then
   echo 1>&2 " *** Starting nuxt (dev) date=$(date) ..."
