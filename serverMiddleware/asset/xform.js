@@ -124,7 +124,7 @@ function multifilePrefix (outfile) {
 
 function deleteLocalFiles (outfile, profile, job, jobPrefix) {
   if (!cleanupTemporaryAssets()) {
-    logger.warn(`deleteLocalFiles: deletion disabled, retaining outfile(s) ${outfile} for profile ${profile}`)
+    logger.warn(`deleteLocalFiles: deletion disabled, retaining outfile(s) ${outfile} for profile ${profile.name}`)
     return
   }
   if (profile.multiFile) {
@@ -151,6 +151,8 @@ async function clearErrors (job, jobPrefix, sourcePath, profile) {
   q.recordJobEvent(job, `${jobPrefix}_cleared_errors`)
 }
 
+const UPLOAD_CONFIRM_DELAY = 3000
+
 async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   const outfileSize = util.statSize(outfile)
   const destPath = system.assetsDir(sourcePath) + path.basename(outfile)
@@ -158,29 +160,31 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
 
-  if (await system.api.write(destPath, fileUp) == null) {
+  if (await system.api.write(destPath, fileUp) !== outfileSize) {
     const message = `uploadAsset(${destPath}): error uploading asset (upload failed)`
     logger.error(message)
     q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset`, destPath)
     await system.api.remove(destPath)
     return message
   } else {
-    // ensure it was uploaded
-    const head = await system.api.safeMetadata(destPath)
-    if (head && head.size && head.size === outfileSize) {
-      // upload success!
-      logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
-      await system.touchLastModified(sourcePath)
-      await redis.del(util.redisMetaCacheKey(sourcePath))
-      q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
-      return null
-    } else {
-      const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
-      logger.error(message)
-      q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
-      await system.api.remove(destPath)
-      return message
-    }
+    setTimeout(async () => {
+      // ensure it was uploaded
+      const head = await system.api.safeMetadata(destPath)
+      if (head && head.size && head.size === outfileSize) {
+        // upload success!
+        logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
+        await system.touchLastModified(sourcePath)
+        await redis.del(util.redisMetaCacheKey(sourcePath))
+        q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
+        return null
+      } else {
+        const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
+        logger.error(message)
+        q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
+        await system.api.remove(destPath)
+        return message
+      }
+    }, UPLOAD_CONFIRM_DELAY)
   }
 }
 

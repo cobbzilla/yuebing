@@ -10,12 +10,12 @@ let JOB_QUEUE = null
 const QUEUED_PATHS = {}
 
 const redisConfig = system.privateConfig.redis
-const MAX_CONCURRENCY = system.privateConfig.autoscan.concurrency
+const maxConcurrency = () => system.privateConfig.autoscan.concurrency
 
 function initializeQueue (processFunction) {
   if (JOB_QUEUE === null) {
     JOB_QUEUE = new Queue(XFORM_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
-    JOB_QUEUE.process(XFORM_JOB_NAME, MAX_CONCURRENCY, processFunction)
+    JOB_QUEUE.process(XFORM_JOB_NAME, maxConcurrency(), processFunction)
 
     JOB_QUEUE.on('active', (job, result) => {
       if (job.data.sourcePath) {
