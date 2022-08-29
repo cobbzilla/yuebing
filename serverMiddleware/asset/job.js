@@ -12,19 +12,6 @@ const QUEUED_PATHS = {}
 const redisConfig = system.privateConfig.redis
 const MAX_CONCURRENCY = system.privateConfig.autoscan.concurrency
 
-const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
-
-function cleanupWorkingDir (sourcePath) {
-  if (!cleanupTemporaryAssets()) {
-    logger.warn(`cleanupWorkingDir(${sourcePath}): cleanup disabled, retaining directory`)
-  }
-  const workingDir = system.workingDir(sourcePath)
-  try {
-    fs.rmSync(workingDir, { force: true, recursive: true })
-  } catch (e) {
-    logger.warn(`cleanupWorkingDir: error removing: ${workingDir}: ${e}`)
-  }
-}
 function initializeQueue (processFunction) {
   if (JOB_QUEUE === null) {
     JOB_QUEUE = new Queue(XFORM_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
@@ -49,7 +36,6 @@ function initializeQueue (processFunction) {
       recordJobEvent(job, 'QUEUE_COMPLETED')
       job.data.done = true
       job.data.jobStatus = { done: true, completed: true }
-      cleanupWorkingDir(job.data.sourcePath)
     })
 
     JOB_QUEUE.on('failed', (job, result) => {
@@ -61,7 +47,6 @@ function initializeQueue (processFunction) {
       recordJobEvent(job, 'QUEUE_FAILED')
       job.data.done = true
       job.data.jobStatus = { done: true, failed: true }
-      cleanupWorkingDir(job.data.sourcePath)
     })
   }
   return JOB_QUEUE
