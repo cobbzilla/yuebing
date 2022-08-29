@@ -278,7 +278,7 @@ export default {
       showTransformOutput: false,
 
       // How many concurrent transformations can be done
-      concurrency: process.env.YB_XFORM_CONCURRENCY || 2,
+      concurrency: process.env.YB_AUTOSCAN_XFORM_CONCURRENCY || 2,
 
       configurable: {
         enabled: {
