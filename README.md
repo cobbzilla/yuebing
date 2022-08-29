@@ -11,7 +11,7 @@ It uses Amazon S3 as the backend storage system, and sports many advanced featur
 # Contents
 * [Inspiration](#Inspiration)
 * [Features](#Features)
-* [Installation and usage](#Installation-and-usage)
+* [Installation](#Installation)
   * [Docker](#Docker)
   * [npm package](#npm-package)
   * [From source](#From-source)
@@ -107,7 +107,7 @@ right?
 * User account info is also stored on the destination bucket, optionally encrypted
   * If encryption key is changed, admin can migrate users to the new key with web admin console
 
-## Installation and usage
+## Installation
 You can install and run `yuebing` via docker, npm or directly from source.
 
 ### Docker
