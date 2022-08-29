@@ -263,7 +263,9 @@ export default {
   admin_label_privateConfig_autoscan_enabled: 'Enable autoscan',
   admin_label_privateConfig_autoscan_interval: 'Regular scan interval',
   admin_label_privateConfig_autoscan_initialDelay: 'Startup scan delay',
-  admin_label_privateConfig_autoscan_showTransformOutput: 'Log transform output',
+  admin_label_privateConfig_autoscan_showTransformOutput: 'Log transform output?',
+  admin_label_privateConfig_autoscan_cleanupTemporaryAssets: 'Clean up temporary files?',
+  admin_label_privateConfig_autoscan_deleteIncompleteUploads: 'Clean up incomplete uploads?',
   admin_label_privateConfig_autoscan_concurrency: 'Concurrency',
 
   // User Administration

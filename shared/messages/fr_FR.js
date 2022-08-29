@@ -263,7 +263,9 @@ export default {
   admin_label_privateConfig_autoscan_enabled: 'Activer la numérisation automatique?',
   admin_label_privateConfig_autoscan_interval: 'Intervalle de balayage régulier',
   admin_label_privateConfig_autoscan_initialDelay: 'Délai de balayage de démarrage',
-  admin_label_privateConfig_autoscan_showTransformOutput: 'Sortie de transformation du journal',
+  admin_label_privateConfig_autoscan_showTransformOutput: 'Sortie de transformation du journal?',
+  admin_label_privateConfig_autoscan_cleanupTemporaryAssets: 'Nettoyer les fichiers temporaires?',
+  admin_label_privateConfig_autoscan_deleteIncompleteUploads: 'Nettoyer les téléchargements incomplets?',
   admin_label_privateConfig_autoscan_concurrency: 'Concurrence',
 
   // User Administration
