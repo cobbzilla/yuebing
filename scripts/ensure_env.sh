@@ -1,6 +1,7 @@
 #!/bin/sh
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ENV_TEMP=${1:?no env-temp file provided}
 
 show_notice () {
   echo "
@@ -29,9 +30,6 @@ die () {
   echo >&2 "${0}: ${1}"
   exit 1
 }
-
-ENV_TEMP="$(mktemp /tmp/env.XXXXXX)"
-chmod 600 "${ENV_TEMP}"
 
 REQUIRED="
 YB_ADMIN_EMAIL
@@ -68,8 +66,5 @@ Your value for ${req}: "
       fi
     done
     echo "export ${req}=${ENV_VALUE}" >> "${ENV_TEMP}" || die "Error writing ${req} env var to ${ENV_TEMP}"
-    chmod 0600 "${ENV_TEMP}" || die "Error setting permissions (0600) on ${ENV_TEMP}"
   fi
 done
-
-. "${ENV_TEMP}" && rm -f "${ENV_TEMP}"
