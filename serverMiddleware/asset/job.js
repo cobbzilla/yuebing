@@ -23,7 +23,7 @@ function initializeQueue (processFunction) {
         logger.warn(`jobQueue.on(active): job (with missing data.sourcePath: ${JSON.stringify(job)}) STARTING with result=${JSON.stringify(result)}`)
       }
       job.data.jobStatus = { running: true }
-      recordJobEvent(job, 'QUEUE_ACTIVE')
+      recordJobEvent(job, 'QUEUE_ACTIVE', JSON.stringify(result))
     })
 
     JOB_QUEUE.on('completed', (job, result) => {
@@ -32,7 +32,7 @@ function initializeQueue (processFunction) {
       } else {
         logger.warn(`jobQueue.on(completed): job (with missing data.sourcePath: ${JSON.stringify(job)}) COMPLETED with result=${JSON.stringify(result)}`)
       }
-      recordJobEvent(job, 'QUEUE_COMPLETED')
+      recordJobEvent(job, 'QUEUE_COMPLETED', JSON.stringify(result))
       job.data.done = true
       job.data.jobStatus = { done: true, completed: true }
     })
@@ -43,7 +43,7 @@ function initializeQueue (processFunction) {
       } else {
         logger.info(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
       }
-      recordJobEvent(job, 'QUEUE_FAILED')
+      recordJobEvent(job, 'QUEUE_FAILED', JSON.stringify(result))
       job.data.done = true
       job.data.jobStatus = { done: true, failed: true }
     })
