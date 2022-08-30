@@ -1,28 +1,38 @@
 #!/bin/sh
 
 YB_MAX_XFORM_LOAD=${YB_MAX_XFORM_LOAD:-20}
+YB_LOAD_LOG="${YB_WORK_DIR:-'/tmp'}/ffmpeg_load.log"
+
+SCRIPT="${0}"
+
+log () {
+  echo >&2 "${SCRIPT} [$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${YB_LOAD_LOG}"
+}
 
 # This block of load-related code is to keep the system from grinding
 # to a halt.
+
 # Sometimes queue management is hard and we spin up too many ffmpeg jobs
 # Before the system dies, let's stall jobs here, wait for the system
 # load to go below a threshold
 
 LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
 if [ -z "${LOAD}" ] ; then
-  echo >&2 "${0}: $(date) Unable to determine load, running ffmpeg $*"
+  log "Unable to determine load, running: ffmpeg $*"
 elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
   while [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; do
-    echo >&2 "${0}: $(date) Load is too high (${LOAD}), waiting to start ffmpeg $*"
+    log "Load is too high (${LOAD}), waiting to start: ffmpeg $*"
     sleep 10
     LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
     if [ -z "${LOAD}" ] ; then
-      echo >&2 "${0}: $(date) Unable to determine load, running ffmpeg $*"
+      log "Unable to determine load, running ffmpeg $*"
       break
     fi
   done
 else
-  echo >&2 "${0}: $(date) Load is OK (${LOAD}) we can run ffmpeg $*"
+  log "Load is OK (${LOAD}) we can run ffmpeg $*"
 fi
 
-ffmpeg "$@"
+log "RUNNING: ffmpeg $*"
+
+exec ffmpeg "$@"

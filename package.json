@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "video",
@@ -51,7 +51,7 @@
     "jsonpath": "^1.1.1",
     "lru-cache": "^7.14.0",
     "mime-types": "^2.1.35",
-    "mobiletto": "^1.0.47",
+    "mobiletto": "^1.0.48",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.15.8",
     "randomstring": "^1.2.2",

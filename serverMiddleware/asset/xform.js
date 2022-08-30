@@ -23,20 +23,33 @@ const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTempor
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
+  const doneWrapper = {
+    doneFunc: done,
+    finished: false,
+    finish: () => {
+      this.doneFunc()
+      this.finished = true
+    }
+  }
   ensureSourceDownloaded(job)
-    .then((file) => {
-      if (file) {
-        createArtifacts(job, file)
-          .then(
-            () => { logger.debug(`createArtifacts(${job}, ${file}): finished OK`) },
-            (e) => { logger.error(`createArtifacts(${job}, ${file}): error: ${e}`) }
-          )
+    .then(
+      (file) => {
+        if (file) {
+          createArtifacts(job, file, doneWrapper)
+            .then(
+              () => { logger.debug(`createArtifacts(${job.data?.sourcePath}, ${file}): finished OK`) },
+              (e) => { logger.error(`createArtifacts(${job.data?.sourcePath}, ${file}): error: ${e}`) }
+            )
+        }
+      },
+      (err) => { logger.error(`ensureSourceDownloaded(${job.data?.sourcePath}): error: ${err}`) }
+    ).finally(() => {
+      if (doneWrapper.finished) {
+        logger.debug(`XFORM_PROCESS_FUNCTION(${job.data?.sourcePath}): finished OK`)
+      } else {
+        logger.warn(`XFORM_PROCESS_FUNCTION(${job.data?.sourcePath}): did not finish OK, calling done()`)
+        doneWrapper.finish()
       }
-    },
-    (err) => { logger.error(`ensureSourceDownloaded(${job}): error: ${err}`) })
-    .finally(() => {
-      logger.debug(`XFORM_PROCESS_FUNCTION(${job}): finally calling done()`)
-      done()
     })
 }
 
@@ -325,7 +338,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
   }
 }
 
-async function mediaTransform (job, file, profile, outfile) {
+async function mediaTransform (job, file, profile, outfile, doneWrapper) {
   const mediaType = profile.mediaType
   const jobPrefix = `mediaTransform_${mediaType}_${profile.name}`
 
@@ -379,9 +392,12 @@ async function mediaTransform (job, file, profile, outfile) {
         (error) => { logger.error(`${logPrefix} ERROR recording error! ${error} (json=${JSON.stringify(error)}`) }
       )
     })
+    .finally(() => {
+      doneWrapper.finish()
+    })
 }
 
-async function createArtifacts (job, localSourceFile) {
+async function createArtifacts (job, localSourceFile, doneWrapper) {
   const sourcePath = job.data.sourcePath
 
   logger.debug('createArtifacts: starting with file: ' + localSourceFile)
@@ -431,7 +447,7 @@ async function createArtifacts (job, localSourceFile) {
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_starting_xform_${mediaType}`)
-    await mediaTransform(job, localSourceFile, profile, outfile)
+    await mediaTransform(job, localSourceFile, profile, outfile, doneWrapper)
     q.recordJobEvent(job, `${artifactPrefix}_completed_xform_${mediaType}`)
   }
 }

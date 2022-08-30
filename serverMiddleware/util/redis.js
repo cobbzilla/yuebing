@@ -11,9 +11,7 @@ const redisClient = new Redis({
 })
 const DEFAULT_EXPIRATION_MILLIS = 1000 * 60 * 60 * 24 * 30 // 30 days
 
-function get (key) {
-  return redisClient.get(key)
-}
+const get = async key => await redisClient.get(key)
 
 async function set (key, val, expirationMillis = DEFAULT_EXPIRATION_MILLIS) {
   await redisClient.set(key, val, 'EX', expirationMillis / 1000)
