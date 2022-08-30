@@ -25,11 +25,11 @@ const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncomp
 const XFORM_PROCESS_FUNCTION = (job, done) => {
   const doneWrapper = {
     doneFunc: done,
-    finished: false,
-    finish: () => {
-      this.doneFunc()
-      this.finished = true
-    }
+    finished: false
+  }
+  doneWrapper.finish = () => {
+    doneWrapper.doneFunc()
+    doneWrapper.finished = true
   }
   ensureSourceDownloaded(job)
     .then(

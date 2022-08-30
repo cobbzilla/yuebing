@@ -11,6 +11,7 @@ BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 DOCKER_REPO="cobbzilla/yuebing-dev"
 DOCKER_TAG="latest"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
+COMMAND="${1}"
 
 function die () {
   echo >&2 "${0}: ${1}"
@@ -35,4 +36,4 @@ cd "${BASE_DIR}" && \
     --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo "YB_WORK_DIR=/usr/src/scratch") \
     --env HOST=0.0.0.0 \
     --publish 127.0.0.1:3000:3000/tcp \
-    "${DOCKER_NAME}"
+    "${DOCKER_NAME}" "${COMMAND}"

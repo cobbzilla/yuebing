@@ -7,6 +7,7 @@
 #
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+COMMAND="${1}"
 
 DOCKER_REPO="cobbzilla/yuebing"
 DOCKER_TAG="latest"
@@ -38,4 +39,4 @@ cd "${BASE_DIR}" && \
     --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo "YB_WORK_DIR=/usr/src/scratch") \
     --env HOST=0.0.0.0 \
     --publish 127.0.0.1:3000:3000/tcp \
-    "${DOCKER_NAME}"
+    "${DOCKER_NAME}" "${COMMAND}"
