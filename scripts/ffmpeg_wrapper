@@ -1,12 +1,16 @@
 #!/bin/sh
 
-YB_MAX_XFORM_LOAD=${YB_MAX_XFORM_LOAD:-20}
+PROCESSOR_COUNT=$(grep -c ^processor /proc/cpuinfo)
+DEFAULT_LOAD_MULTIPLE=6
+DEFAULT_MAX_LOAD=$(expr ${PROCESSOR_COUNT} '*' ${DEFAULT_LOAD_MULTIPLE})
+
+YB_MAX_XFORM_LOAD=${YB_MAX_XFORM_LOAD:-${DEFAULT_MAX_LOAD}}
 YB_LOAD_LOG="${YB_WORK_DIR:-'/tmp'}/ffmpeg_load.log"
 
 SCRIPT="${0}"
 
 log () {
-  echo >&2 "${SCRIPT} [$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${YB_LOAD_LOG}"
+  echo "${SCRIPT} [$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "${YB_LOAD_LOG}"
 }
 
 # This block of load-related code is to keep the system from grinding
@@ -21,7 +25,7 @@ if [ -z "${LOAD}" ] ; then
   log "Unable to determine load, running: ffmpeg $*"
 elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
   while [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; do
-    log "Load is too high (${LOAD}), waiting to start: ffmpeg $*"
+    log "Load is too high (${LOAD} > ${YB_MAX_LOAD}), waiting to start: ffmpeg $*"
     sleep 10
     LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
     if [ -z "${LOAD}" ] ; then
@@ -30,7 +34,7 @@ elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
     fi
   done
 else
-  log "Load is OK (${LOAD}) we can run ffmpeg $*"
+  log "Load is OK (${LOAD} <= ${YB_MAX_LOAD}) we can run ffmpeg $*"
 fi
 
 log "RUNNING: ffmpeg $*"
