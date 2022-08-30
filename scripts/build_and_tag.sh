@@ -1,7 +1,7 @@
 #!/bin/sh
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-DEV="${1}"
+COMMAND="${1}"
 
 die () {
   echo >&2 "${0}: ${1}"
@@ -13,11 +13,16 @@ if [ -z "${VERSION}" ] ; then
   die "No version found in ${BASE_DIR}/package.json"
 fi
 
-if [ -z "${DEV}" ] || [ "${DEV}" != "dev" ] ; then
+if [ -z "${COMMAND}" ] || [ "${COMMAND}" != "dev" ] ; then
   cd "${BASE_DIR}" \
     && docker build -t "cobbzilla/yuebing:${VERSION}" . \
     && docker tag "cobbzilla/yuebing:${VERSION}" cobbzilla/yuebing:latest \
     || die "Error building/tagging docker image"
+  if [ -n "${COMMAND}" ] && [ "${COMMAND}" = "push" ] ; then
+    docker push "cobbzilla/yuebing:${VERSION}" \
+    && docker push cobbzilla/yuebing:latest \
+    || die "Error pushing docker images/tags"
+  fi
 else
   cd "${BASE_DIR}" \
     && docker build -t "cobbzilla/yuebing-dev:${VERSION}" . \
