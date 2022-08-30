@@ -1,6 +1,23 @@
 {
   "name": "yuebing",
-  "version": "1.0.42",
+  "version": "1.0.43",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "video",
+    "mp4",
+    "dash",
+    "yuebing"
+  ],
+  "homepage": "https://github.com/cobbzilla/yuebing",
+  "author": "Jonathan Cobb <6ln9bkpf@duck.com> (https://github.com/cobbzilla)",
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/cobbzilla"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cobbzilla/yuebing"
+  },
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
@@ -34,7 +51,7 @@
     "jsonpath": "^1.1.1",
     "lru-cache": "^7.14.0",
     "mime-types": "^2.1.35",
-    "mobiletto": "^1.0.41",
+    "mobiletto": "^1.0.42",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.15.8",
     "randomstring": "^1.2.2",
