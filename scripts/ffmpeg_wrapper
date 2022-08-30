@@ -2,9 +2,11 @@
 
 YB_MAX_XFORM_LOAD=${YB_MAX_XFORM_LOAD:-20}
 
-# Don't let the load get out of control
-# Just in case we spin up too many ffmpeg jobs, let them stall before
-# starting if the system load is too high
+# This block of load-related code is to keep the system from grinding
+# to a halt.
+# Sometimes queue management is hard and we spin up too many ffmpeg jobs
+# Before the system dies, let's stall jobs here, wait for the system
+# load to go below a threshold
 
 LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
 if [ -z "${LOAD}" ] ; then
