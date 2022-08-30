@@ -30,7 +30,8 @@ die () {
   exit 1
 }
 
-ENV_FILE="${BASE_DIR}"/.env
+ENV_TEMP="$(mktemp /tmp/env.XXXXXX)"
+chmod 600 "${ENV_TEMP}"
 
 REQUIRED="
 YB_ADMIN_EMAIL
@@ -44,7 +45,7 @@ PASSWORDS="YB_ADMIN_PASSWORD YB_DEST_KEY YB_DEST_SECRET"
 
 NOTICE_SHOWN=0
 for req in ${REQUIRED} ; do
-  if [ -z "$(grep "${req}" "${ENV_FILE}" | grep -v '#')" ] ; then
+  if [ -z "$(env | grep "${req}")" ] ; then
     if [ ${NOTICE_SHOWN} -eq 0 ] ; then
       show_notice
       NOTICE_SHOWN=1
@@ -66,8 +67,9 @@ Your value for ${req}: "
         stty echo
       fi
     done
-    echo "export ${req}=${ENV_VALUE}" >> "${ENV_FILE}" || die "Error writing ${req} env var to ${ENV_FILE}"
-    chmod 0600 "${ENV_FILE}" || die "Error setting permissions (0600) on ${ENV_FILE}"
-    continue
+    echo "export ${req}=${ENV_VALUE}" >> "${ENV_TEMP}" || die "Error writing ${req} env var to ${ENV_TEMP}"
+    chmod 0600 "${ENV_TEMP}" || die "Error setting permissions (0600) on ${ENV_TEMP}"
   fi
 done
+
+. "${ENV_TEMP}" && rm -f "${ENV_TEMP}"
