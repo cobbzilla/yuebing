@@ -1,4 +1,11 @@
 FROM node:16.16.0-alpine3.16
+#
+# Yuebing Dockerfile
+#
+# GitHub: https://github.com/cobbzilla/yuebing
+# npm: https://www.npmjs.com/package/yuebing
+# DockerHub: https://hub.docker.com/repository/docker/cobbzilla/yuebing
+#
 
 RUN mkdir -p /usr/src/yuebing
 RUN mkdir -p /usr/src/scratch

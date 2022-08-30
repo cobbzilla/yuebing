@@ -63,7 +63,7 @@ function isCommandAllowed (mediaType, command) {
     (ALWAYS_ALLOWED_COMMANDS.includes(command) || (allowedCommands && allowedCommands.includes(command)))
 }
 
-function runTransformCommand (job, profile, outfile, args, closeHandler) {
+async function runTransformCommand (job, profile, outfile, args, closeHandler) {
   const mediaType = profile.mediaType
   const command = profileCommand(profile)
   const logPrefix = `runTransformCommand(command=${command}, profile=${profile.name}):`
@@ -111,6 +111,7 @@ function runTransformCommand (job, profile, outfile, args, closeHandler) {
     q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
     closeHandler(code)
   })
+  await xform
 }
 
 function multifilePrefix (outfile) {
@@ -314,7 +315,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
   }
 }
 
-function mediaTransform (job, file, profile, outfile) {
+async function mediaTransform (job, file, profile, outfile) {
   const mediaType = profile.mediaType
   const jobPrefix = `mediaTransform_${mediaType}_${profile.name}`
 
@@ -325,16 +326,16 @@ function mediaTransform (job, file, profile, outfile) {
   const mediaDriver = require(driverPath)
   q.recordJobEvent(job, `${jobPrefix}_start`)
   const sourcePath = job.data.sourcePath
-  const logPrefix = `${mediaType}:transform(${sourcePath}, ${file}, ${profile.name}):`
+  const logPrefix = `${jobPrefix}:transform(${sourcePath}):`
   logger.debug(`${logPrefix} starting with outfile ${outfile}`)
   if (typeof profile.operation === 'undefined') {
     logger.debug(`${logPrefix} no operation defined on profile, skipping: profile=${JSON.stringify(profile)}`)
-    q.recordJobEvent(job, `${jobPrefix}_ERROR_invalid_operation`)
+    q.recordJobEvent(job, `${logPrefix}_ERROR_invalid_operation`)
     return
   }
   if (!profile.enabled) {
     logger.debug(`${logPrefix} profile not enabled, skipping`)
-    q.recordJobEvent(job, `${jobPrefix}_ERROR_not_enabled`)
+    q.recordJobEvent(job, `${logPrefix}_ERROR_not_enabled`)
     return
   }
 
@@ -350,15 +351,24 @@ function mediaTransform (job, file, profile, outfile) {
   const args = xform(sourcePath, file, profile, outfile)
   const outputHandler = handleOutputFiles(job, sourcePath, profile, outfile)
   logger.debug(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
-  q.recordJobEvent(job, `${jobPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
-  runTransformCommand(job, profile, outfile, args, (code) => {
-    q.recordJobEvent(job, `${jobPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
+  q.recordJobEvent(job, `${logPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
+  await runTransformCommand(job, profile, outfile, args, (code) => {
+    q.recordJobEvent(job, `${logPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
     outputHandler(code).then(() => {
-      q.recordJobEvent(job, `${jobPrefix}_outputHandler_COMPLETE`)
+      q.recordJobEvent(job, `${logPrefix}_outputHandler_COMPLETE`)
       logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
     })
-  })
-  q.recordJobEvent(job, `${jobPrefix}_DONE`)
+  }).then(
+    () => { q.recordJobEvent(job, `${logPrefix}_DONE`) },
+    (err) => {
+      const message = `${logPrefix} transform error: ${err} (json=${JSON.stringify(err)})`
+      logger.error(message)
+      q.recordJobEvent(job, `${logPrefix}_ERROR_transforming`, `${err}`)
+      system.recordError(sourcePath, profile.name, message).then(
+        () => { logger.debug(`${logPrefix} recorded error successfully: ${err} (json=${JSON.stringify(err)}`) },
+        (error) => { logger.error(`${logPrefix} ERROR recording error! ${error} (json=${JSON.stringify(error)}`) }
+      )
+    })
 }
 
 async function createArtifacts (job, localSourceFile) {
@@ -411,7 +421,7 @@ async function createArtifacts (job, localSourceFile) {
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_starting_xform_${mediaType}`)
-    mediaTransform(job, localSourceFile, profile, outfile)
+    await mediaTransform(job, localSourceFile, profile, outfile)
     q.recordJobEvent(job, `${artifactPrefix}_completed_xform_${mediaType}`)
   }
 }
