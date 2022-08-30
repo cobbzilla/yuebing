@@ -34,7 +34,6 @@ fi
 cd "${BASE_DIR}" && \
   docker run -it \
     --ulimit nofile=500000:500000 \
-    --mount type=bind,source="$(pwd)",target=/usr/src/yuebing \
     --mount type=bind,source="${YB_WORK_DIR}",target=/usr/src/scratch \
     --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo "YB_WORK_DIR=/usr/src/scratch") \
     --env HOST=0.0.0.0 \
