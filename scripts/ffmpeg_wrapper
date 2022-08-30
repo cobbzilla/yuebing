@@ -13,7 +13,7 @@ fi
 # 2.5 minutes max wait between retries
 MAX_SLEEP_TIME=150
 
-YB_MAX_LOAD=${YB_MAX_XFORM_LOAD}
+YB_MAX_LOAD=${YB_WORK_MAX_LOAD}
 if [ -z "${YB_MAX_LOAD}" ] ; then
   YB_MAX_LOAD=${DEFAULT_MAX_LOAD}
 fi
