@@ -72,7 +72,7 @@ right?
   * The "discovery experience" consists in *navigating a directory hierarchy*. That is **super lame**, but we had to start somewhere.
   * We will add support for proper search, tagging, suggestions, etc.
   * OK, there's actually a lot of stuff that still sucks, and this is totally 1.0 software, but the stuff that works is pretty cool
-* <a href="https://www.patreon.com/cobbzilla">**Coming up with your support**<a>:
+* <a href="https://www.patreon.com/cobbzilla">**Coming soon with your support**</a>:
   * Support for more media types (audio, images, etc)
   * Auto-tagging and search
   * Likes and comments
