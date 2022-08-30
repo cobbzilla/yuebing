@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
@@ -34,7 +34,7 @@
     "jsonpath": "^1.1.1",
     "lru-cache": "^7.14.0",
     "mime-types": "^2.1.35",
-    "mobiletto": "^1.0.40",
+    "mobiletto": "^1.0.41",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.15.8",
     "randomstring": "^1.2.2",

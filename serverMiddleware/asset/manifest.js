@@ -1,4 +1,5 @@
 const path = require('path')
+const { MobilettoNotFoundError } = require('mobiletto')
 const c = require('../../shared')
 const m = require('../../shared/media')
 const redis = require('../util/redis')
@@ -113,7 +114,11 @@ async function deriveMetadata (source, sourcePath) {
     const selectedThumbnail = await system.api.readFile(system.assetsDir(sourceAndPath) + c.SELECTED_THUMBNAIL_FILE)
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
-    logger.info(`deriveMetadata: error finding/parsing selected thumbnail: ${err}`)
+    if (err instanceof MobilettoNotFoundError) {
+      logger.debug(`deriveMetadata: no selected thumbnail for ${sourceAndPath}`)
+    } else {
+      logger.warn(`deriveMetadata: error finding/parsing selected thumbnail for ${sourceAndPath}: ${err}`)
+    }
   }
 
   await redis.set(cacheKey, JSON.stringify(meta), MANIFEST_CACHE_EXPIRATION)
