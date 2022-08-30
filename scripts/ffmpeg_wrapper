@@ -1,10 +1,22 @@
 #!/bin/sh
 
 PROCESSOR_COUNT=$(grep -c ^processor /proc/cpuinfo)
+if [ -z "${PROCESSOR_COUNT}" ] ; then
+  PROCESSOR_COUNT=2
+fi
 DEFAULT_LOAD_MULTIPLE=6
 DEFAULT_MAX_LOAD=$(expr ${PROCESSOR_COUNT} '*' ${DEFAULT_LOAD_MULTIPLE})
+if [ -z "${DEFAULT_MAX_LOAD}" ] ; then
+  DEFAULT_MAX_LOAD=10
+fi
 
-YB_MAX_XFORM_LOAD=${YB_MAX_XFORM_LOAD:-${DEFAULT_MAX_LOAD}}
+# 2.5 minutes max wait between retries
+MAX_SLEEP_TIME=150
+
+YB_MAX_LOAD=${YB_MAX_XFORM_LOAD}
+if [ -z "${YB_MAX_LOAD}" ] ; then
+  YB_MAX_LOAD=${DEFAULT_MAX_LOAD}
+fi
 YB_LOAD_LOG="${YB_WORK_DIR:-'/tmp'}/ffmpeg_load.log"
 
 SCRIPT="${0}"
@@ -21,12 +33,18 @@ log () {
 # load to go below a threshold
 
 LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
+ATTEMPT=0
 if [ -z "${LOAD}" ] ; then
   log "Unable to determine load, running: ffmpeg $*"
 elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
   while [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; do
-    log "Load is too high (${LOAD} > ${YB_MAX_LOAD}), waiting to start: ffmpeg $*"
-    sleep 10
+    ATTEMPT=$(expr ${ATTEMPT} + 1)
+    SLEEP_TIME=$(expr 10 '*' ${ATTEMPT})
+    if [ ${SLEEP_TIME} -gt ${MAX_SLEEP_TIME} ] ; then
+      SLEEP_TIME=${MAX_SLEEP_TIME}
+    fi
+    log "Load is too high (${LOAD} > ${YB_MAX_LOAD}), waiting ${SLEEP_TIME} seconds before trying again: ffmpeg $*"
+    sleep ${SLEEP_TIME}
     LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
     if [ -z "${LOAD}" ] ; then
       log "Unable to determine load, running ffmpeg $*"
