@@ -23,11 +23,21 @@ const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTempor
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = (job, done) => {
-  ensureSourceDownloaded(job).then((file) => {
-    if (file) {
-      createArtifacts(job, file).then(() => done())
-    }
-  })
+  ensureSourceDownloaded(job)
+    .then((file) => {
+      if (file) {
+        createArtifacts(job, file)
+          .then(
+            () => { logger.debug(`createArtifacts(${job}, ${file}): finished OK`) },
+            (e) => { logger.error(`createArtifacts(${job}, ${file}): error: ${e}`) }
+          )
+      }
+    },
+    (err) => { logger.error(`ensureSourceDownloaded(${job}): error: ${err}`) })
+    .finally(() => {
+      logger.debug(`XFORM_PROCESS_FUNCTION(${job}): finally calling done()`)
+      done()
+    })
 }
 
 q.initializeQueue(XFORM_PROCESS_FUNCTION)

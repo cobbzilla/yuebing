@@ -1,4 +1,3 @@
-const fs = require('fs')
 const Queue = require('bull')
 const system = require('../util/config').SYSTEM
 const logger = system.logger

@@ -207,7 +207,7 @@ export default {
         //
         // All drivers are allowed to run 'mediainfo', that does not need to be listed.
         // Anything that looks like a shell will fail validation (bash/zsh/ssh/etc)
-        allowedCommands: ['ffmpeg']
+        allowedCommands: ['./scripts/ffmpeg_wrapper']
       }
     },
 

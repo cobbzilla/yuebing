@@ -36,9 +36,10 @@ function initLimitRegistration () {
       throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
     }
   } else if (typeof LIMIT_REG === 'string') {
-    return system.api.readFile(LIMIT_REG).then((text) => {
-      if (text.trim().startsWith('[')) {
-        const list = JSON.parse(text)
+    return system.api.readFile(LIMIT_REG).then((data) => {
+      const text = data.toString()
+      if (text.toString().trim().startsWith('[')) {
+        const list = JSON.parse(text.toString())
         if (list.length === 0 || typeof list[0] !== 'string') {
           throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected dest object to contain JSON array of list of new-line separated emails, found: ${text}`)
         }
