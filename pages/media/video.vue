@@ -77,10 +77,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState('source', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     hasSources () { return hasSourceVideos(this) },
     isReady () {
       return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)

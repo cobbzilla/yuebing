@@ -2,7 +2,16 @@
   <v-container>
     <v-row>
       <v-col>
-        <h2>{{ messages.title_profile }}</h2>
+        <h2>
+          {{ messages.title_profile }}
+          <div>
+            <a href="https://gravatar.com/">
+              <v-avatar size="48px">
+                <v-img :src="gravatarUrl" contain :alt="`avatar image for ${user.firstName}`" />
+              </v-avatar>
+            </a>
+          </div>
+        </h2>
       </v-col>
     </v-row>
     <v-row v-if="showSuccessSnackbar">
@@ -17,29 +26,43 @@
         <ValidationObserver ref="form">
           <v-form @submit.prevent="handleSubmit">
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="firstName" rules="required|min:2" immediate>
+              <ValidationProvider v-slot="{ errors }" name="username" :rules="formRules.username" immediate>
+                <v-text-field
+                  v-model="user.username"
+                  :label="messages.label_username"
+                  readonly
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('username', errors) : null"
+                />
+              </ValidationProvider>
+            </div>
+            <div class="form-group">
+              <ValidationProvider v-slot="{ errors }" name="firstName" :rules="formRules.firstName" immediate>
                 <v-text-field
                   v-model="user.firstName"
                   :label="messages.label_firstName"
                   type="text"
                   name="firstName"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('firstName', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors) }}</span>
               </ValidationProvider>
             </div>
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="lastName" rules="required|min:3" immediate>
+              <ValidationProvider v-slot="{ errors }" name="lastName" :rules="formRules.lastName" immediate>
                 <v-text-field
                   v-model="user.lastName"
                   :label="messages.label_lastName"
                   type="text"
                   name="lastName"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('lastName', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors) }}</span>
               </ValidationProvider>
             </div>
             <div v-if="supportedLocales.length > 1" class="form-group">
@@ -52,8 +75,9 @@
                   item-value="name"
                   :value="userLocale"
                   class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('locale', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
           </v-form>
@@ -87,6 +111,8 @@
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { currentUser, UI_CONFIG } from '@/services/util'
+import { condensedRules } from '@/shared/validation'
+import { gravatarEmailUrl } from '@/shared/user'
 
 export default {
   name: 'UserProfile',
@@ -103,7 +129,9 @@ export default {
     ...mapState(['browserLocale']),
     supportedLocales () { return localesList(this.user, this.browserLocale) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    userLocale () { return this.user && this.user.locale ? this.user.locale : DEFAULT_LOCALE }
+    userLocale () { return this.user && this.user.locale ? this.user.locale : DEFAULT_LOCALE },
+    formRules () { return condensedRules() },
+    gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null }
   },
   watch: {
     updateResults (newResults) {

@@ -109,10 +109,10 @@ import { localeMessagesForUser } from '@/shared/locale'
 export default {
   name: 'ListObjects',
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState('source', ['prefix', 'objectList']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     minCardHeight () { return 200 },
     minCardWidth () { return 200 },
     maxCardHeight () { return 400 },

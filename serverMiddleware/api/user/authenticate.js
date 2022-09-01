@@ -11,9 +11,13 @@ export default {
     logger.info(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
-      if (typeof loginRequest.email === 'string' && loginRequest.email.length > 1) {
-        u.findUser(loginRequest.email).then(
+      if (typeof loginRequest.usernameOrEmail === 'string' && loginRequest.usernameOrEmail.length > 1) {
+        u.findUser(loginRequest.usernameOrEmail).then(
           (user) => {
+            if (!user) {
+              logger.info(`>>>>> API: Authenticate: user not found: ${loginRequest.usernameOrEmail}`)
+              return api.validationFailed(res, ACCOUNT_NOT_FOUND)
+            }
             u.checkPassword(user, loginRequest.password, (ok) => {
               if (ok) {
                 u.startSession(user).then(
@@ -34,7 +38,7 @@ export default {
               }
             },
             (err) => {
-              logger.info(`>>>>> API: Authenticate: wrong password: (err was ${err})`)
+              logger.info(`>>>>> API: Authenticate: error (err was ${err})`)
               return api.validationFailed(res, ACCOUNT_NOT_FOUND)
             })
           },

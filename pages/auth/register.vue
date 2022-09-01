@@ -10,7 +10,20 @@
         <ValidationObserver ref="form">
           <v-form id="form" @submit.prevent="handleSubmit">
             <div class="form-group">
-              <label for="firstName">{{ messages.label_firstName }}</label>
+              <ValidationProvider v-slot="{ errors }" name="username" :rules="formRules.username" immediate>
+                <v-text-field
+                  v-model="user.username"
+                  :label="messages.label_username"
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('username', errors) : null"
+                />
+              </ValidationProvider>
+            </div>
+
+            <div class="form-group">
               <ValidationProvider v-slot="{ errors }" name="firstName" :rules="formRules.firstName" immediate>
                 <v-text-field
                   v-model="user.firstName"
@@ -18,9 +31,9 @@
                   type="text"
                   name="firstName"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('firstName', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('firstName', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -32,9 +45,9 @@
                   type="text"
                   name="lastName"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('lastName', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('lastName', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -46,9 +59,9 @@
                   type="text"
                   name="email"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('email', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -60,9 +73,9 @@
                   type="password"
                   name="password"
                   class="form-control"
-                  :class="{ 'is-invalid': submitted && errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('password', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
               </ValidationProvider>
             </div>
 
@@ -76,8 +89,9 @@
                   item-value="name"
                   :value="userLocale"
                   class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('locale', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('locale', errors) }}</span>
               </ValidationProvider>
             </div>
           </v-form>
@@ -119,6 +133,7 @@ export default {
   data () {
     return {
       user: {
+        username: '',
         firstName: '',
         lastName: '',
         email: '',
@@ -129,10 +144,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['userStatus', 'registerError']),
+    ...mapState('user', ['userStatus', 'registerError', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    supportedLocales () { return localesList(this.user, this.browserLocale) },
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     signInUrl () { return LOGIN_ENDPOINT },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
     formRules () { return condensedRules() },
@@ -150,6 +165,9 @@ export default {
       if (newLocale && this.user.locale === null) {
         this.user.locale = newLocale
       }
+    },
+    registerError (newError) {
+      this.$refs.form.setErrors(newError)
     }
   },
   created () {

@@ -106,6 +106,7 @@ export default {
     admin: {
       user: {
         email: process.env.YB_ADMIN_EMAIL || null,
+        username: process.env.YB_ADMIN_USERNAME || 'admin',
         password: process.env.YB_ADMIN_PASSWORD || null,
         locale: process.env.YB_ADMIN_LOCALE || process.env.YB_DEFAULT_LOCALE || 'en_US'
       },

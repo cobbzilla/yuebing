@@ -11,17 +11,16 @@
           <ValidationObserver ref="form">
             <v-form @submit.prevent="handleSubmit">
               <div class="form-group">
-                <ValidationProvider v-slot="{ errors }" name="email" rules="required|email" immediate>
+                <ValidationProvider v-slot="{ errors }" name="usernameOrEmail" rules="required" immediate>
                   <v-text-field
-                    v-model="email"
-                    :label="messages.label_email"
+                    v-model="usernameOrEmail"
+                    :label="messages.label_usernameOrEmail"
                     type="text"
-                    name="email"
+                    name="usernameOrEmail"
                     class="form-control"
-                    :class="{ 'is-invalid': submitted && !email }"
+                    :error="submitted && errors.length>0"
+                    :error-messages="submitted ? fieldError('usernameOrEmail', errors) : null"
                   />
-                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
-                  <span v-if="loginErr && loginErr.email" v-show="submitted" class="is-invalid">{{ fieldError('email', loginErr.email[0]) }}</span>
                 </ValidationProvider>
               </div>
               <div class="form-group">
@@ -32,11 +31,10 @@
                     type="password"
                     name="password"
                     class="form-control"
-                    :class="{ 'is-invalid': submitted && !password }"
+                    :error="submitted && errors.length>0"
+                    :error-messages="submitted ? fieldError('password', errors) : null"
                     @keyup.enter="handleSubmit"
                   />
-                  <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
-                  <span v-if="loginErr && loginErr.password" v-show="submitted" class="is-invalid">{{ fieldError('password', loginErr.password[0]) }}</span>
                 </ValidationProvider>
               </div>
               <div class="form-group">
@@ -80,18 +78,18 @@ export default {
   name: 'UserLogin',
   data () {
     return {
-      email: '',
+      usernameOrEmail: '',
       password: '',
       submitted: false
     }
   },
   computed: {
-    ...mapState('user', ['userStatus', 'loginError']),
+    ...mapState('user', ['userStatus', 'loginError', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     signUpUrl () { return REGISTER_ENDPOINT },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
-    loginDisabled () { return this.userStatus.loggingIn || !this.email || !this.password },
+    loginDisabled () { return this.userStatus.loggingIn || !this.usernameOrEmail || !this.password },
     loginErr () { return this.loginError || false }
   },
   created () {
@@ -103,9 +101,9 @@ export default {
     handleSubmit () {
       if (this.loginDisabled) { return }
       this.submitted = true
-      const { email, password } = this
-      if (email && password) {
-        this.login({ email, password })
+      const { usernameOrEmail, password } = this
+      if (usernameOrEmail && password) {
+        this.login({ usernameOrEmail, password })
       }
     },
     fieldError (field, error) {

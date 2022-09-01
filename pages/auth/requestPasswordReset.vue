@@ -22,13 +22,10 @@
                 type="text"
                 name="email"
                 class="form-control"
-                :class="{ 'is-invalid': submitted && !email }"
+                :error="submitted && errors.length>0"
+                :error-messages="submitted ? fieldError('email', errors) : null"
                 @keyup.enter="handleSubmit"
               />
-              <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('email', errors) }}</span>
-              <div v-show="submitted && !email" class="invalid-feedback">
-                {{ requiredError('email') }}
-              </div>
             </ValidationProvider>
           </div>
           <div class="form-group">
@@ -89,9 +86,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     signInUrl () { return LOGIN_ENDPOINT },
     signUpUrl () { return REGISTER_ENDPOINT },
     resetSuccess () { return this.userStatus.passwordResetSuccess },
@@ -127,9 +124,6 @@ export default {
         const email = this.email
         this.requestPasswordReset({ email })
       }
-    },
-    requiredError (field) {
-      return fieldErrorMessage(field, 'required', this.messages)
     },
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'

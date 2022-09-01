@@ -89,9 +89,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     thumbnail () { return this.object ? findThumbnail(this.object) : null },
     thumbnails () { return this.object ? findThumbnails(this.object) : null },
     isSelectedThumbnail () {

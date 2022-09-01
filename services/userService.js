@@ -11,6 +11,7 @@ export const userService = {
   register,
   verify,
   requestPasswordReset,
+  setLocale,
   updateUser,
   deleteUser,
   inviteFriends
@@ -19,8 +20,8 @@ export const userService = {
 function browserHeaders () { return fetch('/api/user/headers', { method: 'POST', body: '{}' }).then(a.handleJsonResponse) }
 function loadPublicConfig () { return fetch('/api/user/config', { method: 'GET' }).then(a.handleJsonResponse) }
 
-function login (email, password) {
-  return fetch('/api/user/authenticate', a.authPostJson({ email, password }))
+function login (usernameOrEmail, password) {
+  return fetch('/api/user/authenticate', a.authPostJson({ usernameOrEmail, password }))
     .then(a.handleJsonResponse)
     .then((user) => {
       if (user.token) {
@@ -58,6 +59,10 @@ function requestPasswordReset (email) {
 
 function updateUser (update) {
   return fetch('/api/user/update', a.authPostJson(update)).then(a.handleJsonResponse)
+}
+
+function setLocale (user, locale) {
+  return fetch('/api/user/update', a.authPostJson(Object.assign({}, user, { locale }))).then(a.handleJsonResponse)
 }
 
 function deleteUser () {

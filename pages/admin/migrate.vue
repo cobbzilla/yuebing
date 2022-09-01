@@ -79,8 +79,9 @@
                   item-text="name"
                   item-value="name"
                   class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('readSource', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('readSource', errors) }}</span>
               </ValidationProvider>
             </div>
             <div>
@@ -91,9 +92,9 @@
                   :label="messages.admin_label_migration_readPath"
                   type="text"
                   class="form-control"
-                  :class="{ 'is-invalid': errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('readPath', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('readPath', errors) }}</span>
               </ValidationProvider>
             </div>
             <div class="form-group">
@@ -105,8 +106,9 @@
                   item-text="name"
                   item-value="name"
                   class="form-control"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('writeSource', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('writeSource', errors) }}</span>
               </ValidationProvider>
             </div>
             <div>
@@ -117,9 +119,9 @@
                   :label="messages.admin_label_migration_writePath"
                   type="text"
                   class="form-control"
-                  :class="{ 'is-invalid': errors.length>0 }"
+                  :error="submitted && errors.length>0"
+                  :error-messages="submitted ? fieldError('writePath', errors) : null"
                 />
-                <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('writePath', errors) }}</span>
               </ValidationProvider>
             </div>
             <div class="form-group">

@@ -1,6 +1,7 @@
 import { USER_SESSION_HEADER } from '@/shared'
 
 const USER_LOCAL_STORAGE_KEY = 'user'
+const ANON_LOCALE_STORAGE_KEY = 'anon_locale'
 
 const UI_CONFIG = {
   snackbarErrorTimeout: 6000,
@@ -69,8 +70,12 @@ function handleJsonResponse (response) {
   })
 }
 
+const saveAnonLocale = (locale) => {
+  localStorage.setItem(ANON_LOCALE_STORAGE_KEY, JSON.stringify(locale))
+}
+
 export {
   USER_LOCAL_STORAGE_KEY, UI_CONFIG,
-  currentUser, authHeader, handleJsonResponse,
+  currentUser, authHeader, handleJsonResponse, saveAnonLocale,
   authGet, authPostJson, authPutJson, authPatchJson, authDelete
 }

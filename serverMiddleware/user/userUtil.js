@@ -15,6 +15,7 @@ const logger = system.logger
 
 const ADMIN = system.privateConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
+const ADMIN_USERNAME = ADMIN.user && ADMIN.user.username ? ADMIN.user.username : 'admin'
 const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
 const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
@@ -171,65 +172,104 @@ function UserValidationError (errors) {
   } else {
     this.stack = (new Error(this.message)).stack
   }
+  UserValidationError.prototype.toString = () => JSON.stringify(this)
 }
 
 const USERS_PREFIX = 'users/'
-const userKey = email => USERS_PREFIX + shasum(email.trim())
+const userKey = username => USERS_PREFIX + shasum(USERS_PREFIX + username.toLowerCase().trim())
 
-async function userExists (name) {
-  const user = await system.api.safeMetadata(userKey(name))
-  return user ? user.name : null
+const EMAILS_PREFIX = 'emails/'
+const emailKey = email => EMAILS_PREFIX + shasum(EMAILS_PREFIX + email.toLowerCase().trim())
+
+const CACHE_PREFIX_EMAIL_EXISTS = 'emailExists_'
+const CACHE_PREFIX_USERNAME_EXISTS = 'emailExists_'
+const CACHE_EXPIRATION_NAME_EXISTS = 1000 * 60 * 60 * 24
+const NAME_NOT_FOUND = '~'
+
+const makeCacheable = async (cachePrefix, key, expiration, func) => {
+  const fullKey = cachePrefix + key
+  let val = await redis.get(fullKey)
+  if (val) {
+    return val.toString() === NAME_NOT_FOUND ? null : val
+  }
+  val = func(key)
+  await redis.set(fullKey, JSON.stringify(val ? val : NAME_NOT_FOUND), expiration)
+  return val ? val : null
 }
 
-function registerInitialAdminUser (regRequest) {
+const emailExists = async (email) => await makeCacheable(CACHE_PREFIX_EMAIL_EXISTS, email, CACHE_EXPIRATION_NAME_EXISTS,
+    async e => await system.api.safeMetadata(emailKey(e)))
+
+const recordRegisteredEmail = async email => await redis.set(CACHE_PREFIX_EMAIL_EXISTS+email, email, CACHE_EXPIRATION_NAME_EXISTS)
+
+const usernameExists = async (name) => await makeCacheable(CACHE_PREFIX_USERNAME_EXISTS, name, CACHE_EXPIRATION_NAME_EXISTS,
+    async n => await system.api.safeMetadata(userKey(n)))
+
+const recordRegisterUsername = async name => redis.set(CACHE_PREFIX_USERNAME_EXISTS+name, name, CACHE_EXPIRATION_NAME_EXISTS)
+
+async function findUser (nameOrEmail, email = null) {
+  const user = await system.api.safeReadFile(userKey(nameOrEmail))
+  if (user) {
+    return JSON.parse(user)
+  }
+  const userByEmail = await system.api.safeReadFile(emailKey(email ? email : nameOrEmail))
+  return userByEmail ? JSON.parse(await system.api.safeReadFile(userKey(JSON.parse(userByEmail)))) : null
+}
+
+async function registerInitialAdminUser (regRequest) {
   if (!regRequest.firstName) {
-    regRequest.firstName = 'admin'
+    regRequest.firstName = ADMIN_USERNAME
   }
   if (!regRequest.lastName) {
-    regRequest.lastName = 'admin'
+    regRequest.lastName = ADMIN_USERNAME
   }
-  return _registerUser(regRequest, () => {
+  if (!regRequest.username) {
+    regRequest.username = ADMIN_USERNAME
+  }
+  return await _registerUser(regRequest, () => {
     logger.info(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
   }, true)
 }
 
-function registerUser (regRequest, successHandler) {
-  return _registerUser(regRequest, successHandler, false)
+async function registerUser (regRequest, successHandler) {
+  return await _registerUser(regRequest, successHandler, false)
 }
 
 function regNotAllowed () {
   return new UserValidationError({ email: ['registrationNotAllowed'] })
 }
 
-function _registerUser (regRequest, successHandler, admin) {
+const ERR_ALREADY_REGISTERED = 'alreadyRegistered'
+
+async function _registerUser (regRequest, successHandler, admin) {
+  let errors = {}
   if (!admin) {
     if (LIMIT_REGISTRATION && !LIMIT_REGISTRATION.includes(regRequest.email)) {
       throw regNotAllowed()
     } else if (!LIMIT_REGISTRATION && !ALLOW_REGISTRATION) {
       throw regNotAllowed()
     }
-    const errors = valid.validate(regRequest)
+    errors = valid.validate(regRequest)
     if (!c.empty(errors)) {
       throw new UserValidationError(errors)
     }
   } else if (admin && ADMIN.overwrite) {
     // allow over-write of initial admin when nuxt config flag is set
-    return createUserRecord(regRequest, successHandler)
+    return await createUserRecord(regRequest, successHandler)
   }
   // check for duplicate user
-  return userExists(regRequest.email).then((exists) => {
-    if (exists) {
-      if (admin) {
-        logger.info(`admin user already exists: ${regRequest.email}`)
-      } else {
-        return Promise.resolve(() => {
-          throw new UserValidationError({ email: ['alreadyRegistered'] })
-        })
-      }
-    } else {
-      return createUserRecord(regRequest, successHandler)
-    }
-  })
+  if (await usernameExists(regRequest.username)) {
+    if (typeof errors.username === 'undefined') { errors.username = [] }
+    errors.username.push(ERR_ALREADY_REGISTERED)
+  }
+  if (await emailExists(regRequest.email)) {
+    if (typeof errors.email === 'undefined') { errors.email = [] }
+    errors.email.push(ERR_ALREADY_REGISTERED)
+  }
+  if (c.okl(errors) > 0) {
+    throw new UserValidationError(errors)
+  }
+  return await createUserRecord(regRequest, successHandler)
 }
 
 const USER_VERIFY_PREFIX = 'verify_token_'
@@ -274,12 +314,13 @@ function checkPassword (user, password, successCallback, errorCallback) {
   )
 }
 
-function createUserRecord (user, successHandler) {
+async function createUserRecord (user, successHandler) {
   // bcrypt the password, create new user object
   const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
   const newUser = {
     ctime: Date.now(),
     mtime: Date.now(),
+    username: user.username,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -294,27 +335,43 @@ function createUserRecord (user, successHandler) {
       logger.info(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
     })
     const ctx = {
-      user,
+      user: newUser,
       token,
       verifyUrl: c.normalizeUrl(system.publicConfig.siteUrl, auth.VERIFY_ENDPOINT) +
-        '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
+        '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(newUser.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
-    email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
+    email.sendEmail(newUser.email, newUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
       () => {
-        logger.info(`createUserRecord: verification request sent to user: ${user.email}`)
+        logger.info(`createUserRecord: verification request sent to user: ${newUser.email}`)
       },
       (err) => {
-        logger.error(`createUserRecord: ERROR sending verification request to user: ${user.email}: ${err}`)
+        logger.error(`createUserRecord: ERROR sending verification request to user: ${newUser.email}: ${err}`)
       }
     )
   }
-  system.api.writeFile(userKey(user.email), JSON.stringify(newUser))
-    .then(count => successHandler(count, newUser))
-    .catch((error) => {
-      logger.error(`createUserRecord: Error writing user file: ${error}`)
-      throw error
-    })
+  let success = false
+  try {
+    const userJson = JSON.stringify(newUser)
+    const nameJson = JSON.stringify(newUser.username)
+    const count = (await system.api.writeFile(userKey(newUser.username), userJson))
+    if (count && await system.api.writeFile(emailKey(newUser.email), nameJson)) {
+      successHandler(count, newUser)
+      success = true
+      return newUser
+    }
+  } catch (e) {
+    logger.error(`createUserRecord: Error writing user files: ${e}`)
+    throw e
+  } finally {
+    if (success) {
+      // the "already registered" cache for email/username may have a stale entry that says
+      // this email/username is not registered. It now is, so update those caches.
+      await recordRegisteredEmail(user.email)
+      await recordRegisterUsername(user.username)
+    }
+  }
+  throw new UserValidationError(`Failed to write one or more user files, but no error occurred; username=${newUser.username}`)
 }
 
 function updateUserRecord (proposed, successHandler) {
@@ -323,7 +380,7 @@ function updateUserRecord (proposed, successHandler) {
     throw new UserValidationError(errors)
   }
 
-  return findUser(proposed.email).then((user) => {
+  return findUser(proposed.username, proposed.email).then(async (user) => {
     // copy user object, set mtime, delete the plaintext password and admin properties
     const update = Object.assign({}, user, proposed, { mtime: Date.now() })
     if (update.password) {
@@ -333,17 +390,24 @@ function updateUserRecord (proposed, successHandler) {
     if (update.admin) {
       delete update.admin
     }
+    if (update.session) {
+      // don't persist session
+      delete update.session
+    }
+    update.username = user.username // don't allow any username changes for now
     logger.info(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
-    return system.api.writeFile(userKey(user.email), JSON.stringify(update)).then(
-      count => successHandler(count, update),
-      (error) => {
-        logger.error(`updateUserRecord: Error writing user file: ${error}`)
-        throw error
-      })
-  },
-  (err) => {
-    logger.error(`updateUserRecord: findUser error: ${err}`)
-    throw err
+    try {
+      const count = await system.api.writeFile(userKey(user.username), JSON.stringify(update))
+      if (emailKey(update.email) !== emailKey(user.email)) {
+        // update email index if address changed
+        await system.api.remove(emailKey(user.email))
+        await system.api.writeFile(emailKey(user.email), JSON.stringify(user.username))
+      }
+      await successHandler(count, update)
+    } catch (e) {
+      logger.error(`updateUserRecord: findUser error: ${err}`)
+      throw e
+    }
   })
 }
 
@@ -364,17 +428,13 @@ function sendResetPasswordMessage (user) {
       '&' + auth.VERIFY_RESET_PARAM + '=' + resetShasum(user.email, token)
   }
   email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_RESET_PASSWORD, ctx).then(
-    (ok) => {
+    () => {
       logger.info(`resetPassword: message sent to user: ${user.email}`)
     },
     (err) => {
       logger.error(`resetPassword: ERROR sending to user: ${user.email}: ${err}`)
     }
   )
-}
-
-async function findUser (email) {
-  return JSON.parse(await system.api.readFile(userKey(email)))
 }
 
 async function sendInvitations (fromUser, emailList) {
@@ -412,7 +472,7 @@ async function sendInvitations (fromUser, emailList) {
         }
       }
       return email.sendEmail(recipient, fromUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_INVITATION, ctx).then(
-        (ok) => {
+        () => {
           logger.info(`resetPassword: invitation sent to: ${recipient}`)
           successfulSends[recipient] = Date.now()
         },
@@ -429,7 +489,22 @@ async function sendInvitations (fromUser, emailList) {
 
 // initialize admin user
 if (ADMIN_USER) {
-  registerInitialAdminUser(ADMIN_USER)
+  registerInitialAdminUser(ADMIN_USER).then(
+    (user) => { logger.info(`registered admin user: ${user.username}`)},
+    (err) => {
+      if (err instanceof UserValidationError) {
+        const errs = err.errors
+        if (Object.keys(errs)
+          .find(f => (f === 'email' || f === 'username') && errs[f].find(e => e === ERR_ALREADY_REGISTERED))) {
+          logger.info(`registerInitialAdminUser: admin user already registered: ${JSON.stringify(err.errors)}`)
+        } else {
+          logger.error(`registerInitialAdminUser: ${JSON.stringify(err.errors)}`)
+        }
+      } else {
+        throw err
+      }
+    }
+  )
 } else {
   logger.info('userUtil: no admin user defined, not creating')
 }
@@ -453,7 +528,6 @@ module.exports = {
   resetShasum,
   sendResetPasswordMessage,
   findUser,
-  createUserRecord,
   updateUserRecord,
   sendInvitations
 }

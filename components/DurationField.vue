@@ -68,9 +68,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     durationValue () {
       return ((this.days ? this.days : 0) * DAYS_MILLIS) +
         ((this.hours ? this.hours : 0) * HOURS_MILLIS) +

@@ -18,9 +18,9 @@ export default {
   name: 'SiteFooter',
   components: { InviteFriends },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     canEmail () { return publicConfigField(this, 'emailEnabled') },
     inviteFriendsEnabled () { return publicConfigField(this, 'inviteFriendsEnabled') }
   }

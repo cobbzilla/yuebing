@@ -21,10 +21,10 @@
                     type="text"
                     name="searchTerms"
                     class="form-control"
-                    :class="{ 'is-invalid': errors.length>0 }"
+                    :error="errors.length>0"
+                    :error-messages="fieldError('searchTerms', errors)"
                     @keyup.enter="handleSubmit"
                   />
-                  <span v-show="errors.length>0" class="is-invalid">{{ fieldError('searchTerms', errors) }}</span>
                   <v-select
                     v-model="sortField"
                     :label="messages.label_sort"

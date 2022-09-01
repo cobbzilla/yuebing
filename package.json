@@ -1,9 +1,12 @@
 {
   "name": "yuebing",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "video",
+    "website",
+    "transcode",
+    "stream",
     "mp4",
     "dash",
     "yuebing"
@@ -52,7 +55,7 @@
     "lru-cache": "^7.14.0",
     "md5": "^2.3.0",
     "mime-types": "^2.1.35",
-    "mobiletto": "^1.1.4",
+    "mobiletto": "^1.1.6",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.15.8",
     "randomstring": "^1.2.2",

@@ -77,10 +77,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState('source', ['assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     infoFields () { return mediaInfoFields() },
     canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn },
     editableInfoFields () { return editableMediaInfoFields() },

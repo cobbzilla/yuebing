@@ -12,8 +12,11 @@ const PATH_REGEX = /[A-Z\d-._()+=:@/]*/i
 // The pipe breaks vee-validation rule parsing, so we use these custom rules.
 const REGEX_VALIDATORS = {
   locale: /[a-z]{2}_[A-Z]{2}/,
+  username: /[A-Z][A-Z\d-._]+/i,
   host: /([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d])(.([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d]))*/i,
   url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i,
+  raw_hex: /^[\dA-F]+$/i,
+  hex: /^(0x)?[\dA-F]+$/i,
   source: URL_PART_REGEX,
   path: PATH_REGEX
 }
@@ -26,7 +29,7 @@ function extendVee () {
 
   for (const ruleName of Object.keys(REGEX_VALIDATORS)) {
     vv.extend(ruleName, {
-      message (field, val) { return 'invalid' },
+      message () { return 'invalid' },
       validate (value, field) {
         if (!field) {
           console.warn('validate: no field provided, returning true')
@@ -67,6 +70,12 @@ function findValidEmails (muck, splitOn = /[\s,<>]+/g) {
 }
 
 const VALIDATIONS = {
+  username: {
+    required: true,
+    min: 2,
+    max: 100,
+    checkOnUpdate: false
+  },
   email: {
     required: true,
     min: 2,
@@ -172,8 +181,6 @@ function condensedRules () {
 module.exports = {
   EMAIL_REGEX,
   REGEX_VALIDATORS,
-  isExactRegexMatch,
-  extendVee,
   isValidEmail,
   findValidEmails,
   validate,

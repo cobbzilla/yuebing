@@ -51,7 +51,9 @@
                   class="form-control"
                   dense
                   :readonly="!isConfigurable(cfg)"
-                  @change="$emit('update', {field: configFullName(cfg), value: configData[cfg]})"
+                  :error="errors.length>0"
+                  :error-messages="fieldError(configFullName(cfg), errors)"
+                  @change="$emit('update', { field: configFullName(cfg), value: configData[cfg] })"
                 />
                 <small v-if="!isConfigurable(cfg)">{{ messages.hint_readonly }}</small>
               </div>
@@ -94,9 +96,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     configKeys () { return this.config ? Object.keys(this.config) : null }
   },
   created () {

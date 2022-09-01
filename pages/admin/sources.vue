@@ -46,10 +46,10 @@
                     type="text"
                     name="searchTerms"
                     class="form-control"
-                    :class="{ 'is-invalid': errors.length>0 }"
+                    :error="addSourceSubmitted && errors.length>0"
+                    :error-messages="addSourceSubmitted ? fieldError('searchTerms', errors) : null"
                     @keyup.enter="searchSources"
                   />
-                  <span v-show="errors.length>0" class="is-invalid">{{ fieldError('searchTerms', errors) }}</span>
                   <v-btn class="btn btn-primary" :disabled="findingSources" @click.stop="searchSources">
                     {{ messages.button_search }}
                   </v-btn>
@@ -91,11 +91,9 @@
                 <div v-if="scanSourceSuccess[src.name]">
                   <small>
                     {{ messages.admin_info_scan_successful }}
-                    <div>
-                      <NuxtLink to="/admin/queue">
-                        {{ messages.admin_title_transform_queue }}
-                      </NuxtLink>
-                    </div>
+                    <NuxtLink to="/admin/queue">
+                      {{ messages.admin_title_transform_queue }}
+                    </NuxtLink>
                   </small>
                 </div>
                 <div v-if="scanSourceError[src.name]">
@@ -141,9 +139,9 @@
                     type="text"
                     name="name"
                     class="form-control"
-                    :class="{ 'is-invalid': errors.length>0 }"
+                    :error="addSourceSubmitted && errors.length>0"
+                    :error-messages="addSourceSubmitted ? fieldError('name', errors) : null"
                   />
-                  <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('name', errors) }}</span>
                 </ValidationProvider>
                 <v-checkbox
                   v-model="newSource.readOnly"
@@ -158,9 +156,9 @@
                     type="text"
                     name="cacheSize"
                     class="form-control"
-                    :class="{ 'is-invalid': errors.length>0 }"
+                    :error="addSourceSubmitted && errors.length>0"
+                    :error-messages="addSourceSubmitted ? fieldError('cacheSize', errors) : null"
                   />
-                  <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ fieldError('cacheSize', errors) }}</span>
                 </ValidationProvider>
                 <div v-for="(fieldConfig, fieldName) in sourceTypeConfiguration" :key="fieldName">
                   <ValidationProvider v-slot="{ errors }" :name="fieldName" :rules="fieldConfig.rules || ''" immediate>
@@ -172,7 +170,8 @@
                       :name="fieldName"
                       :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
-                      :class="{ 'is-invalid': errors.length>0 }"
+                      :error="addSourceSubmitted && errors.length>0"
+                      :error-messages="addSourceSubmitted ? srcConfigFieldError(fieldName, errors) : null"
                     />
                     <v-text-field
                       v-else
@@ -182,9 +181,9 @@
                       :name="fieldName"
                       :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
-                      :class="{ 'is-invalid': errors.length>0 }"
+                      :error="addSourceSubmitted && errors.length>0"
+                      :error-messages="addSourceSubmitted ? srcConfigFieldError(fieldName, errors) : null"
                     />
-                    <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError(fieldName, errors) }}</span>
                   </ValidationProvider>
                 </div>
                 <div>
@@ -202,9 +201,9 @@
                         type="text"
                         name="encryptionKey"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.length>0 }"
+                        :error="addSourceSubmitted && errors.length>0"
+                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionKey', errors) : null"
                       />
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionKey', errors) }}</span>
                     </ValidationProvider>
                     <ValidationProvider v-slot="{ errors }" name="encryptionIV" :rules="formRules.encryptionIV" immediate>
                       <v-text-field
@@ -213,9 +212,9 @@
                         type="text"
                         name="encryptionIV"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.length>0 }"
+                        :error="addSourceSubmitted && errors.length>0"
+                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionIV', errors) : null"
                       />
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionIV', errors) }}</span>
                     </ValidationProvider>
                     <ValidationProvider v-slot="{ errors }" name="encryptionAlgo" rules="min:32" immediate>
                       <v-select
@@ -226,7 +225,8 @@
                         item-text="name"
                         item-value="name"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.length>0 }"
+                        :error="addSourceSubmitted && errors.length>0"
+                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionAlgo', errors) : null"
                       />
                       <small v-if="newSource.encryption.algo">
                         <vue-json-pretty
@@ -238,7 +238,6 @@
                           :collapsed-on-click-brackets="false"
                         />
                       </small>
-                      <span v-show="addSourceSubmitted && errors.length>0" class="is-invalid">{{ srcConfigFieldError('encryptionAlgo', errors) }}</span>
                     </ValidationProvider>
                   </div>
                 </div>

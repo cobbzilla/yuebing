@@ -9,7 +9,6 @@
       <v-container>
         <v-row>
           <v-col>
-            <!-- Reset password request -->
             <h2>
               {{ messages.title_resetPassword }}
             </h2>
@@ -27,9 +26,9 @@
                       type="password"
                       name="password"
                       class="form-control"
-                      :class="{ 'is-invalid': submitted && errors.length>0 }"
+                      :error="submitted && errors.length>0"
+                      :error-messages="submitted ? fieldError('password', errors) : null"
                     />
-                    <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('password', errors) }}</span>
                   </ValidationProvider>
                 </div>
               </v-form>
@@ -104,9 +103,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     formRules () { return condensedRules() },
     verifyErrorMessage () {
       if (!this.userStatus.verifyError) {

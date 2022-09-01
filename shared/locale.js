@@ -39,13 +39,12 @@ function evalInContext (ctx, string) {
 }
 
 String.prototype.parseMessage = function (ctx) {
-  const evaluated = this
+  return this
     ? '' + this.replace(/{{[^}]+}}/g, (match) => {
       const expression = match.slice(2, -2)
       return evalInContext(ctx, expression)
     })
     : ''
-  return evaluated
 }
 
 String.prototype.parseDateMessage = function (millis, messages) {
@@ -90,9 +89,15 @@ function localeMessages (locale) {
   return locale ? LOCALIZED_MESSAGES[locale] : LOCALIZED_MESSAGES[DEFAULT_LOCALE]
 }
 
-function localeMessagesForUser (user, browserLocale = null) {
+function localeMessagesForUser (user, browserLocale = null, anonLocale = null) {
   if (user && user.locale && LOCALIZED_MESSAGES[user.locale]) {
     return LOCALIZED_MESSAGES[user.locale]
+  }
+  if (anonLocale && LOCALIZED_MESSAGES[anonLocale]) {
+    if (user) {
+      user.locale = anonLocale
+    }
+    return LOCALIZED_MESSAGES[anonLocale]
   }
   if (browserLocale) {
     if (user) {
@@ -106,8 +111,8 @@ function localeMessagesForUser (user, browserLocale = null) {
   return LOCALIZED_MESSAGES[DEFAULT_LOCALE]
 }
 
-function localesList (user, browserLocale) {
-  const messages = localeMessagesForUser(user, browserLocale)
+function localesList (user, browserLocale, anonLocale) {
+  const messages = localeMessagesForUser(user, browserLocale, anonLocale)
   return SUPPORTED_LOCALES.map((loc) => {
     const localeDescription = messages['locale_' + loc]
     const description = (user && user.locale && loc === user.locale) || ((!user || !user.locale) && loc === DEFAULT_LOCALE)
@@ -135,6 +140,10 @@ function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
 
 const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.indexOf('_')) : locale
 
+const flagEmoji = locale => locale && locale && LOCALIZED_MESSAGES[locale] && LOCALIZED_MESSAGES[locale].flag_emoji
+  ? LOCALIZED_MESSAGES[locale].flag_emoji
+  : undefined
+
 module.exports = {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -142,5 +151,6 @@ module.exports = {
   localesList,
   localeMessages,
   localeMessagesForUser,
-  fieldErrorMessage
+  fieldErrorMessage,
+  flagEmoji
 }

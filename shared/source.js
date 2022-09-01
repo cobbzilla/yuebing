@@ -31,6 +31,28 @@ const SOURCE_TYPES = {
       default: '/',
       rules: 'min:1|max:1'
     }
+  },
+  b2: {
+    key: {
+      rules: 'required|raw_hex|min:10|max:50'
+    },
+    secret: {
+      rules: 'required|min:10|max:50'
+    },
+    bucket: {
+      rules: 'required|min:2|max:63'
+    },
+    partSize: {
+      rules: 'integer|min_value:5000000|max_value:2000000000',
+      default: null
+    },
+    prefix: {
+      default: ''
+    },
+    delimiter: {
+      default: '/',
+      rules: 'min:1|max:1'
+    }
   }
 }
 

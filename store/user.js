@@ -1,11 +1,12 @@
 import { userService } from '@/services/userService'
-import { USER_LOCAL_STORAGE_KEY } from '@/services/util'
+import { saveAnonLocale, USER_LOCAL_STORAGE_KEY } from '@/services/util'
 
-const user = JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
+const user = () => JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY))
 
 export const state = () => ({
-  user,
+  user: user(),
   userStatus: { loggedIn: !!user },
+  anonLocale: null,
   loginError: null,
   registerError: null,
   invitationResults: null,
@@ -13,9 +14,9 @@ export const state = () => ({
 })
 
 export const actions = {
-  login ({ dispatch, commit }, { email, password }) {
-    commit('loginRequest', { email })
-    userService.login(email, password)
+  login ({ dispatch, commit }, { usernameOrEmail, password }) {
+    commit('loginRequest', { usernameOrEmail })
+    userService.login(usernameOrEmail, password)
       .then(
         (user) => {
           // console.log(`login success! user=${JSON.stringify(user)}`)
@@ -69,6 +70,22 @@ export const actions = {
         () => { commit('requestPasswordResetSuccess', { user }) },
         (error) => { commit('requestPasswordResetFailure', { error }) }
       )
+  },
+
+  setLocale ({ commit }, { locale }) {
+    console.log(`user.setLocale received locale = ${locale}`)
+    commit('setLocaleRequest', { locale })
+    const currentUser = user()
+    if (currentUser && currentUser.session) {
+      commit('setLocaleSuccess', { locale })
+      userService.setLocale(currentUser, locale)
+        .then(
+          (updatedUser) => { commit('setLocaleFinalSuccess', { updatedUser }) },
+          (error) => { commit('setLocaleFailure', { error }) }
+        )
+    } else {
+      commit('setAnonLocaleSuccess', { locale })
+    }
   },
 
   updateUser ({ commit }, { update }) {
@@ -165,6 +182,32 @@ export const mutations = {
   },
   requestPasswordResetFailure (state, { error }) {
     state.userStatus = { passwordResetRequestError: error }
+  },
+
+  setLocaleRequest (state, { locale }) {
+    state.userStatus = Object.assign({}, state.userStatus, { updating: true })
+    state.localeResults = null
+  },
+  setLocaleSuccess (state, { locale }) {
+    state.user = Object.assign(state.user, { locale })
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(state.user))
+  },
+  setLocaleFinalSuccess (state, { updatedUser }) {
+    state.user = Object.assign(state.user, updatedUser)
+    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(state.user))
+  },
+  setAnonLocaleSuccess (state, { locale }) {
+    console.log(`setAnonLocalSuccess: setting locale=${locale}`)
+    state.anonLocale = locale
+    if (state.user) {
+      state.user.locale = locale
+    }
+    console.log(`saving to localStorage locale=${locale}`)
+    saveAnonLocale(locale)
+  },
+  setLocaleFailure (state, { error }) {
+    state.userStatus.updating = null
+    state.userStatus = Object.assign({}, state.userStatus, { updating: null, localeError: error })
   },
 
   updateUserRequest (state, { update }) {

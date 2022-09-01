@@ -41,10 +41,10 @@
                             type="text"
                             name="emails"
                             class="form-control"
-                            :class="{ 'is-invalid': submitted && errors.length>0 }"
+                            :error="submitted && errors.length>0"
+                            :error-messages="submitted ? fieldError('emails', errors) : null"
                             @keyup.enter="handleSubmit"
                           />
-                          <span v-show="submitted && errors.length>0" class="is-invalid">{{ fieldError('emails', errors) }}</span>
                         </ValidationProvider>
                       </div>
                       <div class="form-group">
@@ -105,9 +105,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus', 'invitationResults']),
+    ...mapState('user', ['user', 'userStatus', 'invitationResults', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     title () { return publicConfigField(this, 'title') },
     emailEnabled () { return publicConfigField(this, 'emailEnabled') },
     limitRegistration () { return publicConfigField(this, 'limitRegistration') },
@@ -125,6 +125,7 @@ export default {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
     handleSubmit () {
+      this.submitted = true
       const emails = this.emails.trim()
       if (emails.length > 0) {
         this.inviteFriends({

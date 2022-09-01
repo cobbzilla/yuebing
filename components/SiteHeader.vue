@@ -9,9 +9,16 @@
         <b><v-toolbar-title v-text="title" /></b>
       </NuxtLink>
       <v-spacer />
+      <div>
+        <span v-for="(locale, index) in supportedLocales" :key="index">
+          <v-btn @click.stop="setLocale({ locale: locale.name })">
+            {{ flagIcon(locale.name) }}
+          </v-btn>
+        </span>
+      </div>
       <div v-if="user && user.email">
         <v-avatar size="48px" @click.stop="rightDrawer = !rightDrawer">
-          <v-img :src="gravatarUrl" contain :alt="`avatar image for ${user.firstName}`"/>
+          <v-img :src="gravatarUrl" contain :alt="`avatar image for ${user.firstName}`" />
         </v-avatar>
       </div>
       <div v-else>
@@ -88,7 +95,7 @@
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
-import { localeMessagesForUser } from '@/shared/locale'
+import { localeMessagesForUser, localesList, flagEmoji } from '@/shared/locale'
 import { gravatarEmailUrl } from '@/shared/user'
 
 // noinspection JSUnusedGlobalSymbols
@@ -105,12 +112,13 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userStatus']),
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     signInUrl () { return LOGIN_ENDPOINT },
     signUpUrl () { return REGISTER_ENDPOINT },
     gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null },
+    supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
@@ -132,10 +140,11 @@ export default {
     admin () { return this.loggedIn && this.user.admin }
   },
   methods: {
-    ...mapActions('user', ['logout']),
+    ...mapActions('user', ['logout', 'setLocale']),
     logOut () {
       this.logout({ redirect: true })
-    }
+    },
+    flagIcon (locale) { return flagEmoji(locale) }
   }
 }
 </script>
