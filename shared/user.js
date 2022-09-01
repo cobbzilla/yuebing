@@ -1,3 +1,4 @@
+const md5 = require('md5')
 
 const USER_SORT = {
   email: (u1, u2) => u1.email && u2.email && u1.email < u2.email,
@@ -8,14 +9,20 @@ const USER_SORT = {
   mtime: (u1, u2) => u1.mtime && u2.mtime && u1.mtime < u2.mtime
 }
 
-function userSortFields () { return Object.keys(USER_SORT) }
+const userSortFields = () => Object.keys(USER_SORT)
 
-function localizedUserSortFields (messages) {
-  return userSortFields().map((f) => { return { name: f, message: messages['label_' + f] } })
+const localizedUserSortFields = messages =>
+  userSortFields().map((f) => { return { name: f, message: messages['label_' + f] } })
+
+const sortByField = (array, field, ascending) =>
+  ascending ? array.sort(USER_SORT[field]) : array.sort(USER_SORT[field]).reverse()
+
+const GRAVATAR_RATING_LEVEL = 'r'
+const GRAVATAR_DEFAULT_IMAGE = 'retro'
+
+const gravatarEmailHash = email => email ? md5(email.trim().toLowerCase()) : null
+const gravatarEmailUrl = email => email ? `https://www.gravatar.com/avatar/${gravatarEmailHash(email)}?d=${encodeURIComponent(GRAVATAR_DEFAULT_IMAGE)}&r=${GRAVATAR_RATING_LEVEL}` : null
+
+export {
+  userSortFields, localizedUserSortFields, sortByField, gravatarEmailHash, gravatarEmailUrl
 }
-
-function sortByField (array, field, ascending) {
-  return ascending ? array.sort(USER_SORT[field]) : array.sort(USER_SORT[field]).reverse()
-}
-
-export { userSortFields, localizedUserSortFields, sortByField }

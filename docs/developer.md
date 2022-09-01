@@ -15,12 +15,12 @@ Now that you've got node and yarn, you can install all the project dependencies:
     yarn install
 
 # Environment variables
-To run yuebing, it requires some "bootstrap" environment variables.
+To run Yuebing, it requires some "bootstrap" environment variables.
 
 Copy the `env.example` to `.env` and edit it.
 
-You will at least need to set the email/password for the admin user, and the S3 bucket configuration for
-where configuration and assets will be stored. The rest can be configured from yuebing at runtime.
+You will at least need to set the email/password for the admin user, and the cloud bucket configuration for
+where configuration and assets will be stored. The rest can be configured from Yuebing at runtime.
 
 # Run Yuebing locally
 ## Production 
@@ -44,7 +44,7 @@ The first time you run this, it will build the docker image. To build the image 
 ## Development
 The development docker image is lightweight and quick to build.
 
-It mounts the yuebing directory inside the container, so we don't have to copy everything.
+It mounts the Yuebing source directory inside the container, so we don't have to copy everything.
 
 The dev container runs `yarn dev` instead of `yarn start`, so we're also able to skip the long `yarn build` step. 
 

@@ -19,12 +19,28 @@ const secret = process.env.YB_DEST_SECRET
 
 const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 
-const opts = {
-  region: process.env.YB_DEST_REGION,
-  bucket: process.env.YB_DEST_BUCKET,
-  prefix: DEST_PREFIX,
-  cacheSize: process.env.YB_DEST_CACHE_SIZE || 200
+const SUPPORTED_DEST_TYPES = ['s3', 'b2']
+
+const DEST_TYPE = process.env.YB_DEST_TYPE ? process.env.YB_DEST_TYPE.toLowerCase() : null
+if (!DEST_TYPE) {
+  throw new TypeError('config: required env var YB_DEST_TYPE was undefined')
+} else if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
+  throw new TypeError(`config: YB_DEST_TYPE (${process.env.YB_DEST_TYPE}) is not a supported type. Should be one of: ${SUPPORTED_DEST_TYPES.toString()}`)
 }
+
+const opts = DEST_TYPE === 's3'
+  ? {
+      type: 's3',
+      region: process.env.YB_DEST_S3_REGION,
+      bucket: process.env.YB_DEST_BUCKET,
+      prefix: DEST_PREFIX
+    }
+  : {
+      type: 'b2',
+      bucket: process.env.YB_DEST_BUCKET,
+      partSize: process.env.YB_DEST_B2_PART_SIZE || null, // null enables autodetect recommendedPartSize
+      prefix: DEST_PREFIX
+    }
 
 const encryption = {
   key: process.env.YB_DATA_ENCRYPTION_KEY,
@@ -71,7 +87,7 @@ const SYSTEM = {
   connect: async () => {
     if (!SYSTEM.api) {
       const enc = !encryption.key ? null : encryption
-      SYSTEM.api = await storage.connect('s3', key, secret, opts, enc)
+      SYSTEM.api = await storage.connect(DEST_TYPE, key, secret, opts, enc)
       for (const config of CONFIGS) {
         // read config, merge into nuxt config, write back to storage
         const configFile = `${config}Config.json`

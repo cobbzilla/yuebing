@@ -9,12 +9,16 @@
         <b><v-toolbar-title v-text="title" /></b>
       </NuxtLink>
       <v-spacer />
-      <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>mdi-account</v-icon>
-      </v-btn>
+      <div v-if="user && user.email">
+        <v-avatar size="48px" @click.stop="rightDrawer = !rightDrawer">
+          <v-img :src="gravatarUrl" contain :alt="`avatar image for ${user.firstName}`"/>
+        </v-avatar>
+      </div>
+      <div v-else>
+        <v-btn icon @click.stop="rightDrawer = !rightDrawer">
+          <v-icon>mdi-account</v-icon>
+        </v-btn>
+      </div>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -85,6 +89,7 @@ import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
 import { localeMessagesForUser } from '@/shared/locale'
+import { gravatarEmailUrl } from '@/shared/user'
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -105,6 +110,7 @@ export default {
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     signInUrl () { return LOGIN_ENDPOINT },
     signUpUrl () { return REGISTER_ENDPOINT },
+    gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
