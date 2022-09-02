@@ -73,7 +73,6 @@ export const actions = {
   },
 
   setLocale ({ commit }, { locale }) {
-    console.log(`user.setLocale received locale = ${locale}`)
     commit('setLocaleRequest', { locale })
     const currentUser = user()
     if (currentUser && currentUser.session) {

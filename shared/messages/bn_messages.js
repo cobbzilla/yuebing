@@ -204,7 +204,7 @@ export default {
   label_mediainfo_frameRate: 'চক্রের হার',
   label_mediainfo_dateEncoded: 'তারিখ এনকোড করা হয়েছে',
   button_admin: 'সাইট কনফিগারেশন',
-  admin_title_site_administration: '{{ শিরোনাম }} প্রশাসন',
+  admin_title_site_administration: '{{ title }} প্রশাসন',
   admin_title_manage_configuration: 'সিস্টেম কনফিগারেশন',
   admin_title_source_administration: 'উৎস প্রশাসন',
   admin_title_user_administration: 'ব্যবহারকারী প্রশাসন',

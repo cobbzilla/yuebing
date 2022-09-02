@@ -14,11 +14,14 @@
           <v-tooltip>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
+                small
                 v-bind="attrs"
                 v-on="on"
                 @click.stop="setLocale({ locale: locale.name })"
               >
-                {{ localIcon(locale.name) }}
+                <h1>
+                  {{ localIcon(locale.name) }}
+                </h1>
               </v-btn>
             </template>
             <span class="accent">{{ locale.value }}</span>

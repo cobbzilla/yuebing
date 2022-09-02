@@ -87,7 +87,7 @@ for (const locale of SUPPORTED_LOCALES) {
 
 function localesForUser (user, browserLocale = null, anonLocale) {
   const locales = []
-  if (user && user.locale && locales.includes(user.locale)) {
+  if (user && user.locale && !locales.includes(user.locale)) {
     locales.push(user.locale)
   }
   if (anonLocale && !locales.includes(anonLocale)) {
@@ -137,6 +137,7 @@ function findFirstLocaleMatch (locales) {
 const localeMessagesForUser = (user, browserLocale, anonLocale) => {
   const locales = localesForUser(user, browserLocale, anonLocale)
   const match = findFirstLocaleMatch(locales)
+  // console.log(`localeMessagesForUser(user=${user ? user.locale : null}, browser=${browserLocale}, anon=${anonLocale}} RETURNING: ${match.id || 'default'}`)
   return match || new Proxy(MESSAGES[DEFAULT_LOCALE], messageNotFoundHandler)
 }
 

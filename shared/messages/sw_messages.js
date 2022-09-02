@@ -109,6 +109,7 @@ export default {
   locale_pt: 'Kireno',
   locale_ru: 'Kirusi',
   locale_zh: 'Kichina',
+  locale_sw: 'Kiswahili',
   label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
