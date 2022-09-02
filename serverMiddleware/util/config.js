@@ -22,11 +22,6 @@ const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 const SUPPORTED_DEST_TYPES = ['s3', 'b2']
 
 const DEST_TYPE = process.env.YB_DEST_TYPE ? process.env.YB_DEST_TYPE.toLowerCase() : null
-if (!DEST_TYPE) {
-  throw new TypeError('config: required env var YB_DEST_TYPE was undefined')
-} else if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
-  throw new TypeError(`config: YB_DEST_TYPE (${process.env.YB_DEST_TYPE}) is not a supported type. Should be one of: ${SUPPORTED_DEST_TYPES.toString()}`)
-}
 
 const opts = DEST_TYPE === 's3'
   ? {
@@ -86,6 +81,12 @@ const SYSTEM = {
   },
   connect: async () => {
     if (!SYSTEM.api) {
+      if (!DEST_TYPE) {
+        throw new TypeError('config: required env var YB_DEST_TYPE was undefined')
+      } else if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
+        throw new TypeError(`config: YB_DEST_TYPE (${process.env.YB_DEST_TYPE}) is not a supported type. Should be one of: ${SUPPORTED_DEST_TYPES.toString()}`)
+      }
+
       const enc = !encryption.key ? null : encryption
       SYSTEM.api = await storage.connect(DEST_TYPE, key, secret, opts, enc)
       for (const config of CONFIGS) {
