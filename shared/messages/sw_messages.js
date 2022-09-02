@@ -106,6 +106,7 @@ export default {
   locale_bn: 'Kibengali',
   locale_hi: 'Hapana',
   locale_ja: 'Kijapani',
+  locale_ko: 'Kikorea',
   locale_pt: 'Kireno',
   locale_ru: 'Kirusi',
   locale_zh: 'Kichina',

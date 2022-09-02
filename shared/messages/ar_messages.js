@@ -106,6 +106,7 @@ export default {
   locale_bn: 'البنغالية',
   locale_hi: 'هندي',
   locale_ja: 'اليابانية',
+  locale_ko: 'الكورية',
   locale_pt: 'البرتغالية',
   locale_ru: 'الروسية',
   locale_sw: 'السواحيلية',

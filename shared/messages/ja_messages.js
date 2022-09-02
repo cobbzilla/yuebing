@@ -106,6 +106,7 @@ export default {
   locale_bn: 'ベンガル語',
   locale_hi: 'ヒンディー語',
   locale_ja: '日本',
+  locale_ko: '韓国語',
   locale_pt: 'ポルトガル語',
   locale_ru: 'ロシア',
   locale_sw: 'スワヒリ語',

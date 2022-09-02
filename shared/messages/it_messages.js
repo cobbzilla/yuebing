@@ -106,6 +106,7 @@ export default {
   locale_bn: 'Bengalese',
   locale_hi: 'Hindi',
   locale_ja: 'Giapponese',
+  locale_ko: 'Coreano',
   locale_pt: 'Portoghese',
   locale_ru: 'Russo',
   locale_sw: 'Swahili',

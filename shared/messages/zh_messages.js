@@ -106,6 +106,7 @@ export default {
   locale_bn: '孟加拉',
   locale_hi: '印地语',
   locale_ja: '日本人',
+  locale_ko: '韩国人',
   locale_pt: '葡萄牙语',
   locale_ru: '俄语',
   locale_sw: '斯瓦希里语',
