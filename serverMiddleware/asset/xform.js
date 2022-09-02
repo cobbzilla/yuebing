@@ -25,13 +25,15 @@ const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncomp
 const XFORM_PROCESS_FUNCTION = async (job) => {
   console.log(`__xform(${job.data.sourcePath}): STARTING`)
   const file = await ensureSourceDownloaded(job)
+  console.log(`__xform(${job.data.sourcePath}): ensureSourceDownloaded returned: ${file}`)
   if (file) {
+    console.log(`__xform(${job.data.sourcePath}): createArtifacts STARTING`)
     await createArtifacts(job, file)
     console.log(`__xform(${job.data.sourcePath}): createArtifacts finished. TOTALLY DONE`)
 
   } else {
     const message = `__xform(${job.data.sourcePath}): ensureSourceDownloaded did not return a file`
-    logger.error(message)
+    console.error(message)
     throw new TypeError(message)
   }
 }
