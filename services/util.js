@@ -1,7 +1,6 @@
-import { USER_SESSION_HEADER } from '@/shared'
+const { USER_SESSION_HEADER, ANON_LOCALE_STORAGE_KEY } = require('../shared/index')
 
 const USER_LOCAL_STORAGE_KEY = 'user'
-const ANON_LOCALE_STORAGE_KEY = 'anon_locale'
 
 const UI_CONFIG = {
   snackbarErrorTimeout: 6000,
@@ -71,7 +70,7 @@ function handleJsonResponse (response) {
 }
 
 const saveAnonLocale = (locale) => {
-  localStorage.setItem(ANON_LOCALE_STORAGE_KEY, JSON.stringify(locale))
+  localStorage.setItem(ANON_LOCALE_STORAGE_KEY, locale)
 }
 
 export {

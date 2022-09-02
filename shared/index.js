@@ -13,6 +13,8 @@ function getExtension (filename) {
 
 const USER_SESSION_HEADER = 'x-yb-session'
 const USER_SESSION_QUERY_PARAM = 's'
+const ANON_LOCALE_STORAGE_KEY = 'anon_locale'
+const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en'
 
 function sessionParams (user, status) {
   if (nuxt.publicRuntimeConfig.public ||
@@ -67,6 +69,8 @@ const SELF_SOURCE_NAME = ' ~ this ~ '
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
+  ANON_LOCALE_STORAGE_KEY,
+  DEFAULT_LOCALE,
   STREAM_API,
   HTTP_INVALID_REQUEST_MESSAGE,
   LAST_MODIFIED_FILE,

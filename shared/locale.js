@@ -2,11 +2,9 @@
 const safeEval = require('safe-eval')
 const nuxt = require('../nuxt.config').default
 
-const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en_US'
+const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en'
 
 const SUPPORTED_LOCALES = nuxt.publicRuntimeConfig.locales
-
-const LOCALIZED_MESSAGES = {}
 
 function unknownMessage (msg) { return '???' + msg }
 
@@ -76,53 +74,70 @@ String.prototype.parseDateMessage = function (millis, messages) {
     : ''
 }
 
+const MESSAGES = {}
+
 function registerMessages (locale, messages) {
-  LOCALIZED_MESSAGES[locale] = new Proxy(Object.assign({}, messages), messageNotFoundHandler)
+  MESSAGES[locale] = new Proxy(Object.assign({}, messages), messageNotFoundHandler)
 }
 
 // register locale strings
 for (const locale of SUPPORTED_LOCALES) {
-  registerMessages(locale, require(`./messages/${locale}`).default)
+  registerMessages(locale, require(`./messages/${locale}_messages.json`).default)
 }
 
-function localeMessages (locale) {
-  return locale ? LOCALIZED_MESSAGES[locale] : LOCALIZED_MESSAGES[DEFAULT_LOCALE]
-}
-
-function localeMessagesForUser (user, browserLocale = null, anonLocale = null) {
-  if (user && user.locale && LOCALIZED_MESSAGES[user.locale]) {
-    return LOCALIZED_MESSAGES[user.locale]
+function localesForUser (user, browserLocale = null, anonLocale) {
+  const locales = []
+  if (user && user.locale && locales.includes(user.locale)) {
+    locales.push(user.locale)
   }
-  if (anonLocale && LOCALIZED_MESSAGES[anonLocale]) {
-    if (user) {
-      user.locale = anonLocale
+  if (anonLocale && !locales.includes(anonLocale)) {
+    locales.push(anonLocale)
+  } else {
+    const stored = localStorage.getItem('anon_locale')
+    if (stored && !locales.includes(stored)) {
+      locales.push(stored)
     }
-    return LOCALIZED_MESSAGES[anonLocale]
   }
-  if (browserLocale) {
-    if (user) {
-      user.locale = browserLocale
-    }
-    return LOCALIZED_MESSAGES[browserLocale]
+
+  if (browserLocale && !locales.includes(browserLocale)) {
+    locales.push(browserLocale)
   }
-  if (user) {
-    user.locale = DEFAULT_LOCALE
+  if (!locales.includes(DEFAULT_LOCALE)) {
+    locales.push(DEFAULT_LOCALE)
   }
-  return LOCALIZED_MESSAGES[DEFAULT_LOCALE]
+  // console.log(`localesForUser returning: ${JSON.stringify(locales)}`)
+  return locales
 }
 
-function localesList (user, browserLocale, anonLocale) {
-  const messages = localeMessagesForUser(user, browserLocale, anonLocale)
+function localesList (locales) {
+  const messages = findFirstLocaleMatch(locales)
   return SUPPORTED_LOCALES.map((loc) => {
     const localeDescription = messages['locale_' + loc]
-    const description = (user && user.locale && loc === user.locale) || ((!user || !user.locale) && loc === DEFAULT_LOCALE)
-      ? localeDescription
-      : `${localeMessages(loc)['locale_' + loc]} (${localeDescription})`
+    const description = MESSAGES[loc] && MESSAGES[loc]['locale_' + loc]
+      ? `${MESSAGES[loc]['locale_' + loc]} (${localeDescription})`
+      : localeDescription
     return {
       name: loc,
       value: description
     }
   })
+}
+
+function findFirstLocaleMatch (locales) {
+  for (const loc of locales) {
+    if (typeof MESSAGES[loc] !== 'undefined') {
+      // console.log(`findFirstLocaleMatch(${JSON.stringify(locales)}) returning MESSAGES[${loc}]`)
+      return MESSAGES[loc]
+    }
+  }
+  // console.log(`findFirstLocaleMatch(${JSON.stringify(locales)}) returning DEFAULT_LOCALE [${DEFAULT_LOCALE}]`)
+  return MESSAGES[DEFAULT_LOCALE]
+}
+
+const localeMessagesForUser = (user, browserLocale, anonLocale) => {
+  const locales = localesForUser(user, browserLocale, anonLocale)
+  const match = findFirstLocaleMatch(locales)
+  return match || new Proxy(MESSAGES[DEFAULT_LOCALE], messageNotFoundHandler)
 }
 
 function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
@@ -140,17 +155,16 @@ function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
 
 const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.indexOf('_')) : locale
 
-const flagEmoji = locale => locale && locale && LOCALIZED_MESSAGES[locale] && LOCALIZED_MESSAGES[locale].flag_emoji
-  ? LOCALIZED_MESSAGES[locale].flag_emoji
-  : undefined
+const localeEmoji = locale => MESSAGES[locale] && MESSAGES[locale].emoji ? MESSAGES[locale].emoji : undefined
 
 module.exports = {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  messageNotFoundHandler,
+  localesForUser,
+  localeMessagesForUser,
   localeLang,
   localesList,
-  localeMessages,
-  localeMessagesForUser,
   fieldErrorMessage,
-  flagEmoji
+  localeEmoji
 }

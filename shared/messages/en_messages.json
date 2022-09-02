@@ -1,6 +1,8 @@
 export default {
+  id: 'en',
+
   // language icons
-  flag_emoji: '🇺🇸',
+  emoji: '🇺🇸',
 
   // titles and labels
   anonymous_user_name: 'mysterious one',
@@ -106,13 +108,19 @@ export default {
   error_field_username: '{{ field }} is not a valid username. Must start with a letter and contain only letters, numbers, underscores (_), hyphens (-) and dots (.)',
 
   // Locale names -- add more translations if other locales are added
-  locale_en_US: 'English (US)',
-  locale_es_US: 'Spanish (US)',
-  locale_es_ES: 'Spanish',
-  locale_it_IT: 'Italian',
-  locale_fr_FR: 'French',
-  locale_de_DE: 'German',
-  locale_en_GB: 'English (GB)',
+  locale_en: 'English',
+  locale_es: 'Spanish',
+  locale_it: 'Italian',
+  locale_fr: 'French',
+  locale_de: 'German',
+  locale_ar: 'Arabic',
+  locale_bn: 'Bengali',
+  locale_hi: 'Hindi',
+  locale_ja: 'Japanese',
+  locale_pt: 'Portuguese',
+  locale_ru: 'Russian',
+  locale_sw: 'Swahili',
+  locale_zh: 'Chinese',
 
   // Date/Calendar names
   label_date: '{{MMM}} {{d}}, {{YYYY}}',

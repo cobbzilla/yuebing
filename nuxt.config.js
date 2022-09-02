@@ -25,14 +25,11 @@ export default {
 
     // To add support for a new locale:
     //  - Add the locale name to the 'locales' array below
-    //  - For UI/API strings: copy shared/messages/en_US.js to shared/messages/<locale>.js and translate/adjust as needed
-    //  - If email is enabled, copy the serverMiddleware/templates/email/en_US directory to a directory named after
+    //  - For UI/API strings: copy shared/messages/en.js to shared/messages/<locale>_messages.js and translate/adjust as needed
+    //  - If email is enabled, copy the serverMiddleware/templates/email/en directory to a directory named after
     //    the new locale, then edit the files and translate/adjust as needed
-    //  - If you're feeling extra nice, edit shared/messages/en_US.js (and all others) and add a translation for
-    //    your new locale. This is for when your new locale appears a drop-down list, it will be translated
-    //    into the user's language.
-    locales: ['en_US', 'fr_FR'],
-    defaultLocale: process.env.YB_DEFAULT_LOCALE || 'en_US',
+    locales: ['en', 'it', 'fr', 'es', 'de', 'ja', 'zh', 'hi', 'ar', 'ru', 'bn', 'pt', 'sw'],
+    defaultLocale: process.env.YB_DEFAULT_LOCALE || 'en',
 
     // timeouts for various temporary tokens stored in redis
     timeout: {
@@ -108,7 +105,7 @@ export default {
         email: process.env.YB_ADMIN_EMAIL || null,
         username: process.env.YB_ADMIN_USERNAME || 'admin',
         password: process.env.YB_ADMIN_PASSWORD || null,
-        locale: process.env.YB_ADMIN_LOCALE || process.env.YB_DEFAULT_LOCALE || 'en_US'
+        locale: process.env.YB_ADMIN_LOCALE || process.env.YB_DEFAULT_LOCALE || 'en'
       },
       overwrite: !!process.env.YB_ADMIN_OVERWRITE // set to true to overwrite existing admin user
     },

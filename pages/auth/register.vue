@@ -125,7 +125,7 @@
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT } from '@/shared/auth'
-import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
+import { DEFAULT_LOCALE, localesList, localesForUser, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 
 export default {
@@ -146,7 +146,7 @@ export default {
   computed: {
     ...mapState('user', ['userStatus', 'registerError', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig']),
-    supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
+    supportedLocales () { return localesList(localesForUser(this.user, this.browserLocale, this.anonLocale)) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     signInUrl () { return LOGIN_ENDPOINT },
     allowRegistration () { return publicConfigField(this, 'allowRegistration') },

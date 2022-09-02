@@ -13,17 +13,20 @@ The email templates determine the language-specific emails that get sent out, ba
 The string table determines what appears in the web UI, based on the user's local.
 
 ## Locale naming for examples
-In the examples below, we use a locale name `ln_CT`, where `ln` is the language and `CT` is
-the country.
+In the examples below, we use a locale name `qq`, which is not a valid 2-letter ISO code.
+You should use the appropriate code for your translation.
+
+Use one of the 2-letter abbreviations in the `639-1` column on this
+<a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">list of ISO language codes</a> 
 
 ## Email templates
-Create a directory in `serverMiddleware/templates/email/ln_CT/`.
+Create a directory in `serverMiddleware/templates/email/qq/`.
 
 Populate this directory with translations of every file from one of the other
 locale-specific template directories.
 
 ## String table
-Create a file named `shared/messages/ln_CT.js` (copy another one of the locale files)
+Create a file named `shared/messages/qq_messages.js` (copy another one of the locale files)
 
 Provide translations for all of the string messages.
 

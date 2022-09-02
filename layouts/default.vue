@@ -21,7 +21,8 @@ import { mapActions, mapState } from 'vuex'
 export default {
   name: 'DefaultLayout',
   computed: {
-    ...mapState(['publicConfig'])
+    ...mapState('user', ['user', 'userStatus', 'anonLocale']),
+    ...mapState(['publicConfig', 'browserHeaders'])
   },
   watch: {
     publicConfig (newConfig) {

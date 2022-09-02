@@ -1,7 +1,7 @@
 import { userService } from '@/services/userService'
 
 const langParser = require('accept-language-parser')
-const loc = require('@/shared/locale')
+const { SUPPORTED_LOCALES, DEFAULT_LOCALE } = require('@/shared/locale')
 
 export const state = () => ({
   fetchingHeaders: false,
@@ -40,16 +40,16 @@ export const actions = {
 function detectLocale (langHeader) {
   const languages = langParser.parse(langHeader)
   for (const lang of languages) {
-    const exactMatch = loc.SUPPORTED_LOCALES.find(locale => locale === lang.code + '_' + lang.region)
+    const exactMatch = SUPPORTED_LOCALES.find(locale => locale === lang.code + (lang.region ? '_' + lang.region : ''))
     if (exactMatch) {
       return exactMatch
     }
-    const langMatch = loc.SUPPORTED_LOCALES.find(locale => locale && locale.includes('_') && locale.startsWith(lang.code + '_'))
+    const langMatch = SUPPORTED_LOCALES.find(locale => locale && locale.includes('_') && locale.startsWith(lang.code + '_'))
     if (langMatch) {
       return langMatch
     }
   }
-  return loc.DEFAULT_LOCALE
+  return DEFAULT_LOCALE
 }
 
 export const mutations = {

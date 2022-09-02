@@ -109,7 +109,7 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
+import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage, localesForUser } from '@/shared/locale'
 import { currentUser, UI_CONFIG } from '@/services/util'
 import { condensedRules } from '@/shared/validation'
 import { gravatarEmailUrl } from '@/shared/user'
@@ -127,7 +127,7 @@ export default {
   computed: {
     ...mapState('user', ['userStatus', 'updateResults']),
     ...mapState(['browserLocale']),
-    supportedLocales () { return localesList(this.user, this.browserLocale) },
+    supportedLocales () { return localesList(localesForUser(this.user, this.browserLocale)) },
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     userLocale () { return this.user && this.user.locale ? this.user.locale : DEFAULT_LOCALE },
     formRules () { return condensedRules() },

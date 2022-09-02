@@ -6,7 +6,6 @@ const shasum = require('shasum')
 const redis = require('../util/redis')
 const c = require('../../shared')
 const auth = require('../../shared/auth')
-const loc = require('../../shared/locale')
 const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
@@ -341,7 +340,7 @@ async function createUserRecord (user, successHandler) {
         '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(newUser.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
-    email.sendEmail(newUser.email, newUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
+    email.sendEmail(newUser.email, newUser.locale || c.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
       () => {
         logger.info(`createUserRecord: verification request sent to user: ${newUser.email}`)
       },
@@ -427,7 +426,7 @@ function sendResetPasswordMessage (user) {
       '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token) +
       '&' + auth.VERIFY_RESET_PARAM + '=' + resetShasum(user.email, token)
   }
-  email.sendEmail(user.email, user.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_RESET_PASSWORD, ctx).then(
+  email.sendEmail(user.email, user.locale || c.DEFAULT_LOCALE, email.TEMPLATE_RESET_PASSWORD, ctx).then(
     () => {
       logger.info(`resetPassword: message sent to user: ${user.email}`)
     },
@@ -471,7 +470,7 @@ async function sendInvitations (fromUser, emailList) {
           logger.error(`sendInvitations: unexpected findUser error: ${e}, we'll still send email to: ${recipient}`)
         }
       }
-      return email.sendEmail(recipient, fromUser.locale || loc.DEFAULT_LOCALE, email.TEMPLATE_INVITATION, ctx).then(
+      return email.sendEmail(recipient, fromUser.locale || c.DEFAULT_LOCALE, email.TEMPLATE_INVITATION, ctx).then(
         () => {
           logger.info(`resetPassword: invitation sent to: ${recipient}`)
           successfulSends[recipient] = Date.now()

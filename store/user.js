@@ -197,12 +197,7 @@ export const mutations = {
     localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(state.user))
   },
   setAnonLocaleSuccess (state, { locale }) {
-    console.log(`setAnonLocalSuccess: setting locale=${locale}`)
     state.anonLocale = locale
-    if (state.user) {
-      state.user.locale = locale
-    }
-    console.log(`saving to localStorage locale=${locale}`)
     saveAnonLocale(locale)
   },
   setLocaleFailure (state, { error }) {

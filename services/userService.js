@@ -1,5 +1,3 @@
-import { authGet } from '@/services/util'
-
 const auth = require('../shared/auth')
 const a = require('./util')
 

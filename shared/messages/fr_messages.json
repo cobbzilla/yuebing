@@ -1,5 +1,6 @@
 export default {
-  flag_emoji: '🇫🇷',
+  id: 'fr',
+  emoji: '🇫🇷',
 
   // titles and labels
   anonymous_user_name: 'mystérieux',
@@ -105,13 +106,19 @@ export default {
   error_field_username: '{{ field }} n\'est pas un nom d\'utilisateur valide. Doit commencer par une lettre et ne contenir que des lettres, des chiffres, des traits de soulignement (_), des traits d\'union (-) et des points (.)',
 
   // Locale names -- add more translations if other locales are added
-  locale_en_US: 'Anglais (EU)',
-  locale_es_US: 'Espagnol (EU)',
-  locale_es_ES: 'Espagnol',
-  locale_it_IT: 'Italien',
-  locale_fr_FR: 'Français',
-  locale_de_DE: 'Allemand',
-  locale_en_GB: 'Anglais (GB)',
+  locale_en: 'Anglais',
+  locale_es: 'Espagnol',
+  locale_it: 'Italien',
+  locale_fr: 'Français',
+  locale_de: 'Allemand',
+  locale_ar: 'Arabe',
+  locale_bn: 'Bengali',
+  locale_hi: 'Hindi',
+  locale_ja: 'Japonais',
+  locale_pt: 'Portugais',
+  locale_ru: 'Russe',
+  locale_sw: 'Swahili',
+  locale_zh: 'Chinois',
 
   // Date/Calendar names
   label_date: '{{d}} {{MMM}} {{YYYY}}',

@@ -11,7 +11,7 @@ const PATH_REGEX = /[A-Z\d-._()+=:@/]*/i
 // Sometimes we need regex validation and the regex contains a pipe character.
 // The pipe breaks vee-validation rule parsing, so we use these custom rules.
 const REGEX_VALIDATORS = {
-  locale: /[a-z]{2}_[A-Z]{2}/,
+  locale: /[a-z]{2}(_[A-Z]{2})?/,
   username: /[A-Z][A-Z\d-._]+/i,
   host: /([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d])(.([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d]))*/i,
   url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i,

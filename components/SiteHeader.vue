@@ -11,9 +11,18 @@
       <v-spacer />
       <div>
         <span v-for="(locale, index) in supportedLocales" :key="index">
-          <v-btn @click.stop="setLocale({ locale: locale.name })">
-            {{ flagIcon(locale.name) }}
-          </v-btn>
+          <v-tooltip>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                @click.stop="setLocale({ locale: locale.name })"
+              >
+                {{ localIcon(locale.name) }}
+              </v-btn>
+            </template>
+            <span class="accent">{{ locale.value }}</span>
+          </v-tooltip>
         </span>
       </div>
       <div v-if="user && user.email">
@@ -95,7 +104,7 @@
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
-import { localeMessagesForUser, localesList, flagEmoji } from '@/shared/locale'
+import { localeMessagesForUser, localesList, localeEmoji, localesForUser } from '@/shared/locale'
 import { gravatarEmailUrl } from '@/shared/user'
 
 // noinspection JSUnusedGlobalSymbols
@@ -118,7 +127,7 @@ export default {
     signInUrl () { return LOGIN_ENDPOINT },
     signUpUrl () { return REGISTER_ENDPOINT },
     gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null },
-    supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
+    supportedLocales () { return localesList(localesForUser(this.user, this.browserLocale, this.anonLocale)) },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
@@ -144,7 +153,7 @@ export default {
     logOut () {
       this.logout({ redirect: true })
     },
-    flagIcon (locale) { return flagEmoji(locale) }
+    localIcon (locale) { return localeEmoji(locale) }
   }
 }
 </script>
