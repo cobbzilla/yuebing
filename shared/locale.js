@@ -85,7 +85,7 @@ for (const locale of SUPPORTED_LOCALES) {
   registerMessages(locale, require(`./messages/${locale}_messages.js`).default)
 }
 
-function localesForUser (user, browserLocale = null, anonLocale) {
+function localesForUser (user, browserLocale = null, anonLocale = null) {
   const locales = []
   if (user && user.locale && !locales.includes(user.locale)) {
     locales.push(user.locale)
@@ -109,8 +109,8 @@ function localesForUser (user, browserLocale = null, anonLocale) {
   return locales
 }
 
-function localesList (locales) {
-  const messages = findFirstLocaleMatch(locales)
+function localesList (user, browserLocale, anonLocale) {
+  const messages = findFirstLocaleMatch(localesForUser(user, browserLocale, anonLocale))
   return SUPPORTED_LOCALES.map((loc) => {
     const localeDescription = messages['locale_' + loc]
     const description = MESSAGES[loc] && MESSAGES[loc]['locale_' + loc]
@@ -132,6 +132,15 @@ function findFirstLocaleMatch (locales) {
   }
   // console.log(`findFirstLocaleMatch(${JSON.stringify(locales)}) returning DEFAULT_LOCALE [${DEFAULT_LOCALE}]`)
   return MESSAGES[DEFAULT_LOCALE]
+}
+
+const userLocale = (user, browserLocale, anonLocale) => {
+  const locales = localesForUser(user, browserLocale, anonLocale)
+  const match = findFirstLocaleMatch(locales)
+  return {
+    name: match.id,
+    description: match['locale_'+match.id]
+  }
 }
 
 const localeMessagesForUser = (user, browserLocale, anonLocale) => {
@@ -162,7 +171,7 @@ module.exports = {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   messageNotFoundHandler,
-  localesForUser,
+  userLocale,
   localeMessagesForUser,
   localeLang,
   localesList,

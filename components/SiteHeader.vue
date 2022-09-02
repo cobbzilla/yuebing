@@ -9,25 +9,6 @@
         <b><v-toolbar-title v-text="title" /></b>
       </NuxtLink>
       <v-spacer />
-      <div>
-        <span v-for="(locale, index) in supportedLocales" :key="index">
-          <v-tooltip>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                small
-                v-bind="attrs"
-                v-on="on"
-                @click.stop="setLocale({ locale: locale.name })"
-              >
-                <h1>
-                  {{ localIcon(locale.name) }}
-                </h1>
-              </v-btn>
-            </template>
-            <span class="accent">{{ locale.value }}</span>
-          </v-tooltip>
-        </span>
-      </div>
       <div v-if="user && user.email">
         <v-avatar size="48px" @click.stop="rightDrawer = !rightDrawer">
           <v-img :src="gravatarUrl" contain :alt="`avatar image for ${user.firstName}`" />
@@ -37,6 +18,31 @@
         <v-btn icon @click.stop="rightDrawer = !rightDrawer">
           <v-icon>mdi-account</v-icon>
         </v-btn>
+      </div>
+      <div class="localeSelector">
+        <v-select
+          v-model="currentLocale"
+          :items="supportedLocales"
+          item-text="value"
+          item-value="name"
+          :value="currentLocale"
+          dense
+          @change="selectLocale"
+        >
+          <template #selection="{ item }">
+            <span>
+              <h1>
+                {{ localeIcon(item.name) }}
+              </h1>
+            </span>
+          </template>
+          <template #item="{ item }">
+            <h1>
+              {{ localeIcon(item.name) }}
+            </h1>
+            <span>{{ item.value }}</span>
+          </template>
+        </v-select>
       </div>
     </v-app-bar>
 
@@ -107,7 +113,7 @@
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
-import { localeMessagesForUser, localesList, localeEmoji, localesForUser } from '@/shared/locale'
+import { localeMessagesForUser, localesList, localeEmoji, userLocale } from '@/shared/locale'
 import { gravatarEmailUrl } from '@/shared/user'
 
 // noinspection JSUnusedGlobalSymbols
@@ -120,7 +126,8 @@ export default {
       fixed: false,
       miniVariant: false,
       right: true,
-      rightDrawer: false
+      rightDrawer: false,
+      currentLocale: null
     }
   },
   computed: {
@@ -130,7 +137,7 @@ export default {
     signInUrl () { return LOGIN_ENDPOINT },
     signUpUrl () { return REGISTER_ENDPOINT },
     gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null },
-    supportedLocales () { return localesList(localesForUser(this.user, this.browserLocale, this.anonLocale)) },
+    supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
     accountName () {
       if (this.user) {
         if (this.user.firstName && this.user.firstName.trim().length > 0) {
@@ -151,12 +158,29 @@ export default {
     loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn },
     admin () { return this.loggedIn && this.user.admin }
   },
+  created () {
+    this.currentLocale = userLocale(this.user, this.browserLocale, this.anonLocale)
+  },
   methods: {
     ...mapActions('user', ['logout', 'setLocale']),
     logOut () {
       this.logout({ redirect: true })
     },
-    localIcon (locale) { return localeEmoji(locale) }
+    localeIcon (locale) { return localeEmoji(locale) },
+    selectLocale () {
+      this.setLocale({ locale: this.currentLocale })
+    }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.localeSelector {
+  margin-left: 20px;
+  width: 80px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-indent: 1px;
+  text-overflow: '';
+}
+</style>
