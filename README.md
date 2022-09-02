@@ -1,7 +1,11 @@
 Yuebing 🥮
 ==========
 Yuebing is open-source software for running video hosting sites.
-It uses Amazon S3 as the backend storage system, and sports many advanced features.
+
+It automatically transcodes your source videos into modern streaming formats, playable on any
+device over any connection.
+
+Yuebing can use either Amazon S3 or Backblaze B2 as its backend storage, and sports many advanced features.
 
 ### Source
 * [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
