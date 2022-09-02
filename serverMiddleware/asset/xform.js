@@ -23,7 +23,7 @@ const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTempor
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = async (job) => {
-  new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     ensureSourceDownloaded(job)
       .then(
         (file) => {
