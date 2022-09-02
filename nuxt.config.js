@@ -83,7 +83,7 @@ export default {
         default: null
       },
       defaultLocale: {
-        rules: 'locale|min:5|max:5'
+        rules: 'locale|min:2|max:5'
       },
       inviteFriendsEnabled: {
         rules: 'required',
