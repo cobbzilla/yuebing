@@ -2,8 +2,8 @@
 #
 # Launcher for dev mode
 #
-# Sets up the bind-mounts for yuebing and the work-dir, builds the docker
-# image if not found, and launches it
+# Sets up the bind-mounts for yuebing source dir and the work-dir, builds
+# the docker image if not found, and launches it
 #
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"

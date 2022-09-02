@@ -2,7 +2,7 @@
 #
 # Launcher for production mode
 #
-# Sets up the bind-mounts for the work-dir, builds the docker
+# Sets up the bind-mount for the work-dir, pulls (or builds) the docker
 # image if not found, and launches it
 #
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"

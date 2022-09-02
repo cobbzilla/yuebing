@@ -22,35 +22,30 @@ const showTransformOutput = () => system.privateConfig.autoscan.showTransformOut
 const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
-const XFORM_PROCESS_FUNCTION = (job, done) => {
-  const doneWrapper = {
-    doneFunc: done,
-    finished: false
-  }
-  doneWrapper.finish = () => {
-    doneWrapper.doneFunc()
-    doneWrapper.finished = true
-  }
-  ensureSourceDownloaded(job)
-    .then(
-      (file) => {
-        if (file) {
-          createArtifacts(job, file, doneWrapper)
-            .then(
-              () => { logger.debug(`createArtifacts(${job.data?.sourcePath}, ${file}): finished OK`) },
-              (e) => { logger.error(`createArtifacts(${job.data?.sourcePath}, ${file}): error: ${e}`) }
-            )
+const XFORM_PROCESS_FUNCTION = (job) => {
+  return new Promise((resolve, reject) => {
+    ensureSourceDownloaded(job)
+      .then(
+        (file) => {
+          if (file) {
+            createArtifacts(job, file)
+              .then(
+                () => { logger.debug(`createArtifacts(${job.data?.sourcePath}, ${file}): finished OK`) },
+                (e) => {
+                  logger.error(`createArtifacts(${job.data?.sourcePath}, ${file}): error: ${e}`)
+                  reject(e)
+                }
+              )
+          }
+        },
+        (err) => {
+          logger.error(`ensureSourceDownloaded(${job.data?.sourcePath}): error: ${err}`)
+          reject(err)
         }
-      },
-      (err) => { logger.error(`ensureSourceDownloaded(${job.data?.sourcePath}): error: ${err}`) }
-    ).finally(() => {
-      if (doneWrapper.finished) {
-        logger.debug(`XFORM_PROCESS_FUNCTION(${job.data?.sourcePath}): finished OK`)
-      } else {
-        logger.warn(`XFORM_PROCESS_FUNCTION(${job.data?.sourcePath}): did not finish OK, calling done()`)
-        doneWrapper.finish()
-      }
+      ).finally(() => {
+      resolve()
     })
+  })
 }
 
 q.initializeQueue(XFORM_PROCESS_FUNCTION)
