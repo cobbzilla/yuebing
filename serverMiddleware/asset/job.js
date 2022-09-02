@@ -39,9 +39,9 @@ function initializeQueue (processFunction) {
 
     JOB_QUEUE.on('failed', (job, result) => {
       if (job.data.sourcePath) {
-        logger.info(`jobQueue.on(failed): job (${job.data.sourcePath}) FAILED with result=${JSON.stringify(result)}`)
+        logger.error(`jobQueue.on(failed): job (${job.data.sourcePath}) FAILED with result=${JSON.stringify(result)}`)
       } else {
-        logger.info(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
+        logger.error(`jobQueue.on(failed): job (with missing data.sourcePath: ${JSON.stringify(job)}) FAILED with result=${JSON.stringify(result)}`)
       }
       recordJobEvent(job, 'QUEUE_FAILED', JSON.stringify(result))
       job.data.done = true

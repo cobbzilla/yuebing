@@ -7,7 +7,7 @@ const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
 
 const logger = winston.createLogger({
-  level: process.env.YB_LOG_LEVEL || 'warn',
+  level: process.env.YB_LOG_LEVEL || 'debug',
   format: winston.format.simple(),
   transports: process.env.YB_LOG_FILE
     ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
