@@ -23,29 +23,17 @@ const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTempor
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = async (job) => {
-  await new Promise((resolve, reject) => {
-    ensureSourceDownloaded(job)
-      .then(
-        (file) => {
-          if (file) {
-            createArtifacts(job, file)
-              .then(
-                () => { logger.debug(`createArtifacts(${job.data?.sourcePath}, ${file}): finished OK`) },
-                (e) => {
-                  logger.error(`createArtifacts(${job.data?.sourcePath}, ${file}): error: ${e}`)
-                  reject(e)
-                }
-              )
-          }
-        },
-        (err) => {
-          logger.error(`ensureSourceDownloaded(${job.data?.sourcePath}): error: ${err}`)
-          reject(err)
-        }
-      ).finally(() => {
-      resolve()
-    })
-  })
+  console.log(`__xform(${job.data.sourcePath}): STARTING`)
+  const file = await ensureSourceDownloaded(job)
+  if (file) {
+    await createArtifacts(job, file)
+    console.log(`__xform(${job.data.sourcePath}): createArtifacts finished. TOTALLY DONE`)
+
+  } else {
+    const message = `__xform(${job.data.sourcePath}): ensureSourceDownloaded did not return a file`
+    logger.error(message)
+    throw new TypeError(message)
+  }
 }
 
 q.initializeQueue(XFORM_PROCESS_FUNCTION)
