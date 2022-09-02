@@ -5,7 +5,7 @@ Yuebing is open-source software for running video hosting sites.
 It automatically transcodes your source videos into modern streaming formats, playable on any
 device over any connection.
 
-Yuebing can use either Amazon S3 or Backblaze B2 as its backend storage, and sports many advanced features.
+Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many advanced features.
 
 ### Source
 * [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
@@ -32,12 +32,12 @@ Going with "free" video hosting from a major provider was off the table.
 
 What we were looking for:
 * Self-hosted, but totally **hands-off easy** to run and maintain
-* Supported the latest (or at least recently decent) video streaming formats, including adaptive bitrate
+* Streams in modern video formats, including adaptive bitrate
 * Videos play on any device, desktop or mobile
 * With a high-bandwidth connection, video quality is awesome; as good as it gets
   * **Even with a crappy connection**, playback is decent quality and *doesn't skip or buffer*
 * Encrypted storage, thus able to use public cloud storage solutions with some confidence
-* Stateless server: persist anything important to storage that is highly resilient (perhaps S3?)
+* Stateless server: persist anything important to storage that is highly resilient
   * **I don't want to worry about backups!**
   * *This was a nice to have. As it turns out nothing out there has anything like this. Yuebing does!*
 * After running a beefy instance to transcode everything, tear it down and run something cheaper for the long-run
