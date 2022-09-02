@@ -30,17 +30,15 @@
           @change="selectLocale"
         >
           <template #selection="{ item }">
-            <span>
-              <h1>
-                {{ localeIcon(item.name) }}
-              </h1>
-            </span>
+            <h1>
+              {{ localeIcon(item.name) }}
+            </h1>
           </template>
           <template #item="{ item }">
             <h1>
               {{ localeIcon(item.name) }}
             </h1>
-            <span>{{ item.value }}</span>
+            <span class="localeName">{{ item.value }}</span>
           </template>
         </v-select>
       </div>
@@ -176,11 +174,15 @@ export default {
 
 <style lang="scss" scoped>
 .localeSelector {
+  margin-top: 10px;
   margin-left: 20px;
-  width: 80px;
+  width: 90px;
   -webkit-appearance: none;
   -moz-appearance: none;
   text-indent: 1px;
   text-overflow: '';
+}
+.localeName {
+  margin-left: 4px;
 }
 </style>
