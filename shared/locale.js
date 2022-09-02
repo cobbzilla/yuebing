@@ -82,7 +82,7 @@ function registerMessages (locale, messages) {
 
 // register locale strings
 for (const locale of SUPPORTED_LOCALES) {
-  registerMessages(locale, require(`./messages/${locale}_messages.json`).default)
+  registerMessages(locale, require(`./messages/${locale}_messages.js`).default)
 }
 
 function localesForUser (user, browserLocale = null, anonLocale) {
