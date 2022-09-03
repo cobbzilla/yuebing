@@ -209,7 +209,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
             await system.touchLastModified(sourcePath)
             await redis.del(util.redisMetaCacheKey(sourcePath))
             q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
-            resolve(head)
+            resolve(null)
           } else {
             const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
             logger.error(message)
