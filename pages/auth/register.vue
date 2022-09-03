@@ -166,9 +166,7 @@ export default {
         this.user.locale = newLocale
       }
     },
-    registerError (newError) {
-      this.$refs.form.setErrors(newError)
-    }
+    registerError (newError) { this.$refs.form.setErrors(newError) }
   },
   created () {
     if (this.browserLocale) {
