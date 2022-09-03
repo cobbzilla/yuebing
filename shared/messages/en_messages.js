@@ -250,6 +250,7 @@ export default {
   admin_label_privateConfig_admin: 'Administrator Settings',
   admin_label_privateConfig_admin_user: 'Admin User',
   admin_label_privateConfig_admin_user_email: 'Email',
+  admin_label_privateConfig_admin_user_username: 'Username',
   admin_label_privateConfig_admin_user_password: 'Password',
   admin_label_privateConfig_admin_user_firstName: 'First Name',
   admin_label_privateConfig_admin_user_lastName: 'Last Name',

@@ -29,11 +29,7 @@
           dense
           @change="selectLocale"
         >
-          <template #selection="{ item }">
-            <h1>
-              {{ localeIcon(item.name) }}
-            </h1>
-          </template>
+          <template #selection="{ item }"><h1 class="localeSelectorCurrentLocale">{{ localeIcon(item.name) }}</h1></template>
           <template #item="{ item }">
             <h1>
               {{ localeIcon(item.name) }}
@@ -176,7 +172,7 @@ export default {
 .localeSelector {
   margin-top: 10px;
   margin-left: 20px;
-  width: 90px;
+  width: 70px;
   -webkit-appearance: none;
   -moz-appearance: none;
   text-indent: 1px;
@@ -184,5 +180,8 @@ export default {
 }
 .localeName {
   margin-left: 4px;
+}
+.localeSelectorCurrentLocale {
+  text-align: right;
 }
 </style>

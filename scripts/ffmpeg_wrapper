@@ -1,6 +1,5 @@
 #!/bin/sh
-
-PROCESSOR_COUNT=$(grep -c ^processor /proc/cpuinfo)
+PROCESSOR_COUNT=$(node -e 'console.log(require("os").cpus().length)')
 if [ -z "${PROCESSOR_COUNT}" ] ; then
   PROCESSOR_COUNT=2
 fi
@@ -17,12 +16,17 @@ YB_MAX_LOAD=${YB_WORK_MAX_LOAD}
 if [ -z "${YB_MAX_LOAD}" ] ; then
   YB_MAX_LOAD=${DEFAULT_MAX_LOAD}
 fi
-YB_LOAD_LOG="${YB_WORK_DIR:-'/tmp'}/ffmpeg_load.log"
+YB_LOAD_LOG="${YB_WORK_DIR:-/tmp}/yuebing_load.log"
 
 SCRIPT="${0}"
 
 log () {
   echo "${SCRIPT} [$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "${YB_LOAD_LOG}"
+}
+
+loadAverage () {
+  # Use the 5-minute load average; the 2nd-to-last word in `uptime` output
+  uptime | awk '{print $(NF-1)}'
 }
 
 # This block of load-related code is to keep the system from grinding
@@ -32,12 +36,19 @@ log () {
 # Before the system dies, let's stall jobs here, wait for the system
 # load to go below a threshold
 
-LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
+MAX_WAIT=$(expr 60 '*' 30)  # max wait 30 minutes
+START=$(date +%s)
+LOAD="$(loadAverage)"
 ATTEMPT=0
 if [ -z "${LOAD}" ] ; then
   log "Unable to determine load, running: ffmpeg $*"
 elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
   while [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; do
+    NOW=$(date +%s)
+    if [ $(expr ${NOW} - ${START}) -gt ${MAX_WAIT} ] ; then
+      log "Exceeded max wait (${MAX_WAIT} seconds), quitting and not running ffmpeg $*"
+      exit 2
+    fi
     ATTEMPT=$(expr ${ATTEMPT} + 1)
     SLEEP_TIME=$(expr 10 '*' ${ATTEMPT})
     if [ ${SLEEP_TIME} -gt ${MAX_SLEEP_TIME} ] ; then
@@ -45,10 +56,10 @@ elif [ ${LOAD} -gt ${YB_MAX_LOAD} ] ; then
     fi
     log "Load is too high (${LOAD} > ${YB_MAX_LOAD}), waiting ${SLEEP_TIME} seconds before trying again: ffmpeg $*"
     sleep ${SLEEP_TIME}
-    LOAD="$(awk '{print $1}' /proc/loadavg | awk -F '.' '{print $1}')"
+    LOAD="$(loadAverage)"
     if [ -z "${LOAD}" ] ; then
-      log "Unable to determine load, running ffmpeg $*"
-      break
+      log "Unable to determine load, quitting and not running ffmpeg $*"
+      exit 3
     fi
   done
 else

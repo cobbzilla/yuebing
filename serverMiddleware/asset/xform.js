@@ -23,17 +23,17 @@ const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTempor
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const XFORM_PROCESS_FUNCTION = async (job) => {
-  console.log(`__xform(${job.data.sourcePath}): STARTING`)
+  logger.silly(`__xform(${job.data.sourcePath}): STARTING`)
   const file = await ensureSourceDownloaded(job)
-  console.log(`__xform(${job.data.sourcePath}): ensureSourceDownloaded returned: ${file}`)
+  logger.silly(`__xform(${job.data.sourcePath}): ensureSourceDownloaded returned: ${file}`)
   if (file) {
-    console.log(`__xform(${job.data.sourcePath}): createArtifacts STARTING`)
+    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts STARTING`)
     await createArtifacts(job, file)
-    console.log(`__xform(${job.data.sourcePath}): createArtifacts finished. TOTALLY DONE`)
+    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts finished. TOTALLY DONE`)
 
   } else {
     const message = `__xform(${job.data.sourcePath}): ensureSourceDownloaded did not return a file`
-    console.error(message)
+    logger.error(message)
     throw new TypeError(message)
   }
 }
@@ -88,38 +88,55 @@ async function runTransformCommand (job, profile, outfile, args, closeHandler) {
   q.recordJobEvent(job, `${jobPrefix}_spawn`, `${command} ${escapedArgs}`)
   const xform = spawn(command, args)
   const stream = (saveStdout || saveStderr) ? fs.createWriteStream(outfile) : null
-  xform.stdout.on('data', (data) => {
-    if (saveStdout) {
-      stream.write(data, (err) => {
-        if (err) {
-          logger.debug(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
-          throw err
-        }
-      })
-    } else if (showTransformOutput()) {
-      logger.debug(`stdout >>>>>> ${data}`)
-    }
-  })
+  return new Promise((resolve, reject) => {
+    xform.stdout.on('data', (data) => {
+      if (saveStdout) {
+        stream.write(data, (err) => {
+          if (err) {
+            logger.debug(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
+            throw err
+          }
+        })
+      } else if (showTransformOutput()) {
+        logger.debug(`stdout >>>>>> ${data}`)
+      }
+    })
 
-  xform.stderr.on('data', (data) => {
-    if (saveStderr) {
-      stream.write(data, (err) => {
-        if (err) {
-          logger.debug(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
-          throw err
-        }
-      })
-    } else if (showTransformOutput()) {
-      logger.debug(`stdout >>>>>> ${data}`)
-    }
-  })
+    xform.stderr.on('data', (data) => {
+      if (saveStderr) {
+        stream.write(data, (err) => {
+          if (err) {
+            logger.debug(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
+            throw err
+          }
+        })
+      } else if (showTransformOutput()) {
+        logger.debug(`stderr >>>>>> ${data}`)
+      }
+    })
 
-  xform.on('close', (code) => {
-    logger.debug(`${logPrefix}  exited with code ${code}`)
-    q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
-    closeHandler(code)
+    xform.on('close', async (code) => {
+      try {
+        if (code !== 0) {
+          logger.error(`${logPrefix} spawned command exited with code ${code}. command was: ${command} ${escapedArgs}`)
+          reject(code)
+        } else {
+          logger.debug(`${logPrefix} spawned command exited OK (code ${code}). command was: ${command} ${escapedArgs}`)
+          q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
+          try {
+            await closeHandler(code)
+            resolve(code)
+          } catch (closeErr) {
+            logger.error(`${logPrefix} error in closeHandler: ${closeErr}`)
+            q.recordJobEvent(job, `${jobPrefix}_ERROR_closeHandler`, `${command}: closeHandler error ${closeErr}`)
+            reject(closeErr)
+          }
+        }
+      } catch (e) {
+        reject(e)
+      }
+    })
   })
-  await xform
 }
 
 function multifilePrefix (outfile) {
@@ -181,28 +198,42 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     }
     return message
   } else {
-    setTimeout(async () => {
-      // ensure it was uploaded
-      const head = await system.api.safeMetadata(destPath)
-      if (head && head.size && head.size === outfileSize) {
-        // upload success!
-        logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
-        await system.touchLastModified(sourcePath)
-        await redis.del(util.redisMetaCacheKey(sourcePath))
-        q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
-        return null
-      } else {
-        const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
-        logger.error(message)
-        q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
-        if (deleteIncompleteUploads()) {
-          await system.api.remove(destPath)
-        } else {
-          logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          // ensure it was uploaded
+          const head = await system.api.safeMetadata(destPath)
+          if (head && head.size && head.size === outfileSize) {
+            // upload success!
+            logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
+            await system.touchLastModified(sourcePath)
+            await redis.del(util.redisMetaCacheKey(sourcePath))
+            q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
+            resolve(head)
+          } else {
+            const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
+            logger.error(message)
+            q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
+            if (deleteIncompleteUploads()) {
+              await system.api.remove(destPath)
+            } else {
+              logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+            }
+            reject(message)
+          }
+        } catch (e) {
+          const message = `uploadAsset(${destPath}): unexpected error: ${e}`
+          logger.error(message)
+          q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_unexpected`, message)
+          if (deleteIncompleteUploads()) {
+            await system.api.remove(destPath)
+          } else {
+            logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+          }
+          reject(message)
         }
-        return message
-      }
-    }, UPLOAD_CONFIRM_DELAY)
+      }, UPLOAD_CONFIRM_DELAY)
+    })
   }
 }
 
@@ -323,7 +354,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
   }
 }
 
-async function mediaTransform (job, file, profile, outfile, doneWrapper) {
+async function mediaTransform (job, file, profile, outfile) {
   const mediaType = profile.mediaType
   const jobPrefix = `mediaTransform_${mediaType}_${profile.name}`
 
@@ -360,29 +391,16 @@ async function mediaTransform (job, file, profile, outfile, doneWrapper) {
   const outputHandler = handleOutputFiles(job, sourcePath, profile, outfile)
   logger.debug(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
   q.recordJobEvent(job, `${logPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
-  await runTransformCommand(job, profile, outfile, args, (code) => {
+  await runTransformCommand(job, profile, outfile, args, async (code) => {
     q.recordJobEvent(job, `${logPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
-    outputHandler(code).then(() => {
-      q.recordJobEvent(job, `${logPrefix}_outputHandler_COMPLETE`)
-      logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
-    })
-  }).then(
-    () => { q.recordJobEvent(job, `${logPrefix}_DONE`) },
-    (err) => {
-      const message = `${logPrefix} transform error: ${err} (json=${JSON.stringify(err)})`
-      logger.error(message)
-      q.recordJobEvent(job, `${logPrefix}_ERROR_transforming`, `${err}`)
-      system.recordError(sourcePath, profile.name, message).then(
-        () => { logger.debug(`${logPrefix} recorded error successfully: ${err} (json=${JSON.stringify(err)}`) },
-        (error) => { logger.error(`${logPrefix} ERROR recording error! ${error} (json=${JSON.stringify(error)}`) }
-      )
-    })
-    .finally(() => {
-      doneWrapper.finish()
-    })
+    await outputHandler(code)
+    q.recordJobEvent(job, `${logPrefix}_outputHandler_COMPLETE`)
+    logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
+  })
+  q.recordJobEvent(job, `${logPrefix}_DONE`)
 }
 
-async function createArtifacts (job, localSourceFile, doneWrapper) {
+async function createArtifacts (job, localSourceFile) {
   const sourcePath = job.data.sourcePath
 
   logger.debug('createArtifacts: starting with file: ' + localSourceFile)
@@ -432,7 +450,7 @@ async function createArtifacts (job, localSourceFile, doneWrapper) {
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_starting_xform_${mediaType}`)
-    await mediaTransform(job, localSourceFile, profile, outfile, doneWrapper)
+    await mediaTransform(job, localSourceFile, profile, outfile)
     q.recordJobEvent(job, `${artifactPrefix}_completed_xform_${mediaType}`)
   }
 }
