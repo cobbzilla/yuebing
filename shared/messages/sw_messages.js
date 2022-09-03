@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'Data imehamishwa',
   admin_info_migration_error: 'Hitilafu ilitokea wakati wa kuhamisha data',
   http_invalid_request_method: 'Mbinu ya ombi la HTTP {{ method }} haitumiki katika sehemu hii ya mwisho',
-  admin_label_privateConfig_admin_user_username: 'Jina la mtumiaji'
+  admin_label_privateConfig_admin_user_username: 'Jina la mtumiaji',
+  locale_id: 'Kiindonesia',
+  locale_ur: 'Kiurdu'
 }

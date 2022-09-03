@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'Dados migrados com sucesso',
   admin_info_migration_error: 'Ocorreu um erro ao migrar os dados',
   http_invalid_request_method: 'O método de solicitação HTTP {{ method }} não é compatível com este endpoint',
-  admin_label_privateConfig_admin_user_username: 'Nome de usuário'
+  admin_label_privateConfig_admin_user_username: 'Nome de usuário',
+  locale_id: 'indonésio',
+  locale_ur: 'urdu'
 }

@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'تم ترحيل البيانات بنجاح',
   admin_info_migration_error: 'حدث خطأ أثناء ترحيل البيانات',
   http_invalid_request_method: 'طريقة طلب HTTP {{method}} غير مدعومة بنقطة النهاية هذه',
-  admin_label_privateConfig_admin_user_username: 'اسم المستخدم'
+  admin_label_privateConfig_admin_user_username: 'اسم المستخدم',
+  locale_id: 'الأندونيسية',
+  locale_ur: 'الأردية'
 }

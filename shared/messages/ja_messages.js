@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'データは正常に移行されました',
   admin_info_migration_error: 'データの移行中にエラーが発生しました',
   http_invalid_request_method: 'HTTP リクエスト メソッド {{method}} は、このエンドポイントではサポートされていません',
-  admin_label_privateConfig_admin_user_username: 'ユーザー名'
+  admin_label_privateConfig_admin_user_username: 'ユーザー名',
+  locale_id: 'インドネシア語',
+  locale_ur: 'ウルドゥー語'
 }

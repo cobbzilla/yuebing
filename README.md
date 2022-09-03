@@ -21,7 +21,7 @@ Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many adva
   * [From source](#From-source)
 * [Configuration](#Configuration)
   * [nginx config](#nginx-config)
-* [Why Yuebing?](#Why-yuebing?)
+* [Why the name yuebing?](#Why-the-name-yuebing?)
 
 ## Inspiration
 Last year my mom spent a ton of time (and money!) to organize and digitize an archive of old family videos.
@@ -161,7 +161,7 @@ front of it to handle SSL, rate limiting if needed, etc.
 
 If you're using nginx, here is a [sample config](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) you can use.
 
-## Why yuebing?
+## Why the name yuebing?
 [Oolong the rabbit](https://en.wikipedia.org/wiki/Oolong_(rabbit)) was an adorable and famous
 [early internet meme](https://duckduckgo.com/?q=oolong+rabbit&ia=images&iax=images). Oolong died in 2003,
 two years before a certain massively popular video service even existed!

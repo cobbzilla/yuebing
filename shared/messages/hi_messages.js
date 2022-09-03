@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'डेटा सफलतापूर्वक माइग्रेट किया गया',
   admin_info_migration_error: 'डेटा माइग्रेट करते समय एक त्रुटि हुई',
   http_invalid_request_method: 'HTTP अनुरोध विधि {{method}} इस समापन बिंदु द्वारा समर्थित नहीं है',
-  admin_label_privateConfig_admin_user_username: 'उपयोगकर्ता नाम'
+  admin_label_privateConfig_admin_user_username: 'उपयोगकर्ता नाम',
+  locale_id: 'इन्डोनेशियाई',
+  locale_ur: 'उर्दू'
 }

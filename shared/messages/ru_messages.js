@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'Данные успешно перенесены',
   admin_info_migration_error: 'Произошла ошибка при переносе данных',
   http_invalid_request_method: 'Метод HTTP-запроса {{ method }} не поддерживается этой конечной точкой.',
-  admin_label_privateConfig_admin_user_username: 'Имя пользователя'
+  admin_label_privateConfig_admin_user_username: 'Имя пользователя',
+  locale_id: 'индонезийский',
+  locale_ur: 'урду'
 }

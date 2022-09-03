@@ -327,5 +327,7 @@ export default {
   admin_label_publicConfig_timeout_verify: 'Délai d\'expiration du jeton de vérification de compte',
   admin_label_publicConfig_timeout_resetPassword: 'Réinitialiser le délai d\'expiration du jeton de mot de passe',
   admin_label_privateConfig_admin_user_username: 'Nom d\'utilisateur',
-  label_configCategory: 'Catégorie de configurations'
+  label_configCategory: 'Catégorie de configurations',
+  locale_id: 'indonésien',
+  locale_ur: 'ourdou'
 }

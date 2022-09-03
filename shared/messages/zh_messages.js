@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: '数据迁移成功',
   admin_info_migration_error: '迁移数据时出错',
   http_invalid_request_method: '此端点不支持 HTTP 请求方法 {{ method }}',
-  admin_label_privateConfig_admin_user_username: '用户名'
+  admin_label_privateConfig_admin_user_username: '用户名',
+  locale_id: '印度尼西亚',
+  locale_ur: '乌尔都语'
 }

@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: '데이터 마이그레이션 성공',
   admin_info_migration_error: '데이터를 이전하는 동안 오류가 발생했습니다.',
   http_invalid_request_method: 'HTTP 요청 방법 {{ method }}은(는) 이 끝점에서 지원되지 않습니다.',
-  admin_label_privateConfig_admin_user_username: '사용자 이름'
+  admin_label_privateConfig_admin_user_username: '사용자 이름',
+  locale_id: '인도네시아 인',
+  locale_ur: '우르두어'
 }

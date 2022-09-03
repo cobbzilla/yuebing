@@ -116,10 +116,12 @@ export default {
   locale_ar: 'Arabic',
   locale_bn: 'Bengali',
   locale_hi: 'Hindi',
+  locale_id: 'Indonesian',
   locale_ja: 'Japanese',
   locale_ko: 'Korean',
   locale_pt: 'Portuguese',
   locale_ru: 'Russian',
+  locale_ur: 'Urdu',
   locale_sw: 'Swahili',
   locale_zh: 'Chinese',
 

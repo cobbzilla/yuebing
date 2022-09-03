@@ -325,5 +325,7 @@ export default {
   admin_info_migration_success: 'Daten erfolgreich migriert',
   admin_info_migration_error: 'Beim Migrieren von Daten ist ein Fehler aufgetreten',
   http_invalid_request_method: 'Die HTTP-Anforderungsmethode {{ method }} wird von diesem Endpunkt nicht unterstützt',
-  admin_label_privateConfig_admin_user_username: 'Nutzername'
+  admin_label_privateConfig_admin_user_username: 'Nutzername',
+  locale_id: 'Indonesisch',
+  locale_ur: 'Urdu'
 }
