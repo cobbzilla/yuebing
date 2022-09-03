@@ -111,7 +111,6 @@ export default {
   locale_ru: 'الروسية',
   locale_sw: 'السواحيلية',
   locale_zh: 'صينى',
-
   label_date: '{{MMM}} {{d}} ، {{YYYY}}',
   label_date_short: '{{M}} / {{d}} / {{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}} ، {{YYYY}} / {{h}}: {{m}} {{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'ترحيل البيانات',
   admin_info_migration_success: 'تم ترحيل البيانات بنجاح',
   admin_info_migration_error: 'حدث خطأ أثناء ترحيل البيانات',
-  http_invalid_request_method: 'طريقة طلب HTTP {{method}} غير مدعومة بنقطة النهاية هذه'
+  http_invalid_request_method: 'طريقة طلب HTTP {{method}} غير مدعومة بنقطة النهاية هذه',
+  admin_label_privateConfig_admin_user_username: 'اسم المستخدم'
 }

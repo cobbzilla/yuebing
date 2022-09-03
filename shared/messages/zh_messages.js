@@ -324,5 +324,6 @@ export default {
   admin_button_migrate_data: '迁移数据',
   admin_info_migration_success: '数据迁移成功',
   admin_info_migration_error: '迁移数据时出错',
-  http_invalid_request_method: '此端点不支持 HTTP 请求方法 {{ method }}'
+  http_invalid_request_method: '此端点不支持 HTTP 请求方法 {{ method }}',
+  admin_label_privateConfig_admin_user_username: '用户名'
 }

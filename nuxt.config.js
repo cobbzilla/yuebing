@@ -151,7 +151,9 @@ export default {
       port: process.env.YB_REDIS_PORT || 6379,
 
       // set to true to flush redis when the app starts (this will log out all users)
-      flushAtStartup: process.env.YB_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : false,
+      // when false, any transform jobs abandoned from a previous run may cause show (benign) errors
+      // in your logs. Start another scan to reprocess the abandoned jobs.
+      flushAtStartup: (typeof process.env.YB_REDIS_FLUSH_AT_STARTUP !== 'undefined') ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : true,
 
       // Cache duration for listings from storage, in milliseconds
       listingCacheExpiration: process.env.YB_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
@@ -172,7 +174,7 @@ export default {
         flushAtStartup: {
           rules: 'required',
           format: 'flag',
-          default: false
+          default: true
         },
         listingCacheExpiration: {
           rules: 'required|integer|min_value:0|max_value:3153600000000',

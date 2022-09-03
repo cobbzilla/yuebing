@@ -111,7 +111,6 @@ export default {
   locale_ru: 'Русский',
   locale_sw: 'Суахили',
   locale_zh: 'Китайский язык',
-
   label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'Перенести данные',
   admin_info_migration_success: 'Данные успешно перенесены',
   admin_info_migration_error: 'Произошла ошибка при переносе данных',
-  http_invalid_request_method: 'Метод HTTP-запроса {{ method }} не поддерживается этой конечной точкой.'
+  http_invalid_request_method: 'Метод HTTP-запроса {{ method }} не поддерживается этой конечной точкой.',
+  admin_label_privateConfig_admin_user_username: 'Имя пользователя'
 }

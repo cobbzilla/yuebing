@@ -111,7 +111,6 @@ export default {
   locale_ru: 'रूसी',
   locale_sw: 'स्‍वाहि‍ली',
   locale_zh: 'चीनी',
-
   label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'डेटा माइग्रेट करें',
   admin_info_migration_success: 'डेटा सफलतापूर्वक माइग्रेट किया गया',
   admin_info_migration_error: 'डेटा माइग्रेट करते समय एक त्रुटि हुई',
-  http_invalid_request_method: 'HTTP अनुरोध विधि {{method}} इस समापन बिंदु द्वारा समर्थित नहीं है'
+  http_invalid_request_method: 'HTTP अनुरोध विधि {{method}} इस समापन बिंदु द्वारा समर्थित नहीं है',
+  admin_label_privateConfig_admin_user_username: 'उपयोगकर्ता नाम'
 }

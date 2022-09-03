@@ -111,7 +111,6 @@ export default {
   locale_ru: 'Russa',
   locale_sw: 'Suaíli',
   locale_zh: 'Chinês',
-
   label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'Migrar dados',
   admin_info_migration_success: 'Dados migrados com sucesso',
   admin_info_migration_error: 'Ocorreu um erro ao migrar os dados',
-  http_invalid_request_method: 'O método de solicitação HTTP {{ method }} não é compatível com este endpoint'
+  http_invalid_request_method: 'O método de solicitação HTTP {{ method }} não é compatível com este endpoint',
+  admin_label_privateConfig_admin_user_username: 'Nome de usuário'
 }

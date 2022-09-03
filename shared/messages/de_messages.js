@@ -111,8 +111,7 @@ export default {
   locale_ru: 'Russisch',
   locale_sw: 'Suaheli',
   locale_zh: 'Chinesisch',
-
-  label_date: '{{MMM}} {{d}}, {{JJJJ}}',
+  label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
   label_date_and_time_short: '{{M}}/{{d}}/{{YYYY}} {{h}}:{{m}}{{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'Daten migrieren',
   admin_info_migration_success: 'Daten erfolgreich migriert',
   admin_info_migration_error: 'Beim Migrieren von Daten ist ein Fehler aufgetreten',
-  http_invalid_request_method: 'Die HTTP-Anforderungsmethode {{ method }} wird von diesem Endpunkt nicht unterstützt'
+  http_invalid_request_method: 'Die HTTP-Anforderungsmethode {{ method }} wird von diesem Endpunkt nicht unterstützt',
+  admin_label_privateConfig_admin_user_username: 'Nutzername'
 }

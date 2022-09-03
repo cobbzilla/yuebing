@@ -111,7 +111,6 @@ export default {
   locale_ru: 'রাশিয়ান',
   locale_sw: 'সোয়াহিলি',
   locale_zh: 'চাইনিজ',
-
   label_date: '{{MMM}} {{d}}, {{YYYY}}',
   label_date_short: '{{M}}/{{d}}/{{YYYY}}',
   label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'ডেটা মাইগ্রেট করুন',
   admin_info_migration_success: 'ডেটা সফলভাবে স্থানান্তরিত হয়েছে৷',
   admin_info_migration_error: 'ডেটা স্থানান্তর করার সময় একটি ত্রুটি ঘটেছে৷',
-  http_invalid_request_method: 'HTTP অনুরোধ পদ্ধতি {{ method }} এই এন্ডপয়েন্ট দ্বারা সমর্থিত নয়'
+  http_invalid_request_method: 'HTTP অনুরোধ পদ্ধতি {{ method }} এই এন্ডপয়েন্ট দ্বারা সমর্থিত নয়',
+  admin_label_privateConfig_admin_user_username: 'ব্যবহারকারীর নাম'
 }

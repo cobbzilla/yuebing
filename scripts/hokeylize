@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Uses hokeylization to ensure string message files and templates are in sync with the default template
+# Any missing translations are filled in by hokeylization
+#
+# To use this script, you'll need to define the GOOGLE_TRANSLATE_PROJECT_ID
+# and GOOGLE_APPLICATION_CREDENTIALS environment variables
+#
+# More info:
+#   hokeylization on github: https://github.com/cobbzilla/hokeylization
+#   hokeylization on npm: https://www.npmjs.com/package/hokeylization
+#
+SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
+BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+function die () {
+  echo >&2 "${0}: ${1}"
+  exit 1
+}
+
+HOKEY=$(which hokey)
+if [[ -z "${HOKEY}" ]] ; then
+  die "hokey command not found. Run:
+
+  sudo yarn global add hokeylization
+"
+fi
+
+DEFAULT_LANG="$("${SCRIPT_DIR}"/nuxt_cfg publicRuntimeConfig.defaultLocale)"
+
+# nuxt_config prints a the JSON array of locales
+# hokey wants a comma separated list, but we must exclude the defaultLocale
+# what's going on?
+#   * Get the raw JS locales array: "${SCRIPT_DIR}"/nuxt_cfg publicRuntimeConfig.locales
+#   * Normalize by deleting newlines, spaces, and bracket characters: tr -d "\n []'"
+#   * Convert commas to newlines, filter out the default locale: tr ',' '\n' | grep -v "${DEFAULT_LANG}"
+#   * Turn newlines back into commas, so it's now in the proper format for the `-l` option to the hokey command: tr '\n' ','
+LANGS="$("${SCRIPT_DIR}"/nuxt_cfg publicRuntimeConfig.locales | tr -d "\n []'" | tr ',' '\n' | grep -v "${DEFAULT_LANG}" | tr '\n' ',')"
+
+# Generate any missing string keys or template files in our translation files
+cd "${BASE_DIR}/shared/messages" && \
+  hokey -l "${LANGS}" -o LANG_messages.js "${DEFAULT_LANG}_messages.js" && \
+  cd "${BASE_DIR}/serverMiddleware/templates/email" && \
+  hokey -l "${LANGS}" -o LANG "${DEFAULT_LANG}"

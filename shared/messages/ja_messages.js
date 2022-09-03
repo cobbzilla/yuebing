@@ -324,5 +324,6 @@ export default {
   admin_button_migrate_data: 'データの移行',
   admin_info_migration_success: 'データは正常に移行されました',
   admin_info_migration_error: 'データの移行中にエラーが発生しました',
-  http_invalid_request_method: 'HTTP リクエスト メソッド {{method}} は、このエンドポイントではサポートされていません'
+  http_invalid_request_method: 'HTTP リクエスト メソッド {{method}} は、このエンドポイントではサポートされていません',
+  admin_label_privateConfig_admin_user_username: 'ユーザー名'
 }

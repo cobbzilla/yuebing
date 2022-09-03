@@ -1,8 +1,6 @@
 export default {
   id: 'fr',
   emoji: '🇫🇷',
-
-  // titles and labels
   anonymous_user_name: 'mystérieux',
   welcome_public: 'Bienvenue sur {{ title }}!',
   welcome_user: 'Bienvenue sur {{ title }}, {{user.firstName ? user.firstName : user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}}',
@@ -52,15 +50,12 @@ export default {
   info_invite_friends_enabled_no_email: 'La fonctionnalité "inviter des amis" est activée mais l\'e-mail n\'a pas été configuré sur {{ title }}, elle ne peut donc pas être utilisée',
   info_invitation_success_results: 'Votre invitation a été envoyée avec succès à {{ successCount }}amis',
   info_invitation_error_results: 'Votre invitation n\'a pas pu être envoyée à {{ errorCount }}amis',
-
   label_search: 'Chercher',
   button_search: 'Chercher',
   label_sort: 'Trier par',
   label_sort_order: 'ordre',
   label_sort_ascending: 'croissant',
   label_sort_descending: 'décroissant',
-
-  // media browsing
   title_browsing_folder: 'Dossier: {{ folder }}',
   button_back_to: 'Retourner à {{ prefix }}',
   button_back_to_root_folder: 'Retour au niveau supérieur',
@@ -78,8 +73,6 @@ export default {
   info_no_thumbnails_found: '(aucune vignette trouvée)',
   button_show_metadata: 'afficher les métadonnées',
   button_hide_metadata: 'masquer les métadonnées',
-
-  // vee-validate error types
   error_field_required: '{{ field }} est requis',
   error_field_invalid: '{{ field }} n\'est pas valide',
   error_field_regex: '{{ field }} n\'est pas valide',
@@ -104,8 +97,6 @@ export default {
   error_field_raw_hex: '{{ field }} n\'est pas un nombre hexadécimal (0x non autorisé ici)',
   error_field_hex: '{{ field }} n\'est pas un nombre hexadécimal',
   error_field_username: '{{ field }} n\'est pas un nom d\'utilisateur valide. Doit commencer par une lettre et ne contenir que des lettres, des chiffres, des traits de soulignement (_), des traits d\'union (-) et des points (.)',
-
-  // Locale names -- add more translations if other locales are added
   locale_en: 'Anglais',
   locale_es: 'Espagnol',
   locale_it: 'Italien',
@@ -120,8 +111,6 @@ export default {
   locale_ru: 'Russe',
   locale_sw: 'Swahili',
   locale_zh: 'Chinois',
-
-  // Date/Calendar names
   label_date: '{{d}} {{MMM}} {{YYYY}}',
   label_date_short: '{{d}}/{{M}}/{{YYYY}}',
   label_date_and_time: '{{d}} {{MMM}} {{YYYY}} / {{h}}:{{m}}{{a}}',
@@ -179,15 +168,11 @@ export default {
   label_date_month_number_9: '10',
   label_date_month_number_10: '11',
   label_date_month_number_11: '12',
-
   label_duration_days: 'jours',
   label_duration_hours: 'heures',
   label_duration_minutes: 'minutes',
   label_duration_seconds: 'secondes',
-
   hint_readonly: '(ne peut pas être changé)',
-
-  // mediainfo fields
   label_mediainfo_title: 'Titre',
   label_mediainfo_artist: 'Artiste',
   label_mediainfo_album_artist: 'Artiste de l\'album',
@@ -218,8 +203,6 @@ export default {
   label_mediainfo_bitRate: 'Débit binaire',
   label_mediainfo_frameRate: 'Fréquence d\'images',
   label_mediainfo_dateEncoded: 'Date encodée',
-
-  // System Administration
   button_admin: 'Configuration du site',
   admin_title_site_administration: '{{ title }} Administration',
   admin_title_manage_configuration: 'Configuration du système',
@@ -227,8 +210,6 @@ export default {
   admin_title_user_administration: 'Administration des utilisateurs',
   admin_title_migrate_data: 'Migrer les données',
   admin_title_transform_queue: 'File d\'attente de transformation multimédia',
-
-  // Site Administration
   admin_title_site_administration_publicConfig: 'Configuration publique',
   admin_title_site_administration_privateConfig: 'Configuration privée',
   admin_button_save_config: 'Commettre des changements',
@@ -284,13 +265,9 @@ export default {
   admin_label_privateConfig_autoscan_cleanupTemporaryAssets: 'Nettoyer les fichiers temporaires?',
   admin_label_privateConfig_autoscan_deleteIncompleteUploads: 'Nettoyer les téléchargements incomplets?',
   admin_label_privateConfig_autoscan_concurrency: 'Concurrence',
-
-  // User Administration
   admin_label_total_user_count: '{{ totalUserCount }} utilisateurs au total',
   admin_button_delete_user: 'Supprimer l\'utilisateur',
   admin_label_confirm_user_delete: 'Veuillez confirmer la suppression de l\'utilisateur: {{ email }}',
-
-  // Source Administration
   admin_button_add_source: 'Ajouter une source multimédia',
   admin_title_add_source: 'Ajouter une source multimédia',
   admin_button_delete_source: 'Supprimer la source multimédia',
@@ -327,16 +304,12 @@ export default {
   label_sourceType_b2_field_partSize: 'Taille de la pièce',
   label_sourceType_b2_field_prefix: 'Préfixe de seau',
   label_sourceType_b2_field_delimiter: 'Délimiteur',
-
-  // Transform Queue
   admin_label_firstEvent: 'premier événement',
   admin_label_lastEvent: 'dernier événement',
   admin_label_eventTime: 'time',
   admin_label_eventName: 'événement',
   admin_label_eventDescription: 'description',
   admin_label_xformQueueEmpty: 'Aucune tâche active',
-
-  // User Migration
   admin_label_migration_noSources: 'Aucune source définie',
   admin_label_migration_results: 'Résultats de la migration:',
   admin_label_migration_readSource: 'Source pour migrer les données de',
@@ -350,7 +323,9 @@ export default {
   admin_button_migrate_data: 'Migrer les données',
   admin_info_migration_success: 'Les données ont migré avec succès',
   admin_info_migration_error: 'Une erreur s\'est produite lors de la migration des données',
-
-  // Low-level errors
-  http_invalid_request_method: 'La méthode de la demande HTTP {{ method }} n\'est pas prise en charge par ce point de terminaison'
+  http_invalid_request_method: 'La méthode de la demande HTTP {{ method }} n\'est pas prise en charge par ce point de terminaison',
+  admin_label_publicConfig_timeout_verify: 'Délai d\'expiration du jeton de vérification de compte',
+  admin_label_publicConfig_timeout_resetPassword: 'Réinitialiser le délai d\'expiration du jeton de mot de passe',
+  admin_label_privateConfig_admin_user_username: 'Nom d\'utilisateur',
+  label_configCategory: 'Catégorie de configurations'
 }

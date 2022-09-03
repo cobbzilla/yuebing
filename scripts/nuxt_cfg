@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Usage:   nuxt_cfg <prop>
+#
+# Print the value of a property from the nuxt.config.js object
+#
+#    prop         The property to print
+#                 Can be a dot-separated path, for example publicRuntimeConfig.title
+
+SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
+BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+FIELD=${1:?no config field provided}
+
+node -e '
+const config = require("fs").readFileSync("'"${BASE_DIR}"'/nuxt.config.js").toString("utf8")
+const nuxt = eval("Object.assign({}, " + config.substring(config.indexOf("{")) + ")")
+console.log(nuxt.'"${FIELD}"')
+'

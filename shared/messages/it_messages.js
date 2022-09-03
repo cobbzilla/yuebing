@@ -111,11 +111,10 @@ export default {
   locale_ru: 'Russo',
   locale_sw: 'Swahili',
   locale_zh: 'Cinese',
-
-  label_date: '{{MMM}} {{d}}, {{AAAA}}',
-  label_date_short: '{{M}}/{{d}}/{{AAAA}}',
-  label_date_and_time: '{{MMM}} {{d}}, {{AAAA}} / {{h}}:{{m}}{{a}}',
-  label_date_and_time_short: '{{M}}/{{d}}/{{AAAA}} {{h}}:{{m}}{{a}}',
+  label_date: '{{MMM}} {{d}}, {{YYYY}}',
+  label_date_short: '{{M}}/{{d}}/{{YYYY}}',
+  label_date_and_time: '{{MMM}} {{d}}, {{YYYY}} / {{h}}:{{m}}{{a}}',
+  label_date_and_time_short: '{{M}}/{{d}}/{{YYYY}} {{h}}:{{m}}{{a}}',
   label_date_undefined: 'Data/ora non impostate',
   label_date_day_half_am: 'SONO',
   label_date_day_half_pm: 'PM',
@@ -325,5 +324,6 @@ export default {
   admin_button_migrate_data: 'Migrare i dati',
   admin_info_migration_success: 'Migrazione dei dati riuscita',
   admin_info_migration_error: 'Si è verificato un errore durante la migrazione dei dati',
-  http_invalid_request_method: 'Il metodo di richiesta HTTP {{ method }} non è supportato da questo endpoint'
+  http_invalid_request_method: 'Il metodo di richiesta HTTP {{ method }} non è supportato da questo endpoint',
+  admin_label_privateConfig_admin_user_username: 'Nome utente'
 }
