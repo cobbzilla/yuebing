@@ -155,7 +155,7 @@ export default {
       return chopFileExt(name.startsWith(this.prefix) ? name.substring(this.prefix.length) : name)
     },
     filterDirName (name) {
-      const n = this.filterName(name)
+      const n = this.filterName(name).replaceAll('_', ' ')
       return n.endsWith('/') ? n.substring(0, n.length - 1) : n
     },
     isDir (obj) { return isDirectory(obj) },
