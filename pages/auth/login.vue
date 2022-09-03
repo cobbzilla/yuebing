@@ -112,7 +112,7 @@ export default {
           delete newError.username
         }
       }
-      this.$refs.form.setErrors(newError)
+      this.$refs.form.setErrors(newError || {})
     }
   },
   created () {
