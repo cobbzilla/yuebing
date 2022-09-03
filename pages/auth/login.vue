@@ -94,24 +94,24 @@ export default {
   },
   watch: {
     loginError (newError) {
-      console.log(`watch.loginError: received newError: ${JSON.stringify(newError)}`)
-      if (newError.email) {
-        if (newError.usernameOrEmail) {
-          newError.usernameOrEmail.push(...newError.email)
-        } else {
-          newError.usernameOrEmail = newError.email
+      if (newError) {
+        if (newError.email) {
+          if (newError.usernameOrEmail) {
+            newError.usernameOrEmail.push(...newError.email)
+          } else {
+            newError.usernameOrEmail = newError.email
+          }
+          delete newError.email
         }
-        delete newError.email
-      }
-      if (newError.username) {
-        if (newError.usernameOrEmail) {
-          newError.usernameOrEmail.push(...newError.username)
-        } else {
-          newError.usernameOrEmail = newError.username
+        if (newError.username) {
+          if (newError.usernameOrEmail) {
+            newError.usernameOrEmail.push(...newError.username)
+          } else {
+            newError.usernameOrEmail = newError.username
+          }
+          delete newError.username
         }
-        delete newError.username
       }
-      console.log(`watch.loginError: SETTING newError: ${JSON.stringify(newError)}`)
       this.$refs.form.setErrors(newError)
     }
   },
