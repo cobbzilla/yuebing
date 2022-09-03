@@ -16,13 +16,31 @@ async function flushCachedMetadata (sourcePath) {
 
 async function deriveMetadata (source, sourcePath) {
   const sourceAndPath = `${source.name}/${sourcePath}`
-  // Do we have this cached?
+  const metaPath = `${sourceAndPath}.meta.json`
+  const logPrefix = `deriveMetadata(${sourceAndPath}):`
+  const debug = (msg) => logger.debug(`${logPrefix} ${msg}`)
+  const silly = (msg) => logger.silly(`${logPrefix} ${msg}`)
+
+  // Do we have this redis-cached?
   const cacheKey = util.redisMetaCacheKey(sourceAndPath)
-  const cachedMeta = JSON.parse(await redis.get(cacheKey))
+  let cachedMeta = JSON.parse(await redis.get(cacheKey))
+  if (!cachedMeta) {
+    // do we have this file-cached?
+    const metaPathData = await source.safeReadFile(metaPath)
+    if (metaPathData) {
+      cachedMeta = JSON.parse(metaPathData)
+      debug(`we have cachedMeta=${JSON.stringify(cachedMeta)} from storage, but is it new enough?`)
+    } else {
+      debug(`no metaPathData found in metaPath=${metaPath}`)
+    }
+  } else {
+    debug(`we have cachedMeta=${JSON.stringify(cachedMeta)} from redis, but is it new enough?`)
+  }
+  const now = Date.now()
   if (cachedMeta && cachedMeta.ctime) {
     // if the cache ctime is within a short period, don't even bother checking the destination
-    if (Date.now() - cachedMeta.ctime < MANIFEST_CACHE_EXPIRATION) {
-      // logger.info(`deriveMetadata cache is young, returning it: ${JSON.stringify(cachedMeta)}`)
+    if (now - cachedMeta.ctime < MANIFEST_CACHE_EXPIRATION) {
+      debug(`cache is young enough, returning it: ${JSON.stringify(cachedMeta)}`)
       return cachedMeta
     }
     // check last-modified time on directory
@@ -30,27 +48,29 @@ async function deriveMetadata (source, sourcePath) {
     if (lastModified && lastModified.mtime) {
       const destModified = new Date(lastModified.mtime)
       if (destModified > cachedMeta.ctime) {
-        logger.info(`deriveMetadata: destination modified after cache created, recreating for source: ${sourcePath}`)
+        debug(`destination modified after cache created, recreating for source: ${sourcePath}`)
       } else {
         // the cache is valid!
+        debug(`cached created after last destination mod, returning cachedMeta: ${JSON.stringify(cachedMeta)}`)
         return cachedMeta
       }
     } else {
-      logger.info(`deriveMetadata recalculating because lastModified file does not exist or is newer than cache for sourcePath: ${sourcePath}`)
+      debug(`recalculating because lastModified file does not exist or is newer than cache for sourcePath: ${sourcePath}`)
     }
   } else {
-    logger.info(`deriveMetadata no data in cache, recalculating for: ${sourcePath}`)
+    debug(`no data in cache, recalculating for: ${sourcePath}`)
   }
 
   const meta = {
-    ctime: Date.now(),
+    ctime: now,
     assets: {},
     status: {}
   }
 
+  debug(`METADATA RECALC BEGINS: finding profiles...`)
   const profiles = m.mediaProfilesForSource(sourcePath)
   if (profiles === null) {
-    logger.info(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
+    debug(`no media profiles exist for path: ${sourcePath} (returning basic meta)`)
     return meta
   }
 
@@ -58,7 +78,7 @@ async function deriveMetadata (source, sourcePath) {
   const prefix = system.assetsDir(sourceAndPath)
   const assets = await system.api.find(prefix, m.ASSET_PREFIX)
   assets.forEach((asset) => {
-    // logger.info(`examining asset: ${asset}`)
+    silly(`examining asset: ${asset}`)
     const base = path.basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
@@ -67,7 +87,7 @@ async function deriveMetadata (source, sourcePath) {
       const foundProfile = (at !== -1 && at > underscore && at < dot)
         ? base.substring(underscore + 1, at)
         : base.substring(underscore + 1, dot)
-      // logger.info(`deriveMetadata: examining foundProfile ${foundProfile} from base ${base}`)
+      silly(`${logPrefix}: examining foundProfile ${foundProfile} from base ${base}`)
       if (foundProfile in profiles) {
         const prof = profiles[foundProfile]
         if (prof.enabled) {
@@ -115,14 +135,15 @@ async function deriveMetadata (source, sourcePath) {
     meta.selectedThumbnail = JSON.parse(selectedThumbnail)
   } catch (err) {
     if (err instanceof MobilettoNotFoundError) {
-      logger.debug(`deriveMetadata: no selected thumbnail for ${sourceAndPath}`)
+      debug(`no selected thumbnail for ${sourceAndPath}`)
     } else {
-      logger.warn(`deriveMetadata: error finding/parsing selected thumbnail for ${sourceAndPath}: ${err}`)
+      logger.warn(`${logPrefix} error finding/parsing selected thumbnail for ${sourceAndPath}: ${err}`)
     }
   }
 
+  await source.writeFile(metaPath, JSON.stringify(meta))
   await redis.set(cacheKey, JSON.stringify(meta), MANIFEST_CACHE_EXPIRATION)
-  // logger.info('deriveMetadata returning: ' + JSON.stringify(meta))
+  debug(`deriveMetadata FINALLY returning: ${JSON.stringify(meta)}`)
   return meta
 }
 
