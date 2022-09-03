@@ -39,6 +39,6 @@ LANGS="$("${SCRIPT_DIR}"/nuxt_cfg publicRuntimeConfig.locales | tr -d "\n []'" |
 
 # Generate any missing string keys or template files in our translation files
 cd "${BASE_DIR}/shared/messages" && \
-  hokey -l "${LANGS}" -o LANG_messages.js "${DEFAULT_LANG}_messages.js" && \
+  hokey --languages "${LANGS}" --outfile LANG_messages.js --handlebars "${DEFAULT_LANG}_messages.js" && \
   cd "${BASE_DIR}/serverMiddleware/templates/email" && \
-  hokey -l "${LANGS}" -o LANG "${DEFAULT_LANG}"
+  hokey --languages "${LANGS}" --outfile LANG --handlebars "${DEFAULT_LANG}"
