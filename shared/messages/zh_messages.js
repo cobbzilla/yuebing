@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: '此端点不支持 HTTP 请求方法 {{ method }}',
   admin_label_privateConfig_admin_user_username: '用户名',
   locale_id: '印度尼西亚',
-  locale_ur: '乌尔都语'
+  locale_ur: '乌尔都语',
+  locale_tl: '他加禄语',
+  locale_pl: '抛光',
+  locale_vi: '越南语'
 }

@@ -119,10 +119,13 @@ export default {
   locale_id: 'Indonesian',
   locale_ja: 'Japanese',
   locale_ko: 'Korean',
+  locale_pl: 'Polish',
   locale_pt: 'Portuguese',
   locale_ru: 'Russian',
   locale_ur: 'Urdu',
   locale_sw: 'Swahili',
+  locale_tl: 'Tagalog',
+  locale_vi: 'Vietnamese',
   locale_zh: 'Chinese',
 
   // Date/Calendar names

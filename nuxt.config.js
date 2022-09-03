@@ -28,7 +28,7 @@ export default {
     //  - For UI/API strings: copy shared/messages/en.js to shared/messages/<locale>_messages.js and translate/adjust as needed
     //  - If email is enabled, copy the serverMiddleware/templates/email/en directory to a directory named after
     //    the new locale, then edit the files and translate/adjust as needed
-    locales: ['ar', 'bn', 'de', 'en', 'es', 'fr', 'hi', 'id', 'it', 'ja', 'ko', 'pt', 'ru', 'sw', 'ur', 'zh'],
+    locales: ['ar', 'bn', 'de', 'en', 'es', 'fr', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'sw', 'tl', 'ur', 'vi', 'zh'],
     defaultLocale: process.env.YB_DEFAULT_LOCALE || 'en',
 
     // timeouts for various temporary tokens stored in redis

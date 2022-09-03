@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'HTTP অনুরোধ পদ্ধতি {{ method }} এই এন্ডপয়েন্ট দ্বারা সমর্থিত নয়',
   admin_label_privateConfig_admin_user_username: 'ব্যবহারকারীর নাম',
   locale_id: 'ইন্দোনেশিয়ান',
-  locale_ur: 'উর্দু'
+  locale_ur: 'উর্দু',
+  locale_tl: 'তাগালগ',
+  locale_pl: 'পোলিশ',
+  locale_vi: 'ভিয়েতনামী'
 }

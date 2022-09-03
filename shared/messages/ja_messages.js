@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'HTTP リクエスト メソッド {{method}} は、このエンドポイントではサポートされていません',
   admin_label_privateConfig_admin_user_username: 'ユーザー名',
   locale_id: 'インドネシア語',
-  locale_ur: 'ウルドゥー語'
+  locale_ur: 'ウルドゥー語',
+  locale_tl: 'タガログ語',
+  locale_pl: '研磨',
+  locale_vi: 'ベトナム語'
 }

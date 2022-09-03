@@ -1,5 +1,5 @@
 export default {
-  id: 'di',
+  id: 'id',
   emoji: '🇮🇩',
   anonymous_user_name: 'yang misterius',
   welcome_public: 'Selamat datang di {{ judul }}!',
@@ -327,5 +327,8 @@ export default {
   admin_info_migration_error: 'Terjadi kesalahan saat memigrasikan data',
   http_invalid_request_method: 'Metode permintaan HTTP {{ metode }} tidak didukung oleh titik akhir ini',
   locale_id: 'bahasa Indonesia',
-  locale_ur: 'bahasa Urdu'
+  locale_ur: 'bahasa Urdu',
+  locale_tl: 'Tagalog',
+  locale_pl: 'Polandia',
+  locale_vi: 'Orang Vietnam'
 }

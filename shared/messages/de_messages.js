@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'Die HTTP-Anforderungsmethode {{ method }} wird von diesem Endpunkt nicht unterstützt',
   admin_label_privateConfig_admin_user_username: 'Nutzername',
   locale_id: 'Indonesisch',
-  locale_ur: 'Urdu'
+  locale_ur: 'Urdu',
+  locale_tl: 'Tagalog',
+  locale_pl: 'Polieren',
+  locale_vi: 'Vietnamesisch'
 }

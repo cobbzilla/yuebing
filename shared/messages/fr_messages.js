@@ -329,5 +329,8 @@ export default {
   admin_label_privateConfig_admin_user_username: 'Nom d\'utilisateur',
   label_configCategory: 'Catégorie de configurations',
   locale_id: 'indonésien',
-  locale_ur: 'ourdou'
+  locale_ur: 'ourdou',
+  locale_tl: 'tagalog',
+  locale_pl: 'polonais',
+  locale_vi: 'vietnamien'
 }

@@ -327,5 +327,8 @@ export default {
   admin_info_migration_error: 'ڈیٹا منتقل کرتے وقت ایک خرابی پیش آگئی',
   http_invalid_request_method: 'HTTP درخواست کا طریقہ {{ طریقہ }} اس اختتامی نقطہ کے ذریعہ تعاون یافتہ نہیں ہے۔',
   locale_id: 'انڈونیشین',
-  locale_ur: 'اردو'
+  locale_ur: 'اردو',
+  locale_tl: 'ٹیگالوگ',
+  locale_pl: 'پولش',
+  locale_vi: 'ویتنامی'
 }

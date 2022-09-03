@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'Метод HTTP-запроса {{ method }} не поддерживается этой конечной точкой.',
   admin_label_privateConfig_admin_user_username: 'Имя пользователя',
   locale_id: 'индонезийский',
-  locale_ur: 'урду'
+  locale_ur: 'урду',
+  locale_tl: 'тагальский',
+  locale_pl: 'польский',
+  locale_vi: 'вьетнамский'
 }

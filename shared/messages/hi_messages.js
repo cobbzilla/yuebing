@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'HTTP अनुरोध विधि {{method}} इस समापन बिंदु द्वारा समर्थित नहीं है',
   admin_label_privateConfig_admin_user_username: 'उपयोगकर्ता नाम',
   locale_id: 'इन्डोनेशियाई',
-  locale_ur: 'उर्दू'
+  locale_ur: 'उर्दू',
+  locale_tl: 'तागालोग',
+  locale_pl: 'पोलिश',
+  locale_vi: 'वियतनामी'
 }

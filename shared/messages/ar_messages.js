@@ -327,5 +327,8 @@ export default {
   http_invalid_request_method: 'طريقة طلب HTTP {{method}} غير مدعومة بنقطة النهاية هذه',
   admin_label_privateConfig_admin_user_username: 'اسم المستخدم',
   locale_id: 'الأندونيسية',
-  locale_ur: 'الأردية'
+  locale_ur: 'الأردية',
+  locale_tl: 'تاغالوغ',
+  locale_pl: 'تلميع',
+  locale_vi: 'فيتنامي'
 }
