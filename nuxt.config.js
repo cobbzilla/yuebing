@@ -154,12 +154,12 @@ export default {
       flushAtStartup: process.env.YB_REDIS_FLUSH_AT_STARTUP ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : false,
 
       // Cache duration for listings from storage, in milliseconds
-      listingCacheExpiration: process.env.YB_S3_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
+      listingCacheExpiration: process.env.YB_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
 
       // Cache duration for manifests, in milliseconds
       // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`
       // file is newer than the cache's ctime
-      manifestCacheExpiration: process.env.YB_S3_MANIFEST_CACHE_EXPIRATION || 60 * 1000, // default 1 minute
+      manifestCacheExpiration: process.env.YB_MANIFEST_CACHE_EXPIRATION || 60 * 1000, // default 1 minute
 
       configurable: {
         host: {

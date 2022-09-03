@@ -5,11 +5,11 @@ const path = require('path')
 const { glob } = require('glob')
 const shellescape = require('shell-escape')
 const randomstring = require('randomstring')
-const util = require('../util/file')
-const redis = require('../util/redis')
 const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')
+const util = require('../util/file')
+const cache = require('../util/cache')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const src = require('../source/sourceUtil')
@@ -29,7 +29,13 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
   if (file) {
     logger.silly(`__xform(${job.data.sourcePath}): createArtifacts STARTING`)
     await createArtifacts(job, file)
-    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts finished. TOTALLY DONE`)
+
+    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts finished, flushing metadata and recalculating final metadata`)
+    await cache.hardFlushCachedMetadata(job.data.sourcePath)
+    const meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath)
+    if (!meta.finished) {
+      logger.warn(`__xform(${job.data.sourcePath}): deriveMetadataFromSourceAndPath returned unfinished meta: ${JSON.stringify(meta)})`)
+    }
 
   } else {
     const message = `__xform(${job.data.sourcePath}): ensureSourceDownloaded did not return a file`
@@ -207,7 +213,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
             // upload success!
             logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
             await system.touchLastModified(sourcePath)
-            await redis.del(util.redisMetaCacheKey(sourcePath))
+            await cache.flushMetadata(sourcePath)
             q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
             resolve(null)
           } else {
@@ -562,7 +568,7 @@ async function transform (sourcePath) {
 
   logger.debug(`${logPrefix}) fetching metadata`)
   const derivedMeta = await manifest.deriveMetadata(source, pth)
-  if (derivedMeta && derivedMeta.status && derivedMeta.status.complete) {
+  if (derivedMeta && (derivedMeta.finished || (derivedMeta.status && derivedMeta.status.complete))) {
     return derivedMeta
   }
   if (q.isQueued(sourcePath)) {

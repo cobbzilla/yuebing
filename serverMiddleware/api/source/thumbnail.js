@@ -2,9 +2,8 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const api = require('../../util/api')
-const c = require('../../../shared')
+const cache = require('../../util/cache')
 const u = require('../../user/userUtil')
-const manifest = require('../../asset/manifest')
 
 export default {
   path: '/api/source/thumbnail',
@@ -14,22 +13,18 @@ export default {
       return api.forbidden(res)
     }
     const pth = req.url.startsWith('/') ? req.url.substring(1) : req.url
-    const thumbPath = system.assetsDir(pth) + c.SELECTED_THUMBNAIL_FILE
     if (req.method === 'GET') {
-      res.statusCode = 200
-      res.contentType = 'application/json'
-      await system.api.read(thumbPath, chunk => res.write(chunk), () => res.end())
+      const thumb = await cache.findSelectedThumbnail(pth)
+      return thumb ? api.okJson(res, thumb) : api.notFound(res, pth)
+
     } else if (req.method === 'POST') {
       req.on('data', (data) => {
-        const thumbnailAsset = JSON.parse(data.toString())
+        const thumbJson = data.toString()
+        const thumbnailAsset = JSON.parse(thumbJson)
+        // ensure the asset exists before setting it
         system.api.metadata(thumbnailAsset).then(async (head) => {
           if (head && head.size && head.size > 0) {
-            const thumbJson = JSON.stringify(thumbnailAsset)
-            await system.api.writeFile(thumbPath, thumbJson)
-            // flush metadata so manifest.deriveMetadata will see new selectedThumbnail
-            manifest.flushCachedMetadata(pth).then(() => {
-              logger.info('thumbnail: flushCachedMetadata finished')
-            })
+            await cache.setSelectedThumbnail(pth, thumbnailAsset)
             return api.okJson(res, thumbJson)
 
           } else {

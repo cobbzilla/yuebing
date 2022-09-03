@@ -19,14 +19,7 @@ function deleteFile (path) {
   })
 }
 
-const REDIS_META_PREFIX = 'CACHED_META_'
-
-function redisMetaCacheKey (sourcePath) {
-  return REDIS_META_PREFIX + shasum(sourcePath)
-}
-
 module.exports = {
   deleteFile,
-  statSize,
-  redisMetaCacheKey
+  statSize
 }
