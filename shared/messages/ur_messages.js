@@ -1,6 +1,6 @@
 export default {
-  id: 'en',
-  emoji: '🇺🇸',
+  id: 'ur',
+  emoji: '🇵🇰',
   anonymous_user_name: 'پراسرار ایک',
   welcome_public: '{{ title }} میں خوش آمدید!',
   welcome_user: 'میں خوش آمدید {{ title }} ، {{user.firstName || user.email.includes("@") ? user.email.substring(0, user.email.indexOf("@")) : user.email}} !',
