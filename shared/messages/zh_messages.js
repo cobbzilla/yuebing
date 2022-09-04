@@ -330,5 +330,8 @@ export default {
   locale_ur: '乌尔都语',
   locale_tl: '他加禄语',
   locale_pl: '抛光',
-  locale_vi: '越南语'
+  locale_vi: '越南语',
+  locale_ha: '豪萨',
+  locale_mr: '马兰地语',
+  locale_tr: '土耳其'
 }

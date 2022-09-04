@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: '데이터 마이그레이션',
   admin_info_migration_success: '데이터가 성공적으로 마이그레이션되었습니다.',
   admin_info_migration_error: '데이터를 이전하는 동안 오류가 발생했습니다.',
-  http_invalid_request_method: 'HTTP 요청 방법 {{ method }} 은(는) 이 끝점에서 지원되지 않습니다.'
+  http_invalid_request_method: 'HTTP 요청 방법 {{ method }} 은(는) 이 끝점에서 지원되지 않습니다.',
+  locale_ha: '하우사',
+  locale_mr: '마란티',
+  locale_tr: '터키어'
 }

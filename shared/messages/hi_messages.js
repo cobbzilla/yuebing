@@ -330,5 +330,8 @@ export default {
   locale_ur: 'उर्दू',
   locale_tl: 'तागालोग',
   locale_pl: 'पोलिश',
-  locale_vi: 'वियतनामी'
+  locale_vi: 'वियतनामी',
+  locale_ha: 'होउसा',
+  locale_mr: 'मरांथी',
+  locale_tr: 'तुर्की'
 }

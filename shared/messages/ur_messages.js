@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'ڈیٹا منتقل کریں۔',
   admin_info_migration_success: 'ڈیٹا کامیابی کے ساتھ منتقل ہو گیا۔',
   admin_info_migration_error: 'ڈیٹا منتقل کرتے وقت ایک خرابی پیش آگئی',
-  http_invalid_request_method: 'HTTP درخواست کا طریقہ {{ method }} اس اختتامی نقطہ سے تعاون یافتہ نہیں ہے۔'
+  http_invalid_request_method: 'HTTP درخواست کا طریقہ {{ method }} اس اختتامی نقطہ سے تعاون یافتہ نہیں ہے۔',
+  locale_ha: 'ہاؤسا',
+  locale_mr: 'مرانتھی',
+  locale_tr: 'ترکی'
 }

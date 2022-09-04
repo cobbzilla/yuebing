@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'Hamisha Data',
   admin_info_migration_success: 'Data imehamishwa',
   admin_info_migration_error: 'Hitilafu ilitokea wakati wa kuhamisha data',
-  http_invalid_request_method: 'Mbinu ya ombi la HTTP {{ method }} haitumiki katika sehemu hii ya mwisho'
+  http_invalid_request_method: 'Mbinu ya ombi la HTTP {{ method }} haitumiki katika sehemu hii ya mwisho',
+  locale_ha: 'Kihausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'Kituruki'
 }

@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'Przenieś dane',
   admin_info_migration_success: 'Dane zostały pomyślnie przeniesione',
   admin_info_migration_error: 'Wystąpił błąd podczas migracji danych',
-  http_invalid_request_method: 'Metoda żądania HTTP {{ method }} nie jest obsługiwana przez ten punkt końcowy'
+  http_invalid_request_method: 'Metoda żądania HTTP {{ method }} nie jest obsługiwana przez ten punkt końcowy',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'turecki'
 }

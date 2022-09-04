@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'Di chuyển dữ liệu',
   admin_info_migration_success: 'Dữ liệu được di chuyển thành công',
   admin_info_migration_error: 'Đã xảy ra lỗi khi di chuyển dữ liệu',
-  http_invalid_request_method: 'Phương thức yêu cầu HTTP {{ method }} không được điểm cuối này hỗ trợ'
+  http_invalid_request_method: 'Phương thức yêu cầu HTTP {{ method }} không được điểm cuối này hỗ trợ',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'Thổ nhĩ kỳ'
 }

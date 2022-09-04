@@ -330,5 +330,8 @@ export default {
   locale_ur: 'Urdu',
   locale_tl: 'tagalog',
   locale_pl: 'Polacco',
-  locale_vi: 'vietnamita'
+  locale_vi: 'vietnamita',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranti',
+  locale_tr: 'Turco'
 }

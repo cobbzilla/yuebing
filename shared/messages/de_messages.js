@@ -330,5 +330,8 @@ export default {
   locale_ur: 'Urdu',
   locale_tl: 'Tagalog',
   locale_pl: 'Polieren',
-  locale_vi: 'Vietnamesisch'
+  locale_vi: 'Vietnamesisch',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'Türkisch'
 }

@@ -332,5 +332,8 @@ export default {
   locale_ur: 'ourdou',
   locale_tl: 'tagalog',
   locale_pl: 'polonais',
-  locale_vi: 'vietnamien'
+  locale_vi: 'vietnamien',
+  locale_ha: 'Haoussa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'turc'
 }

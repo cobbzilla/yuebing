@@ -330,5 +330,8 @@ export default {
   locale_ur: 'الأردية',
   locale_tl: 'تاغالوغ',
   locale_pl: 'تلميع',
-  locale_vi: 'فيتنامي'
+  locale_vi: 'فيتنامي',
+  locale_ha: 'الهوسا',
+  locale_mr: 'مارانثي',
+  locale_tr: 'اللغة التركية'
 }

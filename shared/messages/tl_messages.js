@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'Ilipat ang Data',
   admin_info_migration_success: 'Matagumpay na nailipat ang data',
   admin_info_migration_error: 'Nagkaroon ng error habang naglilipat ng data',
-  http_invalid_request_method: 'Ang paraan ng paghiling ng HTTP {{ method }} ay hindi sinusuportahan ng endpoint na ito'
+  http_invalid_request_method: 'Ang paraan ng paghiling ng HTTP {{ method }} ay hindi sinusuportahan ng endpoint na ito',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'Turkish'
 }

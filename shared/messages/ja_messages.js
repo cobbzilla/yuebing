@@ -330,5 +330,8 @@ export default {
   locale_ur: 'ウルドゥー語',
   locale_tl: 'タガログ語',
   locale_pl: '研磨',
-  locale_vi: 'ベトナム語'
+  locale_vi: 'ベトナム語',
+  locale_ha: 'ハウサ',
+  locale_mr: 'マランティ',
+  locale_tr: 'トルコ語'
 }

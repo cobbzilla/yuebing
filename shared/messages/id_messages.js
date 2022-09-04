@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'Migrasi Data',
   admin_info_migration_success: 'Data berhasil dimigrasi',
   admin_info_migration_error: 'Terjadi kesalahan saat memigrasikan data',
-  http_invalid_request_method: 'Metode permintaan HTTP {{ method }} tidak didukung oleh titik akhir ini'
+  http_invalid_request_method: 'Metode permintaan HTTP {{ method }} tidak didukung oleh titik akhir ini',
+  locale_ha: 'Hausa',
+  locale_mr: 'Maranthi',
+  locale_tr: 'Turki'
 }

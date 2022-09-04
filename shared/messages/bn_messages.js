@@ -330,5 +330,8 @@ export default {
   admin_button_migrate_data: 'ডেটা মাইগ্রেট করুন',
   admin_info_migration_success: 'ডেটা সফলভাবে স্থানান্তরিত হয়েছে৷',
   admin_info_migration_error: 'ডেটা স্থানান্তর করার সময় একটি ত্রুটি ঘটেছে৷',
-  http_invalid_request_method: 'HTTP অনুরোধ পদ্ধতি {{ method }} এই শেষ পয়েন্ট দ্বারা সমর্থিত নয়'
+  http_invalid_request_method: 'HTTP অনুরোধ পদ্ধতি {{ method }} এই শেষ পয়েন্ট দ্বারা সমর্থিত নয়',
+  locale_ha: 'হাউসা',
+  locale_mr: 'মারান্থি',
+  locale_tr: 'তুর্কি'
 }

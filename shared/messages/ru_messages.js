@@ -330,5 +330,8 @@ export default {
   locale_ur: 'урду',
   locale_tl: 'тагальский',
   locale_pl: 'польский',
-  locale_vi: 'вьетнамский'
+  locale_vi: 'вьетнамский',
+  locale_ha: 'Хауса',
+  locale_mr: 'Маранти',
+  locale_tr: 'турецкий'
 }
