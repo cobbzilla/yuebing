@@ -10,7 +10,7 @@ create all the locale-specific resources for a new language, based on a default 
 #### *Please help refine Yuebing's hokeylized translations*
 Yuebing has already been hokeylized from English into 21 other languages; these translations are undoubtedly
 flawed -- *corrections are very welcome!* Please send a [pull request on GitHub](https://github.com/cobbzilla/yuebing/pulls),
-or if you're not comfortable doing that, [open an issue](https://github.com/cobbzilla/yuebing/issues).
+or if you're not comfortable doing that, [open an issue](https://github.com/cobbzilla/yuebing/issues)
 
 When you create a new GitHub issue about a translation, please do:
 * include the page URL (copy/paste from browser address bar)
