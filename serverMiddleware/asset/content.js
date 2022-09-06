@@ -179,7 +179,7 @@ const getTagsForPath = async (sourceAndPath) => {
   return tags
 }
 
-const cache_enabled = false
+const cache_enabled = true
 const getPathsWithTag = async (tag) => {
   const normTag = normalizeTag(tag)
   const cacheKey = PATHS_WITH_TAG_CACHE_PREFIX + normTag

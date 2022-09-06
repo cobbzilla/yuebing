@@ -48,20 +48,15 @@ export const actions = {
 
   fetchMetadata ({ commit }, { path }) {
     commit('fetchMetaRequest')
-    if (!config.public && !currentUser()) {
-      console.log('fetchMetadata: No user logged in and not a public instance, not calling API')
-      commit('fetchMetaSuccess', { path, meta: {} })
-    } else {
-      sourceService
-        .metadata(path)
-        .then(
-          (meta) => {
-            meta.path = path
-            commit('fetchMetaSuccess', { path, meta })
-          },
-          error => commit('fetchMetaFailure', error)
-        )
-    }
+    sourceService
+      .metadata(path)
+      .then(
+        (meta) => {
+          meta.path = path
+          commit('fetchMetaSuccess', { path, meta })
+        },
+        error => commit('fetchMetaFailure', error)
+      )
   },
 
   fetchAsset ({ commit }, { path }) {

@@ -3,13 +3,16 @@ const logger = system.logger
 
 const api = require('../../util/api')
 const cache = require('../../util/cache')
-const u = require('../../user/userUtil')
+const { currentUser } = require('../../user/userUtil')
 
 export default {
   path: '/api/source/thumbnail',
   async handler (req, res) {
-    const user = await u.requireLoggedInUser(req, res)
-    if (!user) {
+    const user = await currentUser(req)
+    if (!user && !system.isPublic()) {
+      return api.forbidden(res)
+    }
+    if (!user && req.method !== 'GET') {
       return api.forbidden(res)
     }
     const pth = req.url.startsWith('/') ? req.url.substring(1) : req.url

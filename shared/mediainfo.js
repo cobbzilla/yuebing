@@ -262,7 +262,7 @@ function findThumbnail (obj) {
     if (obj.meta.selectedThumbnail) {
       thumb = obj.meta.selectedThumbnail
     } else {
-      thumb = findAsset(obj, (assets, profile) => isThumbnail(obj.name, profile))
+      thumb = findAsset(obj, (assets, profile) => isThumbnail(obj.path, profile))
     }
   }
   return thumb
@@ -272,7 +272,7 @@ function findThumbnails (obj) {
   if (hasAssets(obj)) {
     const thumbs = []
     Object.keys(obj.meta.assets)
-      .filter(profile => isThumbnail(obj.name, profile))
+      .filter(profile => isThumbnail(obj.path, profile))
       .forEach(profile => thumbs.push(...obj.meta.assets[profile]))
     return thumbs
   }

@@ -105,11 +105,11 @@ const NO_MEDIAINFO_VALUE = 'no_mediainfo'
 
 const mediaInfoCacheKey = sourceAndPath => MEDIAINFO_CACHE_PREFIX + shasum(sourceAndPath)
 
-const no_cache = true
+const cache_enabled = true
 const deriveMediaInfo = async (meta, sourceAndPath, opts = null) => {
   const cacheKey = mediaInfoCacheKey(sourceAndPath)
-  const cached = (opts && opts.cache && opts.cache === false) ? null : await redis.get(cacheKey)
-  if (cached && !no_cache) {
+  const cached = (opts && opts.cache && opts.cache === false) || !cache_enabled ? null : await redis.get(cacheKey)
+  if (cached) {
     return cached === NO_MEDIAINFO_VALUE ? null : JSON.parse(cached)
   }
   const { sourceName, pth } = extractSourceAndPath(sourceAndPath)

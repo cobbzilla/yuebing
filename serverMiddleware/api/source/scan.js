@@ -1,5 +1,5 @@
 const api = require('../../util/api')
-const u = require('../../user/userUtil')
+const { requireLoggedInUser } = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
 const scan = require('../../source/scan')
 const system = require('../../util/config').SYSTEM
@@ -10,8 +10,8 @@ scan.initAutoscan(system.privateConfig.autoscan)
 export default {
   path: '/api/source/scan',
   async handler (req, res) {
-    const user = await u.requireLoggedInUser(req, res)
-    if (!user) {
+    const user = await requireLoggedInUser(req, res)
+    if (!user || !user.admin) {
       return api.forbidden(res)
     }
     const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)

@@ -2,17 +2,18 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const api = require('../../util/api')
-const u = require('../../user/userUtil')
+const { currentUser } = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
 const { flushMediaInfoCache } = require('../../asset/manifest')
 
 export default {
   path: '/api/source/mediainfo',
   async handler (req, res) {
-    const user = req.method === 'GET'
-      ? await u.requireUser(req, res)
-      : await u.requireLoggedInUser(req, res)
-    if (!user) {
+    const user = currentUser(req)
+    if (!user && !system.isPublic()) {
+      return api.forbidden(res)
+    }
+    if (!user && req.method !== 'GET') {
       return api.forbidden(res)
     }
     try {

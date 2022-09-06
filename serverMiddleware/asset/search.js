@@ -70,7 +70,9 @@ const search = async (user, query) => {
 
 const SEARCH_CACHE_PREFIX = '_search_'
 const SEARCH_CACHE_EXPIRATION = 1000 * 60 * 10
-const cache_enabled = false
+const cache_enabled = true
+
+const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
 
 const _search = async (user, query) => {
   const cacheKey = SEARCH_CACHE_PREFIX + shasum((user ? JSON.stringify(user) : '-') + '\n' + JSON.stringify(query))
@@ -80,9 +82,9 @@ const _search = async (user, query) => {
   }
   const promises = []
   const tagResults = {}
-  const tags = query.tags && query.tags.length > 0 && query.filter(w => w.trim().length > 0).length > 0
+  const tags = query.tags && query.tags.length > 0 && query.tags.filter(w => w.trim().length > 0).length > 0
     ? query.tags
-    : Object.keys(MEDIA)
+    : DEFAULT_SEARCH_TAGS
   const pathsWithTags = {}
   for (const tag of tags) {
     promises.push(new Promise((resolve) => {

@@ -19,7 +19,6 @@ const ADMIN_USERNAME = ADMIN.user && ADMIN.user.username ? ADMIN.user.username :
 const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
 const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
-const PUBLIC = system.publicConfig.public
 
 const SESSION_EXPIRATION = system.privateConfig.session.expiration
 
@@ -146,7 +145,7 @@ async function requireUser (req, res) {
   if (user) {
     return user
   }
-  if (PUBLIC) {
+  if (system.isPublic()) {
     return { email: '~anonymous~' }
   } else {
     return api.forbidden(res)

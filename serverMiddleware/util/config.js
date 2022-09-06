@@ -102,6 +102,7 @@ const SYSTEM = {
       return null
     }
   },
+  isPublic: () => SYSTEM.publicConfig.public,
   connect: async () => {
     if (!SYSTEM.api) {
       if (!DEST_TYPE) {

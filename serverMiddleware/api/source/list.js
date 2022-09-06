@@ -11,7 +11,6 @@ const { search } = require('../../asset/search')
 const logger = system.logger
 
 const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
-const isPublic = () => system.publicConfig.public
 
 const listObjects = async (req, res) => {
   const user = await u.requireUser(req, res)
@@ -83,7 +82,7 @@ export default {
       return await listObjects(req, res)
     } else if (req.method === 'POST') {
       const user = await currentUser(req)
-      if (!user && !isPublic()) {
+      if (!user && !system.isPublic()) {
         return api.forbidden(res)
       }
       req.on('data', async (data) => {
