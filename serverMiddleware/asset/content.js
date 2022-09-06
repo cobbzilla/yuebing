@@ -2,7 +2,7 @@ const shasum = require('shasum')
 const { dirname, basename } = require('path')
 const { chopFileExt, isAllDigitsOrNonWordChars } = require('../../shared')
 const { extractSourceAndPath } = require('../../shared/source')
-const { mediaType } = require('../../shared/media')
+const { mediaType, objectEncodePath, objectDecodePath } = require('../../shared/media')
 const { MEDIAINFO_FIELDS, mediaInfoFields } = require('../../shared/mediainfo')
 const { stopWords } = require('../../shared/locale')
 const { connect } = require('../source/sourceUtil')
@@ -17,9 +17,6 @@ const TAG_TO_CONTENT_INDEX = TAGS_INDEX + 'tagsToContent/'
 const CONTENT_TO_TAG_INDEX = TAGS_INDEX + 'contentToTags/'
 
 const MIN_TAG_LENGTH = 3
-
-const indexEncodePath = path => Buffer.from(path).toString('base64').replaceAll('/', '_')
-const indexDecodePath = encoded => Buffer.from(encoded.replaceAll('_', '/'), 'base64').toString('utf8')
 
 const getPathIndex = (sourceAndPath) => {
   const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
@@ -128,7 +125,7 @@ const addTag = async (sourceAndPath, tag) => {
     logger.warn(`addTag(${sourceAndPath}, ${tag}): tag is a stopword, not adding`)
     return
   }
-  const encodedPath = indexEncodePath(sourceAndPath)
+  const encodedPath = objectEncodePath(sourceAndPath)
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
   await system.api.writeFile(tagToContentPath, '~')
@@ -138,7 +135,7 @@ const addTag = async (sourceAndPath, tag) => {
 }
 
 const removeTag = async (sourceAndPath, tag) => {
-  const encodedPath = indexEncodePath(sourceAndPath)
+  const encodedPath = objectEncodePath(sourceAndPath)
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
   await system.api.remove(tagToContentPath, { quiet: true })
@@ -148,7 +145,7 @@ const removeTag = async (sourceAndPath, tag) => {
 }
 
 const removeAllTagsForPath = async (sourceAndPath) => {
-  const encodedPath = indexEncodePath(sourceAndPath)
+  const encodedPath = objectEncodePath(sourceAndPath)
   const tagsDir = tagsForPathDir(sourceAndPath)
   const tags = await system.api.list(tagsDir, { recursive: true })
   if (tags && tags.length > 0) {
@@ -188,7 +185,7 @@ const getPathsWithTag = async (tag) => {
     return JSON.parse(cached)
   }
   const encodedPathObjs = await system.api.list(tagDir(normTag), { recursive: true })
-  const paths = encodedPathObjs.map(o => indexDecodePath(basename(o.name)))
+  const paths = encodedPathObjs.map(o => objectDecodePath(basename(o.name)))
   await redis.set(cacheKey, JSON.stringify(paths), TAG_CACHE_EXPIRATION)
   return paths
 }

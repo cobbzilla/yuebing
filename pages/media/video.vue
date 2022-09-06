@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-row>
       <v-col>
         <h4 v-if="videoTitle">
@@ -8,27 +8,21 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col>
-        <div v-if="isReady">
-          <VideoPlayer :options="videoOptions" />
-        </div>
-        <div v-if="mediaInfo()">
-          <v-btn @click.stop="toggleMediaInfo()">
-            <span v-if="showMediaInfo">{{ messages.button_hide_metadata }}</span>
-            <span v-else>{{ messages.button_show_metadata }}</span>
-          </v-btn>
-          <MediaInfo v-if="showMediaInfo" :object="object" />
-        </div>
-        <div v-if="thumbnail()">
-          <ThumbnailSelector :object="object" />
-        </div>
+      <v-col v-if="isReady">
+        <VideoPlayer :options="videoOptions" />
+      </v-col>
+      <v-col v-if="mediaInfo()">
+        <MediaInfo :object="object" />
       </v-col>
     </v-row>
     <v-row>
-      <v-col>
-        <div v-if="error">
-          <h3>{{ error }}</h3>
-        </div>
+      <v-col v-if="loggedIn && thumbnail()">
+        <ThumbnailSelector :object="object" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col v-if="error">
+        <h3>{{ error }}</h3>
       </v-col>
     </v-row>
   </v-container>
@@ -44,7 +38,10 @@ import ThumbnailSelector from '../../components/ThumbnailSelector'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
-import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
+import {
+  FILE_TYPE, VIDEO_MEDIA_TYPE,
+  mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo, objectDecodePath
+} from '@/shared/media'
 import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
@@ -63,7 +60,6 @@ export default {
       object: {},
       mediaInfoJsonPath: null,
       mediaInfoJson: null,
-      showMediaInfo: false,
       error: null,
       videoOptions: {
         autoplay: false,
@@ -80,6 +76,7 @@ export default {
     ...mapState('source', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+    loggedIn () { return this.user && this.userStatus && this.user.email },
     videoTitle () {
       return this.object && this.object.name
         ? chopFileExt(basename(this.object.name))
@@ -128,7 +125,7 @@ export default {
     }
   },
   created () {
-    const name = this.$route.query.n
+    const name = objectDecodePath(this.$route.query.n)
     if (typeof name !== 'string') {
       this.error = 'Video not found'
       return
@@ -188,7 +185,6 @@ export default {
     mediaInfoField (field) {
       return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson, this.getUserMediaInfo) : null
     },
-    toggleMediaInfo () { this.showMediaInfo = !this.showMediaInfo },
     thumbnail () { return findThumbnail(this.object) }
   }
 }

@@ -26,12 +26,12 @@
                   :max-width="maxCardWidth"
                 >
                   <v-card-title>
-                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
                       {{ obj.name }}
                     </NuxtLink>
                   </v-card-title>
                   <v-card-text>
-                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: obj.path}}">
+                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
                       <img
                         v-if="thumbnail(obj)"
                         :src="proxyUrl(thumbnail(obj))"
@@ -59,6 +59,7 @@ import { mapState, mapActions } from 'vuex'
 import SearchBar from '@/components/SearchBar'
 
 import { proxyMediaUrl, chopFileExt, splitSearchTerms } from '@/shared'
+import { objectEncodePath } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
@@ -99,7 +100,8 @@ export default {
     onSearchUpdate (update) {
       this.searchTerms = update
       this.runSearch()
-    }
+    },
+    encPath (path) { return objectEncodePath(path) }
   }
 }
 </script>

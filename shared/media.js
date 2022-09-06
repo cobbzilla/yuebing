@@ -218,11 +218,15 @@ function isMediaInfoJsonProfile (profile) {
     profile.operation === OP_MEDIAINFO && profile.ext === 'json'
 }
 
+const objectEncodePath = path => path ? btoa(path).replaceAll('/', '_') : null
+const objectDecodePath = encoded => encoded ? atob(encoded.replaceAll('_', '/')) : null
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
   newMediaObject, hasMediaType, hasMediaInfo, metaHasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
+  objectEncodePath, objectDecodePath,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX, assetSuffix,

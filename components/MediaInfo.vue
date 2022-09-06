@@ -3,10 +3,9 @@
     <v-row>
       <v-col>
         <div v-if="!showEditor">
-          <h4 v-if="object && object.name">{{ object.name }}</h4>
           <v-container>
             <div v-for="(field, index) in infoFields" :key="index">
-              <v-row v-if="infoField(field)">
+              <v-row v-if="infoField(field)" class="mediaInfoDisplay">
                 <v-col>
                   {{ messages[`label_mediainfo_${field}`] }}
                 </v-col>
@@ -160,3 +159,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.mediaInfoDisplay {
+  white-space: nowrap;
+}
+</style>
