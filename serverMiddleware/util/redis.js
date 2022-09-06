@@ -23,7 +23,11 @@ async function set (key, val, expirationMillis = DEFAULT_EXPIRATION_MILLIS) {
 }
 
 async function sadd (key, val) {
-  await redisClient.sadd(key, val)
+  await redisClient.sadd(key, Array.isArray(val) ? val : [val])
+}
+
+async function srem (key, val) {
+  await redisClient.srem(key, Array.isArray(val) ? val : [val])
 }
 
 async function expire (key, expirationMillis) {
@@ -83,6 +87,7 @@ module.exports = {
   del,
   expire,
   sadd,
+  srem,
   smembers,
   flushall,
   findMatchingKeys,

@@ -16,6 +16,11 @@
       </v-col>
     </v-row>
     <v-row>
+      <v-col>
+        <ContentComments :object="object" />
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col v-if="loggedIn && thumbnail()">
         <ThumbnailSelector :object="object" />
       </v-col>
@@ -35,6 +40,7 @@ import { basename } from 'path'
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../../components/MediaInfo'
 import ThumbnailSelector from '../../components/ThumbnailSelector'
+import ContentComments from '../../components/ContentComments'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
@@ -52,7 +58,7 @@ function hasSourceVideos (vid) {
 export default {
   name: 'VideoObject',
   components: {
-    VideoPlayer, MediaInfo, ThumbnailSelector
+    VideoPlayer, MediaInfo, ThumbnailSelector, ContentComments
   },
   data () {
     return {

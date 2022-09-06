@@ -21,7 +21,12 @@
     <v-row>
       <v-col>
         <v-btn v-if="canEditMediainfo" class="btn btn-primary" @click.stop="toggleEditButton()">
-          {{ editButtonLabel }}
+          <v-icon v-if="showEditor">
+            mdi-close
+          </v-icon>
+          <v-icon v-else>
+            mdi-pencil
+          </v-icon>
         </v-btn>
       </v-col>
     </v-row>
@@ -81,10 +86,9 @@ export default {
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     infoFields () { return mediaInfoFields() },
-    canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn },
+    canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn && this.user.admin },
     editableInfoFields () { return editableMediaInfoFields() },
     hasMediaInfoJsonPath () { return this.object && this.mediaInfoJsonPath },
-    editButtonLabel () { return this.showEditor ? 'Close Metadata Editor' : 'Edit Metadata' },
     getUserMediaInfo () {
       return this.object && this.object.name &&
       this.userMediaInfo && this.userMediaInfo[this.object.name]

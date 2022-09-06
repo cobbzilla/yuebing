@@ -81,6 +81,12 @@ export default {
   info_no_thumbnails_found: '(no thumbnails found)',
   button_show_metadata: 'show metadata',
   button_hide_metadata: 'hide metadata',
+  label_header_comments: 'Comments',
+  label_header_no_comments: 'Do you have something to say?',
+  label_comment: 'add a comment!',
+  label_comment_modified: 'edited',
+  button_add_comment: 'add comment',
+  button_update_comment: 'update comment',
 
   // vee-validate error types
   error_field_required: '{{ field }} is required',
