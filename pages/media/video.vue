@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h4 v-if="object && object.path">
+        <h4 v-if="videoTitle">
           {{ videoTitle }}
         </h4>
       </v-col>
@@ -35,19 +35,18 @@
 </template>
 
 <script>
+import { basename } from 'path'
+
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import MediaInfo from '../../components/MediaInfo'
 import ThumbnailSelector from '../../components/ThumbnailSelector'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
-
 import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo } from '@/shared/media'
 import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
-
-const path = require('path')
 
 function hasSourceVideos (vid) {
   return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
@@ -81,6 +80,13 @@ export default {
     ...mapState('source', ['objectList', 'metadata', 'assetData', 'userMediaInfo']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+    videoTitle () {
+      return this.object && this.object.name
+        ? chopFileExt(basename(this.object.name))
+        : this.object.path
+          ? chopFileExt(basename(this.object.path))
+          : null
+    },
     hasSources () { return hasSourceVideos(this) },
     isReady () {
       return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
@@ -90,10 +96,6 @@ export default {
       return this.name && this.userMediaInfo && this.userMediaInfo[this.name]
         ? this.userMediaInfo[this.name]
         : {}
-    },
-    videoTitle () {
-      const mediaTitle = this.mediaInfoField('title')
-      return mediaTitle || chopFileExt(path.basename(this.path))
     }
   },
   watch: {

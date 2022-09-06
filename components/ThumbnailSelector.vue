@@ -17,7 +17,7 @@
                 <tr>
                   <td colspan="3">
                     <h4>
-                      {{ thumbnails[thumbnailIndex] }}
+                      {{ thumbName(thumbnails[thumbnailIndex]) }}
                     </h4>
                   </td>
                 </tr>
@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import { basename } from 'path'
+
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import { findThumbnail, findThumbnails } from '@/shared/mediainfo'
@@ -119,6 +121,10 @@ export default {
       const path = this.object.name
       const thumbnailAsset = this.thumbnails[this.thumbnailIndex]
       this.updateSelectedThumbnail({ path, thumbnailAsset })
+    },
+    thumbName (path) {
+      console.log(`thumbName received path=${path}`)
+      return path ? basename(path) : ''
     }
   }
 }

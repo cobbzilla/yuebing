@@ -1,4 +1,3 @@
-import config from '../nuxt.config'
 import { currentUser } from '@/services/util'
 import { sourceService } from '@/services/sourceService'
 import { newMediaObject } from '@/shared/media'
@@ -33,17 +32,12 @@ export const state = () => ({
 export const actions = {
   fetchObjects ({ commit }, { prefix }) {
     commit('fetchObjectsRequest', { prefix })
-    if (!config.public && !currentUser()) {
-      console.log('fetchObjects: No user logged in and not a public instance, not calling API')
-      commit('fetchObjectsSuccess', [])
-    } else {
-      sourceService
-        .listObjects(prefix)
-        .then(
-          objects => commit('fetchObjectsSuccess', objects),
-          error => commit('fetchObjectsFailure', error)
-        )
-    }
+    sourceService
+      .listObjects(prefix)
+      .then(
+        objects => commit('fetchObjectsSuccess', objects),
+        error => commit('fetchObjectsFailure', error)
+      )
   },
 
   fetchMetadata ({ commit }, { path }) {
@@ -61,47 +55,37 @@ export const actions = {
 
   fetchAsset ({ commit }, { path }) {
     commit('fetchAssetRequest')
-    if (!config.public && !currentUser()) {
-      console.log('fetchAsset: No user logged in and not a public instance, not calling API')
-      commit('fetchAssetSuccess', { path, assetContents: null })
-    } else {
-      sourceService
-        .jsonAsset(path)
-        .then(
-          (assetContents) => {
-            if (assetContents) {
-              commit('fetchAssetSuccess', {
-                path,
-                assetContents
-              })
-            } else {
-              const message = `fetchAsset: ERROR assetContents=${assetContents}`
-              console.warn(message)
-              commit('fetchAssetFailure', new TypeError(message))
-            }
-          },
-          error => commit('fetchAssetFailure', error)
-        )
-    }
+    sourceService
+      .jsonAsset(path)
+      .then(
+        (assetContents) => {
+          if (assetContents) {
+            commit('fetchAssetSuccess', {
+              path,
+              assetContents
+            })
+          } else {
+            const message = `fetchAsset: ERROR assetContents=${assetContents}`
+            console.warn(message)
+            commit('fetchAssetFailure', new TypeError(message))
+          }
+        },
+        error => commit('fetchAssetFailure', error)
+      )
   },
 
   fetchUserMediaInfo ({ dispatch, commit }, { path }) {
     commit('fetchUserMediaInfoRequest')
-    if (!config.public && !currentUser()) {
-      console.log('fetchUserMediaInfo: No user logged in and not a public instance, not calling API')
-      commit('fetchUserMediaInfoSuccess', { path, values: {} })
-    } else {
-      sourceService
-        .fetchUserMediaInfo(path)
-        .then(
-          (values) => {
-            commit('fetchUserMediaInfoSuccess', { path, values })
-          },
-          (error) => {
-            commit('fetchUserMediaInfoFailure', error)
-          }
-        )
-    }
+    sourceService
+      .fetchUserMediaInfo(path)
+      .then(
+        (values) => {
+          commit('fetchUserMediaInfoSuccess', { path, values })
+        },
+        (error) => {
+          commit('fetchUserMediaInfoFailure', error)
+        }
+      )
   },
 
   updateUserMediaInfo ({ dispatch, commit }, { path, values }) {
