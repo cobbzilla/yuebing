@@ -4,6 +4,7 @@ const logger = system.logger
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
+const { flushMediaInfoCache } = require('../../asset/manifest')
 
 export default {
   path: '/api/source/mediainfo',
@@ -15,7 +16,8 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+      const sourceAndPath = req.url
+      const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
       if (!source || !pth) { return api.notFound() }
       const infoPath = system.userMediaInfoPath(source.name, pth)
       if (req.method === 'GET') {
@@ -31,6 +33,7 @@ export default {
           system.api.writeFile(infoPath, info)
             .then(() => {
               src.flushListCache()
+              flushMediaInfoCache(sourceAndPath)
               api.okJson(res, info)
             })
             .catch((err) => {

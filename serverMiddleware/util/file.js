@@ -1,5 +1,4 @@
 const fs = require('fs')
-const shasum = require('shasum')
 const system = require('./config').SYSTEM
 const logger = system.logger
 

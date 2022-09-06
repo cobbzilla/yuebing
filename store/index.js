@@ -1,4 +1,5 @@
 import { userService } from '@/services/userService'
+import { sourceService } from '@/services/sourceService'
 
 const langParser = require('accept-language-parser')
 const { SUPPORTED_LOCALES, DEFAULT_LOCALE } = require('@/shared/locale')
@@ -10,7 +11,10 @@ export const state = () => ({
   browserLocale: null,
   publicConfig: null,
   loadingPublicConfig: false,
-  loadingPublicConfigError: null
+  loadingPublicConfigError: null,
+  searching: null,
+  searchResults: null,
+  searchError: null
 })
 
 export const actions = {
@@ -33,6 +37,15 @@ export const actions = {
       .then(
         (config) => { commit('loadPublicConfigSuccess', { config }) },
         (error) => { commit('loadPublicConfigFailure', { error }) }
+      )
+  },
+
+  searchContent ({ commit }, { query }) {
+    commit('searchContentRequest', { query })
+    sourceService.searchContent(query)
+      .then(
+        (results) => { commit('searchContentSuccess', { results }) },
+        (error) => { commit('searchContentFailure', { error }) }
       )
   }
 }
@@ -79,5 +92,18 @@ export const mutations = {
   loadPublicConfigFailure (state, { error }) {
     state.loadingPublicConfig = false
     state.loadingPublicConfigError = error
+  },
+
+  searchContentRequest (state, { query }) {
+    state.searching = true
+    state.searchError = null
+  },
+  searchContentSuccess (state, { results }) {
+    state.searching = false
+    state.searchResults = results
+  },
+  searchContentFailure (state, { error }) {
+    state.searching = false
+    state.searchError = error
   }
 }

@@ -9,6 +9,8 @@ export const adminService = {
   findSource,
   addSource,
   scanSource,
+  indexSource,
+  indexInfo,
   deleteSource,
   loadSiteConfig,
   updateSiteConfig
@@ -44,6 +46,14 @@ function addSource (source) {
 
 function scanSource (source) {
   return fetch(`/api/admin/sources/${source}`, a.authPatchJson(source)).then(a.handleJsonResponse)
+}
+
+function indexSource (source) {
+  return fetch(`/api/admin/sources/${source}?reindex=true`, a.authPatchJson(source)).then(a.handleJsonResponse)
+}
+
+function indexInfo (name) {
+  return fetch(`/api/admin/sources/${name}?reindex=true`, a.authGet()).then(a.handleJsonResponse)
 }
 
 function deleteSource (source) {

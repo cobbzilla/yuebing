@@ -56,17 +56,18 @@ async function findSource (name) {
 }
 
 async function listSources (query) {
-  return await _listSources(query, { includeSelf: true })
+  return await _listSources(query)
 }
 
 async function listSourcesWithoutSelf (query) {
-  return await _listSources(query, { includeSelf: false })
+  query.includeSelf = false
+  return await _listSources(query)
 }
 
 const listSourceCache = new LRU({ max: 1000 })
 
-async function _listSources (query, { includeSelf = true }) {
-  const cacheKey = shasum((query ? JSON.stringify(query) : '~') + includeSelf)
+async function _listSources (query) {
+  const cacheKey = shasum(query ? JSON.stringify(query) : '~')
   let results = listSourceCache.get(cacheKey)
   if (!results) {
     const objectList = await system.api.list(SOURCES_PREFIX)
@@ -76,7 +77,7 @@ async function _listSources (query, { includeSelf = true }) {
         allSources.push(JSON.parse(await system.api.readFile(object.name)))
       }
     }
-    if (includeSelf) {
+    if (query.includeSelf) {
       // push special source: self (dest)
       allSources.push(system.source)
     }

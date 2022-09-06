@@ -5,6 +5,10 @@ const storage = require('mobiletto')
 const shasum = require('shasum')
 const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
+const {
+  isMediaInfoJsonProfile, mediaProfilesForSource
+} = require('../../shared/media')
+const { mediaInfoFields, mediaInfoField } = require('../../shared/mediainfo')
 
 const logger = winston.createLogger({
   level: process.env.YB_LOG_LEVEL || 'debug',
@@ -71,12 +75,31 @@ const SYSTEM = {
     return 'source.' + ext
   },
   userMediaInfoPath: (sourceName, pth) => SYSTEM.assetsDir(sourceName + '/' + pth) + USER_MEDIAINFO_JSON,
-  userMediaInfo: async (sourceName, pth) => {
+  userMediaInfo: async (meta, sourceName, pth) => {
     try {
-      const userInfoJson = await SYSTEM.api.readFile(SYSTEM.userMediaInfoPath(sourceName, pth))
-      return JSON.parse(userInfoJson)
+      const profilesForSource = mediaProfilesForSource(pth)
+      const mediaInfoProfile = Object.keys(meta.assets)
+        .find(p => profilesForSource[p] && isMediaInfoJsonProfile(profilesForSource[p]))
+      if (mediaInfoProfile && mediaInfoProfile.length > 0) {
+        const mediaInfoPath = meta.assets[mediaInfoProfile][0]
+        const mediaInfoJson = await SYSTEM.api.safeReadFile(mediaInfoPath)
+        const mediaInfo = mediaInfoJson ? JSON.parse(mediaInfoJson) : null
+        const userMediaInfoJson = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
+        const userMediaInfo = userMediaInfoJson ? JSON.parse(userMediaInfoJson) : null
+        const result = {}
+        if (mediaInfo || userMediaInfo) {
+          for (const field of mediaInfoFields()) {
+            result[field] = mediaInfoField(field, mediaInfo || {}, userMediaInfo || {})
+          }
+        }
+        return result
+      } else {
+        const userMediaInfo = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
+        return userMediaInfo || null
+      }
     } catch (e) {
       logger.warn(`userMediaInfo(${sourceName}, ${pth}): ${e} (${JSON.stringify(e)})`)
+      return null
     }
   },
   connect: async () => {

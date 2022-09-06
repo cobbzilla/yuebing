@@ -99,16 +99,16 @@ export default {
     }
   },
   created () {
-    this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
+    if (!this.interval) {
+      this.interval = setInterval(() => this.fetchQueue(), UPDATE_INTERVAL)
+    }
     this.fetchQueue()
   },
   destroyed () {
     if (this.interval) { clearInterval(this.interval) }
   },
   beforeUnmount () {
-    if (this.interval) {
-      clearInterval(this.interval)
-    }
+    if (this.interval) { clearInterval(this.interval) }
   },
   methods: {
     ...mapActions('admin', ['fetchQueue']),

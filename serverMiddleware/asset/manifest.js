@@ -1,6 +1,9 @@
+const shasum = require('shasum')
 const path = require('path')
+const { extractSourceAndPath } = require('../../shared/source')
 const m = require('../../shared/media')
 const cache = require('../util/cache')
+const redis = require('../util/redis')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
@@ -9,13 +12,14 @@ async function deriveMetadata (source, sourcePath) {
   return deriveMetadataFromSourceAndPath(sourceAndPath)
 }
 
-async function deriveMetadataFromSourceAndPath (sourceAndPath) {
+async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
   const logPrefix = `deriveMetadata(${sourceAndPath}):`
   const debug = (msg) => logger.debug(`${logPrefix} ${msg}`)
   const silly = (msg) => logger.silly(`${logPrefix} ${msg}`)
+  const noCache = opts && opts.noCache
 
   // Do we have this redis-cached?
-  const cachedMeta = cache.getCachedMetadata(sourceAndPath)
+  const cachedMeta = noCache ? null : await cache.getCachedMetadata(sourceAndPath)
   if (cachedMeta) {
     return cachedMeta
   }
@@ -36,9 +40,9 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath) {
   // find all assets
   const prefix = system.assetsDir(sourceAndPath)
   const assets = await system.api.find(prefix, m.ASSET_PREFIX)
-  debug(`examining ${assets.length} assets over profiles ${JSON.stringify(profiles.map(p => p.name))}`)
+  debug(`examining ${assets.length} assets over profiles ${Object.keys(profiles).toString()}`)
   assets.forEach((asset) => {
-    silly(`examining asset: ${asset}`)
+    silly(`examining asset: ${asset ? JSON.stringify(asset) : 'undefined/null'}`)
     const base = path.basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
@@ -47,7 +51,7 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath) {
       const foundProfile = (at !== -1 && at > underscore && at < dot)
         ? base.substring(underscore + 1, at)
         : base.substring(underscore + 1, dot)
-      silly(`${logPrefix}: examining foundProfile ${foundProfile} from base ${base}`)
+      silly(`${logPrefix} examining foundProfile ${foundProfile} from base ${base}`)
       if (foundProfile in profiles) {
         const prof = profiles[foundProfile]
         if (prof.enabled) {
@@ -95,4 +99,25 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath) {
   return meta
 }
 
-export { deriveMetadata, deriveMetadataFromSourceAndPath }
+const MEDIAINFO_CACHE_PREFIX = 'mediainfo_'
+const MEDIAINFO_CACHE_EXPIRATION = 1000 * 60 * 60 * 24 * 30
+const NO_MEDIAINFO_VALUE = 'no_mediainfo'
+
+const mediaInfoCacheKey = sourceAndPath => MEDIAINFO_CACHE_PREFIX + shasum(sourceAndPath)
+
+const no_cache = true
+const deriveMediaInfo = async (meta, sourceAndPath, opts = null) => {
+  const cacheKey = mediaInfoCacheKey(sourceAndPath)
+  const cached = (opts && opts.cache && opts.cache === false) ? null : await redis.get(cacheKey)
+  if (cached && !no_cache) {
+    return cached === NO_MEDIAINFO_VALUE ? null : JSON.parse(cached)
+  }
+  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
+  const info = await system.userMediaInfo(meta, sourceName, pth)
+  await redis.set(cacheKey, info ? JSON.stringify(info) : NO_MEDIAINFO_VALUE, MEDIAINFO_CACHE_EXPIRATION)
+  return info
+}
+
+const flushMediaInfoCache = sourceAndPath => redis.del(mediaInfoCacheKey(sourceAndPath))
+
+export { deriveMetadata, deriveMetadataFromSourceAndPath, deriveMediaInfo, flushMediaInfoCache }

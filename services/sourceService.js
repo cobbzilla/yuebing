@@ -3,6 +3,7 @@ const a = require('./util')
 
 export const sourceService = {
   listObjects,
+  searchContent,
   metadata,
   jsonAsset,
   fetchUserMediaInfo,
@@ -13,6 +14,10 @@ export const sourceService = {
 
 function listObjects (path) {
   return fetch(`/api/source/list/${path}`, a.authGet()).then(a.handleJsonResponse)
+}
+
+function searchContent (query) {
+  return fetch(`/api/source/list`, a.authPostJson(query)).then(a.handleJsonResponse)
 }
 
 function metadata (path) {

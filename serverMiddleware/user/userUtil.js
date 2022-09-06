@@ -9,6 +9,7 @@ const auth = require('../../shared/auth')
 const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
+const { queryParamValue } = require('../util/api')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
@@ -116,8 +117,7 @@ async function currentUser (req) {
   if (req.headers && req.headers[SESSION_HEADER]) {
     session = req.headers[SESSION_HEADER]
   } else if (req.url.includes('?')) {
-    const query = new URLSearchParams(req.url.substring(req.url.indexOf('?')))
-    session = query && query.has(SESSION_PARAM) ? query.get(SESSION_PARAM) : null
+    session = queryParamValue(req, SESSION_PARAM)
   } else if (req.headers && req.headers.cookie) {
     session = cookie.parse(req.headers.cookie)[c.USER_SESSION_HEADER]
   }

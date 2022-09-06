@@ -79,6 +79,15 @@ function clearSessionCookie (res, session) {
   res.setHeader('Set-Cookie', cookie.serialize(c.USER_SESSION_HEADER, session, EXPIRE_COOKIE_PARAMS))
 }
 
+function queryString (req) {
+  return req.url.includes('?') ? new URLSearchParams(req.url.substring(req.url.indexOf('?'))) : null
+}
+
+function queryParamValue (req, param) {
+  const q = queryString(req)
+  return q && q.has(param) ? q.get(param) : null
+}
+
 module.exports = {
   okJson,
   forbidden,
@@ -90,5 +99,7 @@ module.exports = {
   handleValidationError,
   handleSourceError,
   setSessionCookie,
-  clearSessionCookie
+  clearSessionCookie,
+  queryString,
+  queryParamValue
 }

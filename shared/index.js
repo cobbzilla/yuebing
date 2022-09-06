@@ -51,6 +51,27 @@ const chopFileExt = (s) => {
   return dot === -1 || dot === s.length ? s : s.substring(0, dot)
 }
 
+const isAllDigits = (s) => /^\d+$/.test(s)
+const isAllDigitsOrNonWordChars = (s) => /^[\d\W]+$/.test(s)
+
+const SEARCH_REGEX = /[^\s"]+|"([^"]*)"/gi
+
+// adapted from https://stackoverflow.com/a/18647776/1251543
+const splitSearchTerms = (terms) => {
+  const found = []
+  let match
+  do {
+    //Each call to exec returns the next regex match as an array
+    match = SEARCH_REGEX.exec(terms)
+    if (match != null) {
+      //Index 1 in the array is the captured group if it exists
+      //Index 0 is the matched text, which we use if no captured group exists
+      found.push(match[1] ? match[1] : match[0])
+    }
+  } while (match != null)
+  return found
+}
+
 const LAST_MODIFIED_FILE = 'lastModified'
 const SELECTED_THUMBNAIL_FILE = 'selectedThumbnail.json'
 const ERROR_FILE_PREFIX = '_error_'
@@ -85,8 +106,11 @@ module.exports = {
   empty,
   chopFileExt,
   snooze,
+  isAllDigits,
+  isAllDigitsOrNonWordChars,
   getExtension,
   sessionParams,
   normalizeUrl,
+  splitSearchTerms,
   proxyMediaUrl
 }

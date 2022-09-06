@@ -4,8 +4,12 @@ const u = require('../../user/userUtil')
 const s = require('../../source/sourceUtil')
 const v = require('../../../shared/validation')
 const scan = require('../../source/scan')
+const { reindex, reindexInfo } = require('../../asset/content')
+const { queryParamValue } = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
+
+const REINDEX_PARAM = 'reindex'
 
 function handleSourceError (res, e, sourceName) {
   if (e instanceof s.SourceNotFoundError) {
@@ -52,9 +56,21 @@ async function handleQuery (res, query) {
   return api.okJson(res, await s.listSources(query))
 }
 
+const handleReindex = sourceName => async (res, name) => {
+  if (sourceName !== name) {
+    throw new TypeError(`handleReindex: Expected source named ${sourceName} but received ${name}`)
+  }
+  try {
+    await reindex(sourceName)
+    return api.okJson(res, { reindexing: true })
+  } catch (e) {
+    return api.serverError(res, e)
+  }
+}
+
 const handleScan = sourceName => async (res, name) => {
   if (sourceName !== name) {
-    throw new TypeError(`Expected source named ${sourceName} but received ${name}`)
+    throw new TypeError(`handleScan: Expected source named ${sourceName} but received ${name}`)
   }
   try {
     const source = await s.connect(name)
@@ -75,12 +91,18 @@ export default {
     if (!user) {
       return api.forbidden(res)
     }
-    const sourceName = req.url.startsWith('/') ? req.url.substring(1) : req.url
+    const path = req.url.startsWith('/') ? req.url.substring(1) : req.url
+    const sourceName = path.includes('?') ? path.substring(0, path.indexOf('?')) : path
+    const reindex = !!queryParamValue(req, REINDEX_PARAM)
     let handler
     try {
       switch (req.method) {
-        case 'GET': return api.okJson(await s.findSource(sourceName))
-        case 'DELETE': return await handleDelete(res, sourceName)
+        case 'GET':
+          return reindex
+            ? api.okJson(res, await reindexInfo(sourceName))
+            : api.okJson(res, await s.findSource(sourceName))
+        case 'DELETE':
+          return await handleDelete(res, sourceName)
         case 'PUT':
           handler = handleAdd
           break
@@ -88,7 +110,7 @@ export default {
           handler = handleQuery
           break
         case 'PATCH':
-          handler = handleScan(sourceName)
+          handler = reindex ? handleReindex(sourceName) : handleScan(sourceName)
           break
         default:
           return api.serverError(res, c.HTTP_INVALID_REQUEST_MESSAGE)

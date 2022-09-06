@@ -15,6 +15,7 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const manifest = require('./manifest')
 const q = require('./job')
+const content = require('./content')
 
 const MAX_XFORM_ERRORS = 3
 
@@ -31,10 +32,25 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
     await createArtifacts(job, file)
 
     logger.silly(`__xform(${job.data.sourcePath}): createArtifacts finished, flushing metadata and recalculating final metadata`)
-    await cache.hardFlushCachedMetadata(job.data.sourcePath)
-    const meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath)
-    if (!meta.finished) {
-      logger.warn(`__xform(${job.data.sourcePath}): deriveMetadataFromSourceAndPath returned unfinished meta: ${JSON.stringify(meta)})`)
+    let meta
+    try {
+      await cache.hardFlushCachedMetadata(job.data.sourcePath)
+      meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath)
+    } catch (e) {
+      logger.error(`__xform(${job.data.sourcePath}): manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
+      throw e
+    }
+    if (!meta || (!meta.finished && !meta.status?.ready)) {
+      logger.warn(`__xform(${job.data.sourcePath}): deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
+      return null
+    } else {
+      try {
+        await content.registerPath(job.data.sourcePath, meta)
+      } catch (e) {
+        logger.error(`__xform(${job.data.sourcePath}): content.registerPath failed: ${e}`)
+        throw e
+      }
+      return meta
     }
 
   } else {

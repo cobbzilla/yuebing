@@ -1,6 +1,7 @@
 const shasum = require('shasum')
 const redis = require('./redis')
 const c = require('../../shared')
+const { extractSourceAndPathAndConnect } = require('../source/sourceUtil')
 const system = require('./config').SYSTEM
 const logger = system.logger
 
@@ -25,6 +26,7 @@ const getCachedMetadata = async (sourceAndPath) => {
   if (!cachedMeta) {
     const metaPath = cachedMetaPath(sourceAndPath)
     debug(`no cachedMeta in redis, looking for metaPath=${metaPath}`)
+    const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
     const metaPathData = await source.safeReadFile(metaPath)
     if (metaPathData) {
       cachedMeta = JSON.parse(metaPathData)
@@ -89,7 +91,7 @@ const flushSelectedThumbnail = async sourceAndPath => await redis.del(redisSelec
 
 const hardFlushCachedMetadata = async (sourceAndPath) => {
   await flushMetadata(sourceAndPath)
-  await system.api.remove()
+  await system.api.remove(cachedMetaPath(sourceAndPath))
 }
 
 const hardSetCachedMetadata = async (sourceAndPath, meta) => {

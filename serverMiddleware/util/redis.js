@@ -30,8 +30,9 @@ async function expire (key, expirationMillis) {
   await redisClient.expire(key, expirationMillis / 1000)
 }
 
-function smembers (key) {
-  return redisClient.smembers(key)
+async function smembers (key) {
+  const members = await redisClient.smembers(key)
+  return members ? members : []
 }
 
 async function del (key) {

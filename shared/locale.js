@@ -167,6 +167,21 @@ const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.i
 
 const localeEmoji = locale => MESSAGES[locale] && MESSAGES[locale].emoji ? MESSAGES[locale].emoji : undefined
 
+let STOP_WORDS = null
+const stopWords = () => {
+  if (STOP_WORDS !== null) {
+    return STOP_WORDS
+  }
+  const stops = []
+  for (const locale of SUPPORTED_LOCALES) {
+    if (MESSAGES[locale] && MESSAGES[locale].search_stop_words && !MESSAGES[locale].search_stop_words.startsWith('???')) {
+      stops.push(...MESSAGES[locale].search_stop_words.split(','))
+    }
+  }
+  STOP_WORDS = [...new Set(stops)]
+  return STOP_WORDS
+}
+
 module.exports = {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -176,5 +191,6 @@ module.exports = {
   localeLang,
   localesList,
   fieldErrorMessage,
-  localeEmoji
+  localeEmoji,
+  stopWords
 }

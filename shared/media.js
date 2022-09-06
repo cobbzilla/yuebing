@@ -175,17 +175,9 @@ function hasMediaType (obj) {
     obj.mediaType && obj.mediaType !== UNKNOWN_MEDIA_TYPE && obj.mediaType !== DIRECTORY_TYPE
 }
 
-function isDirectory (obj) {
-  return obj.type && obj.type === DIRECTORY_TYPE
-}
+const hasMediaInfo = (obj) => metaHasMediaInfo(obj.meta)
 
-function isViewable (obj) {
-  return obj.meta && obj.meta.status && obj.meta.status.ready
-}
-
-function hasMediaInfo (obj) {
-  return obj.meta && obj.meta.status && obj.meta.status.info
-}
+const metaHasMediaInfo = (meta) => meta && meta.status && meta.status.info
 
 function profileNameFromAsset (asset) {
   if (typeof asset !== 'string') {
@@ -228,7 +220,7 @@ function isMediaInfoJsonProfile (profile) {
 
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
-  newMediaObject, hasMediaType, isDirectory, isViewable, hasMediaInfo,
+  newMediaObject, hasMediaType, hasMediaInfo, metaHasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,

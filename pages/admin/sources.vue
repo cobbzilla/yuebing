@@ -69,6 +69,7 @@
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
               <th>{{ messages.admin_button_scan_source }}</th>
+              <th>{{ messages.admin_button_reindex_source }}</th>
               <th>{{ messages.admin_button_delete_source }}</th>
             </tr>
           </thead>
@@ -88,7 +89,12 @@
                     {{ messages.admin_info_scan_scanning }}
                   </small>
                 </div>
-                <div v-if="scanSourceSuccess[src.name]">
+                <div v-if="scanSourceError[src.name]">
+                  <small>
+                    {{ messages.admin_info_scan_error.parseMessage({ e: scanSourceError[src.name] }) }}
+                  </small>
+                </div>
+                <div v-else-if="scanSourceSuccess[src.name]">
                   <small>
                     {{ messages.admin_info_scan_successful }}
                     <NuxtLink to="/admin/queue">
@@ -96,9 +102,29 @@
                     </NuxtLink>
                   </small>
                 </div>
-                <div v-if="scanSourceError[src.name]">
+              </td>
+              <td>
+                <div>
+                  <v-btn v-if="!isSelfSource(src) && !indexingSources[src.name]" @click.stop="indexSrc(src.name)">
+                    {{ messages.admin_button_reindex_source }}
+                  </v-btn>
+                </div>
+                <div v-if="indexingSources[src.name]">
                   <small>
-                    {{ messages.admin_info_scan_error }}
+                    {{ messages.admin_info_reindex_indexing }}
+                  </small>
+                </div>
+                <div v-if="indexingStartError[src.name]">
+                  <small>
+                    {{ messages.admin_info_reindex_error.parseMessage({ e: indexingStartError[src.name] }) }}
+                  </small>
+                </div>
+                <div v-else-if="indexingStartSuccess[src.name]">
+                  <small>
+                    {{ messages.admin_info_reindex_successful }}
+                    <NuxtLink :to="`/admin/indexes?source=${src.name}`">
+                      {{ messages.admin_title_transform_queue }}
+                    </NuxtLink>
                   </small>
                 </div>
               </td>
@@ -305,7 +331,8 @@ export default {
     ...mapState('admin', [
       'sourceList', 'totalSourceCount', 'findingSources',
       'addSourceSuccess', 'addSourceError', 'deleteSourceError',
-      'scanningSources', 'scanSourceSuccess', 'scanSourceError'
+      'scanningSources', 'scanSourceSuccess', 'scanSourceError',
+      'indexingSources', 'indexingStartSuccess', 'indexingStartError'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return publicConfigField(this, 'title') },
@@ -359,7 +386,7 @@ export default {
     this.setSourceTypeDefaults()
   },
   methods: {
-    ...mapActions('admin', ['findSources', 'addSource', 'deleteSource', 'scanSource']),
+    ...mapActions('admin', ['findSources', 'addSource', 'deleteSource', 'scanSource', 'indexSource']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
@@ -411,7 +438,8 @@ export default {
         this.deleteConfirmCount = 0
       }
     },
-    scanSrc (src) { this.scanSource({ src }) }
+    scanSrc (src) { this.scanSource({ src }) },
+    indexSrc (src) { this.indexSource({ src }) }
   }
 }
 </script>

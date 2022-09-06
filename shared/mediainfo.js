@@ -2,7 +2,7 @@ const jp = require('jsonpath')
 const c = require('../shared')
 const { isThumbnailProfile, mediaProfileByName, mediaType } = require('./media')
 
-const META_FIELDS = {
+const MEDIAINFO_FIELDS = {
 
   // fixme -- some of the less common ones are probably not correct and/or may require more JSONPaths in the find array
   // sort: 1xxx -- important/editable fields
@@ -54,12 +54,14 @@ const META_FIELDS = {
   description: {
     sort: 1090,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Description']
+    find: ['$.media.track[?(@.@type=="General")].Description'],
+    disableWholeFieldIndex: true
   },
   comment: {
     sort: 1100,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Comment']
+    find: ['$.media.track[?(@.@type=="General")].Comment'],
+    disableWholeFieldIndex: true
   },
   genre: {
     sort: 1110,
@@ -84,7 +86,8 @@ const META_FIELDS = {
   episode_sort: {
     sort: 1150,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Episode_Sort']
+    find: ['$.media.track[?(@.@type=="General")].Episode_Sort'],
+    disableIndex: true
   },
   season: {
     sort: 1160,
@@ -110,15 +113,18 @@ const META_FIELDS = {
       '$.media.track[?(@.@type=="General")].Duration_String2',
       '$.media.track[?(@.@type=="General")].Duration_String',
       '$.media.track[?(@.@type=="General")].Duration'
-    ]
+    ],
+    disableIndex: true
   },
   width: {
     sort: 2010,
-    find: ['$.media.track[?(@.@type=="Video")].Width']
+    find: ['$.media.track[?(@.@type=="Video")].Width'],
+    disableIndex: true
   },
   height: {
     sort: 2020,
-    find: ['$.media.track[?(@.@type=="Video")].Height']
+    find: ['$.media.track[?(@.@type=="Video")].Height'],
+    disableIndex: true
   },
   size: {
     sort: 2030,
@@ -129,17 +135,20 @@ const META_FIELDS = {
       '$.media.track[?(@.@type=="General")].FileSize_String1',
       '$.media.track[?(@.@type=="General")].FileSize_String',
       '$.media.track[?(@.@type=="General")].FileSize'
-    ]
+    ],
+    disableIndex: true
   },
 
   // sort: 3xxx -- less well-known fields
   videoTracks: {
     sort: 3000,
-    find: ['$.media.track[?(@.@type=="General")].VideoCount']
+    find: ['$.media.track[?(@.@type=="General")].VideoCount'],
+    disableIndex: true
   },
   audioTracks: {
     sort: 3010,
-    find: ['$.media.track[?(@.@type=="General")].AudioCount']
+    find: ['$.media.track[?(@.@type=="General")].AudioCount'],
+    disableIndex: true
   },
   format: {
     sort: 3020,
@@ -151,33 +160,44 @@ const META_FIELDS = {
   },
   bitRate: {
     sort: 3040,
-    find: ['$.media.track[?(@.@type=="General")].OverallBitRate']
+    find: ['$.media.track[?(@.@type=="General")].OverallBitRate'],
+    disableIndex: true
   },
   frameRate: {
     sort: 3050,
-    find: ['$.media.track[?(@.@type=="General")].FrameRate']
+    find: ['$.media.track[?(@.@type=="General")].FrameRate'],
+    disableIndex: true
   },
   dateEncoded: {
     sort: 3060,
-    find: ['$.media.track[?(@.@type=="General")].File_Modified_Date']
+    find: ['$.media.track[?(@.@type=="General")].File_Modified_Date'],
+    disableIndex: true
   }
 }
 
-const sortInfoFields = (f1, f2) => META_FIELDS[f1].sort - META_FIELDS[f2].sort
+const sortInfoFields = (f1, f2) => MEDIAINFO_FIELDS[f1].sort - MEDIAINFO_FIELDS[f2].sort
 
+let _mediaInfoFields = null
 function mediaInfoFields () {
-  return Object.keys(META_FIELDS).sort(sortInfoFields)
+  if (_mediaInfoFields === null) {
+    _mediaInfoFields = Object.keys(MEDIAINFO_FIELDS).sort(sortInfoFields)
+  }
+  return _mediaInfoFields
 }
 
+let _editableMediaInfoFields = null
 function editableMediaInfoFields () {
-  return Object.keys(META_FIELDS).filter(k => META_FIELDS[k].editable).sort(sortInfoFields)
+  if (_editableMediaInfoFields === null) {
+    _editableMediaInfoFields = Object.keys(MEDIAINFO_FIELDS).filter(k => MEDIAINFO_FIELDS[k].editable).sort(sortInfoFields)
+  }
+  return _editableMediaInfoFields
 }
 
 function mediaInfoField (field, mediainfo, userMediainfo) {
   if (userMediainfo && userMediainfo[field]) {
     return userMediainfo[field]
   }
-  const candidates = META_FIELDS[field]
+  const candidates = MEDIAINFO_FIELDS[field]
   if (candidates && candidates.find) {
     for (let i = 0; i < candidates.find.length; i++) {
       const candidate = candidates.find[i]
@@ -260,6 +280,7 @@ function findThumbnails (obj) {
 }
 
 export {
+  MEDIAINFO_FIELDS,
   mediaInfoFields, editableMediaInfoFields, mediaInfoField,
   hasAssets, findAsset, findThumbnail, findThumbnails
 }

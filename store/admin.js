@@ -31,6 +31,14 @@ export const state = () => ({
   scanSourceSuccess: {},
   scanSourceError: {},
 
+  indexingSources: {},
+  indexingStartSuccess: {},
+  indexingStartError: {},
+
+  indexingInfo: {},
+  indexingInfoSuccess: {},
+  indexingInfoError: {},
+
   deletingSource: false,
   deleteSourceSuccess: null,
   deleteSourceError: null,
@@ -107,6 +115,24 @@ export const actions = {
       .then(
         (ok) => { commit('scanSourceSuccess', { ok, src }) },
         (error) => { commit('scanSourceFailure', { src, error }) }
+      )
+  },
+
+  indexSource ({ commit }, { src }) {
+    commit('indexSourceRequest', { src })
+    adminService.indexSource(src)
+      .then(
+        (ok) => { commit('indexSourceSuccess', { ok, src }) },
+        (error) => { commit('indexSourceFailure', { src, error }) }
+      )
+  },
+
+  indexInfo ({ commit }, { src }) {
+    commit('indexInfoRequest', { src })
+    adminService.indexInfo(src)
+      .then(
+        (info) => { commit('indexInfoSuccess', { info, src }) },
+        (error) => { commit('indexInfoFailure', { src, error }) }
       )
   },
 
@@ -243,8 +269,54 @@ export const mutations = {
     const update = {}
     update[src] = false
     state.scanningSources = Object.assign({}, state.scanningSources, update)
+    update[src] = false
+    state.scanSourceSuccess = Object.assign({}, state.scanSourceSuccess, update)
     update[src] = error
     state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+  },
+
+  indexSourceRequest (state, { src }) {
+    const update = {}
+    update[src] = true
+    state.indexingSources = Object.assign({}, state.indexingSources, update)
+  },
+  indexSourceSuccess (state, { ok, src }) {
+    const update = {}
+    update[src] = false
+    state.indexingSources = Object.assign({}, state.indexingSources, update)
+    update[src] = ok || true
+    state.indexingStartSuccess = Object.assign({}, state.indexingStartSuccess, update)
+    update[src] = null
+    state.indexingStartError = Object.assign({}, state.indexingStartError, update)
+  },
+  indexSourceFailure (state, { src, error }) {
+    const update = {}
+    update[src] = false
+    state.indexingSources = Object.assign({}, state.indexingSources, update)
+    update[src] = null
+    state.indexingStartSuccess = Object.assign({}, state.indexingStartSuccess, update)
+    update[src] = error
+    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+  },
+
+  indexInfoRequest (state, { src }) {},
+  indexInfoSuccess (state, { info, src }) {
+    const update = {}
+    update[src] = info
+    state.indexingInfo = Object.assign({}, state.indexingInfo, update)
+    update[src] = true
+    state.indexingInfoSuccess = Object.assign({}, state.indexingInfoSuccess, update)
+    update[src] = null
+    state.indexingInfoError = Object.assign({}, state.indexingInfoError, update)
+  },
+  indexInfoFailure (state, { src, error }) {
+    const update = {}
+    update[src] = null
+    state.indexingInfo = Object.assign({}, state.indexingInfo, update)
+    update[src] = null
+    state.indexingInfoSuccess = Object.assign({}, state.indexingInfoSuccess, update)
+    update[src] = error
+    state.indexingInfoError = Object.assign({}, state.indexingInfoError, update)
   },
 
   deleteSourceRequest (state, { src }) {
