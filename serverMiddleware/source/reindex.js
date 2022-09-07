@@ -19,37 +19,39 @@ const redisConfig = system.privateConfig.redis
 const REINDEX_PROCESS_FUNCTION = async (job) => {
   const source = job.data.source
   const sourceAndPath = source + '/' + job.data.path
+  const logPrefix = `reindex(${source})`
   const infoSetKey = REINDEX_INFO_SET_KEY + source
   let expirationSet = false
   await new Promise((resolve, reject) => {
     deriveMetadataFromSourceAndPath(sourceAndPath, { noCache: true }).then(
       (meta) => {
+        logger.info(`${logPrefix} deriveMetadataFromSourceAndPath returned meta: ${JSON.stringify(meta)}`)
         if (meta.finished || (meta.status && meta.status.ready)) {
-          registerPath(sourceAndPath, meta).then(() => {
+          registerPath(sourceAndPath, meta).then((registeredMeta) => {
+              logger.info(`${logPrefix} registered path: ${sourceAndPath}, calling redis.sadd`)
               redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\tsuccess`).then(() => {
-                  logger.info(`reindex(${source}) registered path: ${sourceAndPath}`)
                   if (!expirationSet) {
                     expirationSet = true
                     redis.expire(infoSetKey, REINDEX_INFO_EXPIRATION)
                   }
-                  logger.info(`reindex(${source}) RESOLVED: ${sourceAndPath}`)
+                  logger.info(`${logPrefix} RESOLVED: ${sourceAndPath}`)
                   resolve(meta)
                 },
                 (err) => {
-                  const message = `reindex(${source}) error calling redis.sadd(${infoSetKey}) for ${sourceAndPath}: ${err}`
+                  const message = `${logPrefix} error calling redis.sadd(${infoSetKey}) for ${sourceAndPath}: ${err}`
                   logger.error(message)
                   reject(message)
                 })
             },
             (err) => {
-              const message = `reindex(${source}) error calling registerPath for ${sourceAndPath}: ${err}`
+              const message = `${logPrefix} error calling registerPath for ${sourceAndPath}: ${err}`
               logger.error(message)
               reject(message)
             })
         }
       },
       (err) => {
-        logger.error(`reindex(${source}) error loading metadata for path: ${sourceAndPath}: ${err}`)
+        logger.error(`${logPrefix} error loading metadata for path: ${sourceAndPath}: ${err}`)
         redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\t${err}`).then(() => {
           if (!expirationSet) {
             expirationSet = true

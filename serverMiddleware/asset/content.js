@@ -33,12 +33,14 @@ const getPathIndex = (sourceAndPath) => {
  *   - The tag file is touched: indexes/tags/contentToTags/<3-sha-hash-dirs-of-sourceAndPath>/<full-sha-of-sourceAndPath>/<tag>
  */
 const registerPath = async (sourceAndPath, meta) => {
+  const logPrefix = `registerPath(${sourceAndPath})`
+
   // write to path index
   const pathIndex = getPathIndex(sourceAndPath)
+  logger.debug(`${logPrefix} writing pathIndex ${pathIndex}`)
   await system.api.writeFile(pathIndex, JSON.stringify(meta))
 
   // start with fresh set of tags
-  const logPrefix = `registerPath(${sourceAndPath})`
   logger.debug(`${logPrefix} removing all tags`)
   await removeAllTagsForPath(sourceAndPath)
 
