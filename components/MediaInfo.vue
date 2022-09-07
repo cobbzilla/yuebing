@@ -5,12 +5,12 @@
         <div v-if="!showEditor">
           <v-container>
             <div v-for="(field, index) in infoFields" :key="index">
-              <v-row v-if="infoField(field)" class="mediaInfoDisplay">
+              <v-row v-if="mediaInfo && mediaInfo[field]" class="mediaInfoDisplay">
                 <v-col>
                   {{ messages[`label_mediainfo_${field}`] }}
                 </v-col>
                 <v-col>
-                  {{ infoField(field) }}
+                  {{ mediaInfo[field] }}
                 </v-col>
               </v-row>
             </div>
@@ -59,10 +59,8 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 
-import { mediaProfileByName, isMediaInfoJsonProfile } from '@/shared/media'
 import {
-  mediaInfoFields, editableMediaInfoFields, mediaInfoField,
-  hasAssets, findAsset
+  mediaInfoFields, editableMediaInfoFields
 } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
@@ -73,7 +71,6 @@ export default {
   },
   data () {
     return {
-      mediaInfoJsonPath: null,
       mediaInfo: null,
       origInfoFieldValues: {},
       infoFieldValues: {},
@@ -87,26 +84,19 @@ export default {
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     infoFields () { return mediaInfoFields() },
     canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn && this.user.admin },
-    editableInfoFields () { return editableMediaInfoFields() },
-    hasMediaInfoJsonPath () { return this.object && this.mediaInfoJsonPath },
-    getUserMediaInfo () {
-      return this.object && this.object.name &&
-      this.userMediaInfo && this.userMediaInfo[this.object.name]
-        ? this.userMediaInfo[this.object.name]
-        : {}
-    }
+    editableInfoFields () { return editableMediaInfoFields() }
   },
   watch: {
-    assetData (newAssetData) {
-      if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
-        this.mediaInfo = newAssetData[this.mediaInfoJsonPath]
+    object (newObject) {
+      if (newObject) {
+        this.refreshMediaInfo()
       }
     },
     userMediaInfo (newInfo) {
-      if (this.object && this.object.name && newInfo[this.object.name]) {
-        const newMediaInfo = newInfo[this.object.name]
-        Object.keys(newMediaInfo).forEach((prop) => {
-          this.infoFieldValues[prop] = newMediaInfo[prop]
+      if (this.object && this.object.path && newInfo[this.object.path]) {
+        this.mediaInfo = newInfo[this.object.path]
+        Object.keys(this.mediaInfo).forEach((prop) => {
+          this.infoFieldValues[prop] = this.mediaInfo[prop]
         })
       }
     }
@@ -116,41 +106,23 @@ export default {
   },
   methods: {
     ...mapActions('source', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
-    infoField (field) {
-      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : null
-    },
-    infoFieldValue (field) {
-      return this.mediaInfo ? mediaInfoField(field, this.mediaInfo, this.getUserMediaInfo) : ''
-    },
     refreshMediaInfo () {
       const obj = this.object
       if (obj && obj.path) {
         this.fetchUserMediaInfo({ path: obj.path })
-      }
-      if (hasAssets(obj) && !this.mediaInfoJsonPath) {
-        // console.log(`MediaInfo.refreshMediaInfo started, this.mediaInfoJsonPath=${this.mediaInfoJsonPath}, obj=${JSON.stringify(obj)}`)
-        this.mediaInfoJsonPath = findAsset(obj, (assets, profile) => {
-          const mediaProfile = mediaProfileByName(obj.mediaType, profile)
-          return isMediaInfoJsonProfile(mediaProfile)
-        })
-        if (this.mediaInfoJsonPath) {
-          const path = this.mediaInfoJsonPath
-          // console.log(`MediaInfo.refreshMediaInfo fetching asset from: ${path}`)
-          this.fetchAsset({ path })
-        }
       } else {
-        // console.log('refreshMediaInfo: mediaInfo already loaded for media, not replacing')
+        // console.log('refreshMediaInfo: object has no path, cannot load')
       }
     },
     toggleEditButton () {
       this.showEditor = !this.showEditor
       if (this.showEditor) {
         this.editableInfoFields.forEach((field) => {
-          this.origInfoFieldValues[field] = this.infoFieldValues[field] = this.infoFieldValue(field)
+          this.origInfoFieldValues[field] = this.mediaInfo[field]
         })
       } else {
         this.editableInfoFields.forEach((field) => {
-          this.infoFieldValues[field] = this.origInfoFieldValues[field]
+          this.mediaInfo[field] = this.origInfoFieldValues[field]
         })
       }
     },

@@ -1,5 +1,6 @@
 const Queue = require('bull')
 
+const { extractSourceAndPath } = require('../../shared/source')
 const { hasProfiles } = require('../../shared/media')
 const { connect } = require('./sourceUtil')
 const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')
@@ -77,6 +78,11 @@ const reindex = async (source) => {
   api.list('', { recursive: true, visitor: indexer })
 }
 
+const reindexPath = async (sourceAndPath) => {
+  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
+  enqueue(sourceName, pth)
+}
+
 const reindexInfo = async source => (await redis.smembers(REINDEX_INFO_SET_KEY + source))
   .map(m => {
     const parts = m.split('\t')
@@ -87,4 +93,4 @@ const reindexInfo = async source => (await redis.smembers(REINDEX_INFO_SET_KEY +
     }})
   .sort((o1, o2) => o1.ctime - o2.ctime)
 
-export { reindex, reindexInfo }
+export { reindex, reindexPath, reindexInfo }

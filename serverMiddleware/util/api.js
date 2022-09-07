@@ -50,7 +50,7 @@ function badRequest (res, message) {
 
 function validationFailed (res, errors) {
   res.statusCode = 422
-  logger.info(`422 validationFailed: ${message || 'no message'}`)
+  logger.info(`422 validationFailed: ${errors ? JSON.stringify(errors) : 'no errors (?)'}`)
   res.end(JSON.stringify(errors))
   return null
 }

@@ -3,6 +3,7 @@ const logger = system.logger
 
 const api = require('../../util/api')
 const { currentUser } = require('../../user/userUtil')
+const { reindexPath } = require('../../source/reindex')
 const src = require('../../source/sourceUtil')
 const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
 
@@ -39,6 +40,7 @@ export default {
             .then(() => {
               src.flushListCache()
               flushMediaInfoCache(sourceAndPath)
+              reindexPath(sourceAndPath)
               api.okJson(res, info)
             })
             .catch((err) => {
