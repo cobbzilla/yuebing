@@ -68,6 +68,7 @@
               <th>{{ messages.admin_label_source_name }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
+              <th>{{ messages.admin_button_browse_source }}</th>
               <th>{{ messages.admin_button_scan_source }}</th>
               <th>{{ messages.admin_button_reindex_source }}</th>
               <th>{{ messages.admin_button_delete_source }}</th>
@@ -78,6 +79,11 @@
               <td>{{ sourceName(src) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
+              <td>
+                <v-btn v-if="!isSelfSource(src)" :href="`/admin/browse?source=${src.name}`">
+                  {{ messages.admin_button_browse_source }}
+                </v-btn>
+              </td>
               <td>
                 <div>
                   <v-btn v-if="!isSelfSource(src) && !scanningSources[src.name]" @click.stop="scanSrc(src.name)">

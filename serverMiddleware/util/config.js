@@ -103,7 +103,6 @@ const SYSTEM = {
     }
   },
   isPublic: () => SYSTEM.publicConfig.public,
-  deleteUserHandlers: {},
   connect: async () => {
     if (!SYSTEM.api) {
       if (!DEST_TYPE) {
@@ -253,6 +252,17 @@ const SYSTEM = {
     const path = SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE
     await SYSTEM.api.writeFile(path, '' + Date.now())
     logger.info(`touchLastModified: touched: ${path}`)
+  },
+  deleteUserHandlers: {},
+  deletePathHandlers: {},
+  deletePath: async (path) => {
+    for (const handlerName of Object.keys(SYSTEM.deletePathHandlers)) {
+      try {
+        await SYSTEM.deletePathHandlers[handlerName](path)
+      } catch (e) {
+        logger.error(`deletePath(${path}) handler ${handlerName} error: ${e}`)
+      }
+    }
   }
 }
 

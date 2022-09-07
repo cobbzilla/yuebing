@@ -30,10 +30,10 @@ export const state = () => ({
 })
 
 export const actions = {
-  fetchObjects ({ commit }, { prefix }) {
+  fetchObjects ({ commit }, { prefix, noCache = null}) {
     commit('fetchObjectsRequest', { prefix })
     sourceService
-      .listObjects(prefix)
+      .listObjects(prefix, noCache)
       .then(
         objects => commit('fetchObjectsSuccess', objects),
         error => commit('fetchObjectsFailure', error)

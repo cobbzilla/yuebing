@@ -34,5 +34,6 @@ module.exports = async function (moduleOptions) {
     this.addServerMiddleware('~/serverMiddleware/api/admin/deleteUser')
     this.addServerMiddleware('~/serverMiddleware/api/admin/migrate')
     this.addServerMiddleware('~/serverMiddleware/api/admin/queue')
+    this.addServerMiddleware('~/serverMiddleware/api/admin/paths')
   }
 }

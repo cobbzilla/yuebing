@@ -1,5 +1,7 @@
-const path = require('path')
-const m = require('../../../shared/media')
+const { basename } = require('path')
+const { NO_CACHE_HEADER } = require('../../../shared')
+const { UNKNOWN_MEDIA_TYPE, mediaType, hasMediaInfo } = require('../../../shared/media')
+const { extractSourceAndPath } = require('../../../shared/source')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const redis = require('../../util/redis')
@@ -8,6 +10,7 @@ const { deriveMetadata, deriveMediaInfo } = require('../../asset/manifest')
 const src = require('../../source/sourceUtil')
 const { currentUser } = require('../../user/userUtil')
 const { search } = require('../../asset/search')
+const { getTagsForPath } = require('../../asset/content')
 const logger = system.logger
 
 const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
@@ -17,8 +20,9 @@ const listObjects = async (req, res) => {
   if (!user) {
     return api.forbidden(res)
   }
+  const noCache = req.headers && req.headers[NO_CACHE_HEADER]
   const cacheKey = src.objectListCacheKey(req)
-  const results = await redis.get(cacheKey)
+  const results = noCache ? null : await redis.get(cacheKey)
   if (results) {
     const obj = JSON.parse(results)
     return Array.isArray(obj)
@@ -26,9 +30,12 @@ const listObjects = async (req, res) => {
       : api.handleSourceError(res, obj)
   }
   try {
-    const pth = req.url.startsWith('/') ? req.url.substring(1) : req.url
+    const path = req.url.startsWith('/') ? req.url.substring(1) : req.url
+    const { sourceName, pth } = extractSourceAndPath(path)
     const sourceObjects = await src.listSourcesWithoutSelf({ pageSize: 1000 })
-    const sourceNames = [...sourceObjects.list.map(src => src.name)]
+    const singleSource = sourceObjects.list.find(s => s.name === sourceName)
+    const sourceNames = singleSource ? [sourceName] : [...sourceObjects.list.map(src => src.name)]
+    const searchPath = singleSource ? pth : path
     const promises = {}
     const sourceApi = {}
     for (const sc of sourceNames) {
@@ -36,7 +43,7 @@ const listObjects = async (req, res) => {
         .then(
           (api) => {
             sourceApi[sc] = api
-            return api.list(pth)
+            return api.list(searchPath)
           },
           (err) => {
             logger.error(`error connecting to ${sc}: ${err}`)
@@ -50,21 +57,24 @@ const listObjects = async (req, res) => {
         if (!obj.processed) {
           obj.source = sc
           obj.sourcePath = obj.name
-          obj.basename = path.basename(obj.name)
+          obj.basename = basename(obj.name)
           obj.path = sc + '/' + obj.name
-          obj.mediaType = m.mediaType(obj.name)
+          obj.mediaType = mediaType(obj.name)
           obj.processed = true
         }
         return obj
       }))
     }
     for (const obj of listing) {
-      if (obj.mediaType !== m.UNKNOWN_MEDIA_TYPE) {
+      if (obj.mediaType !== UNKNOWN_MEDIA_TYPE) {
         if (!obj.meta) {
           obj.meta = await deriveMetadata(sourceApi[obj.source], obj.sourcePath)
         }
-        if (!obj.mediainfo && m.hasMediaInfo(obj) && obj.meta) {
+        if (!obj.mediainfo && hasMediaInfo(obj) && obj.meta) {
           obj.mediainfo = await deriveMediaInfo(obj.meta, `${obj.source}/${obj.sourcePath}`)
+        }
+        if (!obj.tags) {
+          obj.tags = await getTagsForPath(obj.sourcePath)
         }
       }
     }

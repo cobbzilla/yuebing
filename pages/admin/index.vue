@@ -19,6 +19,13 @@
     </div>
     <div>
       <h3>
+        <NuxtLink to="/admin/browse">
+          {{ messages.admin_title_source_browser }}
+        </NuxtLink>
+      </h3>
+    </div>
+    <div>
+      <h3>
         <NuxtLink to="/admin/indexes">
           {{ messages.admin_title_index_administration }}
         </NuxtLink>

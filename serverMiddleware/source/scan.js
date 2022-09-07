@@ -6,6 +6,8 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const m = require('../../shared/media')
 const xform = require('../asset/xform')
+const { extractSourceAndPathAndConnect } = require('../source/sourceUtil')
+
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
 const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
 
@@ -53,7 +55,7 @@ async function autoscan () {
         const scanPrefix = `${logPrefix} (source ${sourceName}) `
         try {
           CURRENT_AUTOSCAN_START = new Date()
-          scan(source, '', true)
+          scan(source, '', { autoscan: true })
             .then((transforms) => {
               logger.info(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
             },
@@ -71,8 +73,10 @@ async function autoscan () {
   }
 }
 
-async function scan (source, path = '', autoscan = false) {
+async function scan (source, path = '', opts = { autoscan: false }) {
   const results = await source.list(path, { recursive: true })
+  const force = opts && opts.force
+  const autoscan = opts && opts.autoscan
   const transforms = []
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
@@ -85,13 +89,13 @@ async function scan (source, path = '', autoscan = false) {
       transforms.push(result)
       if (autoscan) {
         // perform synchronously for autoscan
-        xform.transform(jobName).then((meta) => {
+        xform.transform(jobName, force).then((meta) => {
           logger.info(`SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
         setTimeout(() => {
-          xform.transform(jobName).then((meta) => {
+          xform.transform(jobName, force).then((meta) => {
             logger.info(`ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
@@ -101,4 +105,9 @@ async function scan (source, path = '', autoscan = false) {
   return transforms
 }
 
-module.exports = { scan, initAutoscan }
+const scanPath = async (sourceAndPath) => {
+  const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
+  return scan(source, pth, { autoscan: false, force: true })
+}
+
+module.exports = { scan, scanPath, initAutoscan }

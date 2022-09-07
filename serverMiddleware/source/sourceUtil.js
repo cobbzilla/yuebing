@@ -21,6 +21,7 @@ function SourceError (source) {
   } else {
     this.stack = (new Error(this.message)).stack
   }
+  SourceError.prototype.toString = () => JSON.stringify(this)
 }
 
 function SourceNotFoundError (source) {
@@ -165,6 +166,9 @@ const connectedSources = () => Object.keys(SOURCE_APIS)
 async function extractSourceAndPathAndConnect (from) {
   const { sourceName, pth } = s.extractSourceAndPath(from)
   const source = await connect(sourceName)
+  if (!source) {
+    throw new SourceError(`extractSourceAndPathAndConnect(${from}): error connecting to source`)
+  }
   source.name = sourceName
   return { source, pth }
 }

@@ -26,7 +26,7 @@ async function deleteUser (user) {
   await system.api.remove(u.userKey(user.username))
   if (system.deleteUserHandlers) {
     for (const handlerName of Object.keys(system.deleteUserHandlers)) {
-      system.deleteUserHandlers[handlerName](user)
+      await system.deleteUserHandlers[handlerName](user)
     }
   }
 }

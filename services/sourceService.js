@@ -1,4 +1,5 @@
 const shared = require('../shared')
+const { NO_CACHE_HEADER } = require('../shared')
 const a = require('./util')
 
 export const sourceService = {
@@ -12,8 +13,12 @@ export const sourceService = {
   updateSelectedThumbnail
 }
 
-function listObjects (path) {
-  return fetch(`/api/source/list/${path}`, a.authGet()).then(a.handleJsonResponse)
+function listObjects (path, noCache = null) {
+  const headers = []
+  if (noCache === true) {
+    headers[NO_CACHE_HEADER] = 'true'
+  }
+  return fetch(`/api/source/list/${path}`, a.authGet(headers)).then(a.handleJsonResponse)
 }
 
 function searchContent (query) {

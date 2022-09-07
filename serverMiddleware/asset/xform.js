@@ -1,3 +1,5 @@
+import Queue from 'bull'
+
 const { spawn } = require('node:child_process')
 
 const fs = require('fs')
@@ -7,7 +9,7 @@ const shellescape = require('shell-escape')
 const randomstring = require('randomstring')
 const c = require('../../shared')
 const m = require('../../shared/media')
-const s = require('../../shared/source')
+const { extractSourceAndPath } = require('../../shared/source')
 const util = require('../util/file')
 const cache = require('../util/cache')
 const system = require('../util/config').SYSTEM
@@ -466,9 +468,14 @@ async function createArtifacts (job, localSourceFile) {
     }
     const errCount = await system.countErrors(sourcePath, name)
     if (errCount >= MAX_XFORM_ERRORS) {
-      logger.warn(`createArtifacts: transcoding artifact for profile ${name} has failed too many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, giving up`)
-      q.recordJobEvent(job, `${artifactPrefix}_ERROR_err_count_exceeded`, `more than ${MAX_XFORM_ERRORS} errors, not retrying`)
-      continue
+      if (job.data.force) {
+        logger.warn(`createArtifacts: transcoding artifact for profile ${name} has many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, but force === true, so we are trying again`)
+        q.recordJobEvent(job, `${artifactPrefix}_INFO_err_count_exceeded_trying_anyway`, `${errCount} >= ${MAX_XFORM_ERRORS} errors, not retrying`)
+      } else {
+        logger.warn(`createArtifacts: transcoding artifact for profile ${name} has failed too many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, giving up`)
+        q.recordJobEvent(job, `${artifactPrefix}_ERROR_err_count_exceeded`, `${errCount} >= ${MAX_XFORM_ERRORS} errors, not retrying`)
+        continue
+      }
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_starting_xform_${mediaType}`)
@@ -572,14 +579,14 @@ async function ensureSourceDownloaded (job) {
   }
 }
 
-async function transform (sourcePath) {
+async function transform (sourcePath, force = false) {
   const logPrefix = `transform(${sourcePath}):`
   if (!m.hasProfiles(sourcePath)) {
     logger.warn(`${logPrefix} no profiles exist, not transforming`)
     return null
   }
 
-  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
+  const { sourceName, pth } = extractSourceAndPath(sourcePath)
   const source = await src.connect(sourceName)
 
   logger.debug(`${logPrefix}) fetching metadata`)
@@ -597,8 +604,58 @@ async function transform (sourcePath) {
   }
 
   logger.debug(`${logPrefix} adding to jobQueue: ${sourcePath}`)
-  q.enqueue(sourcePath)
+  q.enqueue(sourcePath, force)
   return derivedMeta
 }
+
+const DELETE_QUEUE_NAME = 'DeletePathQueue'
+const DELETE_JOB_NAME = 'DeletePathJob'
+const DELETE_CONCURRENCY = 5
+
+const DELETE_PROCESS_FUNCTION = async (job) => {
+  const asset = job.data.asset
+  try {
+    const removed = await system.api.remove(asset)
+    if (!removed) {
+      logger.warn(`DELETE_PROCESS_FUNCTION: error removing asset ${asset}: removed returned falsy`)
+    }
+  } catch (e) {
+    logger.error(`DELETE_PROCESS_FUNCTION: error removing asset ${asset}: ${e}`)
+    throw e
+  }
+}
+
+let DELETE_QUEUE = null
+const indexQueue = () => {
+  if (DELETE_QUEUE === null) {
+    DELETE_QUEUE = new Queue(DELETE_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
+    DELETE_QUEUE.process(DELETE_JOB_NAME, DELETE_CONCURRENCY, DELETE_PROCESS_FUNCTION)
+  }
+  return DELETE_QUEUE
+}
+
+function enqueue (asset) {
+  const job = {
+    ctime: Date.now(),
+    asset
+  }
+  indexQueue().add(DELETE_JOB_NAME, job)
+}
+
+const deleteAssetsForPath = async (sourceAndPath) => {
+  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
+  const meta = await manifest.deriveMetadata(sourceName, pth, { noCache: true })
+  if (!meta || !meta.assets) {
+    logger.error(`deleteAssetsForPath(${sourceAndPath}) no metadata found, or metadata had no assets`)
+  } else {
+    for (const profile of Object.keys(meta.assets)) {
+      for (const asset of meta.assets[profile]) {
+        enqueue(asset)
+      }
+    }
+  }
+}
+
+system.deletePathHandlers['xform'] = deleteAssetsForPath
 
 export { transform }

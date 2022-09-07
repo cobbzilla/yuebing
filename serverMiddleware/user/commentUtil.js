@@ -28,7 +28,8 @@ const addComment = async (user, path, comment) => {
     id: newId,
     comment,
     ctime: Date.now(),
-    author: user.username
+    author: user.username,
+    path
   }
   const commentJson = JSON.stringify(commentObject)
   await redis.sadd(commentCacheKeyForPath(path), commentJson)
@@ -139,18 +140,18 @@ const findCommentsForPath = async (user, path) => {
 }
 
 const deleteAllUserComments = async (username) => {
-  const comments = await system.api.list(commentsForUser(username), { recursive: true })
+  const commentFiles = await system.api.list(commentsForUser(username), { recursive: true })
   const promises = []
-  for (const comment of comments) {
+  for (const commentFile of commentFiles) {
     promises.push(new Promise(async (resolve) => {
-      const realCommentPath = system.api.safeReadFile(comment)
+      const realCommentPath = system.api.safeReadFile(commentFile.name)
       if (realCommentPath) {
-        if (!await system.api.remove(realCommentPath)) {
-          logger.warn(`deleteAllUserComments: error removing: ${realCommentPath}`)
+        if (!await system.api.remove(realCommentPath.trim())) {
+          logger.warn(`deleteAllUserComments(${username}): error removing: ${realCommentPath}`)
         }
       }
-      if (!await system.api.remove(comment)) {
-        logger.warn(`deleteAllUserComments: error removing: ${comment}`)
+      if (!await system.api.remove(commentFile.name)) {
+        logger.warn(`deleteAllUserComments(${username}): error removing: ${commentFile.name}`)
       }
       resolve()
     }))
@@ -158,6 +159,34 @@ const deleteAllUserComments = async (username) => {
   await Promise.all(promises)
 }
 
-system.deleteUserHandlers['comments'] = user => deleteAllUserComments(user.username)
+const deleteAllPathComments = async (path) => {
+  const commentFiles = await system.api.list(commentsForPath(path), { recursive: true })
+  const promises = []
+  for (const commentFile of commentFiles) {
+    promises.push(new Promise(async (resolve) => {
+      const commentJson = system.api.safeReadFile(commentFile.name)
+      if (!commentJson) {
+        logger.warn(`Error reading comment file: ${commentFile.name}`)
+        return
+      }
+      const comment = JSON.parse(commentJson)
+      const userRefComment = userCommentReferencePath(comment.author, comment.id)
+      const refMeta = await system.api.safeMetadata(userRefComment)
+      if (refMeta) {
+        if (!await system.api.remove(userRefComment)) {
+          logger.warn(`deleteAllPathComments(${path}): error removing userRefComment: ${userRefComment}`)
+        }
+      }
+      if (!await system.api.remove(commentFile.name)) {
+        logger.warn(`deleteAllPathComments(${path}): error removing: ${commentFile.name}`)
+      }
+      resolve()
+    }))
+  }
+  await Promise.all(promises)
+}
+
+system.deleteUserHandlers['comments'] = async user => deleteAllUserComments(user.username)
+system.deletePathHandlers['comments'] = async path => deleteAllPathComments(path)
 
 export { addComment, editComment, removeComment, findCommentsForPath }

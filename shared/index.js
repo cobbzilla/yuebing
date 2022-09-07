@@ -11,6 +11,7 @@ function getExtension (filename) {
   return filename.split('.').pop()
 }
 
+const NO_CACHE_HEADER = 'x-yb-nocache'
 const USER_SESSION_HEADER = 'x-yb-session'
 const USER_SESSION_QUERY_PARAM = 's'
 const ANON_LOCALE_STORAGE_KEY = 'anon_locale'

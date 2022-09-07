@@ -31,9 +31,21 @@ export const state = () => ({
   scanSourceSuccess: {},
   scanSourceError: {},
 
+  scanningPaths: {},
+  scanPathSuccess: {},
+  scanPathError: {},
+
   indexingSources: {},
   indexingStartSuccess: {},
   indexingStartError: {},
+
+  indexingPaths: {},
+  indexPathSuccess: {},
+  indexPathError: {},
+
+  deletingPaths: {},
+  deletePathSuccess: {},
+  deletePathError: {},
 
   indexingInfo: {},
   indexingInfoSuccess: {},
@@ -124,6 +136,33 @@ export const actions = {
       .then(
         (ok) => { commit('indexSourceSuccess', { ok, src }) },
         (error) => { commit('indexSourceFailure', { src, error }) }
+      )
+  },
+
+  scanPath ({ commit }, { sourceAndPath }) {
+    commit('scanPathRequest', { sourceAndPath })
+    adminService.scanPath(sourceAndPath)
+      .then(
+        (ok) => { commit('scanPathSuccess', { ok, sourceAndPath }) },
+        (error) => { commit('scanPathFailure', { sourceAndPath, error }) }
+      )
+  },
+
+  indexPath ({ commit }, { sourceAndPath }) {
+    commit('indexPathRequest', { sourceAndPath })
+    adminService.indexPath(sourceAndPath)
+      .then(
+        (ok) => { commit('indexPathSuccess', { ok, sourceAndPath }) },
+        (error) => { commit('indexPathFailure', { sourceAndPath, error }) }
+      )
+  },
+
+  deletePath ({ commit }, { sourceAndPath }) {
+    commit('deletePathRequest', { sourceAndPath })
+    adminService.deletePath(sourceAndPath)
+      .then(
+        (ok) => { commit('deletePathSuccess', { ok, sourceAndPath }) },
+        (error) => { commit('deletePathFailure', { sourceAndPath, error }) }
       )
   },
 
@@ -275,6 +314,30 @@ export const mutations = {
     state.scanSourceError = Object.assign({}, state.scanSourceError, update)
   },
 
+  scanPathRequest (state, { sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = true
+    state.scanningPaths = Object.assign({}, state.scanningPaths, update)
+  },
+  scanPathSuccess (state, { ok, sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.scanningPaths = Object.assign({}, state.scanningPaths, update)
+    update[sourceAndPath] = ok || true
+    state.scanPathSuccess = Object.assign({}, state.scanPathSuccess, update)
+    update[sourceAndPath] = null
+    state.scanPathError = Object.assign({}, state.scanPathError, update)
+  },
+  scanPathFailure (state, { sourceAndPath, error }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.scanningPaths = Object.assign({}, state.scanningPaths, update)
+    update[sourceAndPath] = false
+    state.scanPathSuccess = Object.assign({}, state.scanPathSuccess, update)
+    update[sourceAndPath] = error
+    state.scanPathError = Object.assign({}, state.scanPathError, update)
+  },
+
   indexSourceRequest (state, { src }) {
     const update = {}
     update[src] = true
@@ -297,6 +360,54 @@ export const mutations = {
     state.indexingStartSuccess = Object.assign({}, state.indexingStartSuccess, update)
     update[src] = error
     state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+  },
+
+  indexPathRequest (state, { sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = true
+    state.indexingPaths = Object.assign({}, state.indexingPaths, update)
+  },
+  indexPathSuccess (state, { ok, sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.indexingPaths = Object.assign({}, state.indexingPaths, update)
+    update[sourceAndPath] = ok || true
+    state.indexPathSuccess = Object.assign({}, state.indexPathSuccess, update)
+    update[sourceAndPath] = null
+    state.indexPathError = Object.assign({}, state.indexPathError, update)
+  },
+  indexPathFailure (state, { sourceAndPath, error }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.indexingPaths = Object.assign({}, state.indexingPaths, update)
+    update[sourceAndPath] = null
+    state.indexPathSuccess = Object.assign({}, state.indexPathSuccess, update)
+    update[sourceAndPath] = error
+    state.indexPathError = Object.assign({}, state.indexPathError, update)
+  },
+
+  deletePathRequest (state, { sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = true
+    state.deletingPaths = Object.assign({}, state.deletingPaths, update)
+  },
+  deletePathSuccess (state, { ok, sourceAndPath }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.deletingPaths = Object.assign({}, state.deletingPaths, update)
+    update[sourceAndPath] = ok || true
+    state.deletePathSuccess = Object.assign({}, state.deletePathSuccess, update)
+    update[sourceAndPath] = null
+    state.deletePathError = Object.assign({}, state.deletePathError, update)
+  },
+  deletePathFailure (state, { sourceAndPath, error }) {
+    const update = {}
+    update[sourceAndPath] = false
+    state.deletingPaths = Object.assign({}, state.deletingPaths, update)
+    update[sourceAndPath] = null
+    state.deletePathSuccess = Object.assign({}, state.deletePathSuccess, update)
+    update[sourceAndPath] = error
+    state.deletePathError = Object.assign({}, state.deletePathError, update)
   },
 
   indexInfoRequest (state, { src }) {},

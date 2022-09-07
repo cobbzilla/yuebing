@@ -74,7 +74,7 @@ const handleScan = sourceName => async (res, name) => {
   }
   try {
     const source = await s.connect(name)
-    const transforms = await scan.scan(source)
+    const transforms = await scan.scan(source, '', { autoscan: false })
     return api.okJson(res, transforms)
   } catch (e) {
     if (e instanceof s.SourceNotFoundError) {
