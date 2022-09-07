@@ -134,38 +134,59 @@ const tagsForPathDir = (sourceAndPath) => {
  */
 const addTag = async (sourceAndPath, tag) => {
   const normTag = normalizeTag(tag)
+  const logPrefix = `addTag(${sourceAndPath}, ${tag})`
   if (normTag.length < MIN_TAG_LENGTH) {
-    logger.warn(`addTag(${sourceAndPath}, ${tag}): tag is shorter than MIN_TAG_LENGTH (${MIN_TAG_LENGTH}), not adding`)
+    logger.warn(`${logPrefix} tag is shorter than MIN_TAG_LENGTH (${MIN_TAG_LENGTH}), not adding`)
     return
   }
   if (isAllDigitsOrNonWordChars(normTag)) {
-    logger.warn(`addTag(${sourceAndPath}, ${tag}): tag is all digits and/or non-word chars, not adding`)
+    logger.warn(`${logPrefix} tag is all digits and/or non-word chars, not adding`)
     return
   }
   if (stopWords().includes(normTag) || stopWords().includes(tag)) {
-    logger.warn(`addTag(${sourceAndPath}, ${tag}): tag is a stopword, not adding`)
+    logger.warn(`${logPrefix} tag is a stopword, not adding`)
     return
   }
   const encodedPath = objectEncodePath(sourceAndPath)
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
-  await system.api.writeFile(tagToContentPath, '~')
+  const tagToContentMeta = await system.api.safeMetadata(tagToContentPath)
+  if (!tagToContentMeta) {
+    logger.info(`${logPrefix} writing tagToContentPath=${tagToContentPath}`)
+    await system.api.writeFile(tagToContentPath, '~')
+  } else {
+    logger.info(`${logPrefix} tagToContentPath already exists: ${tagToContentPath}`)
+  }
 
   const contentToTagPath = `${tagsForPathDir(sourceAndPath)}/${normTag}`
-  await system.api.writeFile(contentToTagPath, '~')
+  const contentToTagMeta = await system.api.safeMetadata(contentToTagPath)
+  if (!contentToTagMeta) {
+    logger.info(`${logPrefix} writing contentToTagPath=${contentToTagPath}`)
+    await system.api.writeFile(contentToTagPath, '~')
+  } else {
+    logger.info(`${logPrefix} contentToTagPath already exists: ${contentToTagPath}`)
+  }
 }
 
 const removeTag = async (sourceAndPath, tag) => {
+  const logPrefix = `removeTag(${sourceAndPath}, ${tag})`
   const encodedPath = objectEncodePath(sourceAndPath)
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
-  await system.api.remove(tagToContentPath, { quiet: true })
+  logger.info(`${logPrefix} removing tagToContentPath=${tagToContentPath}`)
+  if (!(await system.api.remove(tagToContentPath, { quiet: true }))) {
+    logger.warn(`${logPrefix} error removing tagToContentPath=${tagToContentPath}`)
+  }
 
   const contentToTagPath = `${tagsForPathDir(sourceAndPath)}/${normalizeTag(tag)}`
-  await system.api.remove(contentToTagPath, { quiet: true })
+  logger.info(`${logPrefix} removing contentToTagPath=${contentToTagPath}`)
+  if (!(await system.api.remove(contentToTagPath, { quiet: true }))) {
+    logger.warn(`${logPrefix} error removing contentToTagPath=${contentToTagPath}`)
+  }
 }
 
 const removeAllTagsForPath = async (sourceAndPath) => {
+  const logPrefix = `removeAllTagsForPath(${sourceAndPath})`
   const encodedPath = objectEncodePath(sourceAndPath)
   const tagsDir = tagsForPathDir(sourceAndPath)
   const tags = await system.api.list(tagsDir, { recursive: true, quiet: true })
@@ -173,9 +194,15 @@ const removeAllTagsForPath = async (sourceAndPath) => {
     const tagNames = tags.map(obj => basename(obj.name))
     for (const tag of tagNames) {
       const tagToContentPath = `${tagDir(tag)}${encodedPath}`
-      await system.api.remove(tagToContentPath, { quiet: true })
+      logger.info(`${logPrefix} removing tagToContentPath=${tagToContentPath}`)
+      if (!(await system.api.remove(tagToContentPath, { quiet: true }))) {
+        logger.warn(`${logPrefix} error removing tagToContentPath=${tagToContentPath}`)
+      }
     }
-    await system.api.remove(tagsDir, { recursive: true, quiet: true })
+    logger.info(`${logPrefix} recursively removing tagsDir=${tagsDir}`)
+    if (!(await system.api.remove(tagsDir, { recursive: true, quiet: true }))) {
+      logger.warn(`${logPrefix} error removing tagsDir=${tagsDir}`)
+    }
   }
 }
 

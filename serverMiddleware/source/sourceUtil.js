@@ -9,7 +9,7 @@ const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
 
-setLogLevel('info')
+setLogLevel(process.env.MOBILETTO_LOG_LEVEL || 'info')
 
 const SOURCES_PREFIX = 'sources/'
 const sourceKey = name => name.startsWith(SOURCES_PREFIX) ? name : SOURCES_PREFIX + name + '.json'
