@@ -12,6 +12,36 @@ Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many adva
 * [yuebing on npm](https://www.npmjs.com/package/yuebing)
 * [yuebing on DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+# Read this in another language
+This README.md document has been translated, via [hokeylization](https://github.com/cobbzilla/hokeylization), into
+**[every language supported by Google Translate](https://cloud.google.com/translate/docs/languages)!**
+
+I'm certain it's not perfect, but I hope it's better than nothing!
+
+&nbsp;&nbsp;&nbsp;[🇸🇦 Arabic](docs/ar/README.md)
+&nbsp;&nbsp;&nbsp;[🇧🇩 Bengali](docs/bn/README.md)
+&nbsp;&nbsp;&nbsp;[🇩🇪 German](docs/de/README.md)
+&nbsp;&nbsp;&nbsp;[🇺🇸 English](docs/en/README.md)
+&nbsp;&nbsp;&nbsp;[🇪🇸 Spanish](docs/es/README.md)
+&nbsp;&nbsp;&nbsp;[🇫🇷 French](docs/fr/README.md)
+&nbsp;&nbsp;&nbsp;[🇹🇩 Hausa](docs/ha/README.md)
+&nbsp;&nbsp;&nbsp;[🇮🇳 Hindi](docs/hi/README.md)
+&nbsp;&nbsp;&nbsp;[🇮🇩 Indonesian](docs/id/README.md)
+&nbsp;&nbsp;&nbsp;[🇮🇹 Italian](docs/it/README.md)
+&nbsp;&nbsp;&nbsp;[🇯🇵 Japanese](docs/ja/README.md)
+&nbsp;&nbsp;&nbsp;[🇰🇷 Korean](docs/ko/README.md)
+&nbsp;&nbsp;&nbsp;[🇮🇳 Maranthi](docs/mr/README.md)
+&nbsp;&nbsp;&nbsp;[🇵🇱 Polish](docs/pl/README.md)
+&nbsp;&nbsp;&nbsp;[🇧🇷 Portuguese](docs/pt/README.md)
+&nbsp;&nbsp;&nbsp;[🇷🇺 Russian](docs/ru/README.md)
+&nbsp;&nbsp;&nbsp;[🇰🇪 Swahili](docs/sw/README.md)
+&nbsp;&nbsp;&nbsp;[🇵🇭 Tagalog](docs/tl/README.md)
+&nbsp;&nbsp;&nbsp;[🇹🇷 Turkish](docs/tr/README.md)
+&nbsp;&nbsp;&nbsp;[🇵🇰 Urdu](docs/ur/README.md)
+&nbsp;&nbsp;&nbsp;[🇻🇳 Vietnamese](docs/vi/README.md)
+&nbsp;&nbsp;&nbsp;[🇨🇳 Chinese](docs/zh/README.md)
+----
+
 # Contents
 * [Inspiration](#Inspiration)
 * [Features](#Features)
@@ -35,7 +65,7 @@ What we were looking for:
 * Streams in modern video formats, including adaptive bitrate
 * Videos play on any device, desktop or mobile
 * With a high-bandwidth connection, video quality is awesome; as good as it gets
-  * **Even with a crappy connection**, playback is decent quality and *doesn't skip or buffer*
+  * **Even with a bad connection**, playback is decent quality and *doesn't skip or buffer*
 * Encrypted storage, thus able to use public cloud storage solutions with some confidence
 * Stateless server: persist anything important to storage that is highly resilient
   * **I don't want to worry about backups!**
@@ -78,8 +108,6 @@ right?
   * OK, there's actually a lot of stuff that still sucks, and this is totally 1.0 software, but the stuff that works is pretty cool
 * <a href="https://www.patreon.com/cobbzilla">**Coming soon with your support**</a>:
   * Support for more media types (audio, images, etc)
-  * Auto-tagging and search
-  * Likes and comments
   * User-uploaded media
   * New "source type": Another Yuebing instance!
     * Federation between friendly instances: unified search, user accounts, etc
@@ -92,17 +120,17 @@ right?
 ## Logged-in user features
 * Browse media
 * Watch media!
-* Comment on media (coming soon!)
+* Add a comment, edit your comment, delete your comment!
 * Like media (coming soon!)
 * Invite friends
 * Set language to English or French (please add more translations!)
 * Edit account info
-* Delete account
+* Delete account, deletes everything that's yours including all your comments
 
 ## Admin user features
 * Edit media metadata, view thumbnails, change selected thumbnail
 * View media transform queue and job status
-* Start new scans of source media
+* Start new scans and indexes of source media
 
 ## Server/backend features
 * Transient-friendly, ZERO persistent/important data is stored within the container.

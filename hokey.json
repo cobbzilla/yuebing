@@ -1,0 +1,31 @@
+{
+  "inputLanguage": "en",
+  "languages": [
+    "ar", "bn", "de", "en", "es", "fr", "ha", "hi", "id", "it", "ja",
+    "ko", "mr", "pl", "pt", "ru", "sw", "tl", "tr", "ur", "vi", "zh"
+  ],
+  "hokey": [
+    {
+      "name": "messages",
+      "infile": "shared/messages/en_messages.js",
+      "outfile": "shared/messages/LANG_messages.js",
+      "handlebars": true
+    },
+    {
+      "name": "email templates",
+      "infile": "serverMiddleware/templates/email/en",
+      "outfile": "serverMiddleware/templates/email/LANG",
+      "handlebars": true
+    },
+    {
+      "name": "README",
+      "infile": "README.md",
+      "outfile": "docs/LANG/",
+      "excludes": ["docs/", "node_modules/", "\\.git/", "tmp/"],
+      "filter": "relativizeMarkdownLinks docs",
+      "force": true,
+      "markdown": true,
+      "index": "docs/README.md"
+    }
+  ]
+}
