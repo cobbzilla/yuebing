@@ -153,33 +153,32 @@ export default {
       'removingComment', 'removeCommentError', 'removedComment'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
-    loggedIn () { return this.user && this.userStatus && this.user.email }
+    loggedIn () { return this.user && this.userStatus && this.user.email },
+    objectPath () { return this.object.path || this.object.name || null }
   },
   watch: {
     object (newObject) {
-      console.log(`watch.object - received new object: ${JSON.stringify(newObject)}`)
-      if (newObject && newObject.path) {
-        this.findCommentsForPath({ path: newObject.path })
+      if (newObject && (newObject.path || newObject.name)) {
+        this.findCommentsForPath({ path: newObject.path || newObject.name })
       }
     },
     newComment (comment) {
-      console.log(`watch.newComment: got new comment: ${JSON.stringify(comment)}`)
-      if (comment) { this.findCommentsForPath({ path: this.object.path }) }
+      if (comment) { this.findCommentsForPath({ path: this.objectPath }) }
     },
     editedComment (comment) {
       if (comment) {
         this.selectedCommentId = null
         this.editCommentText = ''
-        this.findCommentsForPath({ path: this.object.path })
+        this.findCommentsForPath({ path: this.objectPath })
       }
     },
     removedComment (comment) {
-      if (comment) { this.findCommentsForPath({ path: this.object.path }) }
+      if (comment) { this.findCommentsForPath({ path: this.objectPath }) }
     }
   },
   created () {
-    if (this.object && this.object.path) {
-      this.findCommentsForPath({ path: this.object.path })
+    if (this.object && this.objectPath) {
+      this.findCommentsForPath({ path: this.objectPath })
     }
   },
   methods: {
@@ -187,14 +186,14 @@ export default {
       'findCommentsForPath', 'createComment', 'editComment', 'removeComment'
     ]),
     doAddComment () {
-      const path = this.object.path
+      const path = this.objectPath
       const comment = this.newCommentText
       this.createComment({ path, comment })
       this.newCommentText = ''
     },
     doEditComment () {
       if (this.selectedCommentId) {
-        const path = this.object.path
+        const path = this.objectPath
         const commentId = this.selectedCommentId
         const comment = this.editCommentText
         const messages = this.messages
@@ -213,7 +212,7 @@ export default {
     },
     doRemoveComment (commentId) {
       if (commentId) {
-        const path = this.object.path
+        const path = this.objectPath
         const messages = this.messages
         this.removeComment({ path, commentId, messages })
       }

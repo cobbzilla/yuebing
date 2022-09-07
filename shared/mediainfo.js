@@ -9,32 +9,38 @@ const MEDIAINFO_FIELDS = {
   title: {
     sort: 1000,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Title']
+    find: ['$.media.track[?(@.@type=="General")].Title'],
+    major: true
   },
   artist: {
     sort: 1010,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Artist']
+    find: ['$.media.track[?(@.@type=="General")].Artist'],
+    major: true
   },
   album_artist: {
     sort: 1020,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Album_Artist']
+    find: ['$.media.track[?(@.@type=="General")].Album_Artist'],
+    major: true
   },
   author: {
     sort: 1030,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Author']
+    find: ['$.media.track[?(@.@type=="General")].Author'],
+    major: true
   },
   composer: {
     sort: 1040,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Composer']
+    find: ['$.media.track[?(@.@type=="General")].Composer'],
+    major: true
   },
   year: {
     sort: 1050,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Year']
+    find: ['$.media.track[?(@.@type=="General")].Year'],
+    major: true
   },
   copyright: {
     sort: 1060,
@@ -44,44 +50,52 @@ const MEDIAINFO_FIELDS = {
   album: {
     sort: 1070,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Album']
+    find: ['$.media.track[?(@.@type=="General")].Album'],
+    major: true
   },
   movie: {
     sort: 1080,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Movie']
+    find: ['$.media.track[?(@.@type=="General")].Movie'],
+    major: true
   },
   description: {
     sort: 1090,
     editable: true,
     find: ['$.media.track[?(@.@type=="General")].Description'],
+    major: true,
     disableWholeFieldIndex: true
   },
   comment: {
     sort: 1100,
     editable: true,
     find: ['$.media.track[?(@.@type=="General")].Comment'],
+    major: true,
     disableWholeFieldIndex: true
   },
   genre: {
     sort: 1110,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Genre']
+    find: ['$.media.track[?(@.@type=="General")].Genre'],
+    major: true
   },
   location: {
     sort: 1120,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Location']
+    find: ['$.media.track[?(@.@type=="General")].Location'],
+    major: true
   },
   show: {
     sort: 1130,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Show']
+    find: ['$.media.track[?(@.@type=="General")].Show'],
+    major: true
   },
   episode: {
     sort: 1140,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Episode']
+    find: ['$.media.track[?(@.@type=="General")].Episode'],
+    major: true
   },
   episode_sort: {
     sort: 1150,
@@ -92,7 +106,8 @@ const MEDIAINFO_FIELDS = {
   season: {
     sort: 1160,
     editable: true,
-    find: ['$.media.track[?(@.@type=="General")].Season']
+    find: ['$.media.track[?(@.@type=="General")].Season'],
+    major: true
   },
   lyrics: {
     sort: 1170,
@@ -102,6 +117,7 @@ const MEDIAINFO_FIELDS = {
   tags: {
     sort: 1500,
     editable: true,
+    major: true,
     find: ['$.media.track[?(@.@type=="General")].Tags'] // fixme: is this correct?
   },
 
@@ -114,7 +130,8 @@ const MEDIAINFO_FIELDS = {
       '$.media.track[?(@.@type=="General")].Duration_String',
       '$.media.track[?(@.@type=="General")].Duration'
     ],
-    disableIndex: true
+    disableIndex: true,
+    major: true
   },
   width: {
     sort: 2010,
@@ -171,7 +188,8 @@ const MEDIAINFO_FIELDS = {
   dateEncoded: {
     sort: 3060,
     find: ['$.media.track[?(@.@type=="General")].File_Modified_Date'],
-    disableIndex: true
+    disableIndex: true,
+    major: true
   }
 }
 
@@ -183,6 +201,22 @@ function mediaInfoFields () {
     _mediaInfoFields = Object.keys(MEDIAINFO_FIELDS).sort(sortInfoFields)
   }
   return _mediaInfoFields
+}
+
+let _majorFields = null
+function majorMediaInfoFields () {
+  if (_majorFields === null) {
+    _majorFields = Object.keys(MEDIAINFO_FIELDS).filter(f => MEDIAINFO_FIELDS[f].major)
+  }
+  return _majorFields
+}
+
+let _minorFields = null
+function minorMediaInfoFields () {
+  if (_minorFields === null) {
+    _minorFields = Object.keys(MEDIAINFO_FIELDS).filter(f => typeof MEDIAINFO_FIELDS[f].major === 'undefined' || !MEDIAINFO_FIELDS[f].major)
+  }
+  return _minorFields
 }
 
 let _editableMediaInfoFields = null
@@ -207,9 +241,6 @@ function mediaInfoField (field, mediainfo, userMediainfo) {
         return typeof value === 'string' ? value : JSON.stringify(value)
       }
     }
-    // console.log(`mediaInfoField: field not found in mediainfo: ${field}`)
-  } else {
-    // console.warn(`mediaInfoField: invalid field: ${field}`)
   }
   return null
 }
@@ -281,6 +312,7 @@ function findThumbnails (obj) {
 
 export {
   MEDIAINFO_FIELDS,
-  mediaInfoFields, editableMediaInfoFields, mediaInfoField,
+  mediaInfoFields, majorMediaInfoFields, minorMediaInfoFields,
+  editableMediaInfoFields, mediaInfoField,
   hasAssets, findAsset, findThumbnail, findThumbnails
 }

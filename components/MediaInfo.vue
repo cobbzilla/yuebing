@@ -4,22 +4,36 @@
       <v-col>
         <div v-if="!showEditor">
           <v-container>
-            <div v-for="(field, index) in infoFields" :key="index">
-              <v-row v-if="mediaInfo && mediaInfo[field]" class="mediaInfoDisplay">
-                <v-col>
-                  {{ messages[`label_mediainfo_${field}`] }}
-                </v-col>
-                <v-col>
-                  {{ mediaInfo[field] }}
-                </v-col>
-              </v-row>
-            </div>
+            <v-row v-for="(field, index) in majorFields" :key="index" class="mediaInfoDisplay">
+              <v-col v-if="mediaInfo && mediaInfo[field]" >
+                {{ messages[`label_mediainfo_${field}`] }}
+              </v-col>
+              <v-col v-if="mediaInfo && mediaInfo[field]" >
+                {{ mediaInfo[field] }}
+              </v-col>
+            </v-row>
+            <v-row v-for="(field, index) in minorFields" :key="index" class="mediaInfoMinorField">
+              <v-col v-if="mediaInfo && mediaInfo[field]" >
+                <small>{{ messages[`label_mediainfo_${field}`] }}</small>
+              </v-col>
+              <v-col v-if="mediaInfo && mediaInfo[field]" >
+                <small>{{ mediaInfo[field] }}</small>
+              </v-col>
+            </v-row>
           </v-container>
         </div>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="minorFieldToggle">
       <v-col>
+        <v-btn @click.stop="toggleMinorFields">
+          <v-icon v-if="showMinorFields" dense>
+            mdi-chevron-up
+          </v-icon>
+          <v-icon v-else dense>
+            mdi-chevron-down
+          </v-icon>
+        </v-btn>
         <v-btn v-if="canEditMediainfo" class="btn btn-primary" @click.stop="toggleEditButton()">
           <v-icon v-if="showEditor">
             mdi-close
@@ -60,9 +74,11 @@
 import { mapState, mapActions } from 'vuex'
 
 import {
-  mediaInfoFields, editableMediaInfoFields
+  mediaInfoFields, majorMediaInfoFields, minorMediaInfoFields, editableMediaInfoFields
 } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
+
+const opath = obj => obj.path || obj.name || null
 
 export default {
   name: 'MediaInfo',
@@ -74,44 +90,49 @@ export default {
       mediaInfo: null,
       origInfoFieldValues: {},
       infoFieldValues: {},
-      showEditor: false
+      showEditor: false,
+      showMinorFields: false
     }
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-    ...mapState('source', ['assetData', 'userMediaInfo']),
+    ...mapState('source', ['userMediaInfo']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     infoFields () { return mediaInfoFields() },
+    majorFields () { return majorMediaInfoFields() },
+    hasAnyMinorFieldValues () {
+      return minorMediaInfoFields()
+        .map(f => this.mediaInfo && this.mediaInfo[f])
+        .find(f => f !== null)
+    },
+    minorFields () {
+      return this.showMinorFields && this.hasAnyMinorFieldValues ? minorMediaInfoFields() : []
+    },
     canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn && this.user.admin },
     editableInfoFields () { return editableMediaInfoFields() }
   },
   watch: {
     object (newObject) {
-      if (newObject) {
-        this.refreshMediaInfo()
-      }
+      if (newObject) { this.refreshMediaInfo() }
     },
     userMediaInfo (newInfo) {
-      if (this.object && this.object.path && newInfo[this.object.path]) {
-        this.mediaInfo = newInfo[this.object.path]
+      if (this.object && opath(this.object) && newInfo[opath(this.object)]) {
+        this.mediaInfo = Object.assign({}, newInfo[opath(this.object)])
+        this.$emit('update', this.mediaInfo)
         Object.keys(this.mediaInfo).forEach((prop) => {
           this.infoFieldValues[prop] = this.mediaInfo[prop]
         })
       }
     }
   },
-  created () {
-    this.refreshMediaInfo()
-  },
+  created () { this.refreshMediaInfo() },
   methods: {
-    ...mapActions('source', ['fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
+    ...mapActions('source', ['fetchUserMediaInfo', 'updateUserMediaInfo']),
     refreshMediaInfo () {
       const obj = this.object
-      if (obj && obj.path) {
-        this.fetchUserMediaInfo({ path: obj.path })
-      } else {
-        // console.log('refreshMediaInfo: object has no path, cannot load')
+      if (obj && opath(this.object)) {
+        this.fetchUserMediaInfo({ path: opath(this.object) })
       }
     },
     toggleEditButton () {
@@ -126,8 +147,9 @@ export default {
         })
       }
     },
+    toggleMinorFields () { this.showMinorFields = !this.showMinorFields },
     updateMediaInfoValues () {
-      const path = this.object.path
+      const path = opath(this.object)
       const values = this.infoFieldValues
       this.updateUserMediaInfo({ path, values })
       this.showEditor = false
@@ -139,5 +161,11 @@ export default {
 <style lang="scss" scoped>
 .mediaInfoDisplay {
   white-space: nowrap;
+}
+.mediaInfoMinorField {
+  height: 20px;
+}
+.minorFieldToggle {
+  text-align: right;
 }
 </style>

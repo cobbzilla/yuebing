@@ -20,7 +20,7 @@ export const state = () => ({
 
 export const actions = {
   findCommentsForPath ({ commit }, { path }) {
-    console.log(`findCommentsForPath - finding for path: ${path}`)
+    // console.log(`findCommentsForPath - finding for path: ${path}`)
     commit('findCommentsForPathRequest')
     commentService.fetchCommentsForPath(path)
       .then(

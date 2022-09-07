@@ -11,8 +11,8 @@
       <v-col v-if="isReady">
         <VideoPlayer :options="videoOptions" />
       </v-col>
-      <v-col v-if="mediaInfo()">
-        <MediaInfo :object="object" />
+      <v-col>
+        <MediaInfo :object="object" @update="onMediaInfoUpdate" />
       </v-col>
     </v-row>
     <v-row>
@@ -46,9 +46,9 @@ import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
 import {
   FILE_TYPE, VIDEO_MEDIA_TYPE,
-  mediaProfileByName, isMediaInfoJsonProfile, hasMediaInfo, objectDecodePath
+  mediaProfileByName, objectDecodePath
 } from '@/shared/media'
-import { mediaInfoField, hasAssets, findThumbnail } from '@/shared/mediainfo'
+import { hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
 function hasSourceVideos (vid) {
@@ -64,8 +64,7 @@ export default {
     return {
       name: null,
       object: {},
-      mediaInfoJsonPath: null,
-      mediaInfoJson: null,
+      mediaInfo: null,
       error: null,
       videoOptions: {
         autoplay: false,
@@ -84,21 +83,17 @@ export default {
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     loggedIn () { return this.user && this.userStatus && this.user.email },
     videoTitle () {
-      return this.object && this.object.name
-        ? chopFileExt(basename(this.object.name))
-        : this.object.path
-          ? chopFileExt(basename(this.object.path))
-          : null
+      return this.mediaInfo && this.mediaInfo.title
+        ? this.mediaInfo.title
+        : this.object && this.object.name
+          ? chopFileExt(basename(this.object.name))
+          : this.object.path
+            ? chopFileExt(basename(this.object.path))
+            : null
     },
     hasSources () { return hasSourceVideos(this) },
     isReady () {
       return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
-    },
-    hasMediaInfoJsonPath () { return this.object && this.mediaInfoJsonPath },
-    getUserMediaInfo () {
-      return this.name && this.userMediaInfo && this.userMediaInfo[this.name]
-        ? this.userMediaInfo[this.name]
-        : {}
     }
   },
   watch: {
@@ -113,21 +108,6 @@ export default {
       }
       this.object = Object.assign({}, this.object) // force vue refresh
       this.refreshMeta()
-    },
-    assetData (newAssetData) {
-      if (this.hasMediaInfoJsonPath && newAssetData[this.mediaInfoJsonPath]) {
-        this.mediaInfoJson = newAssetData[this.mediaInfoJsonPath]
-        const width = this.mediaInfoField('width')
-        const height = this.mediaInfoField('height')
-        const aspectRatio = width / height
-        if (height && width) {
-          this.videoOptions.width = Math.min(width, Math.floor(document.documentElement.clientWidth * 0.7))
-          this.videoOptions.height = Math.floor(this.videoOptions.width / aspectRatio)
-          // console.log(`watch:assets -- set video width/height to ${this.videoOptions.width}/${this.videoOptions.height} from original ${width}/${height}`)
-        }
-      } else {
-        // console.log(`watch:assets: ${this.mediaInfoJsonPath} was not found in ${JSON.stringify(Object.keys(newAssetData))}`)
-      }
     }
   },
   created () {
@@ -158,21 +138,12 @@ export default {
   },
   methods: {
     ...mapActions('source', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
-
     refreshMeta () {
-      if (this.name) {
-        // get user media info
-        this.fetchUserMediaInfo({ path: this.name })
-      }
       const sources = this.videoOptions.sources
       if (hasAssets(this.object) && !this.hasSources) {
         Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
           const assets = this.object.meta.assets[assetProfileName]
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
-          if (isMediaInfoJsonProfile(mediaProfile)) {
-            const path = this.mediaInfoJsonPath = assets[0]
-            this.fetchAsset({ path })
-          }
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
               const src = proxyMediaUrl(asset, this.user, this.userStatus)
@@ -187,11 +158,15 @@ export default {
         // console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
       }
     },
-    mediaInfo () { return hasMediaInfo(this.object) },
     mediaInfoField (field) {
-      return this.mediaInfoJson ? mediaInfoField(field, this.mediaInfoJson, this.getUserMediaInfo) : null
+      return this.mediaInfo && this.mediaInfo[field] ? this.mediaInfo[field] : null
     },
-    thumbnail () { return findThumbnail(this.object) }
+    thumbnail () { return findThumbnail(this.object) },
+    onMediaInfoUpdate (newMediaInfo) {
+      if (newMediaInfo) {
+        this.mediaInfo = newMediaInfo
+      }
+    }
   }
 }
 </script>
