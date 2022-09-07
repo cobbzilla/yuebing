@@ -99,6 +99,7 @@ const hardSetCachedMetadata = async (sourceAndPath, meta) => {
   await setCachedMetadata(sourceAndPath, meta)
 }
 
+const FINISHED_MANIFEST_CACHE_EXPIRATION = 1000 * 60 * 60 * 24 * 90 // 90 days, it's finished after all
 const setMetadataFinished = async (sourceAndPath) => await redis.expire(redisMetaCacheKey(sourceAndPath), FINISHED_MANIFEST_CACHE_EXPIRATION)
 
 const thumbFile = (sourceAndPath) => system.assetsDir(sourceAndPath) + c.SELECTED_THUMBNAIL_FILE
