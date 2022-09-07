@@ -38,6 +38,8 @@ const registerPath = async (sourceAndPath, meta) => {
   await system.api.writeFile(pathIndex, JSON.stringify(meta))
 
   // start with fresh set of tags
+  const logPrefix = `registerPath(${sourceAndPath})`
+  logger.debug(`${logPrefix} removing all tags`)
   await removeAllTagsForPath(sourceAndPath)
 
   // find tags in filename
@@ -50,6 +52,7 @@ const registerPath = async (sourceAndPath, meta) => {
   // add tag for media type ('video', etc)
   foundTags.push(mediaType(sourceAndPath))
 
+  logger.debug(`${logPrefix} finding mediainfo`)
   const userMediaInfo = await deriveMediaInfo(meta, sourceAndPath, { cache: false })
   if (userMediaInfo) {
     for (const field of mediaInfoFields()) {
@@ -70,6 +73,7 @@ const registerPath = async (sourceAndPath, meta) => {
     .filter(w => !stops.includes(w.toLowerCase()))
 
   // add tags
+  logger.debug(`${logPrefix} adding tags: ${JSON.stringify(tagsToAdd)}`)
   for (const tag of tagsToAdd) {
     try {
       await addTag(sourceAndPath, tag)
@@ -77,6 +81,7 @@ const registerPath = async (sourceAndPath, meta) => {
       logger.error(`registerPath(${sourceAndPath}): error adding tag: ${tag}: ${e}`)
     }
   }
+  logger.debug(`${logPrefix} FINISHED`)
   return meta
 }
 
