@@ -5,7 +5,6 @@ const { extractSourceAndPath } = require('../../shared/source')
 const { mediaType, objectEncodePath, objectDecodePath } = require('../../shared/media')
 const { MEDIAINFO_FIELDS, mediaInfoFields } = require('../../shared/mediainfo')
 const { stopWords } = require('../../shared/locale')
-const { connect } = require('../source/sourceUtil')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
@@ -190,54 +189,7 @@ const getPathsWithTag = async (tag) => {
   return paths
 }
 
-const REINDEX_INFO_SET_KEY = 'reindex_info_'
-const REINDEX_INFO_EXPIRATION = 1000 * 60 * 60 * 24
-
-const reindex = async (source) => {
-  const api = await connect(source)
-  const infoSetKey = REINDEX_INFO_SET_KEY + source
-  let expirationSet = false
-  const indexer = (obj) => {
-    const sourceAndPath = `${source}/${obj.name}`
-    deriveMetadataFromSourceAndPath(sourceAndPath, { noCache: true }).then(
-      (meta) => {
-        if (meta.finished || (meta.status && meta.status.ready)) {
-          registerPath(sourceAndPath, meta).then(() => {
-            redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\tsuccess`).then(() => {
-              logger.info(`reindex(${source}): successfully registered path: ${sourceAndPath}`)
-              if (!expirationSet) {
-                expirationSet = true
-                redis.expire(infoSetKey, REINDEX_INFO_EXPIRATION)
-              }
-            })
-          })
-        }
-      },
-      (err) => {
-        logger.error(`reindex(${source}): error loading metadata for path: ${sourceAndPath}: ${err}`)
-        redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\t${err}`).then(() => {
-          if (!expirationSet) {
-            expirationSet = true
-            redis.expire(infoSetKey, REINDEX_INFO_EXPIRATION)
-          }
-        })
-      }
-    )
-  }
-  api.list('', { recursive: true, visitor: indexer })
-}
-
-const reindexInfo = async source => (await redis.smembers(REINDEX_INFO_SET_KEY + source))
-  .map(m => {
-    const parts = m.split('\t')
-    return {
-      sourceAndPath: parts[0],
-      ctime: parts[1],
-      status: parts[2]
-    }})
-  .sort((o1, o2) => o1.ctime - o2.ctime)
-
 export {
   registerPath, addTag, removeTag, tagDir,
-  getTagsForPath, getPathsWithTag, reindex, reindexInfo
+  getTagsForPath, getPathsWithTag
 }
