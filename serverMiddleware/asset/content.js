@@ -41,14 +41,13 @@ const pathRegistrationAge = async (sourceAndPath) => {
 const registerPath = async (sourceAndPath, meta) => {
   const logPrefix = `registerPath(${sourceAndPath})`
 
-  // write to path index
-  const pathIndex = getPathIndex(sourceAndPath)
-  logger.debug(`${logPrefix} writing pathIndex ${pathIndex}`)
-  await system.api.writeFile(pathIndex, JSON.stringify(meta))
-
   // start with fresh set of tags
   logger.debug(`${logPrefix} removing all tags`)
-  await removeAllTagsForPath(sourceAndPath)
+  try {
+    await removeAllTagsForPath(sourceAndPath)
+  } catch (e) {
+    logger.error(`${logPrefix} error removing tags: ${e}`)
+  }
 
   // find tags in filename
   // add every word in the path
@@ -80,10 +79,20 @@ const registerPath = async (sourceAndPath, meta) => {
     .filter(w => w.length >= MIN_TAG_LENGTH && !isAllDigitsOrNonWordChars(w))
     .filter(w => !stops.includes(w.toLowerCase()))
 
+  // write to path index
+  const pathIndex = getPathIndex(sourceAndPath)
+  logger.debug(`${logPrefix} writing pathIndex ${pathIndex}`)
+  try {
+    await system.api.writeFile(pathIndex, JSON.stringify(meta))
+  } catch (e) {
+    logger.error(`${logPrefix} error writing pathIndex: ${pathIndex}: ${e}`)
+    throw e
+  }
+
   // add tags
-  logger.debug(`${logPrefix} adding tags: ${JSON.stringify(tagsToAdd)}`)
   for (const tag of tagsToAdd) {
     try {
+      logger.debug(`${logPrefix} adding tag: ${tag}`)
       await addTag(sourceAndPath, tag)
     } catch (e) {
       logger.error(`registerPath(${sourceAndPath}): error adding tag: ${tag}: ${e}`)
@@ -159,7 +168,7 @@ const removeTag = async (sourceAndPath, tag) => {
 const removeAllTagsForPath = async (sourceAndPath) => {
   const encodedPath = objectEncodePath(sourceAndPath)
   const tagsDir = tagsForPathDir(sourceAndPath)
-  const tags = await system.api.list(tagsDir, { recursive: true })
+  const tags = await system.api.list(tagsDir, { recursive: true, quiet: true })
   if (tags && tags.length > 0) {
     const tagNames = tags.map(obj => basename(obj.name))
     for (const tag of tagNames) {
