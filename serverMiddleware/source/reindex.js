@@ -26,19 +26,30 @@ const REINDEX_PROCESS_FUNCTION = async (job) => {
       (meta) => {
         if (meta.finished || (meta.status && meta.status.ready)) {
           registerPath(sourceAndPath, meta).then(() => {
-            redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\tsuccess`).then(() => {
-              logger.info(`reindex(${source}): successfully registered path: ${sourceAndPath}`)
-              if (!expirationSet) {
-                expirationSet = true
-                redis.expire(infoSetKey, REINDEX_INFO_EXPIRATION)
-              }
-              resolve(meta)
+              redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\tsuccess`).then(() => {
+                  logger.info(`reindex(${source}) registered path: ${sourceAndPath}`)
+                  if (!expirationSet) {
+                    expirationSet = true
+                    redis.expire(infoSetKey, REINDEX_INFO_EXPIRATION)
+                  }
+                  logger.info(`reindex(${source}) RESOLVED: ${sourceAndPath}`)
+                  resolve(meta)
+                },
+                (err) => {
+                  const message = `reindex(${source}) error calling redis.sadd(${infoSetKey}) for ${sourceAndPath}: ${err}`
+                  logger.error(message)
+                  reject(message)
+                })
+            },
+            (err) => {
+              const message = `reindex(${source}) error calling registerPath for ${sourceAndPath}: ${err}`
+              logger.error(message)
+              reject(message)
             })
-          })
         }
       },
       (err) => {
-        logger.error(`reindex(${source}): error loading metadata for path: ${sourceAndPath}: ${err}`)
+        logger.error(`reindex(${source}) error loading metadata for path: ${sourceAndPath}: ${err}`)
         redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\t${err}`).then(() => {
           if (!expirationSet) {
             expirationSet = true
