@@ -21,8 +21,14 @@ async function findUsers (query) {
   return q.search(allUsers, query, searchMatches, sharedUser.sortByField)
 }
 
-function deleteUser (email) {
-  return system.api.remove(u.userKey(email))
+async function deleteUser (user) {
+  await system.api.remove(u.emailKey(user.email))
+  await system.api.remove(u.userKey(user.username))
+  if (system.deleteUserHandlers) {
+    for (const handlerName of Object.keys(system.deleteUserHandlers)) {
+      system.deleteUserHandlers[handlerName](user)
+    }
+  }
 }
 
 export { findUsers, deleteUser }

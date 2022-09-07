@@ -14,7 +14,7 @@ export default {
         return api.forbidden(res)
       }
       try {
-        userAdmin.deleteUser(caller.email).then(
+        userAdmin.deleteUser(caller).then(
           () => {
             u.cancelSessions(caller)
             api.okJson(res, { deleted: true })

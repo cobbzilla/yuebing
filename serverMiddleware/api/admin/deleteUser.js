@@ -22,7 +22,7 @@ export default {
           if (user.email === caller.email) {
             return api.validationFailed(res, { email: ['cannotDeleteSelf'] })
           }
-          userAdmin.deleteUser(user.email).then(
+          userAdmin.deleteUser(user).then(
             () => api.okJson(res, { deleted: true }),
             (err) => {
               const message = `deleteUser: error calling userAdmin.deleteUser: ${err}`

@@ -32,6 +32,8 @@ const listCommentsHandler = async (user, path) => {
         }
         AVATAR_CACHE[c.author] = c.avatar
       }
+    } catch (e) {
+      logger.error(`listCommentsHandler: error finding user for comment: ${c.author}: ${e}`)
     } finally {
       resolve()
     }

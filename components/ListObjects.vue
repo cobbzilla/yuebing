@@ -8,7 +8,14 @@
     <v-row>
       <v-col>
         <v-container fluid>
-          <v-row v-if="!searchResults || searchResults.length === 0">
+          <v-row v-if="searching">
+            <v-col>
+              <h2>
+                {{ messages.info_search_searching }}
+              </h2>
+            </v-col>
+          </v-row>
+          <v-row v-else-if="!searchResults || searchResults.length === 0">
             <v-col>
               <h2>
                 {{ messages.info_search_no_results }}
@@ -58,7 +65,7 @@ import { mapState, mapActions } from 'vuex'
 
 import SearchBar from '@/components/SearchBar'
 
-import { proxyMediaUrl, chopFileExt, splitSearchTerms } from '@/shared'
+import { proxyMediaUrl, splitSearchTerms } from '@/shared'
 import { objectEncodePath } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'

@@ -44,8 +44,8 @@ export const actions = {
         }
       )
   },
-  editComment ({ commit }, { path, commentId, comment }) {
-    commit('editCommentRequest')
+  editComment ({ commit }, { path, commentId, comment, messages }) {
+    commit('editCommentRequest', { commentId, messages })
     commentService.editComment(path, commentId, comment)
       .then(
         (updatedComment) => {
@@ -56,9 +56,9 @@ export const actions = {
         }
       )
   },
-  removeComment ({ commit }, { path, comment }) {
+  removeComment ({ commit }, { path, commentId }) {
     commit('removeCommentRequest')
-    commentService.removeComment(path, comment)
+    commentService.removeComment(path, commentId)
       .then(
         (removed) => {
           commit('removeCommentSuccess', { removed })
@@ -97,8 +97,14 @@ export const mutations = {
     state.newCommentError = error
   },
 
-  editCommentRequest (state) {
+  editCommentRequest (state, { commentId, messages }) {
     state.editingComment = true
+    if (state.comments) {
+      const found = state.comments.find(c => c.id === commentId)
+      if (found) {
+        found.comment = messages.label_updating_comment
+      }
+    }
   },
   editCommentSuccess (state, { updatedComment }) {
     state.editingComment = false

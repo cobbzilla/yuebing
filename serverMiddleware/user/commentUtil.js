@@ -38,15 +38,25 @@ const addComment = async (user, path, comment) => {
   return commentObject
 }
 
+let ADMIN_USERNAME = null
+const adminUsername = () => {
+  if (ADMIN_USERNAME === null) {
+    ADMIN_USERNAME = system.privateConfig.admin.user.username
+  }
+  return ADMIN_USERNAME
+}
+
+const isAdmin = user => user.username === adminUsername()
+
 const editComment = async (user, path, commentId, comment) => {
   const updatePath = pathToSingleComment(path, commentId)
-  const existingCommentJson = system.api.safeReadFile(updatePath)
+  const existingCommentJson = await system.api.safeReadFile(updatePath)
   if (!existingCommentJson) {
     logger.warn(`editComment(${path}, ${commentId}): comment not found`)
     return null
   }
   const existingComment = JSON.parse(existingCommentJson)
-  if (existingComment.author !== user.username && !user.admin) {
+  if (existingComment.author !== user.username && !isAdmin(user)) {
     logger.warn(`editComment(${path}, ${commentId}): user ${user.username} cannot edit comment by existingComment.author=${existingComment.author}`)
     return null
   }
@@ -58,14 +68,14 @@ const editComment = async (user, path, commentId, comment) => {
   const updatedComment = Object.assign({}, existingComment, { comment, mtime: Date.now() })
   const updatedCommentJson = JSON.stringify(updatedComment)
   await redis.sadd(commentCacheKeyForPath(path), updatedCommentJson)
-  await system.api.write(updatePath, updatedCommentJson)
+  await system.api.writeFile(updatePath, updatedCommentJson)
   logger.info(`editComment(${path}): updated comment: ${updatedCommentJson}`)
   return updatedComment
 }
 
 const removeComment = async (user, path, commentId) => {
   const updatePath = pathToSingleComment(path, commentId)
-  const existingCommentJson = system.api.safeReadFile(updatePath)
+  const existingCommentJson = await system.api.safeReadFile(updatePath)
   if (!existingCommentJson) {
     logger.warn(`removeComment(${path}, ${commentId}): comment not found`)
     return null
@@ -75,15 +85,24 @@ const removeComment = async (user, path, commentId) => {
     logger.warn(`removeComment(${path}, ${commentId}): existingComment.id ${existingComment.id} within JSON object did not match file path id: ${commentId}`)
     return null
   }
-  if (existingComment.author !== user.username && !user.admin) {
+  if (existingComment.author !== user.username && !isAdmin(user)) {
     logger.warn(`removeComment(${path}, ${commentId}): user ${user.username} cannot remove comment by existingComment.author=${existingComment.author}`)
     return null
   }
   await redis.srem(commentCacheKeyForPath(path), existingCommentJson)
-  await system.api.remove(updatePath)
-  const removed = await system.api.remove(userCommentReferencePath(user, commentId))
-  logger.info(`editComment(${path}): removed comment: ${commentId}`)
-  return removed
+  const commentRemoved = await system.api.remove(updatePath, { quiet: true })
+  if (commentRemoved) {
+    logger.info(`removeComment(${path}): removed comment for user ${user}: ${commentId}`)
+  } else {
+    logger.warn(`removeComment(${path}): comment NOT removed for user ${user}: ${commentId}`)
+  }
+  const refRemoved = await system.api.remove(userCommentReferencePath(user, commentId), { quiet: true })
+  if (refRemoved) {
+    logger.info(`removeComment(${path}): removed comment ref for user ${user}: ${commentId}`)
+  } else {
+    logger.warn(`removeComment(${path}): comment NOT removed for user ${user}: ${commentId}`)
+  }
+  return refRemoved
 }
 
 const COMMENTS_CACHE_PREFIX = '_comments_'
@@ -118,5 +137,27 @@ const findCommentsForPath = async (user, path) => {
   await Promise.all(promises)
   return comments.sort((c1, c2) => c1.ctime - c2.ctime)
 }
+
+const deleteAllUserComments = async (username) => {
+  const comments = await system.api.list(commentsForUser(username), { recursive: true })
+  const promises = []
+  for (const comment of comments) {
+    promises.push(new Promise(async (resolve) => {
+      const realCommentPath = system.api.safeReadFile(comment)
+      if (realCommentPath) {
+        if (!await system.api.remove(realCommentPath)) {
+          logger.warn(`deleteAllUserComments: error removing: ${realCommentPath}`)
+        }
+      }
+      if (!await system.api.remove(comment)) {
+        logger.warn(`deleteAllUserComments: error removing: ${comment}`)
+      }
+      resolve()
+    }))
+  }
+  await Promise.all(promises)
+}
+
+system.deleteUserHandlers['comments'] = user => deleteAllUserComments(user.username)
 
 export { addComment, editComment, removeComment, findCommentsForPath }

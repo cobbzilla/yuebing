@@ -3,6 +3,7 @@ const { MobilettoNotFoundError } = require('mobiletto')
 const src = require('../source/sourceUtil')
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM
+const logger = system.logger
 
 function okJson (res, obj) {
   res.statusCode = 200
@@ -35,7 +36,11 @@ function redirect (res, path) {
 
 function serverError (res, message) {
   res.statusCode = 500
-  res.end(`${message}`)
+  try {
+    res.end(`${message}`)
+  } catch (e) {
+    logger.error(`serverError error ${e} (probably response already sent, nested error message: ${message}`)
+  }
   return null
 }
 

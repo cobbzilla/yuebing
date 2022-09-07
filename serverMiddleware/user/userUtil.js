@@ -174,10 +174,10 @@ function UserValidationError (errors) {
 }
 
 const USERS_PREFIX = 'users/'
-const userKey = username => USERS_PREFIX + shasum(USERS_PREFIX + username.toLowerCase().trim())
+const userKey = username => username ? USERS_PREFIX + shasum(USERS_PREFIX + username.toLowerCase().trim()) : null
 
 const EMAILS_PREFIX = 'emails/'
-const emailKey = email => EMAILS_PREFIX + shasum(EMAILS_PREFIX + email.toLowerCase().trim())
+const emailKey = email => email ? EMAILS_PREFIX + shasum(EMAILS_PREFIX + email.toLowerCase().trim()) : null
 
 const CACHE_PREFIX_EMAIL_EXISTS = 'emailExists_'
 const CACHE_PREFIX_USERNAME_EXISTS = 'emailExists_'
@@ -510,6 +510,7 @@ if (ADMIN_USER) {
 module.exports = {
   USERS_PREFIX,
   userKey,
+  emailKey,
   startSession,
   newSessionResponse,
   cancelSessions,

@@ -103,6 +103,7 @@ const SYSTEM = {
     }
   },
   isPublic: () => SYSTEM.publicConfig.public,
+  deleteUserHandlers: {},
   connect: async () => {
     if (!SYSTEM.api) {
       if (!DEST_TYPE) {

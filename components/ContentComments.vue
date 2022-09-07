@@ -22,59 +22,84 @@
                 :max-width="700"
               >
                 <v-card-title>
-                  <div>
-                    <span v-if="comment.avatar">
-                      <v-avatar size="48px">
-                        <v-img :src="comment.avatar" contain :alt="`avatar image for ${comment.author}`" />
-                      </v-avatar>
-                    </span>
-                    <span v-else>
-                      <v-btn icon>
-                        <v-icon>mdi-account</v-icon>
-                      </v-btn>
-                    </span>
-                    <span>
-                      <b>{{ comment.author }}</b>
-                    </span>
-                  </div>
-                  <div>
-                    <small>{{ messages.label_date_and_time_short.parseDateMessage(comment.ctime) }}</small>
-                    <div v-if="comment.mtime">
-                      <small><em><b>{{ messages.label_comment_modified }}</b> {{ messages.label_date_and_time_short.parseDateMessage(comment.mtime) }}</em></small>
-                    </div>
-                  </div>
+                  <v-container>
+                    <v-row>
+                      <v-col>
+                        <span v-if="comment.avatar">
+                          <v-avatar size="48px">
+                            <v-img :src="comment.avatar" contain :alt="`avatar image for ${comment.author}`" />
+                          </v-avatar>
+                        </span>
+                        <span v-else>
+                          <v-btn icon>
+                            <v-icon>mdi-account</v-icon>
+                          </v-btn>
+                        </span>
+                        <span>
+                          <b>{{ comment.author }}</b>
+                        </span>
+                      </v-col>
+                      <v-col>
+                        <div>
+                          <small>{{ messages.label_date_and_time_short.parseDateMessage(comment.ctime, messages) }}</small>
+                          <div v-if="comment.mtime">
+                            <small><em><b>{{ messages.label_comment_modified }}</b> {{ messages.label_date_and_time_short.parseDateMessage(comment.mtime, messages) }}</em></small>
+                          </div>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-container>
                 </v-card-title>
               </v-card>
               <v-card-text>
-                <div v-if="user && user.username && user.username === comment.author">
-                  <v-btn icon @click.stop="toggleEditComment(comment)">
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn icon @click.stop="doRemoveComment(comment.id)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </div>
-                <div v-if="removeCommentError" class="error">
-                  {{ removeCommentError }}
-                </div>
-                <div v-if="selectedCommentId === comment.id">
-                  <div v-if="editCommentError" class="error">
-                    {{ editCommentError }}
-                  </div>
-                  <v-textarea
-                    v-model="editCommentText"
-                    :label="messages.label_comment"
-                    type="text"
-                    name="editCommentText"
-                    class="form-control"
-                  />
-                  <v-btn @click.stop="doEditComment">
-                    {{ messages.button_update_comment }}
-                  </v-btn>
-                </div>
-                <div v-else>
-                  {{ comment.comment }}
-                </div>
+                <v-container>
+                  <v-row>
+                    <v-col>
+                      <div v-if="removeCommentError" class="error">
+                        {{ removeCommentError }}
+                      </div>
+                      <div v-if="selectedCommentId === comment.id">
+                        <div v-if="editCommentError" class="error">
+                          {{ editCommentError }}
+                        </div>
+                        <v-textarea
+                          v-model="editCommentText"
+                          :label="messages.label_comment"
+                          type="text"
+                          name="editCommentText"
+                          class="form-control"
+                        />
+                        <v-btn @click.stop="doEditComment">
+                          {{ messages.button_update_comment }}
+                        </v-btn>
+                      </div>
+                      <div v-else>
+                        <v-container>
+                          <v-row>
+                            <v-col @click.stop="toggleEditComment(comment)">
+                              {{ comment.comment }}
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </div>
+                    </v-col>
+                    <v-col>
+                      <div v-if="user && user.username && (user.username === comment.author || user.admin)">
+                        <v-btn icon @click.stop="toggleEditComment(comment)">
+                          <v-icon v-if="!selectedCommentId">
+                            mdi-pencil
+                          </v-icon>
+                          <v-icon v-else>
+                            mdi-close
+                          </v-icon>
+                        </v-btn>
+                        <v-btn icon @click.stop="doRemoveComment(comment.id)">
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </v-card-text>
             </v-col>
           </v-row>
@@ -170,7 +195,8 @@ export default {
         const path = this.object.path
         const commentId = this.selectedCommentId
         const comment = this.editCommentText
-        this.editComment({ path, commentId, comment })
+        this.editComment({ path, commentId, comment, messages: this.messages })
+        this.selectedCommentId = null
       }
     },
     toggleEditComment (comment) {
