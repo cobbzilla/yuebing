@@ -12,6 +12,36 @@ Yuebing 🥮
  * [npm'de yuebing](https://www.npmjs.com/package/yuebing)
  * [DockerHub'da yuebing](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Bunu başka bir dilde oku
+ Bu README.md belgesi [hokeylization](https://github.com/cobbzilla/hokeylization) aracılığıyla şu dile çevrildi:
+ birçok farklı dil.
+
+ Mükemmel olmadığına eminim ama umarım hiç yoktan iyidir!
+
+ [🇸🇦 Arapça](../ar/README.md)
+ [🇧🇩 Bengalce](../bn/README.md)
+ [🇩🇪 Almanca](../de/README.md)
+ [🇺🇸 İngilizce](../en/README.md)
+ [🇪🇸 İspanyolca](../es/README.md)
+ [🇫🇷 Fransızca](../fr/README.md)
+ [çiçek](../ha/README.md)
+ [🇮🇳 Hintçe](../hi/README.md)
+ [🇮🇩 Endonezyaca](../id/README.md)
+ [🇮🇷 İtalyanca](../it/README.md)
+ [🇯🇵 Japonca](../ja/README.md)
+ [🇰🇷 Korean](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Lehçe](../pl/README.md)
+ [🇧🇷 Portekizce](../pt/README.md)
+ [🇷🇺 Rusça](../ru/README.md)
+ [🇰🇪 Svahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Turkish](../tr/README.md)
+ [🇵🇰 Urduca](../ur/README.md)
+ [🇻🇳 Vietnamca](../vi/README.md)
+ [🇨🇳 Çince](../zh/README.md)
+ ----
+
  # İçindekiler
  * [İlham](#İlham)
  * [Özellikler özellikler)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Daha fazla bilgi için [geliştirici belgelerine](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) bakın
 

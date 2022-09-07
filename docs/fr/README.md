@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing sur npm](https://www.npmjs.com/package/yuebing)
  * [yuebing sur DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Lire ceci dans une autre langue
+ Ce document README.md a été traduit, via [hokeylization](https://github.com/cobbzilla/hokeylization), en
+ beaucoup de langues différentes.
+
+ Je suis certain que ce n'est pas parfait, mais j'espère que c'est mieux que rien !
+
+ [🇸🇦 Arabe](../ar/README.md)
+ [🇧🇩 bengali](../bn/README.md)
+ [🇩🇪 allemand](../de/README.md)
+ [🇺🇸 Anglais](../en/README.md)
+ [🇪🇸 Espagnol](../es/README.md)
+ [🇫🇷 Français](../fr/README.md)
+ [🇹🇩 Haoussa](../ha/README.md)
+ [🇮🇳 Hindi](../hi/README.md)
+ [🇮🇩 Indonésien](../id/README.md)
+ [🇮🇹 Italien](../it/README.md)
+ [🇯🇵 japonais](../ja/README.md)
+ [🇰🇷 coréen](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 polonais](../pl/README.md)
+ [🇧🇷 portugais](../pt/README.md)
+ [🇷🇺 russe](../ru/README.md)
+ [🇰🇪 Swahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Turc](../tr/README.md)
+ [🇵🇰 Ourdou](../ur/README.md)
+ [🇻🇳 Vietnamien](../vi/README.md)
+ [🇨🇳 chinois](../zh/README.md)
+ ----
+
  # Contenu
  * [Inspiration](#Inspiration)
  * [Fonctionnalités](#Fonctionnalités)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Voir la [documentation développeur](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) pour plus d'informations
 
@@ -170,7 +203,7 @@ Yuebing 🥮
  Peut-être plus intéressant, yuebing signifie [gâteau de lune](https://en.wikipedia.org/wiki/Mooncake)
  (Chinois : [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
  Japonais : [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)) ; les gâteaux de lune sont très savoureux et peuvent être trouvés dans
- une grande variété de saveurs et de styles. Savourez un style régional séculaire ou essayez un gâteau exotique de cuisine contemporaine
+ une grande variété de saveurs et de styles. Savourez un style régional séculaire ou essayez un gâteau exotique de style contemporain
  boulangers qui explorent un territoire délicieusement inexploré ! Il y a vraiment un yuebing pour tout le monde !
 
 </pre>

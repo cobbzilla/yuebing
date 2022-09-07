@@ -12,6 +12,36 @@ Yuebing
  * [yuebing na npm](https://www.npmjs.com/package/yuebing)
  * [yuebing na DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Przeczytaj to w innym języku
+ Ten dokument README.md został przetłumaczony przez [hokeylization](https://github.com/cobbzilla/hokeylization) na
+ wiele różnych języków.
+
+ Jestem pewien, że nie jest idealny, ale mam nadzieję, że to lepsze niż nic!
+
+ [🇸🇦 Arabski](../ar/README.md)
+ [🇧🇩 bengalski](../bn/README.md)
+ [🇩🇪 Niemiecki](../de/README.md)
+ [🇺🇸 Polski](../en/README.md)
+ [🇪🇸 Hiszpański](../es/README.md)
+ [🇫🇷 Francuski](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 hindi](../hi/README.md)
+ [🇮🇩 Indonezyjski](../id/README.md)
+ [🇮🇹 Włoski](../it/README.md)
+ [🇯🇵 Japoński](../ja/README.md)
+ [🇰🇷 Koreański](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Polski](../pl/README.md)
+ [🇧🇷 Portugalski](../pt/README.md)
+ [🇷🇺 Rosyjski](../ru/README.md)
+ [🇰🇪 Suahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Turecki](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Wietnamski](../vi/README.md)
+ [🇨🇳 chiński](../zh/README.md)
+ ----
+
  # Zawartość
  * [Inspiracja](#Inspiracja)
  * [Funkcje](#Funkcje)
@@ -41,13 +71,13 @@ Yuebing
  * **Nie chcę się martwić o kopie zapasowe!**
  * *Miło było to mieć. Jak się okazuje, nic takiego nie ma. Yuebing tak!*
  * Po uruchomieniu potężnej instancji do transkodowania wszystkiego, zburz ją i uruchom coś tańszego na dłuższą metę
- * Możesz uruchomić Yuebing za mniej niż 10 USD miesięcznie; i miejmy nadzieję, że jeszcze mniej w przyszłości, gdy zoptymalizujemy ślad Yuebing
+ * Możesz uruchomić Yuebing za mniej niż 10 USD/miesiąc; i miejmy nadzieję, że jeszcze mniej w przyszłości, gdy zoptymalizujemy ślad Yuebing
 
  Kilka tygodni zajęło mi zbadanie tego, co tam jest. Zacząłem znacznie rozluźniać moje wymagania, a mimo to
  nie mogłem znaleźć nic przyzwoitego. Przyjrzałem się kilku projektom open source, nie mówię które, bo wszystkie miały
  wiele rażących wad.
 
- Więc zdecydowałem, jak to może być trudne? Podłączasz S3 do ffmpeg, umieszczasz na nim przyzwoicie nowoczesny frontend i gotowe,
+ Więc zdecydowałem, jak trudne może być? Podłączasz S3 do ffmpeg, umieszczasz na nim przyzwoicie nowoczesny frontend i gotowe,
  prawo?
 
  .... uh, OK, mam już około miesiąca, ale to za dużo zabawy! Mam nadzieję, że Tobie też się spodoba!
@@ -140,9 +170,12 @@ Yuebing
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Więcej informacji znajdziesz w [dokumentacji programistów](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md)
 

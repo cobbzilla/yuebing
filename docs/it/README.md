@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing su npm](https://www.npmjs.com/package/yuebing)
  * [yuebing su DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Leggi questo in un'altra lingua
+ Questo documento README.md è stato tradotto, tramite [hokeylization](https://github.com/cobbzilla/hokeylization), in
+ molte lingue diverse.
+
+ Sono certa che non sia perfetto, ma spero sia meglio di niente!
+
+ [🇸🇦 Arabo](../ar/README.md)
+ [🇧🇩 Bengali](../bn/README.md)
+ [🇩🇪 Tedesco](../de/README.md)
+ [🇺🇸 Inglese](../en/README.md)
+ [🇪🇸 Spagnolo](../es/README.md)
+ [🇫🇷 Francese](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 Hindi](../hi/README.md)
+ [🇮🇩 Indonesiano](../id/README.md)
+ [🇮🇹 Italiano](../it/README.md)
+ [🇯🇵 Giapponese](../ja/README.md)
+ [🇰🇷 Coreano](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Polacco](../pl/README.md)
+ [🇧🇷 Portoghese](../pt/README.md)
+ [🇷🇺 Russo](../ru/README.md)
+ [🇰🇪 Swahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Turco](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Vietnamita](../vi/README.md)
+ [🇨🇳 Cinese](../zh/README.md)
+ ----
+
  # Contenuti
  * [Ispirazione](#Ispirazione)
  * [Caratteristiche](#Caratteristiche)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Vedere i [documenti per sviluppatori](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) per maggiori informazioni
 
@@ -169,7 +202,7 @@ Yuebing 🥮
 
  Forse più interessante, yuebing significa [mooncake](https://en.wikipedia.org/wiki/Mooncake)
  (Cinese: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
- Giapponese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); i mooncakes sono molto gustosi e si possono trovare
+ Giapponese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); i mooncake sono molto gustosi e si possono trovare
  un'ampia varietà di gusti e stili. Goditi uno stile regionale antico o prova una torta esotica dal gusto contemporaneo
  fornai che stanno esplorando un territorio deliziosamente inesplorato! C'è davvero uno yuebing per tutti!
 

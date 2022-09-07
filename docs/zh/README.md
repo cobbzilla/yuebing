@@ -12,6 +12,36 @@
  * [npm 上的月冰](https://www.npmjs.com/package/yuebing)
  * [DockerHub上的月冰](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # 用另一种语言阅读
+此 README.md 文档已通过 [hokeylization](https://github.com/cobbzilla/hokeylization) 翻译成
+许多不同的语言。
+
+我敢肯定它并不完美，但我希望它总比没有好！
+
+ [🇸🇦 阿拉伯语](../ar/README.md)
+ [🇧🇩 孟加拉语](../bn/README.md)
+ [🇩🇪 德语](../de/README.md)
+ [🇺🇸 英文](../en/README.md)
+ [🇪🇸 西班牙语](../es/README.md)
+ [🇫🇷 法语](../fr/README.md)
+ [🇹🇩豪萨语](../ha/README.md)
+ [🇮🇳印地语](../hi/README.md)
+ [🇮🇩 印尼语](../id/README.md)
+ [🇮🇹 意大利语](../it/README.md)
+ [🇯🇵 日语](../ja/README.md)
+ [🇰🇷韩语](../ko/README.md)
+ [🇮🇳 马兰地语](../mr/README.md)
+ [🇵🇱波兰语](../pl/README.md)
+ [🇧🇷 葡萄牙语](../pt/README.md)
+ [🇷🇺 俄语](../ru/README.md)
+ [🇰🇪 斯瓦希里语](../sw/README.md)
+ [🇵🇭 他加禄语](../tl/README.md)
+ [🇹🇷 土耳其语](../tr/README.md)
+ [🇵🇰乌尔都语](../ur/README.md)
+ [🇻🇳 越南语](../vi/README.md)
+ [🇨🇳 中文](../zh/README.md)
+ ----
+
  ＃ 内容
 * [灵感](#灵感)
  * [特征](#Features)
@@ -140,9 +170,12 @@
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
 有关更多信息，请参阅 [开发者文档](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md)
 

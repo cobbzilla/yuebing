@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing trên npm](https://www.npmjs.com/package/yuebing)
  * [yuebing trên DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Đọc sách này bằng ngôn ngữ khác
+ Tài liệu README.md này đã được dịch, qua [hokeyption](https://github.com/cobbzilla/hokeyption), sang
+ nhiều ngôn ngữ khác nhau.
+
+ Tôi chắc chắn rằng nó không hoàn hảo, nhưng tôi hy vọng nó còn hơn không!
+
+ [🇸🇦 tiếng Ả Rập](docs / ar / README.md)
+ [🇧🇩 Tiếng Bengali](docs / bn / README.md)
+ [🇩🇪 tiếng Đức](docs / de / README.md)
+ [🇺🇸 Tiếng Anh](docs / en / README.md)
+ [🇪🇸 Tiếng Tây Ban Nha](docs / es / README.md)
+ [🇫🇷 Tiếng Pháp](docs / fr / README.md)
+ [🇹🇩 Hausa](docs / ha / README.md)
+ [🇮🇳 Hindi](docs / hi / README.md)
+ [🇮🇩 tiếng Indonesia](docs / id / README.md)
+ [🇮🇹 Tiếng Ý](docs / it / README.md)
+ [🇯🇵 Tiếng Nhật](docs / ja / README.md)
+ [🇰🇷 Tiếng Hàn](docs / ko / README.md)
+ [🇮🇳 Maranthi](docs / mr / README.md)
+ [🇵🇱 Tiếng Ba Lan](docs / pl / README.md)
+ [🇧🇷 tiếng Bồ Đào Nha](docs / pt / README.md)
+ [🇷🇺 tiếng Nga](docs / ru / README.md)
+ [🇰🇪 Swahili](docs / sw / README.md)
+ [🇵🇭 Tagalog](docs / tl / README.md)
+ [🇹🇷 tiếng Thổ Nhĩ Kỳ](docs / tr / README.md)
+ [🇵🇰 Urdu](docs / ur / README.md)
+ [🇻🇳 Tiếng Việt](docs / vi / README.md)
+ [🇨🇳 Tiếng Trung](docs / zh / README.md)
+ ----
+
  # Nội dung
  * [Inspiration](# Inspiration)
  * [Tính năng tính năng)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Xem [tài liệu dành cho nhà phát triển](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) để biết thêm thông tin
 

@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing akan npm](https://www.npmjs.com/package/yuebing)
  * [yuebing akan DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Karanta wannan a wani yare
+ An fassara wannan takaddar README.md, ta [hokeylization](https://github.com/cobbzilla/hokeylization), zuwa
+ harsuna daban-daban.
+
+ Na tabbata ba cikakke ba ne, amma ina fata ya fi komai kyau!
+
+ [🇸🇦 Larabci](../ar/README.md)
+ [🇧🇩 Bengali](../bn/README.md)
+ [🇩🇪 Jamusanci](../de/README.md)
+ [🇺🇸 Turanci](../ha/README.md)
+ [🇪🇸 Mutanen Espanya](../es/README.md)
+ [🇫🇷 Faransanci](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 Hindi](../hi/README.md)
+ [🇮🇩 Indonesian](../id/README.md)
+ [🇮🇹 Italiyanci](../it/README.md)
+ [🇯🇵 Jafananci](../ja/README.md)
+ [🇰🇷 Korean](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Yaren mutanen Poland](../pl/README.md)
+ [🇧🇷 Portuguese](../pt/README.md)
+ [🇷🇺 Rashanci](../ru/README.md)
+ [🇰🇪 Swahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Baturke](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Vietnamese](../vi/README.md)
+ [🇨🇳 Sinanci](../zh/README.md)
+ ----
+
  # Abubuwan ciki
  * [Wahayi](#Wahayi)
  * [Features](#Features)
@@ -102,7 +132,7 @@ Yuebing 🥮
  * Duba jerin gwano mai canza labarai da matsayin aiki
  * Fara sabon bincike da fihirisar kafofin watsa labarai na tushe
 
- ## Sabar uwar garken/baya
+ ## Fasalolin Sabar/Baya
  * Abokai na wucin gadi, ZERO naci / mahimman bayanai ana adana su a cikin akwati.
  * Duk bayanai masu ɗorewa suna dagewa a cikin bokitin manufa; da gaske, muna amfani da S3 azaman bayanan mu
  * Bincike ta atomatik na bokitin tushe don sabbin kafofin watsa labarai
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Duba [docs developer](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) don ƙarin bayani
 

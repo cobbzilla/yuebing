@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing sa npm](https://www.npmjs.com/package/yuebing)
  * [yuebing sa DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Basahin ito sa ibang wika
+ Itong README.md na dokumento ay isinalin, sa pamamagitan ng [hokeylization](https://github.com/cobbzilla/hokeylization), sa
+ maraming iba't ibang wika.
+
+ Natitiyak kong hindi ito perpekto, ngunit umaasa ako na ito ay mas mahusay kaysa sa wala!
+
+ [🇸🇦 Arabic](../ar/README.md)
+ [🇧🇩 Bengali](../bn/README.md)
+ [🇩🇪 German](../de/README.md)
+ [🇺🇸 English](../en/README.md)
+ [🇪🇸 Spanish](../es/README.md)
+ [🇫🇷 French](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 Hindi](../hi/README.md)
+ [🇮🇩 Indonesian](../id/README.md)
+ [🇮🇹 Italyano](../it/README.md)
+ [🇯🇵 Japanese](../ja/README.md)
+ [🇰🇷 Korean](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Polish](../pl/README.md)
+ [🇧🇷 Portuguese](../pt/README.md)
+ [🇷🇺 Russian](../ru/README.md)
+ [🇰🇪 Swahili](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Turkish](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Vietnamese](../vi/README.md)
+ [🇨🇳 Chinese](../zh/README.md)
+ ----
+
  # Nilalaman
  * [Inspirasyon](#Inspirasyon)
  * [Mga Tampok](#Mga Tampok)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Tingnan ang [mga doc ng developer](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) para sa higit pang impormasyon
 

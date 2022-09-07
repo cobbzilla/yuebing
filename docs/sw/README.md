@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing on npm](https://www.npmjs.com/package/yuebing)
  * [yuebing kwenye DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Soma hii kwa lugha nyingine
+ Hati hii ya README.md imetafsiriwa, kupitia [hokeylization](https://github.com/cobbzilla/hokeylization), hadi
+ lugha nyingi tofauti.
+
+ Nina hakika sio kamili, lakini natumai ni bora kuliko chochote!
+
+ [🇸🇦 Kiarabu](hati/ar/README.md)
+ [🇧🇩 Kibengali](hati/bn/README.md)
+ [🇩🇪 Kijerumani](../de/README.md)
+ [🇺🇸 Kiingereza]( hati/sw/README.md)
+ [🇪🇸 Kihispania](hati/es/README.md)
+ [🇫🇷 Kifaransa](../fr/README.md)
+ [🇹🇩 Kihausa](hati/ha/README.md)
+ [🇮🇳 Kihindi](hati/hi/README.md)
+ [🇮🇩 Kiindonesia](hati/id/README.md)
+ [🇮🇹 Kiitaliano](hati/it/README.md)
+ [🇯🇵 Kijapani](hati/ja/README.md)
+ [🇰🇷 Kikorea](hati/ko/README.md)
+ [🇮🇳 Maranthi](hati/mr/README.md)
+ [🇵🇱 Kipolandi](hati/pl/README.md)
+ [🇧🇷 Kireno](hati/pt/README.md)
+ [🇷🇺 Kirusi](hati/ru/README.md)
+ [🇰🇪 Kiswahili](hati/sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Kituruki](hati/tr/README.md)
+ [🇵🇰 Kiurdu](hati/ur/README.md)
+ [🇻🇳 Kivietinamu](hati/vi/README.md)
+ [🇨🇳 Kichina](hati/zh/README.md)
+ ----
+
  # Yaliyomo
  * [Msukumo](#Msukumo)
  * [Vipengele](#Vipengele)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Tazama [hati za wasanidi programu](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) kwa maelezo zaidi
 

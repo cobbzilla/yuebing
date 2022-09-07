@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing auf npm](https://www.npmjs.com/package/yuebing)
  * [yuebing auf DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Lesen Sie dies in einer anderen Sprache
+ Dieses README.md-Dokument wurde über [hokeylization](https://github.com/cobbzilla/hokeylization) übersetzt in
+ viele verschiedene Sprachen.
+
+ Ich bin sicher, es ist nicht perfekt, aber ich hoffe, es ist besser als nichts!
+
+ [🇸🇦 Arabisch](../ar/README.md)
+ [🇧🇩 Bengali](../bn/README.md)
+ [🇩🇪 Deutsch](../de/README.md)
+ [🇺🇸 Englisch](../en/README.md)
+ [🇪🇸 Spanisch](../es/README.md)
+ [🇫🇷 Französisch](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 Hindi](../hi/README.md)
+ [🇮🇩 Indonesisch](../id/README.md)
+ [🇮🇹 Italienisch](../it/README.md)
+ [🇯🇵 Japanisch](../ja/README.md)
+ [🇰🇷 Koreanisch](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Polnisch](../pl/README.md)
+ [🇧🇷 Portugiesisch](../pt/README.md)
+ [🇷🇺 Russisch](../ru/README.md)
+ [🇰🇪 Suaheli](../sw/README.md)
+ [🇵🇭 Tagalog](../tl/README.md)
+ [🇹🇷 Türkisch](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Vietnamesisch](../vi/README.md)
+ [🇨🇳 Chinesisch](../zh/README.md)
+ ----
+
  # Inhalt
  * [Inspiration](#Inspiration)
  * [Funktionen](#Funktionen)
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Weitere Informationen finden Sie in der [Entwicklerdokumentation](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md).
 
@@ -169,7 +202,7 @@ Yuebing 🥮
 
  Vielleicht interessanter, yuebing bedeutet [Mondkuchen](https://en.wikipedia.org/wiki/Mooncake)
  (Chinesisch: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
- Japanisch: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); Mondkuchen sind sehr lecker und können in gefunden werden
+ Japanisch: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); Mondkuchen sind sehr lecker und zu finden in
  eine große Vielfalt an Geschmacksrichtungen und Stilrichtungen. Genießen Sie einen altehrwürdigen regionalen Stil oder probieren Sie einen exotischen Kuchen aus der Gegenwart
  Bäcker, die köstliches Neuland erkunden! Es gibt wirklich ein Yuebing für jeden!
 

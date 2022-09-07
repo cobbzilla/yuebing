@@ -12,6 +12,36 @@ Yuebing 🥮
  * [yuebing en npm](https://www.npmjs.com/package/yuebing)
  * [yuebing en DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # Leer esto en otro idioma
+ Este documento README.md ha sido traducido, a través de [hokeylization](https://github.com/cobbzilla/hokeylization), a
+ muchos idiomas diferentes.
+
+ Estoy seguro de que no es perfecto, ¡pero espero que sea mejor que nada!
+
+ [🇸🇦 Árabe](../ar/README.md)
+ [🇧🇩 bengalí](../bn/README.md)
+ [🇩🇪 Alemán](../de/README.md)
+ [🇺🇸 Español](../es/README.md)
+ [🇪🇸 Español](../es/README.md)
+ [🇫🇷 Francés](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 hindi](../hi/README.md)
+ [🇮🇩 Indonesio](../id/README.md)
+ [🇮🇹 Italiano](../it/README.md)
+ [🇯🇵 Japonés](../ja/README.md)
+ [🇰🇷 Coreano](../ko/README.md)
+ [🇮🇳 Maranthi](../mr/README.md)
+ [🇵🇱 Polaco](../pl/README.md)
+ [🇧🇷 Portugués](../pt/README.md)
+ [🇷🇺 Ruso](../ru/README.md)
+ [🇰🇪 Suajili](../sw/README.md)
+ [🇵🇭 Tagalo](../tl/README.md)
+ [🇹🇷 Turco](../tr/README.md)
+ [🇵🇰 Urdu](../ur/README.md)
+ [🇻🇳 Vietnamita](../vi/README.md)
+ [🇨🇳 Chino](../zh/README.md)
+ ----
+
  # Contenidos
  * [Inspiración](#Inspiración)
  * [Funciones funciones)
@@ -64,7 +94,7 @@ Yuebing 🥮
  * Admite almacenamiento completamente encriptado (cifrado del lado de la aplicación, solo usted tiene la clave)
  * Siempre de solo lectura desde la fuente, nunca cambie el contenido de la fuente
  * Escaneo automático y manual de nuevos archivos multimedia
- * ¿Qué tan privadas o públicas quieres las cosas? Yuebing admite:
+ * ¿Qué tan privadas o públicas quieres las cosas? Yuebing apoya:
  * Totalmente privado: no se muestran medios a usuarios anónimos, solo las direcciones de correo electrónico aprobadas pueden crear cuentas
  * Semiprivado: no se muestran medios a usuarios anónimos, pero cualquiera puede crear una cuenta de usuario
  * Público con registro limitado: los medios se muestran a todos, pero solo las direcciones de correo electrónico aprobadas pueden crear cuentas
@@ -140,9 +170,12 @@ Yuebing 🥮
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  Consulte los [documentos del desarrollador](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) para obtener más información.
 

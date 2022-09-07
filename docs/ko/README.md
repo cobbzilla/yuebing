@@ -12,6 +12,36 @@
  * [npm의 유빙](https://www.npmjs.com/package/yuebing)
  * [DockerHub에서 yebing](https://hub.docker.com/repository/docker/cobbzilla/yebing)
 
+ # 다른 언어로 읽어보세요
+ 이 README.md 문서는 [hokeylization](https://github.com/cobbzilla/hokeylization)을 통해 다음으로 번역되었습니다.
+ 많은 다른 언어.
+
+ 나는 그것이 완벽하지 않다고 확신하지만, 없는 것보다 나을 수 있기를 바랍니다!
+
+ [🇸🇦 아랍어](../ar/README.md)
+ [🇧🇩 벵골어](../bn/README.md)
+ [🇩🇪 독일어](../de/README.md)
+ [🇺🇸 영어](../en/README.md)
+ [🇪🇸 스페인어](../es/README.md)
+ [🇫🇷 프랑스어](../fr/README.md)
+ [🇹🇩 Hausa](../ha/README.md)
+ [🇮🇳 힌디어](../hi/README.md)
+ [🇮🇩 인도네시아어](../id/README.md)
+ [🇮🇹 이탈리아어](../it/README.md)
+ [🇯🇵 일본어](../ja/README.md)
+ [🇰🇷 한국어](../ko/README.md)
+ [🇮🇳 마란티](../mr/README.md)
+ [🇵🇱 폴란드어](../pl/README.md)
+ [🇧🇷 포르투갈어](../pt/README.md)
+ [🇷🇺 러시아어](../ru/README.md)
+ [🇰🇪 스와힐리어](../sw/README.md)
+ [🇵🇭 타갈로그어](../tl/README.md)
+ [🇹🇷 터키어](../tr/README.md)
+ [🇵🇰 우르두어](../ur/README.md)
+ [🇻🇳 베트남어](../vi/README.md)
+ [🇨🇳 중국어](../zh/README.md)
+ ----
+
  # 내용물
  * [인스피레이션](#인스피레이션)
  * [기능](#기능)
@@ -69,10 +99,10 @@
  * 반 비공개: 익명의 사용자에게 미디어가 표시되지 않지만 누구나 사용자 계정을 만들 수 있습니다.
  * 등록이 제한된 공개: 모든 사람에게 미디어가 표시되지만 승인된 이메일 주소만 계정을 만들 수 있습니다.
  * 완전 공개: 모든 사람에게 표시되는 미디어, 누구나 사용자 계정을 만들 수 있음
- * 완전히 국제화! 사용자가 볼 수 있는 모든 텍스트(및 기타 로케일별 항목)는 현지화된 리소스에서 가져옵니다.
+ * 완전히 국제화되었습니다! 사용자가 볼 수 있는 모든 텍스트(및 기타 로케일별 항목)는 현지화된 리소스에서 가져옵니다.
  * [커뮤니티를 돕고 Yuebing을 새로운 언어로 번역하세요!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * 모든 기능을 갖춘 관리 콘솔
- * **내가 인정하는 한 가지는 여전히 완전히 형편없다:**
+ * **내가 인정하는 한 가지는 여전히 완전히 형편없다.**
  * "검색 경험"은 *디렉토리 계층 구조 탐색*으로 구성됩니다. 그것은 **매우 절름발이**지만 우리는 어딘가에서 시작해야 했습니다.
  * 적절한 검색, 태그 지정, 제안 등에 대한 지원을 추가할 예정입니다.
  * 좋습니다. 실제로 여전히 형편없는 것들이 많이 있습니다. 이것은 완전히 1.0 소프트웨어이지만 작동하는 것들은 꽤 멋집니다.
@@ -140,9 +170,12 @@
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  자세한 내용은 [개발자 문서](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md)를 참조하세요.
 
@@ -171,6 +204,6 @@
  (중국어: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
  일본어: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); 월병은 매우 맛있고 다음에서 찾을 수 있습니다.
  다양한 맛과 스타일. 유서 깊은 지역 스타일을 즐기거나 현대의 이국적인 케이크를 맛보십시오.
- 맛있는 미지의 영역을 탐험하는 제빵사! 진정으로 모든 사람을 위한 유빙이 있습니다!
+ 맛있는 미지의 영역을 탐험하는 제빵사! 진정으로 모든 사람을 위한 웩빙이 있습니다!
 
 </pre>

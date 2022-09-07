@@ -12,6 +12,36 @@
  * [yuebing on npm](https://www.npmjs.com/package/yuebing)
  * [yuebing على DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
 
+ # اقرأ هذا بلغة أخرى
+ تمت ترجمة هذا المستند README.md عبر [hokeylization](https://github.com/cobbzilla/hokeylization) إلى
+ العديد من اللغات المختلفة.
+
+ أنا متأكد من أنها ليست مثالية ، لكني آمل أن تكون أفضل من لا شيء!
+
+ [🇸🇦 عربي](docs / ar / README.md)
+ [🇧🇩 بنغالي](docs / bn / README.md)
+ [🇩🇪 ألماني](docs / de / README.md)
+ [🇺🇸 إنجليزي](docs / en / README.md)
+ [🇪🇸 إسباني](docs / es / README.md)
+ [🇫🇷 فرنسي](docs / fr / README.md)
+ [🇹🇩 الهوسا](docs / ha / README.md)
+ [🇮🇳 هندي](docs / hi / README.md)
+ [🇮🇩 إندونيسي](docs / id / README.md)
+ [🇮🇹 إيطالي](docs / it / README.md)
+ [🇯🇵 باليابانية](docs / ja / README.md)
+ [🇰🇷 كوري](docs / ko / README.md)
+ [🇮🇳 مارانثي](مستندات / السيد / README.md)
+ [🇵🇱 بولندي](docs / pl / README.md)
+ [🇧🇷 برتغالي](docs / pt / README.md)
+ [🇷🇺 بالروسية](docs / ru / README.md)
+ [🇰🇪 السواحيلية](docs / sw / README.md)
+ [🇵🇭 تاغالوغ](docs / tl / README.md)
+ [🇹🇷 التركية](docs / tr / README.md)
+ [🇵🇰 الأردية](docs / ur / README.md)
+ [🇻🇳 فيتنامي](docs / vi / README.md)
+ [🇨🇳 الصينية](docs / zh / README.md)
+ ----
+
  # محتويات
  * [إلهام](# إلهام)
  * [الميزات الميزات)
@@ -99,7 +129,7 @@
 
  ## ميزات المستخدم الإداري
  * تحرير البيانات الوصفية للوسائط ، وعرض الصور المصغرة ، وتغيير الصورة المصغرة المحددة
- * عرض الوسائط تحويل قائمة الانتظار وحالة الوظيفة
+ * عرض الوسائط تحويل قائمة الانتظار والوظيفة
  * بدء عمليات مسح وفهارس جديدة لوسائط المصدر
 
  ## ميزات الخادم / الواجهة الخلفية
@@ -140,9 +170,12 @@
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev # Fastest build & startup, dev docker image
     yarn docker-run # Faster at runtime, production docker image
+    yarn dev # Run yuebing locally in dev mode
+    yarn build # Build yuebing locally for production mode
+    yarn start # Start yuebing locally in production mode
 
  راجع [محرر مستندات المطور](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) لمزيد من المعلومات
 

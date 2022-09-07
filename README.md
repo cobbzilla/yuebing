@@ -14,7 +14,7 @@ Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many adva
 
 # Read this in another language
 This README.md document has been translated, via [hokeylization](https://github.com/cobbzilla/hokeylization), into
-**[every language supported by Google Translate](https://cloud.google.com/translate/docs/languages)!**
+many different languages.
 
 I'm certain it's not perfect, but I hope it's better than nothing!
 
@@ -170,9 +170,12 @@ To run from source, you'll need nodejs v16+ and yarn
     # Use the 'yuebing' command from the git repo
     ./yuebing
 
-    # Or, since you have the source, run any of the yarn scripts
+    # Or, since you have the source, run any of the `yarn` scripts
     yarn docker-run-dev    # Fastest build & startup, dev docker image
     yarn docker-run        # Faster at runtime, production docker image
+    yarn dev               # Run yuebing locally in dev mode
+    yarn build             # Build yuebing locally for production mode
+    yarn start             # Start yuebing locally in production mode
 
 See the [developer docs](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) for more info
 
