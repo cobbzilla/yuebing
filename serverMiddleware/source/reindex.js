@@ -23,7 +23,7 @@ const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max one full reindex per day
 const REINDEX_PROCESS_FUNCTION = async (job) => {
   const source = job.data.source
   const sourceAndPath = source + '/' + job.data.path
-  const logPrefix = `reindex(${source})`
+  const logPrefix = `reindex(${sourceAndPath})`
   const regAge = await pathRegistrationAge(sourceAndPath)
   if (regAge !== null && regAge < MIN_REG_AGE) {
     logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not re-indexing again`)
