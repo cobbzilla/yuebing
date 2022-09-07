@@ -175,9 +175,9 @@ function hasMediaType (obj) {
     obj.mediaType && obj.mediaType !== UNKNOWN_MEDIA_TYPE && obj.mediaType !== DIRECTORY_TYPE
 }
 
-const hasMediaInfo = (obj) => metaHasMediaInfo(obj.meta)
+const hasMediaInfo = obj => obj.mediainfo || metaHasMediaInfo(obj.meta)
 
-const metaHasMediaInfo = (meta) => meta && meta.status && meta.status.info
+const metaHasMediaInfo = meta => meta && meta.status && meta.status.info
 
 function profileNameFromAsset (asset) {
   if (typeof asset !== 'string') {
