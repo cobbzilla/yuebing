@@ -158,7 +158,7 @@ const addTag = async (sourceAndPath, tag) => {
     logger.info(`${logPrefix} tagToContentPath already exists: ${tagToContentPath}`)
   }
 
-  const contentToTagPath = `${tagsForPathDir(sourceAndPath)}/${normTag}`
+  const contentToTagPath = `${tagsForPathDir(sourceAndPath)}${normTag}`
   const contentToTagMeta = await system.api.safeMetadata(contentToTagPath)
   if (!contentToTagMeta) {
     logger.info(`${logPrefix} writing contentToTagPath=${contentToTagPath}`)
@@ -178,7 +178,7 @@ const removeTag = async (sourceAndPath, tag) => {
     logger.warn(`${logPrefix} error removing tagToContentPath=${tagToContentPath}`)
   }
 
-  const contentToTagPath = `${tagsForPathDir(sourceAndPath)}/${normalizeTag(tag)}`
+  const contentToTagPath = `${tagsForPathDir(sourceAndPath)}${normalizeTag(tag)}`
   logger.info(`${logPrefix} removing contentToTagPath=${contentToTagPath}`)
   if (!(await system.api.remove(contentToTagPath, { quiet: true }))) {
     logger.warn(`${logPrefix} error removing contentToTagPath=${contentToTagPath}`)

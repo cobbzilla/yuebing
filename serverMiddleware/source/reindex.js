@@ -16,6 +16,8 @@ const REINDEX_JOB_NAME = 'reindex_job'
 
 const redisConfig = system.privateConfig.redis
 
+const REINDEX_CONCURRENCY = process.env.YB_REINDEX_CONCURRENCY || 2
+
 const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max one full reindex per day
 
 const REINDEX_PROCESS_FUNCTION = async (job) => {
@@ -74,7 +76,7 @@ let QUEUE = null
 const indexQueue = () => {
   if (QUEUE === null) {
     QUEUE = new Queue(REINDEX_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
-    QUEUE.process(REINDEX_JOB_NAME, 1, REINDEX_PROCESS_FUNCTION)
+    QUEUE.process(REINDEX_JOB_NAME, REINDEX_CONCURRENCY, REINDEX_PROCESS_FUNCTION)
   }
   return QUEUE
 }
