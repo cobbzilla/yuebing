@@ -44,7 +44,7 @@ const REINDEX_PROCESS_FUNCTION = async (job) => {
                 })
             },
             (err) => {
-              const message = `${logPrefix} error calling registerPath for ${sourceAndPath}: ${err}`
+              const message = `${logPrefix} error calling registerPath for ${sourceAndPath}: ${JSON.stringify(err)}`
               logger.error(message)
               reject(message)
             })
