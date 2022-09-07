@@ -7,7 +7,7 @@ const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const { registerPath } = require('../asset/content')
+const { registerPath, pathRegistrationAge } = require('../asset/content')
 
 const REINDEX_INFO_SET_KEY = 'reindex_info_'
 const REINDEX_INFO_EXPIRATION = 1000 * 60 * 60 * 24
@@ -16,10 +16,17 @@ const REINDEX_JOB_NAME = 'reindex_job'
 
 const redisConfig = system.privateConfig.redis
 
+const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max one full reindex per day
+
 const REINDEX_PROCESS_FUNCTION = async (job) => {
   const source = job.data.source
   const sourceAndPath = source + '/' + job.data.path
   const logPrefix = `reindex(${source})`
+  const regAge = await pathRegistrationAge(sourceAndPath)
+  if (regAge !== null && regAge < MIN_REG_AGE) {
+    logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not re-indexing again`)
+    return null
+  }
   const infoSetKey = REINDEX_INFO_SET_KEY + source
   let expirationSet = false
   await new Promise((resolve, reject) => {

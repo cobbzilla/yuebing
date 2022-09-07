@@ -23,6 +23,12 @@ const getPathIndex = (sourceAndPath) => {
   return `${PATH_INDEX}${dirHash.substring(0, 2)}/${dirHash.substring(2, 4)}/${dirHash.substring(4, 6)}/${shasum(sourceAndPath)}`
 }
 
+const pathRegistrationAge = async (sourceAndPath) => {
+  const pathIndex = getPathIndex(sourceAndPath)
+  const fileMeta = await system.api.safeMetadata(pathIndex)
+  return fileMeta && fileMeta.mtime ? (Date.now() - fileMeta.mtime) : null
+}
+
 /*
  * When a path is registered:
  * - The metadata is written to indexes/paths/<3-sha-hash-dirs-of-dirname(path)>/<full-sha-of-sourceAndPath>
@@ -198,5 +204,5 @@ const getPathsWithTag = async (tag) => {
 
 export {
   registerPath, addTag, removeTag, tagDir,
-  getTagsForPath, getPathsWithTag
+  getTagsForPath, getPathsWithTag, pathRegistrationAge
 }
