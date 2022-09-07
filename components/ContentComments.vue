@@ -13,17 +13,17 @@
     <v-row v-for="(comment, index) in comments" :key="index">
       <v-col>
         <v-container>
-          <v-row>
+          <v-row dense>
             <v-col>
               <v-card
                 :min-height="40"
                 :min-width="400"
-                :max-height="300"
+                :max-height="100"
                 :max-width="700"
               >
-                <v-card-title>
+                <v-card-title class="commentTitle">
                   <v-container>
-                    <v-row>
+                    <v-row dense>
                       <v-col>
                         <span v-if="comment.avatar">
                           <v-avatar size="48px">
@@ -53,7 +53,7 @@
               </v-card>
               <v-card-text>
                 <v-container>
-                  <v-row>
+                  <v-row dense>
                     <v-col>
                       <div v-if="removeCommentError" class="error">
                         {{ removeCommentError }}
@@ -75,7 +75,7 @@
                       </div>
                       <div v-else>
                         <v-container>
-                          <v-row>
+                          <v-row dense>
                             <v-col @click.stop="toggleEditComment(comment)">
                               {{ comment.comment }}
                             </v-col>
@@ -106,7 +106,7 @@
         </v-container>
       </v-col>
     </v-row>
-    <v-row v-if="loggedIn">
+    <v-row v-if="loggedIn && !addingComment" dense>
       <v-col>
         <div v-if="newCommentError" class="error">
           {{ newCommentError }}
@@ -163,6 +163,7 @@ export default {
       }
     },
     newComment (comment) {
+      console.log(`watch.newComment: got new comment: ${JSON.stringify(comment)}`)
       if (comment) { this.findCommentsForPath({ path: this.object.path }) }
     },
     editedComment (comment) {
@@ -189,13 +190,15 @@ export default {
       const path = this.object.path
       const comment = this.newCommentText
       this.createComment({ path, comment })
+      this.newCommentText = ''
     },
     doEditComment () {
       if (this.selectedCommentId) {
         const path = this.object.path
         const commentId = this.selectedCommentId
         const comment = this.editCommentText
-        this.editComment({ path, commentId, comment, messages: this.messages })
+        const messages = this.messages
+        this.editComment({ path, commentId, comment, messages })
         this.selectedCommentId = null
       }
     },
@@ -211,9 +214,17 @@ export default {
     doRemoveComment (commentId) {
       if (commentId) {
         const path = this.object.path
-        this.removeComment({ path, commentId })
+        const messages = this.messages
+        this.removeComment({ path, commentId, messages })
       }
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.commentTitle {
+  height: 60px;
+  margin-top: 20px;
+}
+</style>

@@ -4,7 +4,7 @@ const logger = system.logger
 const api = require('../../util/api')
 const { currentUser } = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
-const { flushMediaInfoCache } = require('../../asset/manifest')
+const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
 
 export default {
   path: '/api/source/mediainfo',
@@ -20,17 +20,21 @@ export default {
       const sourceAndPath = req.url
       const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
       if (!source || !pth) { return api.notFound() }
-      const infoPath = system.userMediaInfoPath(source.name, pth)
       if (req.method === 'GET') {
-        res.statusCode = 200
-        res.contentType = 'application/json'
-        await system.api.read(infoPath, chunk => res.write(chunk))
-        res.end()
+        const meta = await deriveMetadata(source, pth)
+        if (meta) {
+          const mediainfo = await deriveMediaInfo(meta, sourceAndPath)
+          if (mediainfo) {
+            return api.okJson(res, mediainfo)
+          }
+        }
+        return api.notFound(res, sourceAndPath)
       } else if (req.method === 'POST') {
         req.on('data', (data) => {
           const values = JSON.parse(data.toString())
           values.mtime = Date.now()
           const info = JSON.stringify(values)
+          const infoPath = system.userMediaInfoPath(source.name, pth)
           system.api.writeFile(infoPath, info)
             .then(() => {
               src.flushListCache()

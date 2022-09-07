@@ -36,22 +36,21 @@ function redirect (res, path) {
 
 function serverError (res, message) {
   res.statusCode = 500
-  try {
-    res.end(`${message}`)
-  } catch (e) {
-    logger.error(`serverError error ${e} (probably response already sent, nested error message: ${message}`)
-  }
+  logger.error(`500 serverError: ${message || 'no message'}`)
+  res.end()
   return null
 }
 
 function badRequest (res, message) {
   res.statusCode = 400
+  logger.warn(`400 badRequest: ${message || 'no message'}`)
   res.end(message)
   return null
 }
 
 function validationFailed (res, errors) {
   res.statusCode = 422
+  logger.info(`422 validationFailed: ${message || 'no message'}`)
   res.end(JSON.stringify(errors))
   return null
 }

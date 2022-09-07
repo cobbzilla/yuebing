@@ -36,8 +36,8 @@ export const actions = {
     commit('createCommentRequest')
     commentService.createComment(path, comment)
       .then(
-        (comments) => {
-          commit('createCommentSuccess', { comments })
+        (comment) => {
+          commit('createCommentSuccess', { comment })
         },
         (error) => {
           commit('createCommentFailure', { error })
@@ -56,8 +56,8 @@ export const actions = {
         }
       )
   },
-  removeComment ({ commit }, { path, commentId }) {
-    commit('removeCommentRequest')
+  removeComment ({ commit }, { path, commentId, messages }) {
+    commit('removeCommentRequest', { commentId, messages })
     commentService.removeComment(path, commentId)
       .then(
         (removed) => {
@@ -116,8 +116,14 @@ export const mutations = {
     state.editCommentError = error
   },
 
-  removeCommentRequest (state) {
+  removeCommentRequest (state, { commentId, messages }) {
     state.removingComment = true
+    if (state.comments) {
+      const found = state.comments.find(c => c.id === commentId)
+      if (found) {
+        found.comment = messages.label_removing_comment
+      }
+    }
   },
   removeCommentSuccess (state, { removed }) {
     state.removingComment = false

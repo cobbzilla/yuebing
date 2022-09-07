@@ -87,6 +87,7 @@ export default {
   label_comment: 'add a comment!',
   label_comment_modified: 'edited',
   label_updating_comment: 'updating...',
+  label_removing_comment: 'removing...',
   button_add_comment: 'add comment',
   button_update_comment: 'update comment',
 
