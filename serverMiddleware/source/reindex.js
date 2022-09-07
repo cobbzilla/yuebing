@@ -27,7 +27,7 @@ const REINDEX_PROCESS_FUNCTION = async (job) => {
       (meta) => {
         logger.info(`${logPrefix} deriveMetadataFromSourceAndPath returned meta: ${JSON.stringify(meta)}`)
         if (meta.finished || (meta.status && meta.status.ready)) {
-          registerPath(sourceAndPath, meta).then((registeredMeta) => {
+          registerPath(sourceAndPath, meta).then(() => {
               logger.info(`${logPrefix} registered path: ${sourceAndPath}, calling redis.sadd`)
               redis.sadd(infoSetKey, `${sourceAndPath}\t${Date.now()}\tsuccess`).then(() => {
                   if (!expirationSet) {
