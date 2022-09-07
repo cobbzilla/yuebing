@@ -1,4 +1,4 @@
-const { M_FILE } = require('mobiletto')
+const { M_FILE } = require('mobiletto-lite')
 
 const system = require('../util/config').SYSTEM
 const logger = system.logger

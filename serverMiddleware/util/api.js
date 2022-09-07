@@ -1,5 +1,5 @@
 const cookie = require('cookie')
-const { MobilettoNotFoundError } = require('mobiletto')
+const { MobilettoNotFoundError } = require('mobiletto-lite')
 const src = require('../source/sourceUtil')
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM

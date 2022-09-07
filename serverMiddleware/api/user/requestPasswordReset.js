@@ -1,4 +1,4 @@
-const { MobilettoNotFoundError } = require('mobiletto')
+const { MobilettoNotFoundError } = require('mobiletto-lite')
 const auth = require('../../../shared/auth')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')

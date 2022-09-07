@@ -1,6 +1,6 @@
 const LRU = require('lru-cache')
 const shasum = require('shasum')
-const { mobiletto, MobilettoNotFoundError, setLogLevel } = require('mobiletto')
+const { mobiletto, MobilettoNotFoundError, setLogLevel } = require('mobiletto-lite')
 const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')

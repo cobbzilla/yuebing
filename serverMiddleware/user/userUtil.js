@@ -1,5 +1,5 @@
 const cookie = require('cookie')
-const { MobilettoNotFoundError } = require('mobiletto')
+const { MobilettoNotFoundError } = require('mobiletto-lite')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')

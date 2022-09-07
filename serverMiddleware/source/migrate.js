@@ -1,4 +1,4 @@
-const { MobilettoNotFoundError } = require('mobiletto')
+const { MobilettoNotFoundError } = require('mobiletto-lite')
 
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM
