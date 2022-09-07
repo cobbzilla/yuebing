@@ -14,8 +14,8 @@ async function deriveMetadata (source, sourcePath) {
 
 async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
   const logPrefix = `deriveMetadata(${sourceAndPath}):`
-  const debug = (msg) => logger.debug(`${logPrefix} ${msg}`)
-  const silly = (msg) => logger.silly(`${logPrefix} ${msg}`)
+  const debug = msg => logger.debug(`${logPrefix} ${msg}`)
+  const silly = msg => logger.silly(`${logPrefix} ${msg}`)
   const noCache = opts && opts.noCache
 
   // Do we have this redis-cached?
@@ -42,7 +42,7 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
   const start = Date.now()
   const assets = await system.api.find(prefix, m.ASSET_PREFIX)
   const end = Date.now()
-  debug(`(find assets took ${''+((start - end)/1000)+' seconds'}), now examining ${assets.length} assets over profiles ${Object.keys(profiles).toString()}`)
+  debug(`(find assets took ${''+((end - start)/1000)+' seconds'}), now examining ${assets.length} assets over profiles ${Object.keys(profiles).toString()}`)
   assets.forEach((asset) => {
     silly(`examining asset: ${asset ? JSON.stringify(asset) : 'undefined/null'}`)
     const base = path.basename(asset.name)

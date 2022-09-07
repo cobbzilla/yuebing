@@ -1,4 +1,4 @@
-const path = require('path')
+const { basename } = require('path')
 const winston = require('winston')
 const vv = require('vee-validate')
 const storage = require('mobiletto-lite')
@@ -12,7 +12,7 @@ const { mediaInfoFields, mediaInfoField } = require('../../shared/mediainfo')
 
 const logger = winston.createLogger({
   level: process.env.YB_LOG_LEVEL || 'debug',
-  format: winston.format.simple(),
+  format: winston.format.timestamp(),
   transports: process.env.YB_LOG_FILE
     ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
     : [new winston.transports.Console()]
@@ -52,7 +52,7 @@ const CONFIGS = ['public', 'private']
 const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 
 function isMatch (obj, prefix, matches) {
-  if (path.basename(obj.name).startsWith(prefix)) {
+  if (basename(obj.name).startsWith(prefix)) {
     matches.push(obj)
   }
   return true
@@ -71,7 +71,7 @@ const SYSTEM = {
     : '/tmp/yuebing_workdir/',
   workingDir: path => SYSTEM.workbenchDir + shasum(path) + '/',
   canonicalSourceFile (pth) {
-    const ext = c.getExtension(path.basename(pth)).toLowerCase()
+    const ext = c.getExtension(basename(pth)).toLowerCase()
     return 'source.' + ext
   },
   userMediaInfoPath: (sourceName, pth) => SYSTEM.assetsDir(sourceName + '/' + pth) + USER_MEDIAINFO_JSON,

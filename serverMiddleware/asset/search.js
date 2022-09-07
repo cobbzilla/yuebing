@@ -75,10 +75,16 @@ const cache_enabled = true
 const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
 
 const _search = async (user, query) => {
+  const logPrefix = `search(${JSON.stringify(query)})`
+  logger.debug(`${logPrefix} starting`)
   const cacheKey = SEARCH_CACHE_PREFIX + shasum((user ? JSON.stringify(user) : '-') + '\n' + JSON.stringify(query))
   const cached = cache_enabled ? await redis.get(cacheKey) : null
   if (cached) {
-    return JSON.parse(cached)
+    const cachedResults = JSON.parse(cached)
+    logger.debug(`${logPrefix} returning ${cachedResults.length} cached results`)
+    return cachedResults
+  } else {
+    logger.debug(`${logPrefix} not cached, or cached disabled, performing search...`)
   }
   const promises = []
   const tagResults = {}
@@ -86,6 +92,7 @@ const _search = async (user, query) => {
     ? query.tags
     : DEFAULT_SEARCH_TAGS
   const pathsWithTags = {}
+  logger.debug(`${logPrefix} searching for tags: ${tags.join(' ')}`)
   for (const tag of tags) {
     promises.push(new Promise((resolve) => {
       content.getPathsWithTag(tag).then(
@@ -98,12 +105,16 @@ const _search = async (user, query) => {
               }
               pathsWithTags[path].push(tag)
             }
+            logger.debug(`${logPrefix} getPathsWithTag(${tag}): pushed paths: ${paths.join(' ')}`)
           }
+          logger.debug(`${logPrefix} resolving getPathsWithTag(${tag})`)
           resolve()
         })
     }))
   }
+  logger.info(`${logPrefix} awaiting ${promises.length} promises...`)
   await Promise.all(promises)
+  logger.info(`${logPrefix} all the ${promises.length} promises returned`)
 
   // which paths matched the most tags?
   const tagCounts = []
