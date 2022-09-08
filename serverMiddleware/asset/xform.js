@@ -579,17 +579,21 @@ async function ensureSourceDownloaded (job) {
 
 async function transform (sourcePath, force = false) {
   const logPrefix = `transform(${sourcePath}):`
+  logger.info(`${logPrefix} starting`)
   if (!m.hasProfiles(sourcePath)) {
     logger.warn(`${logPrefix} no profiles exist, not transforming`)
     return null
   }
 
+  logger.info(`${logPrefix} extracting source and path...`)
   const { sourceName, pth } = extractSourceAndPath(sourcePath)
   const source = await src.connect(sourceName)
 
-  logger.debug(`${logPrefix}) fetching metadata`)
+  logger.debug(`${logPrefix}) fetching metadata...`)
   const derivedMeta = await manifest.deriveMetadata(source, pth)
+  logger.debug(`${logPrefix}) fetched metadata`)
   if (derivedMeta && (derivedMeta.finished || (derivedMeta.status && derivedMeta.status.complete))) {
+    logger.debug(`${logPrefix}) metadata is finished/complete, returning it`)
     return derivedMeta
   }
   if (q.isQueued(sourcePath)) {

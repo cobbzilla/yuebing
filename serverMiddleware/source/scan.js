@@ -100,8 +100,8 @@ async function scan (source, path = '', opts = { autoscan: false }) {
     if (m.hasProfiles(jobName)) {
       logger.info(`>>>>> SCAN: queueing source: ${jobName}`)
       transforms.push(result)
-      if (autoscan) {
-        // perform synchronously for autoscan
+      if (autoscan || force) {
+        // perform synchronously for autoscan or force
         xform.transform(jobName, force).then((meta) => {
           logger.info(`SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
@@ -128,6 +128,7 @@ const scanPath = async (sourceAndPath) => {
     logger.info(`${logPrefix} scan returned: ${scanResult}`)
   } catch (e) {
     logger.error(`${logPrefix} error: ${e}`)
+    throw e
   }
 }
 
