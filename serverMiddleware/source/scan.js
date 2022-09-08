@@ -74,7 +74,20 @@ async function autoscan () {
 }
 
 async function scan (source, path = '', opts = { autoscan: false }) {
-  const results = await source.list(path, { recursive: true })
+  let results
+  try {
+    results = await source.list(path, { recursive: true })
+  } catch (e) {
+    logger.warn(`scan(${path}) error listing: ${e}, checking if single file`)
+    const meta = source.safeMetadata(path)
+    if (!meta) {
+      logger.error(`scan(${path}) error listing: ${e} and no metadata for path`)
+      throw e
+    } else {
+      logger.info(`scan(${path}) scanning single media item`)
+      results = [meta]
+    }
+  }
   const force = opts && opts.force
   const autoscan = opts && opts.autoscan
   const transforms = []
