@@ -74,8 +74,9 @@ async function autoscan () {
 }
 
 async function scan (source, path = '', opts = { autoscan: false }) {
+  const logPrefix = `scan(${path})`
   let results
-  logger.info(`scan(${path}) listing...`)
+  logger.info(`${logPrefix} listing...`)
   results = await source.list(path, { recursive: true, quiet: true })
   if (!results) {
     logger.warn(`scan(${path}) no listing found, checking for single file`)
@@ -84,35 +85,41 @@ async function scan (source, path = '', opts = { autoscan: false }) {
       logger.error(`scan(${path}) no listing found and no metadata for path, cannot scan`)
       return
     } else {
-      logger.info(`scan(${path}) scanning single media item`)
+      logger.info(`scan(${path}) scanning single media item: ${JSON.stringify(meta)}`)
       results = [meta]
     }
   }
+
   const force = opts && opts.force
   const autoscan = opts && opts.autoscan
   const transforms = []
   for (let i = 0; i < results.length; i++) {
+    const iterPrefix = `${logPrefix} [${i+1}/${results.length}]`
     const result = results[i]
     if (result.type !== M_FILE) {
+      logger.info(`scan(${path}) SKIPPING non-file result: ${JSON.stringify(result)}`)
       continue
     }
     const jobName = source.name + '/' + result.name
     if (m.hasProfiles(jobName)) {
-      logger.info(`>>>>> SCAN: queueing source: ${jobName}`)
       transforms.push(result)
       if (autoscan || force) {
         // perform synchronously for autoscan or force
+        logger.info(`${logPrefix} SYNC-QUEUING ${jobName}`)
         xform.transform(jobName, force).then((meta) => {
-          logger.info(`SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
+          logger.info(`${logPrefix} SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
+        logger.info(`${logPrefix} ASYNC-QUEUING ${jobName}`)
         setTimeout(() => {
           xform.transform(jobName, force).then((meta) => {
-            logger.info(`ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
+            logger.info(`${logPrefix} ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
       }
+    } else {
+      logger.warn(`scan(${path}) SKIPPING no profiles for [${i+1}/${results.length}]: ${JSON.stringify(result())}`)
     }
   }
   return transforms
