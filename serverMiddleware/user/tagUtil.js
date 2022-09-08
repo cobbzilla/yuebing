@@ -1,4 +1,5 @@
 const shasum = require('shasum')
+const { M_DIR, M_FILE } = require('mobiletto-lite')
 const { dirname, basename } = require('path')
 const { chopFileExt, isAllDigitsOrNonWordChars } = require('../../shared')
 const { extractSourceAndPath } = require('../../shared/source')
@@ -119,7 +120,7 @@ const denormalizeTag = normTag => normTag.replaceAll('-', ' ')
 const tagDir = (tag) => {
   const normTag = normalizeTag(tag)
   const tagSha = shasum(normTag)
-  return `${TAG_TO_CONTENT_INDEX}${tagSha.substring(0, 2)}/${tagSha.substring(2, 4)}/${tagSha.substring(4, 6)}/`
+  return `${TAG_TO_CONTENT_INDEX}${tagSha.substring(0, 2)}/${tagSha.substring(2, 4)}/${tagSha.substring(4, 6)}/${normTag}/`
 }
 
 const tagsForPathDir = (sourceAndPath) => {
@@ -259,7 +260,31 @@ const getPathsWithTag = async (tag) => {
   return paths
 }
 
+const TAG_PATH_REGEX = new RegExp('^' + TAG_TO_CONTENT_INDEX + '[\\dA-F]{2}/[\\dA-F]{2}/[\\dA-F]{2}/[^/]{3,}/?', 'gi')
+
+const forAllTags = async (func) => {
+  const tags = new Set()
+  const visitor = async (obj) => {
+    logger.debug(`forAllTags: visiting object: ${JSON.stringify(obj)}`)
+    // are we at the correct depth?
+    const match = obj.name.match(TAG_PATH_REGEX)
+    if (match) {
+      const tag = basename(match[0])
+      if (!tags.has(tag)) {
+        tags.add(tag)
+        logger.debug(`forAllTags: found tag: ${tag}`)
+        await func(tag)
+      }
+    } else {
+      logger.info(`not a tag: ${obj.name}`)
+    }
+  }
+  const listing = await system.api.safeList(TAG_TO_CONTENT_INDEX, { recursive: true, visitor })
+  logger.debug(`forAllTags: safeList returned ${listing.length} objects`)
+  return [...tags]
+}
+
 export {
-  registerPath, addTag, removeTag, tagDir,
+  registerPath, addTag, removeTag, tagDir, forAllTags,
   getTagsForPath, getPathsWithTag, pathRegistrationAge
 }

@@ -1,7 +1,5 @@
-const { basename } = require('path')
 const { NO_CACHE_HEADER } = require('../../../shared')
-const { UNKNOWN_MEDIA_TYPE, mediaType, hasMediaInfo, hasProfiles } = require('../../../shared/media')
-const { extractSourceAndPath } = require('../../../shared/source')
+const { hasProfiles } = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const cache = require('../../util/cache')

@@ -8,7 +8,7 @@ const cache = require('../util/cache')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const { getPathsWithTag } = require('../user/tagUtil')
+const { getPathsWithTag, forAllTags } = require('../user/tagUtil')
 const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('./manifest')
 
 // const exampleQuery = {
@@ -74,6 +74,29 @@ const cache_enabled = true
 
 const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
 
+let searchInitAtStartup = false
+const initSearchIndex = async (fromStartup) => {
+  if (fromStartup && searchInitAtStartup) {
+    logger.warn(`initSearchIndex already initialized at startup`)
+    return null
+  } else {
+    searchInitAtStartup = true
+    logger.info(`initSearchIndex: starting...`)
+    const tagInit = async (tag) => {
+      logger.debug(`initSearchIndex: indexing tag: ${tag}`)
+      await getPathsWithTag(tag)
+      logger.debug(`initSearchIndex: finished indexing tag: ${tag}`)
+    }
+    try {
+      const tags = await forAllTags(tagInit)
+      logger.info(`initSearchIndex: completed, indexed ${tags.length} tags`)
+      return tags
+    } catch (e) {
+      logger.error(`initSearchIndex error ${e}`)
+    }
+  }
+}
+
 const _search = async (user, query) => {
   const logPrefix = `search(${JSON.stringify(query)})`
   logger.debug(`${logPrefix} starting`)
@@ -130,5 +153,9 @@ const _search = async (user, query) => {
   await redis.set(cacheKey, JSON.stringify(matchedPaths), SEARCH_CACHE_EXPIRATION)
   return matchedPaths
 }
+
+initSearchIndex(true).then((tags) => {
+  logger.info(`initSearchIndex returned tags: ${tags.join(' ')}`)
+})
 
 export { search }

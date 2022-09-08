@@ -11,6 +11,7 @@ const {
 const { mediaInfoFields, mediaInfoField } = require('../../shared/mediainfo')
 
 const logger = winston.createLogger({
+  levels: winston.config.npm.levels,
   level: process.env.YB_LOG_LEVEL || 'debug',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
@@ -19,7 +20,7 @@ const logger = winston.createLogger({
     })),
   transports: process.env.YB_LOG_FILE
     ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
-    : [new winston.transports.Console()]
+    : [new winston.transports.Console({ stderrLevels: Object.keys(winston.config.npm.levels) })]
 })
 
 const key = process.env.YB_DEST_KEY
@@ -132,6 +133,15 @@ const SYSTEM = {
             throw e
           }
         }
+      }
+      // adjust redis if needed
+      if (process.env.YB_REDIS_HOST) {
+        logger.info(`using process.env.YB_REDIS_HOST=${process.env.YB_REDIS_HOST} as redis host`)
+        SYSTEM.privateConfig.redis.host = process.env.YB_REDIS_HOST
+      }
+      if (process.env.YB_REDIS_PORT) {
+        logger.info(`using process.env.YB_REDIS_PORT=${process.env.YB_REDIS_PORT} as redis port`)
+        SYSTEM.privateConfig.redis.port = +process.env.YB_REDIS_PORT
       }
     }
     logger.info(`connect: SYSTEM connected, workDir=${SYSTEM.workbenchDir}`)
