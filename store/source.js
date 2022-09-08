@@ -9,18 +9,18 @@ export const state = () => ({
   loadingObjectsError: null,
 
   metadata: {},
-  loadingMetadata: false,
-  loadingMetadataError: null,
+  loadingMetadata: {},
+  loadingMetadataError: {},
 
   assetData: {},
   loadingAsset: false,
   loadingAssetError: null,
 
   userMediaInfo: {},
-  fetchingUserMediaInfo: false,
-  fetchingUserMediaInfoError: null,
-  updatingUserMediaInfo: false,
-  updatingUserMediaInfoError: null,
+  fetchingUserMediaInfo: {},
+  fetchingUserMediaInfoError: {},
+  updatingUserMediaInfo: {},
+  updatingUserMediaInfoError: {},
 
   selectedThumbnails: {},
   fetchingSelectedThumbnail: false,
@@ -30,7 +30,7 @@ export const state = () => ({
 })
 
 export const actions = {
-  fetchObjects ({ commit }, { prefix, noCache = null}) {
+  fetchObjects ({ commit }, { prefix, noCache = null }) {
     commit('fetchObjectsRequest', { prefix })
     sourceService
       .listObjects(prefix, noCache)
@@ -41,7 +41,7 @@ export const actions = {
   },
 
   fetchMetadata ({ commit }, { path }) {
-    commit('fetchMetaRequest')
+    commit('fetchMetaRequest', { path })
     sourceService
       .metadata(path)
       .then(
@@ -49,7 +49,7 @@ export const actions = {
           meta.path = path
           commit('fetchMetaSuccess', { path, meta })
         },
-        error => commit('fetchMetaFailure', error)
+        error => commit('fetchMetaFailure', { path, error })
       )
   },
 
@@ -75,21 +75,17 @@ export const actions = {
   },
 
   fetchUserMediaInfo ({ dispatch, commit }, { path }) {
-    commit('fetchUserMediaInfoRequest')
+    commit('fetchUserMediaInfoRequest', { path })
     sourceService
       .fetchUserMediaInfo(path)
       .then(
-        (values) => {
-          commit('fetchUserMediaInfoSuccess', { path, values })
-        },
-        (error) => {
-          commit('fetchUserMediaInfoFailure', error)
-        }
+        (values) => { commit('fetchUserMediaInfoSuccess', { path, values }) },
+        (error) => { commit('fetchUserMediaInfoFailure', { path, error }) }
       )
   },
 
   updateUserMediaInfo ({ dispatch, commit }, { path, values }) {
-    commit('updateUserMediaInfoRequest')
+    commit('updateUserMediaInfoRequest', { path })
     if (!currentUser()) {
       console.log('updateUserMediaInfo: No user logged in and not a public instance, not calling API')
       commit('updateUserMediaInfoSuccess', { path, values })
@@ -97,10 +93,8 @@ export const actions = {
       sourceService
         .updateUserMediaInfo(path, values)
         .then(
-          () => {
-            commit('updateUserMediaInfoSuccess', { path, values })
-          },
-          error => commit('updateUserMediaInfoFailure', error)
+          () => { commit('updateUserMediaInfoSuccess', { path, values }) },
+          error => commit('updateUserMediaInfoFailure', { path, error })
         )
     }
   },
@@ -139,25 +133,32 @@ export const mutations = {
     state.loadingObjectsError = error
   },
 
-  fetchMetaRequest (state) {
-    state.loadingMetadata = true
+  fetchMetaRequest (state, { path }) {
+    const update = {}
+    update[path] = true
+    state.loadingMetadata = Object.assign({}, state.loadingMetadata, update)
   },
   fetchMetaSuccess (state, { path, meta }) {
     const update = {}
+    update[path] = false
+    state.loadingMetadata = Object.assign({}, state.loadingMetadata, update)
     update[path] = meta
     state.metadata = Object.assign({}, state.metadata, update)
-    state.loadingMetadataError = null
-    state.loadingMetadata = false
-    const found = state.objectList.find(o => o.name === path)
+    update[path] = null
+    state.loadingMetadataError = Object.assign({}, state.loadingMetadataError, update)
+    const found = state.objectList.find(o => o.name === path || o.sourcePath === path)
     if (found) {
       found.meta = meta
     } else {
       state.objectList.push(newMediaObject(path, meta))
     }
   },
-  fetchMetaFailure (state, error) {
-    state.loadingMetadata = false
-    state.loadingMetadataError = error
+  fetchMetaFailure (state, { path, error }) {
+    const update = {}
+    update[path] = false
+    state.loadingMetadata = Object.assign({}, state.loadingMetadata, update)
+    update[path] = error
+    state.loadingMetadataError = Object.assign({}, state.loadingMetadataError, update)
   },
 
   fetchAssetRequest (state) {
@@ -175,34 +176,52 @@ export const mutations = {
     state.loadingAssetError = error
   },
 
-  fetchUserMediaInfoRequest (state) {
-    state.fetchingUserMediaInfo = true
+  fetchUserMediaInfoRequest (state, { path }) {
+    const update = {}
+    update[path] = true
+    state.fetchingUserMediaInfo = Object.assign({}, state.fetchingUserMediaInfo, update)
   },
   fetchUserMediaInfoSuccess (state, { path, values }) {
-    const newInfo = {}
-    newInfo[path] = values
-    state.userMediaInfo = Object.assign({}, state.userMediaInfo, newInfo)
-    state.fetchingUserMediaInfoError = null
-    state.fetchingUserMediaInfo = false
+    const update = {}
+    update[path] = false
+    state.fetchingUserMediaInfo = Object.assign({}, state.fetchingUserMediaInfo, update)
+    update[path] = values
+    state.userMediaInfo = Object.assign({}, state.userMediaInfo, update)
+    const found = state.objectList.find(o => o.name === path || o.sourcePath === path)
+    if (found) {
+      found.userMediaInfo = values
+    }
+    update[path] = null
+    state.fetchingUserMediaInfoError = Object.assign({}, state.fetchingUserMediaInfoError, update)
   },
-  fetchUserMediaInfoFailure (state, error) {
-    state.fetchingUserMediaInfoError = error
-    state.fetchingUserMediaInfo = false
+  fetchUserMediaInfoFailure (state, { path, error }) {
+    const update = {}
+    update[path] = false
+    state.fetchingUserMediaInfo = Object.assign({}, state.fetchingUserMediaInfo, update)
+    update[path] = error
+    state.fetchingUserMediaInfoError = Object.assign({}, state.fetchingUserMediaInfoError, update)
   },
 
-  updateUserMediaInfoRequest (state) {
-    state.updatingUserMediaInfo = true
+  updateUserMediaInfoRequest (state, { path }) {
+    const update = {}
+    update[path] = true
+    state.updatingUserMediaInfo = Object.assign({}, state.updatingUserMediaInfo, update)
   },
   updateUserMediaInfoSuccess (state, { path, values }) {
-    const newInfo = {}
-    newInfo[path] = values
-    state.userMediaInfo = Object.assign({}, state.userMediaInfo, newInfo)
-    state.updatingUserMediaInfoError = null
-    state.updatingUserMediaInfo = false
+    const update = {}
+    update[path] = false
+    state.updatingUserMediaInfo = Object.assign({}, state.updatingUserMediaInfo, update)
+    update[path] = values
+    state.userMediaInfo = Object.assign({}, state.userMediaInfo, update)
+    update[path] = null
+    state.updatingUserMediaInfoError = Object.assign({}, state.updatingUserMediaInfoError, update)
   },
-  updateUserMediaInfoFailure (state, error) {
-    state.updatingUserMediaInfoError = error
-    state.updatingUserMediaInfo = false
+  updateUserMediaInfoFailure (state, { path, error }) {
+    const update = {}
+    update[path] = false
+    state.updatingUserMediaInfo = Object.assign({}, state.updatingUserMediaInfo, update)
+    update[path] = error
+    state.updatingUserMediaInfoError = Object.assign({}, state.updatingUserMediaInfoError, update)
   },
 
   updateSelectedThumbnailRequest (state) {

@@ -1,5 +1,3 @@
-import Queue from 'bull'
-
 const { spawn } = require('node:child_process')
 
 const fs = require('fs')
@@ -17,7 +15,7 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const manifest = require('./manifest')
 const q = require('./job')
-const content = require('./content')
+const { registerPath } = require('../user/tagUtil')
 
 const MAX_XFORM_ERRORS = 3
 
@@ -47,7 +45,7 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
       return null
     } else {
       try {
-        await content.registerPath(job.data.sourcePath, meta)
+        await registerPath(job.data.sourcePath, meta)
       } catch (e) {
         logger.error(`__xform(${job.data.sourcePath}): content.registerPath failed: ${e}`)
         throw e
@@ -608,52 +606,10 @@ async function transform (sourcePath, force = false) {
   return derivedMeta
 }
 
-const DELETE_QUEUE_NAME = 'DeletePathQueue'
-const DELETE_JOB_NAME = 'DeletePathJob'
-const DELETE_CONCURRENCY = 5
-
-const DELETE_PROCESS_FUNCTION = async (job) => {
-  const asset = job.data.asset
-  try {
-    const removed = await system.api.remove(asset)
-    if (!removed) {
-      logger.warn(`DELETE_PROCESS_FUNCTION: error removing asset ${asset}: removed returned falsy`)
-    }
-  } catch (e) {
-    logger.error(`DELETE_PROCESS_FUNCTION: error removing asset ${asset}: ${e}`)
-    throw e
-  }
-}
-
-let DELETE_QUEUE = null
-const indexQueue = () => {
-  if (DELETE_QUEUE === null) {
-    DELETE_QUEUE = new Queue(DELETE_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
-    DELETE_QUEUE.process(DELETE_JOB_NAME, DELETE_CONCURRENCY, DELETE_PROCESS_FUNCTION)
-  }
-  return DELETE_QUEUE
-}
-
-function enqueue (asset) {
-  const job = {
-    ctime: Date.now(),
-    asset
-  }
-  indexQueue().add(DELETE_JOB_NAME, job)
-}
+const { queueSystemDelete } = require('../util/delete')
 
 const deleteAssetsForPath = async (sourceAndPath) => {
-  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
-  const meta = await manifest.deriveMetadata(sourceName, pth, { noCache: true })
-  if (!meta || !meta.assets) {
-    logger.error(`deleteAssetsForPath(${sourceAndPath}) no metadata found, or metadata had no assets`)
-  } else {
-    for (const profile of Object.keys(meta.assets)) {
-      for (const asset of meta.assets[profile]) {
-        enqueue(asset)
-      }
-    }
-  }
+  queueSystemDelete(system.assetsDir(sourceAndPath), { recursive: true })
 }
 
 system.deletePathHandlers['xform'] = deleteAssetsForPath

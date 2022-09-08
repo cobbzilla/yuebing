@@ -8,7 +8,7 @@ const { stopWords } = require('../../shared/locale')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('./manifest')
+const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('../asset/manifest')
 
 const PATH_INDEX = 'indexes/paths/'
 const TAGS_INDEX = 'indexes/tags/'
@@ -133,6 +133,12 @@ const tagsForPathDir = (sourceAndPath) => {
  *   * The tag file is touched: indexes/tags/contentToTags/<3-sha-hash-dirs-of-sourceAndPath>/<full-sha-of-sourceAndPath>/<tag>
  */
 const addTag = async (sourceAndPath, tag) => {
+  if (Array.isArray(tag)) {
+    for (const t of tag) {
+      await addTag(sourceAndPath, t)
+    }
+    return
+  }
   const normTag = normalizeTag(tag)
   const logPrefix = `addTag(${sourceAndPath}, ${tag})`
   if (normTag.length < MIN_TAG_LENGTH) {
@@ -166,9 +172,16 @@ const addTag = async (sourceAndPath, tag) => {
   } else {
     logger.info(`${logPrefix} contentToTagPath already exists: ${contentToTagPath}`)
   }
+  await flushTagsForPathCache(sourceAndPath)
 }
 
 const removeTag = async (sourceAndPath, tag) => {
+  if (Array.isArray(tag)) {
+    for (const t of tag) {
+      await removeTag(sourceAndPath, t)
+    }
+    return
+  }
   const logPrefix = `removeTag(${sourceAndPath}, ${tag})`
   const encodedPath = objectEncodePath(sourceAndPath)
 
@@ -183,6 +196,7 @@ const removeTag = async (sourceAndPath, tag) => {
   if (!(await system.api.remove(contentToTagPath, { quiet: true }))) {
     logger.warn(`${logPrefix} error removing contentToTagPath=${contentToTagPath}`)
   }
+  await flushTagsForPathCache(sourceAndPath)
 }
 
 const removeAllTagsForPath = async (sourceAndPath) => {
@@ -204,6 +218,7 @@ const removeAllTagsForPath = async (sourceAndPath) => {
       logger.warn(`${logPrefix} error removing tagsDir=${tagsDir}`)
     }
   }
+  await flushTagsForPathCache(sourceAndPath)
 }
 
 const TAGS_FOR_PATH_CACHE_PREFIX = 'getTagsForPath_'
@@ -222,6 +237,12 @@ const getTagsForPath = async (sourceAndPath) => {
   const tags = tagObjs.map(o => denormalizeTag(basename(o.name)))
   await redis.set(cacheKey, JSON.stringify(tags), TAG_CACHE_EXPIRATION)
   return tags
+}
+
+const flushTagsForPathCache = async (sourceAndPath) => {
+  const hash = shasum(sourceAndPath)
+  const cacheKey = TAGS_FOR_PATH_CACHE_PREFIX + hash
+  await redis.del(cacheKey)
 }
 
 const cache_enabled = true

@@ -8,7 +8,7 @@ const cache = require('../util/cache')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const content = require('./content')
+const { getPathsWithTag } = require('../user/tagUtil')
 const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('./manifest')
 
 // const exampleQuery = {
@@ -95,7 +95,7 @@ const _search = async (user, query) => {
   logger.debug(`${logPrefix} searching for tags: ${tags.join(' ')}`)
   for (const tag of tags) {
     promises.push(new Promise((resolve) => {
-      content.getPathsWithTag(tag).then(
+      getPathsWithTag(tag).then(
         (paths) => {
           if (paths && paths.length > 0) {
             tagResults[tag] = paths

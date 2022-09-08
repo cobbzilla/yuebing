@@ -22,6 +22,7 @@ module.exports = async function (moduleOptions) {
     this.addServerMiddleware('~/serverMiddleware/api/user/headers')
     this.addServerMiddleware('~/serverMiddleware/api/user/inviteFriends')
     this.addServerMiddleware('~/serverMiddleware/api/user/comments')
+    this.addServerMiddleware('~/serverMiddleware/api/user/tags')
     this.addServerMiddleware('~/serverMiddleware/api/source/list')
     this.addServerMiddleware('~/serverMiddleware/api/source/scan')
     this.addServerMiddleware('~/serverMiddleware/api/source/meta')

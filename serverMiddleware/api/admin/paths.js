@@ -1,5 +1,7 @@
 const { basename, dirname } = require('path')
 
+const { NO_CACHE_HEADER } = require('../../../shared')
+const { deriveMetadataFromSourceAndPath } = require('../../asset/manifest')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
@@ -18,6 +20,11 @@ const doScan = async (req, res, sourceAndPath) => {
   return api.okJson(res, {})
 }
 
+const doMeta = async (req, res, sourceAndPath) => {
+  const noCache = req.headers && req.headers[NO_CACHE_HEADER]
+  return api.okJson(await deriveMetadataFromSourceAndPath(sourceAndPath, { noCache }))
+}
+
 const doDelete = async (req, res, sourceAndPath) => {
   try {
     await system.deletePath(sourceAndPath)
@@ -30,7 +37,8 @@ const doDelete = async (req, res, sourceAndPath) => {
 const operationHandlers = {
   index: { handle: doIndex, method: 'GET' },
   scan: { handle: doScan, method: 'GET' },
-  delete: { handle: doDelete, method: 'DELETE' }
+  delete: { handle: doDelete, method: 'DELETE' },
+  meta: { handle: doMeta, method: 'GET' }
 }
 
 export default {

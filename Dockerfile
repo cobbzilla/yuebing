@@ -13,11 +13,19 @@ RUN mkdir -p /usr/src/scratch
 WORKDIR /usr/src/yuebing
 
 RUN apk update && apk upgrade && \
-    apk add curl redis ffmpeg mediainfo
+    apk add --no-cache curl redis ffmpeg mediainfo
 
 COPY . /usr/src/yuebing/
 
-RUN yarn install && yarn build
+# Install dev/build dependencies required to build @ronomon/crypto-async
+RUN apk add --no-cache make g++ python3 linux-headers libressl-dev musl-dev libffi-dev
+
+RUN yarn install
+
+# Remove dev/build dependencies
+RUN apk del make g++ python3 linux-headers libressl-dev musl-dev libffi-dev
+
+RUN yarn build
 
 EXPOSE 3000
 

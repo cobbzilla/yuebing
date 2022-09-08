@@ -7,7 +7,7 @@ const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const { registerPath, pathRegistrationAge } = require('../asset/content')
+const { registerPath, pathRegistrationAge } = require('../user/tagUtil')
 
 const REINDEX_INFO_SET_KEY = 'reindex_info_'
 const REINDEX_INFO_EXPIRATION = 1000 * 60 * 60 * 24

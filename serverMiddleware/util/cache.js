@@ -15,7 +15,7 @@ const cacheKey = (prefix, sourceAndPath) => prefix + shasum(sourceAndPath)
 const redisMetaCacheKey = sourceAndPath => cacheKey(REDIS_META_PREFIX, sourceAndPath)
 const redisSelectedThumbnailCacheKey = sourceAndPath => cacheKey(REDIS_SELECTED_THUMBNAIL_PREFIX, sourceAndPath)
 
-const cachedMetaPath = sourceAndPath => `${sourceAndPath}.meta.json`
+const cachedMetaPath = sourceAndPath => system.assetsDir(sourceAndPath) + 'cached_meta.json'
 
 const getCachedMetadata = async (sourceAndPath) => {
   const logPrefix = `getCachedMetadata(${sourceAndPath})`

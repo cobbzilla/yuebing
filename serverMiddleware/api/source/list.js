@@ -1,16 +1,15 @@
 const { basename } = require('path')
 const { NO_CACHE_HEADER } = require('../../../shared')
-const { UNKNOWN_MEDIA_TYPE, mediaType, hasMediaInfo } = require('../../../shared/media')
+const { UNKNOWN_MEDIA_TYPE, mediaType, hasMediaInfo, hasProfiles } = require('../../../shared/media')
 const { extractSourceAndPath } = require('../../../shared/source')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
+const cache = require('../../util/cache')
 const redis = require('../../util/redis')
 const u = require('../../user/userUtil')
-const { deriveMetadata, deriveMediaInfo } = require('../../asset/manifest')
 const src = require('../../source/sourceUtil')
 const { currentUser } = require('../../user/userUtil')
 const { search } = require('../../asset/search')
-const { getTagsForPath } = require('../../asset/content')
 const logger = system.logger
 
 const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
@@ -30,54 +29,19 @@ const listObjects = async (req, res) => {
       : api.handleSourceError(res, obj)
   }
   try {
-    const path = req.url.startsWith('/') ? req.url.substring(1) : req.url
-    const { sourceName, pth } = extractSourceAndPath(path)
-    const sourceObjects = await src.listSourcesWithoutSelf({ pageSize: 1000 })
-    const singleSource = sourceObjects.list.find(s => s.name === sourceName)
-    const sourceNames = singleSource ? [sourceName] : [...sourceObjects.list.map(src => src.name)]
-    const searchPath = singleSource ? pth : path
-    const promises = {}
-    const sourceApi = {}
-    for (const sc of sourceNames) {
-      promises[sc] = src.connect(sc)
-        .then(
-          (api) => {
-            sourceApi[sc] = api
-            return api.list(searchPath)
-          },
-          (err) => {
-            logger.error(`error connecting to ${sc}: ${err}`)
-            throw err
-          })
-    }
-    const listing = []
-    for (const sc of Object.keys(promises)) {
-      const objects = await promises[sc]
-      listing.push(...objects.map((obj) => {
-        if (!obj.processed) {
-          obj.source = sc
-          obj.sourcePath = obj.name
-          obj.basename = basename(obj.name)
-          obj.path = sc + '/' + obj.name
-          obj.mediaType = mediaType(obj.name)
-          obj.processed = true
-        }
-        return obj
-      }))
-    }
-    for (const obj of listing) {
-      if (obj.mediaType !== UNKNOWN_MEDIA_TYPE) {
-        if (!obj.meta) {
-          obj.meta = await deriveMetadata(sourceApi[obj.source], obj.sourcePath)
-        }
-        if (!obj.mediainfo && hasMediaInfo(obj) && obj.meta) {
-          obj.mediainfo = await deriveMediaInfo(obj.meta, `${obj.source}/${obj.sourcePath}`)
-        }
-        if (!obj.tags) {
-          obj.tags = await getTagsForPath(obj.sourcePath)
-        }
+    const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
+    const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
+    const listing = await source.list(pth || '')
+    const promises = listing.map(async file => new Promise(async (resolve) => {
+      file.sourcePath = source.name + '/' + file.name
+      if (!hasProfiles(file)) {
+        resolve()
       }
-    }
+      cache.getCachedMetadata(source.name + '/' + file.name)
+        .then(meta => file.meta = meta)
+        .then(resolve)
+    }))
+    await Promise.all(promises)
     await redis.set(cacheKey, JSON.stringify(listing), LISTING_CACHE_EXPIRATION)
     return api.okJson(res, listing)
   } catch (e) {
