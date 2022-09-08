@@ -10,21 +10,10 @@ const { currentUser } = require('../../user/userUtil')
 const { search } = require('../../asset/search')
 const logger = system.logger
 
-const LISTING_CACHE_EXPIRATION = system.privateConfig.redis.listingCacheExpiration
-
 const listObjects = async (req, res) => {
   const user = await u.requireUser(req, res)
   if (!user) {
     return api.forbidden(res)
-  }
-  const noCache = req.headers && req.headers[NO_CACHE_HEADER]
-  const cacheKey = src.objectListCacheKey(req)
-  const results = noCache ? null : await redis.get(cacheKey)
-  if (results) {
-    const obj = JSON.parse(results)
-    return Array.isArray(obj)
-      ? api.okJson(res, obj)
-      : api.handleSourceError(res, obj)
   }
   try {
     const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
@@ -36,11 +25,21 @@ const listObjects = async (req, res) => {
         resolve()
       }
       cache.getCachedMetadata(source.name + '/' + file.name)
-        .then(meta => file.meta = meta)
-        .then(resolve)
+        .then((meta) => {
+          if (meta) {
+            logger.debug(`list(${sourceAndPath}) found cached meta, assigning meta for file ${file.name}=${JSON.stringify(meta)}`)
+            file.meta = meta
+          } else {
+            logger.silly(`list(${sourceAndPath}) no cached meta found for file ${file.name}`)
+          }
+        })
+        .then(() => {
+          logger.info(`list(${sourceAndPath}) resolving for ${file.name}`)
+          resolve()
+        })
     }))
     await Promise.all(promises)
-    await redis.set(cacheKey, JSON.stringify(listing), LISTING_CACHE_EXPIRATION)
+    logger.info(`list(${sourceAndPath}) all promises resolved, returning`)
     return api.okJson(res, listing)
   } catch (e) {
     return api.handleSourceError(res, e)

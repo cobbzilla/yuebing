@@ -26,8 +26,7 @@ const getCachedMetadata = async (sourceAndPath) => {
   if (!cachedMeta) {
     const metaPath = cachedMetaPath(sourceAndPath)
     debug(`no cachedMeta in redis, looking for metaPath=${metaPath}`)
-    const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
-    const metaPathData = await source.safeReadFile(metaPath)
+    const metaPathData = await system.api.safeReadFile(metaPath)
     if (metaPathData) {
       cachedMeta = JSON.parse(metaPathData)
       debug(`found metaPath=${metaPath} --> ${metaPathData}`)

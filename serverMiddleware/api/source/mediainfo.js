@@ -38,7 +38,6 @@ export default {
           const infoPath = system.userMediaInfoPath(source.name, pth)
           system.api.writeFile(infoPath, info)
             .then(() => {
-              src.flushListCache()
               flushMediaInfoCache(sourceAndPath)
               reindexPath(sourceAndPath)
               api.okJson(res, info)

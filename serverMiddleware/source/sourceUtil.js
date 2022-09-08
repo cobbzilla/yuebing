@@ -119,7 +119,6 @@ async function createSource (source) {
     const bytesWritten = await system.api.writeFile(sourceKey(source.name), JSON.stringify(sourceRecord))
     if (bytesWritten > 0) {
       listSourceCache.clear()
-      flushListCache()
     }
   } catch (e) {
     logger.warn(`createSource: error writing source file: ${e}`)
@@ -138,7 +137,6 @@ async function deleteSource (name) {
     const bytesWritten = await system.api.remove(sourceKey(name))
     if (bytesWritten > 0) {
       listSourceCache.clear()
-      flushListCache()
     }
   } catch (e) {
     logger.warn(`createSource: error writing source file: ${e}`)
@@ -173,20 +171,10 @@ async function extractSourceAndPathAndConnect (from) {
   return { source, pth }
 }
 
-const OBJECT_LIST_CACHE_PREFIX = 'objectListCache_'
-const objectListCacheKey = req => `${OBJECT_LIST_CACHE_PREFIX}${req.url}`
-
-function flushListCache () {
-  redis.removeMatchingKeys(OBJECT_LIST_CACHE_PREFIX + '*').then((results) => {
-    logger.info(`flushListCache: flushed ${results.length ? results.length : '(undefined)'} list cache entries`)
-  })
-}
-
 export {
   connect, connectedSources, extractSourceAndPathAndConnect,
   sourceExists, findSource,
   listSources, listSourcesWithoutSelf,
   createSource, deleteSource,
-  SourceError, SourceNotFoundError,
-  objectListCacheKey, flushListCache
+  SourceError, SourceNotFoundError
 }

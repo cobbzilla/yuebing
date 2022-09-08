@@ -158,9 +158,6 @@ export default {
       // in your logs. Start another scan to reprocess the abandoned jobs.
       flushAtStartup: (typeof process.env.YB_REDIS_FLUSH_AT_STARTUP !== 'undefined') ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : true,
 
-      // Cache duration for listings from storage, in milliseconds
-      listingCacheExpiration: process.env.YB_LIST_CACHE_EXPIRATION || 5 * 60 * 1000, // default 5 minutes
-
       // Cache duration for manifests, in milliseconds
       // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`
       // file is newer than the cache's ctime
