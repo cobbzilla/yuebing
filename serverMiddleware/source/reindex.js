@@ -25,7 +25,7 @@ const REINDEX_PROCESS_FUNCTION = async (job) => {
   const sourceAndPath = source + '/' + job.data.path
   const logPrefix = `reindex(${sourceAndPath})`
   const regAge = await pathRegistrationAge(sourceAndPath)
-  if (regAge !== null && regAge < MIN_REG_AGE) {
+  if (regAge && regAge < MIN_REG_AGE) {
     logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not re-indexing again`)
     return null
   }

@@ -55,13 +55,6 @@ const CONFIGS = ['public', 'private']
 
 const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 
-function isMatch (obj, prefix, matches) {
-  if (basename(obj.name).startsWith(prefix)) {
-    matches.push(obj)
-  }
-  return true
-}
-
 const SYSTEM = {
   logger,
   api: null,
@@ -129,15 +122,16 @@ const SYSTEM = {
         }
         const merged = SYSTEM[`${config}Config`] = Object.assign({}, nuxt[`${config}RuntimeConfig`], storedConfig)
         SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
-        SYSTEM.api.find =
-          async (dir, prefix) => {
-            const pth = dir.endsWith('/') ? dir : dir + '/'
-            const matches = []
-            // noinspection ES6RedundantAwait
-            const visitor = async obj => await Promise.resolve(isMatch(obj, prefix, matches))
-            await SYSTEM.api.safeList(pth, { visitor })
-            return matches
+        SYSTEM.api.find = async (dir, prefix) => {
+          const pth = dir.endsWith('/') ? dir : dir + '/'
+          try {
+            const listing = await SYSTEM.api.list(pth)
+            return listing.filter(obj => basename(obj.name).startsWith(prefix))
+          } catch (e) {
+            logger.error(`system.api.find(${dir}, ${prefix}) error: ${e}`)
+            throw e
           }
+        }
       }
     }
     logger.info(`connect: SYSTEM connected, workDir=${SYSTEM.workbenchDir}`)

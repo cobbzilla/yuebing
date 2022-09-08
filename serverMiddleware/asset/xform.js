@@ -15,7 +15,7 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const manifest = require('./manifest')
 const q = require('./job')
-const { registerPath } = require('../user/tagUtil')
+const { registerPath, pathRegistrationAge } = require('../user/tagUtil')
 
 const MAX_XFORM_ERRORS = 3
 
@@ -23,38 +23,47 @@ const showTransformOutput = () => system.privateConfig.autoscan.showTransformOut
 const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
+const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max successful 1 transcode per day
+
 const XFORM_PROCESS_FUNCTION = async (job) => {
-  logger.silly(`__xform(${job.data.sourcePath}): STARTING`)
+  const logPrefix = `__xform(${job.data.sourcePath})`
+  const regAge = await pathRegistrationAge(job.data.sourcePath)
+  if (regAge && regAge < MIN_REG_AGE) {
+    logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
+    return null
+  }
+
+  logger.silly(`${logPrefix}: STARTING`)
   const file = await ensureSourceDownloaded(job)
-  logger.silly(`__xform(${job.data.sourcePath}): ensureSourceDownloaded returned: ${file}`)
+  logger.silly(`${logPrefix}: ensureSourceDownloaded returned: ${file}`)
   if (file) {
-    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts STARTING`)
+    logger.silly(`${logPrefix}: createArtifacts STARTING`)
     await createArtifacts(job, file)
 
-    logger.silly(`__xform(${job.data.sourcePath}): createArtifacts finished, flushing metadata and recalculating final metadata`)
+    logger.silly(`${logPrefix}: createArtifacts finished, flushing metadata and recalculating final metadata`)
     let meta
     try {
       await cache.hardFlushCachedMetadata(job.data.sourcePath)
       meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath)
     } catch (e) {
-      logger.error(`__xform(${job.data.sourcePath}): manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
+      logger.error(`${logPrefix}: manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
       throw e
     }
     if (!meta || (!meta.finished && !meta.status?.ready)) {
-      logger.warn(`__xform(${job.data.sourcePath}): deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
+      logger.warn(`${logPrefix}: deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
       return null
     } else {
       try {
         await registerPath(job.data.sourcePath, meta)
       } catch (e) {
-        logger.error(`__xform(${job.data.sourcePath}): content.registerPath failed: ${e}`)
+        logger.error(`${logPrefix}: content.registerPath failed: ${e}`)
         throw e
       }
       return meta
     }
 
   } else {
-    const message = `__xform(${job.data.sourcePath}): ensureSourceDownloaded did not return a file`
+    const message = `${logPrefix}: ensureSourceDownloaded did not return a file`
     logger.error(message)
     throw new TypeError(message)
   }

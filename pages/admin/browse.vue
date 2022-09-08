@@ -174,7 +174,7 @@
         <div v-else-if="isMedia(obj)">
           <span v-if="obj.title">{{ obj.title }} ( {{ objName(obj) }} )</span>
           <span v-else>{{ objName(obj) }}</span>
-          <v-btn v-if="typeof obj.meta === 'undefined'" icon :disabled="loadingMetadata[obj.sourcePath] || fetchingUserMediaInfo[obj.sourcePath]" @click.stop="doMeta(obj)">
+          <v-btn v-if="!obj.meta" icon :disabled="loadingMetadata[obj.sourcePath] || fetchingUserMediaInfo[obj.sourcePath]" @click.stop="doMeta(obj)">
             <v-icon>
               mdi-information-outline
             </v-icon>
