@@ -97,7 +97,7 @@ async function scan (source, path = '', opts = { autoscan: false }) {
     const iterPrefix = `${logPrefix} [${i+1}/${results.length}]`
     const result = results[i]
     if (result.type !== M_FILE) {
-      logger.info(`scan(${path}) SKIPPING non-file result: ${JSON.stringify(result)}`)
+      logger.info(`${iterPrefix} SKIPPING non-file result: ${JSON.stringify(result)}`)
       continue
     }
     const jobName = source.name + '/' + result.name
@@ -105,16 +105,16 @@ async function scan (source, path = '', opts = { autoscan: false }) {
       transforms.push(result)
       if (autoscan || force) {
         // perform synchronously for autoscan or force
-        logger.info(`${logPrefix} SYNC-QUEUING ${jobName}`)
+        logger.info(`${iterPrefix} SYNC-QUEUING ${jobName}`)
         xform.transform(jobName, force).then((meta) => {
-          logger.info(`${logPrefix} SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
+          logger.info(`${iterPrefix} SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
-        logger.info(`${logPrefix} ASYNC-QUEUING ${jobName}`)
+        logger.info(`${iterPrefix} ASYNC-QUEUING ${jobName}`)
         setTimeout(() => {
           xform.transform(jobName, force).then((meta) => {
-            logger.info(`${logPrefix} ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
+            logger.info(`${iterPrefix} ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
       }
