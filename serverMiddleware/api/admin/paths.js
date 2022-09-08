@@ -16,8 +16,8 @@ const doIndex = async (req, res, sourceAndPath) => {
 }
 
 const doScan = async (req, res, sourceAndPath) => {
-  await scanPath(sourceAndPath)
-  return api.okJson(res, {})
+  const result = await scanPath(sourceAndPath)
+  return api.okJson(res, result || {})
 }
 
 const doMeta = async (req, res, sourceAndPath) => {

@@ -120,7 +120,7 @@ async function scan (source, path = '', opts = { autoscan: false }) {
 
 const scanPath = async (sourceAndPath) => {
   const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
-  return scan(source, pth, { autoscan: false, force: true })
+  return await scan(source, pth, { autoscan: false, force: true })
 }
 
 module.exports = { scan, scanPath, initAutoscan }
