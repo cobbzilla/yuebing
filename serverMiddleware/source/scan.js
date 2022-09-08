@@ -119,8 +119,16 @@ async function scan (source, path = '', opts = { autoscan: false }) {
 }
 
 const scanPath = async (sourceAndPath) => {
-  const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
-  return await scan(source, pth, { autoscan: false, force: true })
+  const logPrefix = `scanPath(${sourceAndPath})`
+  try {
+    logger.info(`${logPrefix} extracting source and path`)
+    const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
+    logger.info(`${logPrefix} scanning with autoscan=false, force=true`)
+    const scanResult = await scan(source, pth, { autoscan: false, force: true })
+    logger.info(`${logPrefix} scan returned: ${scanResult}`)
+  } catch (e) {
+    logger.error(`${logPrefix} error: ${e}`)
+  }
 }
 
 module.exports = { scan, scanPath, initAutoscan }
