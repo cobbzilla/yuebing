@@ -16,7 +16,9 @@ const doIndex = async (req, res, sourceAndPath) => {
 }
 
 const doScan = async (req, res, sourceAndPath) => {
+  logger.info(`doScan: calling scanPath(${sourceAndPath})`)
   const result = await scanPath(sourceAndPath)
+  logger.info(`doScan: scanPath(${sourceAndPath}) returned ${result}`)
   return api.okJson(res, result || {})
 }
 
@@ -58,6 +60,7 @@ export default {
       return api.notFound(res, url)
     }
     const path = dirname(url)
+    logger.info(`/api/admin/paths -- performing '${operation}' on: ${path}`)
     return await handler.handle(req, res, path)
   }
 }
