@@ -43,8 +43,7 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
     logger.silly(`${logPrefix}: createArtifacts finished, flushing metadata and recalculating final metadata`)
     let meta
     try {
-      await cache.hardFlushCachedMetadata(job.data.sourcePath)
-      meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath)
+      meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath, { noCache: true })
     } catch (e) {
       logger.error(`${logPrefix}: manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
       throw e
