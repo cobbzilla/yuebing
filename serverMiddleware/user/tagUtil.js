@@ -114,7 +114,7 @@ const unregisterPath = async (sourceAndPath) => {
   await removeAllTagsForPath(sourceAndPath)
 }
 
-const normalizeTag = tag => tag.toLowerCase().replaceAll(/\W+/g, '-')
+const normalizeTag = tag => tag.toLowerCase().replaceAll(/[\W_]+/g, '-')
 const denormalizeTag = normTag => normTag.replaceAll('-', ' ')
 
 const tagDir = (tag) => {
