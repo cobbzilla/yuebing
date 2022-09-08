@@ -12,9 +12,13 @@ const { mediaInfoFields, mediaInfoField } = require('../../shared/mediainfo')
 
 const logger = winston.createLogger({
   level: process.env.YB_LOG_LEVEL || 'debug',
-  format: winston.format.timestamp(),
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+    winston.format.printf((info) => {
+      return `${info.timestamp} [${info.level.toUpperCase()}] ${info.message}`
+    })),
   transports: process.env.YB_LOG_FILE
-    ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE }), new winston.transports.Console()]
+    ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
     : [new winston.transports.Console()]
 })
 
