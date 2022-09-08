@@ -35,6 +35,7 @@ export default {
     // to the browser
 
     // The DASH profile supports adaptive streaming based on other profile definitions
+    // Ensure that the `videoSize` for each subProfile has the same aspect ratio
     dash_mp4: {
       operation: 'dash',
       // At startup, each element of this array is transformed into the corresponding profile object
@@ -75,7 +76,7 @@ export default {
     },
     transcode_min_mp4: {
       from: 'transcode_low_mp4',
-      videoSize: 'vga',
+      videoSize: '640x360',
       videoBitrate: '192k',
       audioBitrate: '48k'
     },
