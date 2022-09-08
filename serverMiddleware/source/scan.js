@@ -75,14 +75,14 @@ async function autoscan () {
 
 async function scan (source, path = '', opts = { autoscan: false }) {
   let results
-  try {
-    results = await source.list(path, { recursive: true })
-  } catch (e) {
-    logger.warn(`scan(${path}) error listing: ${e}, checking if single file`)
+  logger.info(`scan(${path}) listing...`)
+  results = await source.list(path, { recursive: true, quiet: true })
+  if (!results) {
+    logger.warn(`scan(${path}) no listing found, checking for single file`)
     const meta = source.safeMetadata(path)
     if (!meta) {
-      logger.error(`scan(${path}) error listing: ${e} and no metadata for path`)
-      throw e
+      logger.error(`scan(${path}) no listing found and no metadata for path, cannot scan`)
+      return
     } else {
       logger.info(`scan(${path}) scanning single media item`)
       results = [meta]
