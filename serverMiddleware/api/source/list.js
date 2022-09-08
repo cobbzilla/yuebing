@@ -34,7 +34,7 @@ const listObjects = async (req, res) => {
     const listing = await source.list(pth || '')
     const promises = listing.map(async file => new Promise(async (resolve) => {
       file.sourcePath = source.name + '/' + file.name
-      if (!hasProfiles(file)) {
+      if (!hasProfiles(file.name)) {
         resolve()
       }
       cache.getCachedMetadata(source.name + '/' + file.name)

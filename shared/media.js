@@ -93,7 +93,7 @@ for (const type in MEDIA) {
 function mediaType (path) {
   if (typeof path !== 'string') {
     try {
-      console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)})`)
+      console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)}): from ${new Error().stack}`)
     } catch (e) {
       console.warn(`mediaType: unexpected arg: ${path} (as JSON had error: ${e})`)
     }
