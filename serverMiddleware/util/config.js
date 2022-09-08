@@ -14,7 +14,7 @@ const logger = winston.createLogger({
   level: process.env.YB_LOG_LEVEL || 'debug',
   format: winston.format.timestamp(),
   transports: process.env.YB_LOG_FILE
-    ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE })]
+    ? [new winston.transports.File({ filename: process.env.YB_LOG_FILE }), new winston.transports.Console()]
     : [new winston.transports.Console()]
 })
 
