@@ -254,6 +254,7 @@ export default {
   admin_title_migrate_data: 'Migrate Data',
   admin_title_transform_queue: 'Media Transform Queue',
   admin_title_index_administration: 'Manage Indexes',
+  admin_title_reindex_status: 'Indexing Status',
 
   // Site Administration
   admin_title_site_administration_publicConfig: 'Public Configuration',

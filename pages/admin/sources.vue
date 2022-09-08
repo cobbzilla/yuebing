@@ -129,7 +129,7 @@
                   <small>
                     {{ messages.admin_info_reindex_successful }}
                     <NuxtLink :to="`/admin/indexes?source=${src.name}`">
-                      {{ messages.admin_title_transform_queue }}
+                      {{ messages.admin_title_reindex_status }}
                     </NuxtLink>
                   </small>
                 </div>
