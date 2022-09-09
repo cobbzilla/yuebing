@@ -106,6 +106,10 @@ function dash (sourcePath, sourceFile, profile, outfile) {
 
   args.push('-f')
   args.push('dash')
+  args.push('-hls_playlist')
+  args.push(`${m.ASSET_PREFIX}${profile.name}${VIDEO_ASSET_SUFFIX}_playlist.m3u8`)
+  args.push('-hls_master_name')
+  args.push(`${m.ASSET_PREFIX}${profile.name}${VIDEO_ASSET_SUFFIX}_master.m3u8`)
   args.push('-y')
   args.push(dashOutfile)
   return args

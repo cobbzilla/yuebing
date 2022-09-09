@@ -5,7 +5,7 @@ const m = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
-const { currentUser } = require('../../user/userUtil')
+const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 
 async function head (req, res, source, path) {
   const head = await source.safeMetadata(path)
@@ -42,7 +42,7 @@ export default {
   path: shared.STREAM_API,
   async handler (req, res) {
     const user = await currentUser(req)
-    if (!user && !system.isPublic()) {
+    if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.okJson(res, {})
     }
 

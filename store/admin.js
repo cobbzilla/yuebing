@@ -125,12 +125,12 @@ export const actions = {
       )
   },
 
-  scanSource ({ commit }, { src }) {
-    commit('scanSourceRequest', { src })
-    adminService.scanSource(src)
+  scanSource ({ commit }, { scanConfig }) {
+    commit('scanSourceRequest', { scanConfig })
+    adminService.scanSource(scanConfig)
       .then(
-        (ok) => { commit('scanSourceSuccess', { ok, src }) },
-        (error) => { commit('scanSourceFailure', { src, error }) }
+        (ok) => { commit('scanSourceSuccess', { ok, scanConfig }) },
+        (error) => { commit('scanSourceFailure', { scanConfig, error }) }
       )
   },
 
@@ -143,12 +143,12 @@ export const actions = {
       )
   },
 
-  scanPath ({ commit }, { sourceAndPath }) {
-    commit('scanPathRequest', { sourceAndPath })
-    adminService.scanPath(sourceAndPath)
+  scanPath ({ commit }, { scanConfig }) {
+    commit('scanPathRequest', { scanConfig })
+    adminService.scanPath(scanConfig)
       .then(
-        (ok) => { commit('scanPathSuccess', { ok, sourceAndPath }) },
-        (error) => { commit('scanPathFailure', { sourceAndPath, error }) }
+        (ok) => { commit('scanPathSuccess', { ok, scanConfig }) },
+        (error) => { commit('scanPathFailure', { scanConfig, error }) }
       )
   },
 
@@ -303,12 +303,14 @@ export const mutations = {
     state.addSourceError = error
   },
 
-  scanSourceRequest (state, { src }) {
+  scanSourceRequest (state, { scanConfig }) {
+    const src = scanConfig.source
     const update = {}
     update[src] = true
     state.scanningSources = Object.assign({}, state.scanningSources, update)
   },
-  scanSourceSuccess (state, { ok, src }) {
+  scanSourceSuccess (state, { ok, scanConfig }) {
+    const src = scanConfig.source
     const update = {}
     update[src] = false
     state.scanningSources = Object.assign({}, state.scanningSources, update)
@@ -317,7 +319,8 @@ export const mutations = {
     update[src] = null
     state.scanSourceError = Object.assign({}, state.scanSourceError, update)
   },
-  scanSourceFailure (state, { src, error }) {
+  scanSourceFailure (state, { scanConfig, error }) {
+    const src = scanConfig.source
     const update = {}
     update[src] = false
     state.scanningSources = Object.assign({}, state.scanningSources, update)
@@ -327,12 +330,14 @@ export const mutations = {
     state.scanSourceError = Object.assign({}, state.scanSourceError, update)
   },
 
-  scanPathRequest (state, { sourceAndPath }) {
+  scanPathRequest (state, { scanConfig }) {
+    const sourceAndPath = scanConfig.sourceAndPath
     const update = {}
     update[sourceAndPath] = true
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)
   },
-  scanPathSuccess (state, { ok, sourceAndPath }) {
+  scanPathSuccess (state, { ok, scanConfig }) {
+    const sourceAndPath = scanConfig.sourceAndPath
     const update = {}
     update[sourceAndPath] = false
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)
@@ -341,7 +346,8 @@ export const mutations = {
     update[sourceAndPath] = null
     state.scanPathError = Object.assign({}, state.scanPathError, update)
   },
-  scanPathFailure (state, { sourceAndPath, error }) {
+  scanPathFailure (state, { scanConfig, error }) {
+    const sourceAndPath = scanConfig.sourceAndPath
     const update = {}
     update[sourceAndPath] = false
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)

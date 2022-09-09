@@ -68,12 +68,13 @@ function cdate (sourcePath) {
   return isQueued(sourcePath) ? new Date(QUEUED_PATHS[sourcePath].ctime) : null
 }
 
-function enqueue (sourcePath, force) {
+function enqueue (sourcePath, force, reprocess) {
   const job = {
     ctime: Date.now(),
     sourcePath,
     events: [],
     force,
+    reprocess,
     done: false
   }
   QUEUED_PATHS[sourcePath] = job

@@ -118,6 +118,6 @@ export default {
     } catch (e) {
       return handleSourceError(res, e, sourceName)
     }
-    req.on('data', async data => await handler(res, JSON.parse(data.toString())))
+    req.on('data', async data => await handler(res, JSON.parse(data)))
   }
 }

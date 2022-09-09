@@ -1,17 +1,14 @@
-const { NO_CACHE_HEADER } = require('../../../shared')
 const { hasProfiles } = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const cache = require('../../util/cache')
-const redis = require('../../util/redis')
-const u = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
-const { currentUser } = require('../../user/userUtil')
+const { currentUser, requireAdmin, isAdminOrVerified } = require('../../user/userUtil')
 const { search } = require('../../asset/search')
 const logger = system.logger
 
 const listObjects = async (req, res) => {
-  const user = await u.requireAdmin(req, res)
+  const user = await requireAdmin(req, res)
   if (!user) { return api.forbidden(res) }
   try {
     const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
@@ -51,7 +48,7 @@ export default {
       return await listObjects(req, res)
     } else if (req.method === 'POST') {
       const user = await currentUser(req)
-      if (!user && !system.isPublic()) {
+      if (!isAdminOrVerified(user) && !system.isPublic()) {
         return api.forbidden(res)
       }
       req.on('data', async (data) => {

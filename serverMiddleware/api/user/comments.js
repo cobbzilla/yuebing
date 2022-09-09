@@ -7,7 +7,7 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const api = require('../../util/api')
-const { currentUser, findUser } = require('../../user/userUtil')
+const { currentUser, isAdminOrVerified, findUser } = require('../../user/userUtil')
 const {
   addComment, editComment, removeComment, findCommentsForPath
 } = require('../../user/commentUtil')
@@ -79,7 +79,7 @@ export default {
   path: '/api/user/comments',
   async handler (req, res) {
     const user = await currentUser(req)
-    if (!user && !system.isPublic()) {
+    if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.forbidden(res)
     }
     if (!user && req.method !== 'GET') {

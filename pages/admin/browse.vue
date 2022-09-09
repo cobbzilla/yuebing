@@ -1,6 +1,56 @@
 <template>
   <v-container>
     <v-overlay
+      v-if="scanConfigOverlayObject"
+      :opacity="0.9"
+      :absolute="true"
+      :value="scanConfigOverlayObject"
+    >
+      <v-container id="scanConfigOverlayContainer">
+        <v-row>
+          <v-col>
+            <v-btn icon @click="setScanConfigOverlay(null)">
+              <v-icon>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <h4>
+              {{ messages.admin_label_scan_config.parseMessage({ source: scanConfigOverlayObject.name }) }}
+            </h4>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-checkbox v-model="scanConfig.force" :label="messages.label_scan_force" />
+          </v-col>
+        </v-row>
+        <v-row v-if="mediaProfilesFor(scanConfigOverlayObject)">
+          <v-col>
+            <v-select
+              v-model="scanConfig.reprocess"
+              :label="messages.label_scan_reprocess"
+              :items="mediaProfilesFor(scanConfigOverlayObject)"
+              :hint="messages.label_scan_reprocess_profiles"
+              persistent-hint
+              multiple
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn @click.stop="doRescan(scanConfigOverlayObject)">
+              {{ messages.admin_button_scan_source }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-overlay>
+
+    <v-overlay
       v-if="metaOverlayObject"
       :opacity="0.9"
       :absolute="true"
@@ -34,7 +84,6 @@
                 :select-on-click-node="false"
                 :highlight-selected-node="false"
                 :collapsed-on-click-brackets="true"
-                class="metaJson"
               />
             </small>
           </v-col>
@@ -157,7 +206,7 @@
       <v-col cols="4">
         <div v-if="metaReady(obj.meta)">
           <!-- object name -->
-          <NuxtLink :to="{path: '/media/'+mType(obj.sourcePath), query: {n: encPath(obj.sourcePath)}}">
+          <NuxtLink :to="{ path: '/media/' + mType(obj.sourcePath), query: { n: encPath(obj.sourcePath) } }">
             <span v-if="obj.title">{{ obj.title }} ( {{ objName(obj) }} )</span>
             <span v-else>{{ objName(obj) }}</span>
             <!-- object status -->
@@ -222,7 +271,7 @@
         </span>
       </v-col>
       <v-col>
-        <v-btn v-if="isMedia(obj) && !isPathBusy(obj)" @click.stop="doRescan(obj)">
+        <v-btn v-if="isMedia(obj) && !isPathBusy(obj)" @click.stop="setScanConfigOverlay(obj)">
           {{ messages.admin_button_scan_source }}
         </v-btn>
         <span v-if="scanPathError && scanPathError[obj.sourcePath]" class="error">
@@ -254,7 +303,7 @@ import { basename, dirname } from 'path'
 // noinspection NpmUsedModulesInstalled
 import { mapActions, mapState } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
-import { DIRECTORY_TYPE, mediaType, hasProfiles, objectEncodePath } from '@/shared/media'
+import { DIRECTORY_TYPE, mediaType, hasProfiles, objectEncodePath, mediaProfilesForSource } from '@/shared/media'
 
 export default {
   name: 'BrowseSources',
@@ -266,7 +315,12 @@ export default {
       viewMediaOnly: true,
       metaOverlayObject: null,
       tagOverlayObject: null,
-      tagToAdd: null
+      tagToAdd: null,
+      scanConfigOverlayObject: null,
+      scanConfig: {
+        reprocess: [],
+        force: false
+      }
     }
   },
   computed: {
@@ -329,6 +383,7 @@ export default {
     toggleMediaView () { this.viewMediaOnly = !this.viewMediaOnly },
     setMetaOverlay (obj) { this.metaOverlayObject = obj || null },
     setTagOverlay (obj) { this.tagOverlayObject = obj || null },
+    setScanConfigOverlay (obj) { this.scanConfigOverlayObject = obj || null },
     reloadObjects () {
       this._reload(false)
     },
@@ -384,10 +439,18 @@ export default {
       this.removeTags({ sourceAndPath: this.tagOverlayObject.sourcePath, tags })
     },
     doReindex (obj) { this.indexPath({ sourceAndPath: obj.sourcePath }) },
-    doRescan (obj) { this.scanPath({ sourceAndPath: obj.sourcePath }) },
+    doRescan (obj) {
+      const scanConfig = Object.assign({}, this.scanConfig, { sourceAndPath: obj.sourcePath })
+      this.scanPath({ scanConfig })
+      this.setScanConfigOverlay(null)
+    },
     doDelete (obj) { this.deletePath({ sourceAndPath: obj.sourcePath }) },
     isPathBusy (obj) {
       return this.indexingPaths[obj.name] || this.scanningPaths[obj.name] || this.deletingPaths[obj.name]
+    },
+    mediaProfilesFor (obj) {
+      const profiles = mediaProfilesForSource(obj.name)
+      return profiles ? Object.keys(profiles) : null
     }
   }
 }
@@ -415,6 +478,14 @@ export default {
   line-height: 10px;
 }
 #metaOverlayContainer {
+    max-width: 90%;
+    width: 90%;
+    max-height: 70%;
+    height: 70%;
+    overflow: scroll;
+    padding: 10px;
+}
+#scanConfigOverlayContainer {
     max-width: 90%;
     width: 90%;
     max-height: 70%;

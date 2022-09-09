@@ -1,5 +1,66 @@
 <template>
   <v-container>
+    <v-overlay
+      v-if="scanConfigOverlayObject"
+      :opacity="0.9"
+      :absolute="true"
+      :value="scanConfigOverlayObject"
+    >
+      <v-container id="scanConfigOverlayContainer">
+        <v-row>
+          <v-col>
+            <v-btn icon @click="setScanConfigOverlay(null)">
+              <v-icon>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <h4>
+              {{ messages.admin_label_scan_config.parseMessage({ source: scanConfigOverlayObject.name }) }}
+            </h4>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-checkbox v-model="scanConfig.force" :label="messages.label_scan_force" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-select
+              v-model="scanConfig.reprocess"
+              :label="messages.label_scan_reprocess"
+              :items="mediaProfilesFor(scanConfigOverlayObject)"
+              :hint="messages.label_scan_reprocess_profiles"
+              persistent-hint
+              multiple
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="scanConfig.path"
+              :label="messages.label_path"
+              type="text"
+              name="path"
+              class="form-control"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn @click.stop="scanSrc(scanConfigOverlayObject)">
+              {{ messages.admin_button_scan_source }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-overlay>
+
     <v-row>
       <v-col>
         <h2>{{ messages.admin_title_source_administration }}</h2>
@@ -80,13 +141,15 @@
               <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
               <td>
-                <v-btn v-if="!isSelfSource(src)" :href="`/admin/browse?source=${src.name}`">
-                  {{ messages.admin_button_browse_source }}
-                </v-btn>
+                <NuxtLink v-if="!isSelfSource(src)" :to="{ path: '/admin/browse', query: { source: src.name } }">
+                  <v-btn>
+                    {{ messages.admin_button_browse_source }}
+                  </v-btn>
+                </NuxtLink>
               </td>
               <td>
                 <div>
-                  <v-btn v-if="!isSelfSource(src) && !scanningSources[src.name]" @click.stop="scanSrc(src.name)">
+                  <v-btn v-if="!isSelfSource(src) && !scanningSources[src.name]" @click.stop="setScanConfigOverlay(src)">
                     {{ messages.admin_button_scan_source }}
                   </v-btn>
                 </div>
@@ -299,6 +362,7 @@ import { condensedRules } from '@/shared/validation'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
+import { mediaProfilesForSource } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
@@ -328,7 +392,14 @@ export default {
         opts: {},
         encryption: { enabled: false, algo: DEFAULT_ENCRYPTION_ALGO }
       },
-      addSourceSubmitted: false
+      addSourceSubmitted: false,
+
+      scanConfigOverlayObject: null,
+      scanConfig: {
+        force: false,
+        reprocess: [],
+        path: ''
+      }
     }
   },
   computed: {
@@ -444,8 +515,17 @@ export default {
         this.deleteConfirmCount = 0
       }
     },
-    scanSrc (src) { this.scanSource({ src }) },
-    indexSrc (src) { this.indexSource({ src }) }
+    setScanConfigOverlay (obj) { this.scanConfigOverlayObject = obj || null },
+    scanSrc (obj) {
+      const scanConfig = Object.assign({}, this.scanConfig, { source: obj.name })
+      this.scanSource({ scanConfig })
+      this.setScanConfigOverlay(null)
+    },
+    indexSrc (src) { this.indexSource({ src }) },
+    mediaProfilesFor (obj) {
+      const profiles = mediaProfilesForSource(obj.name)
+      return profiles ? Object.keys(profiles) : null
+    }
   }
 }
 </script>

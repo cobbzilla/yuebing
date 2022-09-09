@@ -1,6 +1,7 @@
 const { dirname, basename } = require('path')
 
 const { extractSourceAndPath } = require('../../../shared/source')
+const { isAdminOrVerified } = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
@@ -36,7 +37,7 @@ export default {
   path: '/api/user/tags',
   async handler (req, res) {
     const user = await currentUser(req)
-    if (!user && !system.isPublic()) {
+    if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.forbidden(res)
     }
     if (!user && req.method !== 'GET') {

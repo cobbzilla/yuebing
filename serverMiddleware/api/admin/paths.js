@@ -15,9 +15,13 @@ const doIndex = async (req, res, sourceAndPath) => {
   return api.okJson(res, {})
 }
 
-const doScan = async (req, res, sourceAndPath) => {
+const doScan = async (req, res, scanConfig) => {
+  const sourceAndPath = scanConfig.sourceAndPath
+  if (!sourceAndPath) {
+    return api.validationFailed(res, { sourceAndPath: ['required'] })
+  }
   logger.info(`doScan: calling scanPath(${sourceAndPath})`)
-  const result = await scanPath(sourceAndPath)
+  const result = await scanPath(scanConfig)
   logger.info(`doScan: scanPath(${sourceAndPath}) returned ${result}`)
   return api.okJson(res, result || {})
 }
@@ -38,7 +42,7 @@ const doDelete = async (req, res, sourceAndPath) => {
 
 const operationHandlers = {
   index: { handle: doIndex, method: 'GET' },
-  scan: { handle: doScan, method: 'GET' },
+  scan: { handle: doScan, method: 'POST' },
   delete: { handle: doDelete, method: 'DELETE' },
   meta: { handle: doMeta, method: 'GET' }
 }
@@ -61,6 +65,10 @@ export default {
     }
     const path = dirname(url)
     logger.info(`/api/admin/paths -- performing '${operation}' on: ${path}`)
-    return await handler.handle(req, res, path)
+    if (req.method === 'POST') {
+      req.on('data', async scanConfig => await handler.handle(req, res, JSON.parse(scanConfig)))
+    } else {
+      return await handler.handle(req, res, path)
+    }
   }
 }

@@ -48,12 +48,12 @@ function addSource (source) {
   return fetch('/api/admin/sources', a.authPutJson(source)).then(a.handleJsonResponse)
 }
 
-function scanSource (source) {
-  return fetch(`/api/admin/sources/${source}`, a.authPatchJson(source)).then(a.handleJsonResponse)
+function scanSource (scanConfig) {
+  return fetch(`/api/admin/sources/${scanConfig.source}`, a.authPatchJson(scanConfig)).then(a.handleJsonResponse)
 }
 
-function scanPath (sourceAndPath) {
-  return fetch(`/api/admin/paths/${sourceAndPath}/scan`, a.authGet()).then(a.handleJsonResponse)
+function scanPath (scanConfig) {
+  return fetch(`/api/admin/paths/${scanConfig.sourceAndPath}/scan`, a.authPostJson(scanConfig)).then(a.handleJsonResponse)
 }
 
 function indexSource (source) {

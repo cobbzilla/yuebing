@@ -2,7 +2,7 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const api = require('../../util/api')
-const { currentUser } = require('../../user/userUtil')
+const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const { reindexPath } = require('../../source/reindex')
 const src = require('../../source/sourceUtil')
 const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
@@ -11,7 +11,7 @@ export default {
   path: '/api/source/mediainfo',
   async handler (req, res) {
     const user = currentUser(req)
-    if (!user && !system.isPublic()) {
+    if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.forbidden(res)
     }
     if (!user && req.method !== 'GET') {

@@ -66,6 +66,11 @@ function isAdmin (userOrEmail) {
       : userOrEmail === ADMIN_USER.email)
 }
 
+const VERIFY_MIN_VALUE = new Date(2022, 9, 9).getMilliseconds()
+function isAdminOrVerified (user) {
+  return user && (isAdmin(user) || (typeof user.verified === 'number' && user.verified > VERIFY_MIN_VALUE))
+}
+
 function redisUserSessionSet (user) {
   return REDIS_SESSION_SET_PREFIX + shasum(user.email)
 }
@@ -135,7 +140,7 @@ async function currentUser (req) {
 async function requireLoggedInUser (req, res) {
   const user = await currentUser(req)
   if (user) {
-    if (user.verified || isAdmin(user.username)) {
+    if (isAdminOrVerified(user)) {
       return user
     } else {
       logger.debug(`requireLoggedInUser: returning forbidden for unverified non-admin: ${user.username}`)
@@ -511,6 +516,7 @@ module.exports = {
   isCorrectVerifyToken,
   isCorrectResetPasswordToken,
   isAdmin,
+  isAdminOrVerified,
   requireLoggedInUser,
   requireAdmin,
   UserValidationError,

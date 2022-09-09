@@ -10,6 +10,7 @@
     <v-row>
       <v-col v-if="isReady" cols="2">
         <VideoPlayer :options="videoOptions" />
+        <!-- todo -- show this info as an overlay -- what is going on and why can't we play this video? -->
       </v-col>
     </v-row>
     <v-row>
@@ -22,8 +23,8 @@
         <ContentComments :object="object" />
       </v-col>
     </v-row>
-    <v-row>
-      <v-col v-if="loggedIn && thumbnail()" cols="2">
+    <v-row v-if="loggedIn && user.admin && thumbnail()">
+      <v-col cols="2">
         <ThumbnailSelector :object="object" />
       </v-col>
     </v-row>
@@ -46,10 +47,7 @@ import ContentComments from '../../components/ContentComments'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
-import {
-  FILE_TYPE, VIDEO_MEDIA_TYPE,
-  mediaProfileByName, objectDecodePath
-} from '@/shared/media'
+import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, objectDecodePath } from '@/shared/media'
 import { hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
@@ -71,8 +69,8 @@ export default {
       videoOptions: {
         autoplay: false,
         controls: true,
-        width: Math.floor(document.documentElement.clientWidth * 0.6),
-        height: Math.floor(document.documentElement.clientHeight * 0.7),
+        width: Math.floor(document.documentElement.clientWidth * 0.88),
+        height: Math.floor(document.documentElement.clientHeight * 0.46),
         poster: null,
         sources: []
       }
@@ -149,15 +147,21 @@ export default {
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
               const src = proxyMediaUrl(asset, this.user, this.userStatus)
+              console.log(`refreshMeta: pushing source: ${src}`)
               sources.push({
                 src,
                 type: mediaProfile.contentType
               })
             }
           })
+          if (sources.length > 0) {
+            console.log(`refreshMeta: prepared video with ${sources.length} sources`)
+          } else {
+            console.log('refreshMeta: no sources, video not prepared')
+          }
         })
       } else {
-        // console.log(`refreshMeta: sources already loaded for video, not replacing=\n${JSON.stringify(sources, null, 2)}`)
+        console.log(`refreshMeta: sources already loaded for video, not replacing=${JSON.stringify(sources)}`)
       }
     },
     mediaInfoField (field) {

@@ -266,6 +266,7 @@ const SYSTEM = {
   deletePath: async (path) => {
     for (const handlerName of Object.keys(SYSTEM.deletePathHandlers)) {
       try {
+        logger.info(`deletePath(${path}) handler ${handlerName} starting`)
         await SYSTEM.deletePathHandlers[handlerName](path)
       } catch (e) {
         logger.error(`deletePath(${path}) handler ${handlerName} error: ${e}`)

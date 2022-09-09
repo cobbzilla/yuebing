@@ -29,8 +29,12 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
   const logPrefix = `__xform(${job.data.sourcePath})`
   const regAge = await pathRegistrationAge(job.data.sourcePath)
   if (regAge && regAge < MIN_REG_AGE) {
-    logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
-    return null
+    if (job.data.reprocess) {
+      logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
+    } else {
+      logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
+      return null
+    }
   }
 
   logger.silly(`${logPrefix}: STARTING`)
@@ -465,12 +469,16 @@ async function createArtifacts (job, localSourceFile) {
       completedAssetKey = system.assetsDir(sourcePath) + path.basename(outfile)
     }
 
-    q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
-    const destHead = await system.api.safeMetadata(completedAssetKey)
-    if (destHead && destHead.size && destHead.size > 0) {
-      logger.debug(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
-      q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
-      continue
+    if (job.data.reprocess && Array.isArray(job.data.reprocess) && job.data.reprocess.includes(name)) {
+      q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
+    } else {
+      q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
+      const destHead = await system.api.safeMetadata(completedAssetKey)
+      if (destHead && destHead.size && destHead.size > 0) {
+        logger.debug(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
+        q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
+        continue
+      }
     }
     const errCount = await system.countErrors(sourcePath, name)
     if (errCount >= MAX_XFORM_ERRORS) {
@@ -585,7 +593,7 @@ async function ensureSourceDownloaded (job) {
   }
 }
 
-async function transform (sourcePath, force = false) {
+async function transform (sourcePath, force = false, reprocess = false) {
   const logPrefix = `transform(${sourcePath}):`
   logger.info(`${logPrefix} starting`)
   if (!m.hasProfiles(sourcePath)) {
@@ -608,13 +616,17 @@ async function transform (sourcePath, force = false) {
     if (q.isStaleJob(sourcePath)) {
       logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
     } else {
-      logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
-      return derivedMeta
+      if (force || reprocess) {
+        logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but force or reprocess was true, proceeding...`)
+      } else {
+        logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
+        return derivedMeta
+      }
     }
   }
 
   logger.debug(`${logPrefix} adding to jobQueue: ${sourcePath}`)
-  q.enqueue(sourcePath, force)
+  q.enqueue(sourcePath, force, reprocess)
   return derivedMeta
 }
 

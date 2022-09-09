@@ -2,7 +2,7 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const api = require('../../util/api')
-const { currentUser } = require('../../user/userUtil')
+const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 const cache = require('../../util/cache')
 const src = require('../../source/sourceUtil')
@@ -11,7 +11,7 @@ export default {
   path: '/api/source/meta',
   async handler (req, res) {
     const user = await currentUser(req)
-    if (!user && !system.isPublic()) {
+    if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.forbidden(res)
     }
     try {

@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <SearchBar @update="onSearchUpdate"/>
+        <SearchBar @update="onSearchUpdate" />
       </v-col>
     </v-row>
     <v-row>
@@ -15,14 +15,17 @@
               </h2>
             </v-col>
           </v-row>
-          <v-row v-if="searchIndexesBuilding">
+          <v-row v-else-if="searchIndexesBuilding">
             <v-col>
-              <h4>{{ messages.info_search_indexes_building.parseMessage({ indexes: searchIndexesBuilding.join(messages.locale_text_list_separator) })}}</h4>
+              <h4>{{ messages.info_search_indexes_building.parseMessage({ indexes: searchIndexesBuilding.join(messages.locale_text_list_separator) }) }}</h4>
             </v-col>
           </v-row>
-          <v-row v-else-if="!searchResults || searchResults.length === 0">
+          <v-row v-else-if="!searching && (!searchResults || searchResults.length === 0)">
             <v-col>
-              <h2>
+              <h2 v-if="unverifiedUserAndNotPublic">
+                {{ messages.info_search_no_results_unverified.parseMessage({ email: user.email }) }}
+              </h2>
+              <h2 v-else>
                 {{ messages.info_search_no_results }}
               </h2>
             </v-col>
@@ -43,19 +46,19 @@
                     </NuxtLink>
                   </v-card-title>
                   <v-card-text>
-                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
+                    <NuxtLink :to="{ path: '/media/'+obj.mediaType, query: { n: encPath(obj.path) } }">
                       <img
                         v-if="thumbnail(obj)"
                         :src="proxyUrl(thumbnail(obj))"
                         width="200"
                         height="200"
-                        :alt="messages.thumbnail_alt_text.parseMessage({name: obj.name})"
+                        :alt="messages.thumbnail_alt_text.parseMessage({ name: displayName(obj.name) })"
                       >
                     </NuxtLink>
                   </v-card-text>
                 </v-card>
               </v-col>
-<!--              <v-spacer />-->
+              <!-- <v-spacer />-->
             </div>
           </v-row>
         </v-container>
@@ -87,12 +90,16 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-    ...mapState(['browserLocale', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
+    ...mapState(['browserLocale', 'publicConfig', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     minCardHeight () { return 200 },
     minCardWidth () { return 200 },
     maxCardHeight () { return 400 },
     maxCardWidth () { return 500 },
+    unverifiedUserAndNotPublic () {
+      return this.publicConfig && this.publicConfig.public === false &&
+        this.user && this.user.email && this.userStatus && !this.user.verified
+    },
     query () {
       return {
         tags: splitSearchTerms(this.searchTerms),

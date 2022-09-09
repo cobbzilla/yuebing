@@ -55,7 +55,7 @@ async function autoscan () {
         const scanPrefix = `${logPrefix} (source ${sourceName}) `
         try {
           CURRENT_AUTOSCAN_START = new Date()
-          scan(source, '', { autoscan: true })
+          scan(source, { autoscan: true })
             .then((transforms) => {
               logger.info(`${scanPrefix} scan completed: transforms=${JSON.stringify(transforms)}`)
             },
@@ -73,7 +73,8 @@ async function autoscan () {
   }
 }
 
-async function scan (source, path = '', opts = { autoscan: false }) {
+async function scan (source, opts = {}) {
+  const path = opts.path || ''
   const logPrefix = `scan(${path})`
   let results
   logger.info(`${logPrefix} listing...`)
@@ -90,8 +91,9 @@ async function scan (source, path = '', opts = { autoscan: false }) {
     }
   }
 
-  const force = opts && opts.force
   const autoscan = opts && opts.autoscan
+  const force = opts && opts.force
+  const reprocess = opts && opts.reprocess
   const transforms = []
   for (let i = 0; i < results.length; i++) {
     const iterPrefix = `${logPrefix} [${i+1}/${results.length}]`
@@ -106,14 +108,14 @@ async function scan (source, path = '', opts = { autoscan: false }) {
       if (autoscan || force) {
         // perform synchronously for autoscan or force
         logger.info(`${iterPrefix} SYNC-QUEUING ${jobName}`)
-        xform.transform(jobName, force).then((meta) => {
+        xform.transform(jobName, force, reprocess).then((meta) => {
           logger.info(`${iterPrefix} SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
         logger.info(`${iterPrefix} ASYNC-QUEUING ${jobName}`)
         setTimeout(() => {
-          xform.transform(jobName, force).then((meta) => {
+          xform.transform(jobName, force, reprocess).then((meta) => {
             logger.info(`${iterPrefix} ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
@@ -125,13 +127,15 @@ async function scan (source, path = '', opts = { autoscan: false }) {
   return transforms
 }
 
-const scanPath = async (sourceAndPath) => {
+const scanPath = async (scanConfig) => {
+  const sourceAndPath = scanConfig.sourceAndPath
   const logPrefix = `scanPath(${sourceAndPath})`
   try {
     logger.info(`${logPrefix} extracting source and path`)
     const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
+    scanConfig.path = pth
     logger.info(`${logPrefix} scanning with autoscan=false, force=true`)
-    const scanResult = await scan(source, pth, { autoscan: false, force: true })
+    const scanResult = await scan(source, scanConfig)
     logger.info(`${logPrefix} scan returned: ${scanResult}`)
   } catch (e) {
     logger.error(`${logPrefix} error: ${e}`)
