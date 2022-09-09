@@ -360,7 +360,7 @@ export default {
     metaFinished (meta) {
       return meta && (meta.finished || (meta.status && meta.status.completed))
     },
-    objName (obj) { return basename(obj.name) },
+    objName (obj) { return basename(obj.name).replaceAll('_', ' ') },
     isMedia (obj) { return obj && hasProfiles(obj.name) },
     isFolder (obj) { return obj.type === DIRECTORY_TYPE },
     doMeta (obj) {

@@ -7,7 +7,7 @@ const logger = system.logger
 export default {
   path: '/api/user/inviteFriends',
   async handler (req, res) {
-    const user = await u.requireUser(req, res)
+    const user = await u.requireLoggedInUser(req, res)
     if (!user) {
       return api.forbidden(res)
     }

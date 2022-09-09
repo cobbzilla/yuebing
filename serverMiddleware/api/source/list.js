@@ -11,10 +11,8 @@ const { search } = require('../../asset/search')
 const logger = system.logger
 
 const listObjects = async (req, res) => {
-  const user = await u.requireUser(req, res)
-  if (!user) {
-    return api.forbidden(res)
-  }
+  const user = await u.requireAdmin(req, res)
+  if (!user) { return api.forbidden(res) }
   try {
     const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
     const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)

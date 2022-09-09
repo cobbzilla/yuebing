@@ -39,7 +39,7 @@
                 >
                   <v-card-title>
                     <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
-                      {{ obj.name }}
+                      {{ displayName(obj.name) }}
                     </NuxtLink>
                   </v-card-title>
                   <v-card-text>
@@ -105,6 +105,7 @@ export default {
     ...mapActions(['searchContent']),
     thumbnail (obj) { return findThumbnail(obj) },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
+    displayName (name) { return name ? name.replaceAll('_', ' ') : name },
     runSearch () {
       const query = this.query
       this.searchContent({ query })

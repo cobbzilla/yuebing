@@ -135,21 +135,13 @@ async function currentUser (req) {
 async function requireLoggedInUser (req, res) {
   const user = await currentUser(req)
   if (user) {
-    return user
+    if (user.verified || isAdmin(user.username)) {
+      return user
+    } else {
+      logger.debug(`requireLoggedInUser: returning forbidden for unverified non-admin: ${user.username}`)
+    }
   }
   return api.forbidden(res)
-}
-
-async function requireUser (req, res) {
-  const user = await currentUser(req)
-  if (user) {
-    return user
-  }
-  if (system.isPublic()) {
-    return { email: '~anonymous~' }
-  } else {
-    return api.forbidden(res)
-  }
 }
 
 async function requireAdmin (req, res) {
@@ -519,7 +511,6 @@ module.exports = {
   isCorrectVerifyToken,
   isCorrectResetPasswordToken,
   isAdmin,
-  requireUser,
   requireLoggedInUser,
   requireAdmin,
   UserValidationError,
