@@ -61,7 +61,11 @@ export const state = () => ({
 
   updatingSiteConfig: false,
   updateSiteSuccess: null,
-  siteConfigUpdateError: null
+  siteConfigUpdateError: null,
+
+  sendingBuildRequest: false,
+  buildRequestSuccess: null,
+  sendingBuildRequestError: null
 })
 
 export const actions = {
@@ -199,6 +203,15 @@ export const actions = {
       .then(
         (cfg) => { commit('updateSiteConfigSuccess', { config: cfg }) },
         (error) => { commit('updateSiteConfigFailure', { error }) }
+      )
+  },
+
+  buildSearchIndex ({ commit }) {
+    commit('buildSearchIndexRequest')
+    adminService.buildSearchIndex()
+      .then(
+        (cfg) => { commit('buildSearchIndexSuccess', { config: cfg }) },
+        (error) => { commit('buildSearchIndexFailure', { error }) }
       )
   }
 }
@@ -473,5 +486,20 @@ export const mutations = {
     state.updateSiteSuccess = false
     state.updatingSiteConfig = false
     state.siteConfigUpdateError = error
+  },
+
+  buildSearchIndexRequest (state) {
+    state.sendingBuildRequest = true
+    state.sendingBuildRequestError = null
+    state.buildRequestSuccess = null
+  },
+  buildSearchIndexSuccess (state) {
+    state.sendingBuildRequest = false
+    state.buildRequestSuccess = true
+  },
+  buildSearchIndexFailure (state, { error }) {
+    state.sendingBuildRequest = false
+    state.buildRequestSuccess = false
+    state.sendingBuildRequestError = error
   }
 }

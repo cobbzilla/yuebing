@@ -24,11 +24,11 @@ const REINDEX_PROCESS_FUNCTION = async (job) => {
   const source = job.data.source
   const sourceAndPath = source + '/' + job.data.path
   const logPrefix = `reindex(${sourceAndPath})`
-  // const regAge = await pathRegistrationAge(sourceAndPath)
-  // if (regAge && regAge < MIN_REG_AGE) {
-  //   logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not re-indexing again`)
-  //   return null
-  // }
+  const regAge = await pathRegistrationAge(sourceAndPath)
+  if (regAge && regAge < MIN_REG_AGE) {
+    logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not re-indexing again`)
+    return null
+  }
   const infoSetKey = REINDEX_INFO_SET_KEY + source
   let expirationSet = false
   await new Promise((resolve, reject) => {

@@ -153,10 +153,15 @@ export default {
       host: process.env.YB_REDIS_HOST || '127.0.0.1',
       port: process.env.YB_REDIS_PORT || 6379,
 
-      // set to true to flush redis when the app starts (this will log out all users)
+      // Set to true to flush redis when the yuebing starts (this will log out all users)
       // when false, any transform jobs abandoned from a previous run may cause show (benign) errors
       // in your logs. Start another scan to reprocess the abandoned jobs.
       flushAtStartup: (typeof process.env.YB_REDIS_FLUSH_AT_STARTUP !== 'undefined') ? !!JSON.parse(process.env.YB_REDIS_FLUSH_AT_STARTUP) : true,
+
+      // Set to true to build the search index when yuebing starts
+      // This could take a long time if you have a lot of media to index
+      // You can rebuild the index on-demand using the web admin
+      buildSearchIndexAtStartup: (typeof process.env.YB_BUILD_SEARCH_INDEX_AT_STARTUP !== 'undefined') ? !!JSON.parse(process.env.YB_BUILD_SEARCH_INDEX_AT_STARTUP) : false,
 
       // Cache duration for manifests, in milliseconds
       // Note that manifests will only be recalculated if the Last-Modified header of the `lastModified`

@@ -332,6 +332,8 @@ export default {
   admin_info_scan_error: 'An error occurred during the scan: {{ e }}',
   admin_button_reindex_source: 'Reindex',
   admin_button_delete_path: 'Delete',
+  admin_button_rebuildSearchIndex: 'Rebuild Search Index',
+  admin_button_rebuildSearchIndex_warning: 'This will rebuild search indexes across all sources and could take a very long time',
   admin_info_reindex_indexing: 'Indexing...',
   admin_info_reindex_error: 'An error occurred during the reindexing: {{ e }}',
   admin_info_reindex_successful: 'The reindexing has successfully started',

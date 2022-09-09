@@ -74,27 +74,56 @@ const cache_enabled = true
 
 const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
 
-let searchInitAtStartup = false
-const initSearchIndex = async (fromStartup) => {
-  if (fromStartup && searchInitAtStartup) {
-    logger.warn(`initSearchIndex already initialized at startup`)
-    return null
-  } else {
-    searchInitAtStartup = true
-    logger.info(`initSearchIndex: starting...`)
-    const tagInit = async (tag) => {
-      logger.debug(`initSearchIndex: indexing tag: ${tag}`)
-      await getPathsWithTag(tag)
-      logger.debug(`initSearchIndex: finished indexing tag: ${tag}`)
-    }
-    try {
-      const tags = await forAllTags(tagInit)
-      logger.info(`initSearchIndex: completed, indexed ${tags.length} tags`)
-      return tags
-    } catch (e) {
-      logger.error(`initSearchIndex error ${e}`)
+const Queue = require('bull')
+const redisConfig = system.privateConfig.redis
+
+let BUILD_SEARCH_QUEUE = null
+
+const BUILD_SEARCH_QUEUE_NAME = 'buildSearchIndexQueue'
+const BUILD_SEARCH_JOB_NAME = 'buildSearchIndexJob'
+
+const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
+  logger.info(`initSearchIndex: starting...`)
+  const tagInit = async (tag) => {
+    logger.debug(`initSearchIndex: indexing tag: ${tag}`)
+    await getPathsWithTag(tag)
+    logger.debug(`initSearchIndex: finished indexing tag: ${tag}`)
+  }
+  try {
+    const tags = await forAllTags(tagInit)
+    logger.info(`initSearchIndex: completed, indexed ${tags.length} tags`)
+    return tags
+  } catch (e) {
+    logger.error(`initSearchIndex error ${e}`)
+  }
+}
+
+const buildSearchIndexQueue = () => {
+  if (BUILD_SEARCH_QUEUE === null) {
+    BUILD_SEARCH_QUEUE = new Queue(BUILD_SEARCH_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
+    BUILD_SEARCH_QUEUE.process(BUILD_SEARCH_JOB_NAME, 1, BUILD_SEARCH_PROCESS_FUNCTION)
+  }
+  return BUILD_SEARCH_QUEUE
+}
+
+const BUILD_AT_START = typeof system.privateConfig.redis.buildSearchIndexAtStartup === 'boolean'
+  ? system.privateConfig.redis.buildSearchIndexAtStartup
+  : false
+
+let initialBuildStarted = false
+
+const buildSearchIndex = async (fromStartup = false) => {
+  if (fromStartup) {
+    if (!BUILD_AT_START) {
+      logger.warn(`initSearchIndex: privateConfig.redis.buildSearchIndexAtStartup is false, not indexing at startup`)
+      return null
+    } else if (initialBuildStarted) {
+      logger.warn(`initSearchIndex already initialized at startup`)
+      return null
     }
   }
+  initialBuildStarted = true
+  buildSearchIndexQueue().add(BUILD_SEARCH_JOB_NAME, {})
 }
 
 const _search = async (user, query) => {
@@ -154,8 +183,8 @@ const _search = async (user, query) => {
   return matchedPaths
 }
 
-initSearchIndex(true).then((tags) => {
+buildSearchIndex(true).then((tags) => {
   logger.info(`initSearchIndex returned tags: ${tags.join(' ')}`)
 })
 
-export { search }
+export { search, buildSearchIndex }

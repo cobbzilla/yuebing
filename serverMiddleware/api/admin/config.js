@@ -2,6 +2,7 @@ const shared = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
+const { buildSearchIndex } = require('../../asset/search')
 
 const logger = system.logger
 
@@ -37,6 +38,15 @@ export default {
           return api.serverError(res, message)
         }
       })
+    } else if (req.method === 'PATCH') {
+      buildSearchIndex().then(
+        (tags) => {
+          logger.info(`/api/admin/config buildSearchIndex returned ${tags ? tags.length : 'no'} tags`)
+        },
+        (err) => {
+          logger.info(`/api/admin/config buildSearchIndex error: ${err}`)
+        })
+      return api.okJson(res, {})
     } else {
       return api.badRequest(res, 'HTTP method must be GET or POST')
     }

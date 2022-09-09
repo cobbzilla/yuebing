@@ -16,7 +16,8 @@ export const adminService = {
   deleteSource,
   deletePath,
   loadSiteConfig,
-  updateSiteConfig
+  updateSiteConfig,
+  buildSearchIndex
 }
 
 function getQueue () {
@@ -81,4 +82,8 @@ function loadSiteConfig () {
 
 function updateSiteConfig (config) {
   return fetch('/api/admin/config', a.authPostJson(config)).then(a.handleJsonResponse)
+}
+
+function buildSearchIndex () {
+  return fetch('/api/admin/config', a.authPatchJson({})).then(a.handleJsonResponse)
 }

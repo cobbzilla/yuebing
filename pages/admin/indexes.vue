@@ -59,6 +59,19 @@
           {{ info.status }}
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <hr/>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col class="error--text">
+          <v-btn :disabled="sendingBuildRequest" @click.stop="rebuildSearch">
+            {{ messages.admin_button_rebuildSearchIndex }}
+          </v-btn>
+          <b>{{ messages.admin_button_rebuildSearchIndex_warning }}</b>
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -81,7 +94,8 @@ export default {
     ...mapState(['publicConfig', 'browserLocale']),
     ...mapState('user', ['user']),
     ...mapState('admin', ['sourceList', 'indexingInfo',
-      'indexingSources', 'indexingStartSuccess', 'indexingStartError']),
+      'indexingSources', 'indexingStartSuccess', 'indexingStartError',
+      'sendingBuildRequest', 'buildRequestSuccess', 'sendingBuildRequestError']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     reindexInfo () {
       const s = this.source
@@ -119,12 +133,13 @@ export default {
     if (this.refresher) { clearInterval(this.refresher) }
   },
   methods: {
-    ...mapActions('admin', ['indexInfo', 'findSources', 'indexSource']),
+    ...mapActions('admin', ['indexInfo', 'findSources', 'indexSource', 'buildSearchIndex']),
     setSource (src) {
       this.source = src
       this.indexInfo({ src: this.source })
     },
-    indexSrc (src) { this.indexSource({ src }) }
+    indexSrc (src) { this.indexSource({ src }) },
+    rebuildSearch () { this.buildSearchIndex() }
   }
 }
 </script>
