@@ -1,16 +1,18 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col>
+      <v-col cols="2">
         <h4 v-if="videoTitle">
           {{ videoTitle }}
         </h4>
       </v-col>
     </v-row>
     <v-row>
-      <v-col v-if="isReady">
+      <v-col v-if="isReady" cols="2">
         <VideoPlayer :options="videoOptions" />
       </v-col>
+    </v-row>
+    <v-row>
       <v-col>
         <MediaInfo :object="object" @update="onMediaInfoUpdate" />
       </v-col>
@@ -21,12 +23,12 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col v-if="loggedIn && thumbnail()">
+      <v-col v-if="loggedIn && thumbnail()" cols="2">
         <ThumbnailSelector :object="object" />
       </v-col>
     </v-row>
     <v-row>
-      <v-col v-if="error">
+      <v-col v-if="error" cols="2">
         <h3>{{ error }}</h3>
       </v-col>
     </v-row>
@@ -112,7 +114,7 @@ export default {
   },
   created () {
     const name = objectDecodePath(this.$route.query.n)
-    if (typeof name !== 'string') {
+    if (!name) {
       this.error = 'Video not found'
       return
     }

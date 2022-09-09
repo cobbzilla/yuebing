@@ -12,41 +12,48 @@
                 {{ mediaInfo[field] }}
               </v-col>
             </v-row>
-            <v-row v-for="(field, index) in minorFields" :key="index" class="mediaInfoMinorField">
-              <v-col v-if="mediaInfo && mediaInfo[field]" >
-                <small>{{ messages[`label_mediainfo_${field}`] }}</small>
-              </v-col>
-              <v-col v-if="mediaInfo && mediaInfo[field]" >
-                <small>{{ mediaInfo[field] }}</small>
+            <v-row>
+              <v-col>
+                <v-btn @click.stop="toggleMinorFields">
+                  <v-icon v-if="showMinorFields" dense>
+                    mdi-chevron-up
+                  </v-icon>
+                  <v-icon v-else dense>
+                    mdi-chevron-down
+                  </v-icon>
+                </v-btn>
+                <v-btn v-if="canEditMediainfo" class="btn btn-primary" @click.stop="toggleEditButton()">
+                  <v-icon v-if="showEditor">
+                    mdi-close
+                  </v-icon>
+                  <v-icon v-else>
+                    mdi-pencil
+                  </v-icon>
+                </v-btn>
+                <v-container>
+                  <v-row v-for="(field, index) in minorFields" :key="index" class="mediaInfoMinorField">
+                    <v-col v-if="mediaInfo && mediaInfo[field]" >
+                      <small>{{ messages[`label_mediainfo_${field}`] }}</small>
+                    </v-col>
+                    <v-col v-if="mediaInfo && mediaInfo[field]" >
+                      <small>{{ mediaInfo[field] }}</small>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </v-col>
             </v-row>
           </v-container>
         </div>
       </v-col>
     </v-row>
-    <v-row class="minorFieldToggle">
-      <v-col>
-        <v-btn @click.stop="toggleMinorFields">
-          <v-icon v-if="showMinorFields" dense>
-            mdi-chevron-up
-          </v-icon>
-          <v-icon v-else dense>
-            mdi-chevron-down
-          </v-icon>
-        </v-btn>
-        <v-btn v-if="canEditMediainfo" class="btn btn-primary" @click.stop="toggleEditButton()">
-          <v-icon v-if="showEditor">
-            mdi-close
-          </v-icon>
-          <v-icon v-else>
-            mdi-pencil
-          </v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
     <v-row>
       <v-col>
         <div v-if="showEditor">
+          <v-btn @click.stop="toggleEditButton">
+            <v-icon dense>
+              mdi-close
+            </v-icon>
+          </v-btn>
           <v-form @submit.prevent="updateMediaInfoValues">
             <div v-for="(field, index) in editableInfoFields" :key="index">
               <div class="form-group">
