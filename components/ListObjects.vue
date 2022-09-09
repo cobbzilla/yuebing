@@ -15,6 +15,11 @@
               </h2>
             </v-col>
           </v-row>
+          <v-row v-if="searchIndexesBuilding">
+            <v-col>
+              <h4>{{ messages.info_search_indexes_building.parseMessage({ indexes: searchIndexesBuilding.join(messages.locale_text_list_separator) })}}</h4>
+            </v-col>
+          </v-row>
           <v-row v-else-if="!searchResults || searchResults.length === 0">
             <v-col>
               <h2>
@@ -82,7 +87,7 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-    ...mapState(['browserLocale', 'searching', 'searchResults', 'searchError']),
+    ...mapState(['browserLocale', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     minCardHeight () { return 200 },
     minCardWidth () { return 200 },

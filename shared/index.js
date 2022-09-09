@@ -17,6 +17,8 @@ const USER_SESSION_QUERY_PARAM = 's'
 const ANON_LOCALE_STORAGE_KEY = 'anon_locale'
 const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en'
 
+const INDEX_STILL_BUILDING_TOKEN = '~~'
+
 function sessionParams (user, status) {
   if (nuxt.publicRuntimeConfig.public ||
     !user || !user.session ||
@@ -102,6 +104,7 @@ module.exports = {
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
   SELF_SOURCE_NAME,
+  INDEX_STILL_BUILDING_TOKEN,
   publicConfigField,
   okl,
   empty,

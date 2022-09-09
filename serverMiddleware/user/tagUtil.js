@@ -1,7 +1,6 @@
 const shasum = require('shasum')
-const { M_DIR, M_FILE } = require('mobiletto-lite')
 const { dirname, basename } = require('path')
-const { chopFileExt, isAllDigitsOrNonWordChars } = require('../../shared')
+const { chopFileExt, isAllDigitsOrNonWordChars, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
 const { extractSourceAndPath } = require('../../shared/source')
 const { mediaType, objectEncodePath, objectDecodePath } = require('../../shared/media')
 const { MEDIAINFO_FIELDS, mediaInfoFields } = require('../../shared/mediainfo')
@@ -9,7 +8,7 @@ const { stopWords } = require('../../shared/locale')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const redis = require('../util/redis')
-const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('../asset/manifest')
+const { deriveMediaInfo } = require('../asset/manifest')
 
 const PATH_INDEX = 'indexes/paths/'
 const TAGS_INDEX = 'indexes/tags/'
@@ -246,18 +245,78 @@ const flushTagsForPathCache = async (sourceAndPath) => {
   await redis.del(cacheKey)
 }
 
+const Queue = require('bull')
+const LRU = require('lru-cache')
+const redisConfig = system.privateConfig.redis
+
+const PATHS_WITH_TAG_QUEUE_NAME = 'PathsWithTagQueue'
+const PATHS_WITH_TAG_JOB_NAME = 'PathsWithTagJob'
+const PATHS_WITH_TAG_CONCURRENCY = 1
+
+const queuedPathsLRU = new LRU({ max: 1000 })
+
+const PATHS_WITH_TAG_PROCESS_FUNCTION = async (job) => {
+  // const asset = job.data.asset
+  const normTag = job.data.normTag
+  const cacheKey = job.data.cacheKey
+  const logPrefix = `PATHS_WITH_TAG_PROCESS_FUNCTION(${normTag})`
+  try {
+    const dir = tagDir(normTag)
+    logger.info(`${logPrefix} recursively listing tagDir: ${dir}`)
+    const encodedPathObjs = await system.api.list(dir, { recursive: true })
+    logger.info(`${logPrefix} found ${encodedPathObjs ? encodedPathObjs.length : 'undefined?'} paths in: ${dir}`)
+    const paths = encodedPathObjs.map(o => objectDecodePath(basename(o.name)))
+    await redis.set(cacheKey, JSON.stringify(paths), TAG_CACHE_EXPIRATION)
+    queuedPathsLRU.set(normTag, paths)
+    logger.info(`${logPrefix} returning ${paths.length} paths`)
+    return paths
+  } catch (e) {
+    logger.error(`${logPrefix} error: ${e}`)
+    throw e
+  }
+}
+
+let PATHS_WITH_TAG_QUEUE = null
+const pathsWithTagQueue = () => {
+  if (PATHS_WITH_TAG_QUEUE === null) {
+    PATHS_WITH_TAG_QUEUE = new Queue(PATHS_WITH_TAG_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
+    PATHS_WITH_TAG_QUEUE.process(PATHS_WITH_TAG_JOB_NAME, PATHS_WITH_TAG_CONCURRENCY, PATHS_WITH_TAG_PROCESS_FUNCTION)
+  }
+  return PATHS_WITH_TAG_QUEUE
+}
+
+function queuePathsForTag (normTag, cacheKey) {
+  const job = {
+    ctime: Date.now(),
+    normTag,
+    cacheKey
+  }
+  pathsWithTagQueue().add(PATHS_WITH_TAG_JOB_NAME, job)
+}
+
 const cache_enabled = true
 const getPathsWithTag = async (tag) => {
   const normTag = normalizeTag(tag)
+  const lruCached = queuedPathsLRU.get(normTag)
+  if (lruCached) {
+    if (Array.isArray(lruCached)) {
+      logger.debug(`getPathsWithTag(${tag}) found in LRU, returning ${lruCached.length} paths`)
+      return lruCached
+    } else {
+      logger.debug(`getPathsWithTag(${tag}) marked as processing in LRU, not queueing...`)
+      return [INDEX_STILL_BUILDING_TOKEN]
+    }
+  }
   const cacheKey = PATHS_WITH_TAG_CACHE_PREFIX + normTag
   const cached = cache_enabled ? await redis.get(cacheKey) : null
   if (cached) {
     return JSON.parse(cached)
+  } else {
+    logger.debug(`getPathsWithTag(${tag}) not in LRU, queueing and returning still-building`)
+    queuedPathsLRU.set(normTag, true)
+    queuePathsForTag(normTag, cacheKey)
   }
-  const encodedPathObjs = await system.api.list(tagDir(normTag), { recursive: true })
-  const paths = encodedPathObjs.map(o => objectDecodePath(basename(o.name)))
-  await redis.set(cacheKey, JSON.stringify(paths), TAG_CACHE_EXPIRATION)
-  return paths
+  return [INDEX_STILL_BUILDING_TOKEN]
 }
 
 const TAG_PATH_REGEX = new RegExp('^' + TAG_TO_CONTENT_INDEX + '[\\dA-F]{2}/[\\dA-F]{2}/[\\dA-F]{2}/[^/]{3,}/?', 'gi')

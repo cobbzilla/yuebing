@@ -14,6 +14,7 @@ export const state = () => ({
   loadingPublicConfigError: null,
   searching: null,
   searchResults: null,
+  searchIndexesBuilding: null,
   searchError: null
 })
 
@@ -100,7 +101,13 @@ export const mutations = {
   },
   searchContentSuccess (state, { results }) {
     state.searching = false
-    state.searchResults = results
+    state.searchResults = results.objectList
+    if (results.stillBuilding && results.stillBuilding.length > 0) {
+      state.searchIndexesBuilding = results.stillBuilding
+    } else {
+      state.searchIndexesBuilding = null
+    }
+
   },
   searchContentFailure (state, { error }) {
     state.searching = false

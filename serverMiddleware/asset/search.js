@@ -1,7 +1,7 @@
 const shasum = require('shasum')
 const { basename } = require('path')
 
-const { chopFileExt } = require('../../shared')
+const { chopFileExt, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
 const { MEDIA, mediaType } = require('../../shared/media')
 const cache = require('../util/cache')
 
@@ -20,7 +20,11 @@ const MAX_QUERY_PAGE_SIZE = 50
 
 // todo: weight results by likes/comments; weight by tags the user has watched the most
 const search = async (user, query) => {
-  const results = await _search(user, query)
+  const { stillBuilding, paths } = await _search(user, query)
+  if (stillBuilding && stillBuilding.length > 0) {
+    logger.warn(`search(${query}) still building indexes for: ${stillBuilding.join(', ')}`)
+  }
+  const results = paths
 
   const pageNum = query.pageNumber || 1
   const pageSize = Math.min(query.pageSize || 20, MAX_QUERY_PAGE_SIZE)
@@ -65,12 +69,8 @@ const search = async (user, query) => {
     }))
   }
   await Promise.all(promises)
-  return objectList
+  return { stillBuilding, objectList }
 }
-
-const SEARCH_CACHE_PREFIX = '_search_'
-const SEARCH_CACHE_EXPIRATION = 1000 * 60 * 10
-const cache_enabled = true
 
 const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
 
@@ -129,35 +129,32 @@ const buildSearchIndex = async (fromStartup = false) => {
 const _search = async (user, query) => {
   const logPrefix = `search(${JSON.stringify(query)})`
   logger.debug(`${logPrefix} starting`)
-  const cacheKey = SEARCH_CACHE_PREFIX + shasum((user ? JSON.stringify(user) : '-') + '\n' + JSON.stringify(query))
-  const cached = cache_enabled ? await redis.get(cacheKey) : null
-  if (cached) {
-    const cachedResults = JSON.parse(cached)
-    logger.debug(`${logPrefix} returning ${cachedResults.length} cached results`)
-    return cachedResults
-  } else {
-    logger.debug(`${logPrefix} not cached, or cached disabled, performing search...`)
-  }
   const promises = []
   const tagResults = {}
   const tags = query.tags && query.tags.length > 0 && query.tags.filter(w => w.trim().length > 0).length > 0
     ? query.tags
     : DEFAULT_SEARCH_TAGS
   const pathsWithTags = {}
+  const stillBuilding = []
   logger.debug(`${logPrefix} searching for tags: ${tags.join(' ')}`)
   for (const tag of tags) {
     promises.push(new Promise((resolve) => {
       getPathsWithTag(tag).then(
         (paths) => {
           if (paths && paths.length > 0) {
-            tagResults[tag] = paths
-            for (const path of paths) {
-              if (typeof pathsWithTags[path] === 'undefined') {
-                pathsWithTags[path] = []
+            if (paths.length === 1 && paths[0] === INDEX_STILL_BUILDING_TOKEN) {
+              logger.debug(`${logPrefix} getPathsWithTag(${tag}): detected 'still-building' flag for tag`)
+              stillBuilding.push(tag)
+            } else {
+              tagResults[tag] = paths
+              for (const path of paths) {
+                if (typeof pathsWithTags[path] === 'undefined') {
+                  pathsWithTags[path] = []
+                }
+                pathsWithTags[path].push(tag)
               }
-              pathsWithTags[path].push(tag)
+              logger.debug(`${logPrefix} getPathsWithTag(${tag}): pushed paths: ${paths.join(' ')}`)
             }
-            logger.debug(`${logPrefix} getPathsWithTag(${tag}): pushed paths: ${paths.join(' ')}`)
           }
           logger.debug(`${logPrefix} resolving getPathsWithTag(${tag})`)
           resolve()
@@ -178,9 +175,8 @@ const _search = async (user, query) => {
     })
   }
   tagCounts.sort((o1, o2) => o2.matchCount - o1.matchCount)
-  const matchedPaths = tagCounts.map(tc => tc.path)
-  await redis.set(cacheKey, JSON.stringify(matchedPaths), SEARCH_CACHE_EXPIRATION)
-  return matchedPaths
+  const paths = tagCounts.map(tc => tc.path)
+  return { stillBuilding, paths }
 }
 
 buildSearchIndex(true).then((tags) => {

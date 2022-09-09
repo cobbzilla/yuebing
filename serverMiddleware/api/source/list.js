@@ -59,8 +59,8 @@ export default {
       req.on('data', async (data) => {
         const query = JSON.parse(data)
         try {
-          const results = await search(user, query)
-          return api.okJson(res, results)
+          const { objectList, stillBuilding } = await search(user, query)
+          return api.okJson(res, { objectList, stillBuilding })
         } catch (e) {
           logger.error(`/api/sources/list: error searching: ${e}`)
           return api.okJson(res, [])
