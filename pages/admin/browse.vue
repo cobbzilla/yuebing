@@ -37,7 +37,27 @@
               :hint="messages.label_scan_reprocess_profiles"
               persistent-hint
               multiple
-            />
+            >
+              <template v-if="mediaProfilesFor(scanConfigOverlayObject).length > 1" v-slot:prepend-item>
+                <v-list-item
+                  ripple
+                  @mousedown.prevent
+                  @click="toggleAllProfiles"
+                >
+                  <v-list-item-action>
+                    <v-icon :color="scanConfig.reprocess.length > 0 ? 'indigo darken-4' : ''">
+                      {{ scanConfigSelectionIcon }}
+                    </v-icon>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ messages.label_select_all }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider class="mt-2"></v-divider>
+              </template>
+            </v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -340,7 +360,20 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    viewingAllObjects () { return this.viewMediaOnly === false }
+    viewingAllObjects () { return this.viewMediaOnly === false },
+    allProfilesSelected () {
+      return this.scanConfig.reprocess.length === this.mediaProfilesFor(this.scanConfigOverlayObject).length
+    },
+    someProfilesSelected () {
+      return this.scanConfig.reprocess.length > 0 && !this.allProfilesSelected
+    },
+    scanConfigSelectionIcon () {
+      return this.allProfilesSelected
+        ? 'mdi-close-box'
+        : this.someProfilesSelected
+          ? 'mdi-minus-box'
+          : 'mdi-checkbox-blank-outline'
+    }
   },
   watch: {
     sourceList (newList) {
@@ -451,6 +484,15 @@ export default {
     mediaProfilesFor (obj) {
       const profiles = mediaProfilesForSource(obj.name)
       return profiles ? Object.keys(profiles) : null
+    },
+    toggleAllProfiles () {
+      this.$nextTick(() => {
+        if (this.allProfilesSelected) {
+          this.scanConfig.reprocess = []
+        } else {
+          this.scanConfig.reprocess = this.mediaProfilesFor(this.scanConfigOverlayObject).slice()
+        }
+      })
     }
   }
 }
@@ -478,27 +520,29 @@ export default {
   line-height: 10px;
 }
 #metaOverlayContainer {
-    max-width: 90%;
-    width: 90%;
-    max-height: 70%;
-    height: 70%;
-    overflow: scroll;
-    padding: 10px;
+  max-width: 90%;
+  width: 90%;
+  max-height: 70%;
+  height: 70%;
+  overflow: scroll;
+  padding: 10px;
 }
 #scanConfigOverlayContainer {
-    max-width: 90%;
-    width: 90%;
-    max-height: 70%;
-    height: 70%;
-    overflow: scroll;
-    padding: 10px;
+  width: 550px;
+  max-height: 70%;
+  height: 70%;
+  overflow: scroll;
+  padding: 10px;
+  position: relative;
+  left: 20px;
+  top: 20px;
 }
 #tagOverlayContainer {
-    max-width: 70%;
-    width: 70%;
-    max-height: 70%;
-    height: 70%;
-    overflow: scroll;
-    padding: 10px;
+  max-width: 70%;
+  width: 70%;
+  max-height: 70%;
+  height: 70%;
+  overflow: scroll;
+  padding: 10px;
 }
 </style>

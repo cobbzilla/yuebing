@@ -1,7 +1,7 @@
 const { spawn } = require('node:child_process')
 
 const fs = require('fs')
-const path = require('path')
+const { dirname, basename } = require('path')
 const { glob } = require('glob')
 const shellescape = require('shell-escape')
 const randomstring = require('randomstring')
@@ -216,7 +216,7 @@ const UPLOAD_CONFIRM_DELAY = 3000
 
 async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
   const outfileSize = util.statSize(outfile)
-  const destPath = system.assetsDir(sourcePath) + path.basename(outfile)
+  const destPath = system.assetsDir(sourcePath) + basename(outfile)
   const fileUp = fs.createReadStream(outfile)
   logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
@@ -334,28 +334,46 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
       return
     }
 
+    const filesToUpload = []
     if (profile.multiFile) {
       const outfilePrefix = multifilePrefix(outfile)
       logger.debug(`${logPrefix} MULTI-FILE: globbing multifilePrefix=${outfilePrefix}`)
-      await glob(outfilePrefix + '*', async (err, files) => {
-        logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
-        if (err) {
-          const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
-          logger.error(message)
-          q.recordJobEvent(job, `${jobPrefix}_ERROR_listing_files`, `${err}`)
-          await system.recordError(sourcePath, profile.name, message)
-          deleteLocalFiles(outfile, profile, job, jobPrefix)
-        } else if (files && files.length && files.length > 0) {
-          logger.debug(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
-          q.recordJobEvent(job, `${jobPrefix}_found_files`, `${files.length} files matched`)
-          await handleMultiOutputFiles(sourcePath, profile, files, outfile, job, jobPrefix)
-        } else {
-          const message = `${logPrefix}  GLOB: No files matched!`
-          logger.error(message)
-          q.recordJobEvent(job, `${jobPrefix}_ERROR_no_files_matched`)
-          await system.recordError(sourcePath, profile.name, message)
-          deleteLocalFiles(outfile, profile, job, jobPrefix)
-        }
+      await new Promise(async (resolve) => {
+        await glob(outfilePrefix + '*', async (err, files) => {
+          logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
+          if (err) {
+            const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
+            logger.error(message)
+            q.recordJobEvent(job, `${jobPrefix}_ERROR_listing_files`, `${err}`)
+            await system.recordError(sourcePath, profile.name, message)
+            deleteLocalFiles(outfile, profile, job, jobPrefix)
+          } else if (files && files.length && files.length > 0) {
+            logger.debug(`${logPrefix} GLOB: SUCCESS: ${files.length} files matched!`)
+            q.recordJobEvent(job, `${jobPrefix}_found_files`, `${files.length} files matched`)
+            filesToUpload.push(...files)
+            await handleMultiOutputFiles(sourcePath, profile, files, outfile, job, jobPrefix)
+          } else {
+            const message = `${logPrefix}  GLOB: No files matched!`
+            logger.error(message)
+            q.recordJobEvent(job, `${jobPrefix}_ERROR_no_files_matched`)
+            await system.recordError(sourcePath, profile.name, message)
+            deleteLocalFiles(outfile, profile, job, jobPrefix)
+          }
+          if (profile.additionalAssets && Array.isArray(profile.additionalAssets)) {
+            const assetsDir = dirname(outfile)
+            const files = fs.readdirSync(assetsDir)
+            for (const regex of profile.additionalAssets) {
+              const matches = files
+                .filter(f => !filesToUpload.includes(f))
+                .filter(f => regex.match(f))
+              logger.info(`${logPrefix} found ${matches.length} additionalAssets for regex ${regex}`)
+              for (const match of matches) {
+                await uploadAsset(sourcePath, match, job, jobPrefix)
+              }
+            }
+          }
+          resolve()
+        })
       })
     } else {
       // stat the outfile -- it should be at least a minimum size
@@ -453,6 +471,12 @@ async function createArtifacts (job, localSourceFile) {
     const profile = profiles[name]
     if (!profile.enabled) {
       logger.debug(`createArtifacts: profile disabled, skipping: ${name}`)
+      q.recordJobEvent(job, `${artifactPrefix}_DISABLED_DONE`)
+      continue
+    }
+    if (profile.noop) {
+      logger.debug(`createArtifacts: profile is a noop, skipping: ${name}`)
+      q.recordJobEvent(job, `${artifactPrefix}_NOOP_DONE`)
       continue
     }
 
@@ -461,21 +485,26 @@ async function createArtifacts (job, localSourceFile) {
 
     // determine which destPath we will check to determine if the transform has completed
     if (profile.multiFile) {
-      const outfilePrefix = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
+      const outfilePrefix = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
       outfile = outfilePrefix + m.assetSuffix(mediaType) + c.MULTIFILE_PLACEHOLDER + '.' + profile.ext
       completedAssetKey = system.assetsDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + c.MULTIFILE_FIRST + '.' + profile.ext
     } else {
-      outfile = path.dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
-      completedAssetKey = system.assetsDir(sourcePath) + path.basename(outfile)
+      outfile = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
+      completedAssetKey = system.assetsDir(sourcePath) + basename(outfile)
     }
 
-    if (job.data.reprocess && Array.isArray(job.data.reprocess) && job.data.reprocess.includes(name)) {
-      q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
+    if (job.data.reprocess && Array.isArray(job.data.reprocess)) {
+      if (job.data.reprocess.includes(name)) {
+        q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
+      } else {
+        q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)
+        continue
+      }
     } else {
       q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
       const destHead = await system.api.safeMetadata(completedAssetKey)
       if (destHead && destHead.size && destHead.size > 0) {
-        logger.debug(`createArtifacts: artifact ${path.basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
+        logger.debug(`createArtifacts: artifact ${basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
         q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
         continue
       }
@@ -502,7 +531,7 @@ async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
   const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
   const mediaType = m.mediaType(pth)
-  const jobPrefix = `ensureSourceDownload_${mediaType}_${path.basename(pth)}`
+  const jobPrefix = `ensureSourceDownload_${mediaType}_${basename(pth)}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)
 
   // Does the local copy of the source exist already?
@@ -520,7 +549,7 @@ async function ensureSourceDownloaded (job) {
   }
 
   logger.debug(`ensureSourceDownload: downloading source to file: ${file}`)
-  fs.mkdirSync(path.dirname(file), { recursive: true })
+  fs.mkdirSync(dirname(file), { recursive: true })
   const MAX_TRIES = 10
   let head = null
   for (let i = 1; i <= MAX_TRIES; i++) {

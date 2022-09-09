@@ -61,6 +61,7 @@ export default {
   label_sort_order: 'Order',
   label_sort_ascending: 'ascending',
   label_sort_descending: 'descending',
+  footer_credit: '<a style="text-decoration: none;" href="https://github.com/cobbzilla/yuebing">Powered by 🥮 Yuebing</a>',
 
   // media browsing
   title_browsing_folder: 'Folder: {{ folder }}',
@@ -101,6 +102,7 @@ export default {
   label_scan_reprocess: 'Reprocess',
   label_scan_reprocess_profiles: 'Reprocess these profiles',
   label_path: 'Path',
+  label_select_all: 'Select All',
 
   // vee-validate error types
   error_field_required: '{{ field }} is required',
