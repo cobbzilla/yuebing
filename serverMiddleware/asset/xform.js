@@ -677,15 +677,19 @@ async function transform (sourcePath, opts) {
   const derivedMeta = await manifest.deriveMetadata(source, pth)
   logger.debug(`${logPrefix}) fetched metadata`)
   if (derivedMeta && (derivedMeta.finished || (derivedMeta.status && derivedMeta.status.complete))) {
-    logger.debug(`${logPrefix}) metadata is finished/complete, returning it`)
-    return derivedMeta
+    if (opts && (opts.ignoreErrors || opts.reprocess)) {
+      logger.info(`${logPrefix}) metadata is finished/complete, but ignoredErrors was true or reprocess is not empty, proceeding...`)
+    } else {
+      logger.debug(`${logPrefix}) metadata is finished/complete, returning it`)
+      return derivedMeta
+    }
   }
   if (q.isQueued(sourcePath)) {
     if (q.isStaleJob(sourcePath)) {
       logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
     } else {
       if (opts && (opts.ignoreErrors || opts.reprocess)) {
-        logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but force or reprocess was true, proceeding...`)
+        logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but ignoredErrors was true or reprocess is not empty, proceeding...`)
       } else {
         logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
         return derivedMeta
