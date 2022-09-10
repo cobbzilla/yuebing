@@ -1,7 +1,7 @@
 const { basename } = require('path')
 const mime = require('mime-types')
 const shared = require('../../../shared')
-const m = require('../../../shared/media')
+const { ASSET_PREFIX, PROFILE_ADDITIONAL_REGEXES } = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
@@ -38,8 +38,6 @@ async function get (req, res, source, path) {
   res.end()
 }
 
-const ADDITIONAL_ASSET_REGEXES = m.profileAdditionalAssetRegexes()
-
 export default {
   path: shared.STREAM_API,
   async handler (req, res) {
@@ -55,8 +53,8 @@ export default {
     const p = url.startsWith('/') ? url.substring(1) : req.url
 
     // Can only stream assets, nothing else
-    if (!p.startsWith(system.assetsPrefix) || !basename(p).startsWith(m.ASSET_PREFIX)) {
-      if (ADDITIONAL_ASSET_REGEXES.find(regex => regex.test(basename(p)))) {
+    if (!p.startsWith(system.assetsPrefix) || !basename(p).startsWith(ASSET_PREFIX)) {
+      if (PROFILE_ADDITIONAL_REGEXES.find(regex => regex.test(basename(p)))) {
         logger.info(`${shared.STREAM_API} allowing path ${p} due to additionalAssets exception`)
       } else {
         return api.notFound(res, url)

@@ -36,7 +36,7 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
   try {
     const regAge = await pathRegistrationAge(job.data.sourcePath)
     if (regAge && regAge < MIN_REG_AGE) {
-      if (job.data.opts.reprocess) {
+      if (job.data.opts.reprocess && job.data.opts.reprocess.length > 0) {
         logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
       } else {
         logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
@@ -532,8 +532,9 @@ async function createArtifacts (job, localSourceFile) {
       completedAssetKey = system.assetsDir(sourcePath) + basename(outfile)
     }
 
-    if (job.data.opts.reprocess && Array.isArray(job.data.opts.reprocess)) {
-      if (job.data.opts.reprocess.includes(name)) {
+    const reprocess = job.data.opts.reprocess && job.data.opts.reprocess.length > 0
+    if (reprocess) {
+      if (reprocess.includes(name)) {
         q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
       } else {
         q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)
@@ -663,6 +664,7 @@ async function ensureSourceDownloaded (job) {
 
 async function transform (sourcePath, opts) {
   const logPrefix = `transform(${sourcePath}):`
+  const ignoreOrReprocess = opts && (opts.ignoreErrors || (opts.reprocess && opts.reprocess.length > 0))
   logger.info(`${logPrefix} starting`)
   if (!m.hasProfiles(sourcePath)) {
     logger.warn(`${logPrefix} no profiles exist, not transforming`)
@@ -677,7 +679,7 @@ async function transform (sourcePath, opts) {
   const derivedMeta = await manifest.deriveMetadata(source, pth)
   logger.debug(`${logPrefix}) fetched metadata`)
   if (derivedMeta && (derivedMeta.finished || (derivedMeta.status && derivedMeta.status.complete))) {
-    if (opts && (opts.ignoreErrors || opts.reprocess)) {
+    if (ignoreOrReprocess) {
       logger.info(`${logPrefix}) metadata is finished/complete, but ignoredErrors was true or reprocess is not empty, proceeding...`)
     } else {
       logger.debug(`${logPrefix}) metadata is finished/complete, returning it`)
@@ -688,7 +690,7 @@ async function transform (sourcePath, opts) {
     if (q.isStaleJob(sourcePath)) {
       logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
     } else {
-      if (opts && (opts.ignoreErrors || opts.reprocess)) {
+      if (ignoreOrReprocess) {
         logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but ignoredErrors was true or reprocess is not empty, proceeding...`)
       } else {
         logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)

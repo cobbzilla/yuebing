@@ -38,11 +38,34 @@
             <v-select
               v-model="scanConfig.reprocess"
               :label="messages.label_scan_reprocess"
-              :items="mediaProfilesFor(scanConfigOverlayObject)"
+              :name="allProfiles"
+              :items="allProfiles"
+              item-value="profile"
+              item-text="mediaTypeAndProfile"
               :hint="messages.label_scan_reprocess_profiles"
               persistent-hint
               multiple
-            />
+            >
+              <template v-if="allProfiles.length > 1" v-slot:prepend-item>
+                <v-list-item
+                  ripple
+                  @mousedown.prevent
+                  @click="toggleAllProfiles"
+                >
+                  <v-list-item-action>
+                    <v-icon :color="scanConfig.reprocess.length > 0 ? 'indigo darken-4' : ''">
+                      {{ scanConfigSelectionIcon }}
+                    </v-icon>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ messages.label_select_all }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider class="mt-2"></v-divider>
+              </template>
+            </v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -367,7 +390,7 @@ import { condensedRules } from '@/shared/validation'
 import {
   localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
 } from '@/shared/source'
-import { mediaProfilesForSource } from '@/shared/media'
+import { ALL_MEDIA_PROFILES } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
@@ -436,6 +459,20 @@ export default {
         return algo ? algo.info : null
       }
       return null
+    },
+    allProfiles () { return ALL_MEDIA_PROFILES },
+    allProfilesSelected () {
+      return this.scanConfig.reprocess.length === this.allProfiles.length
+    },
+    someProfilesSelected () {
+      return this.scanConfig.reprocess.length > 0 && !this.allProfilesSelected
+    },
+    scanConfigSelectionIcon () {
+      return this.allProfilesSelected
+        ? 'mdi-close-box'
+        : this.someProfilesSelected
+          ? 'mdi-minus-box'
+          : 'mdi-checkbox-blank-outline'
     }
   },
   watch: {
@@ -528,10 +565,27 @@ export default {
       this.setScanConfigOverlay(null)
     },
     indexSrc (src) { this.indexSource({ src }) },
-    mediaProfilesFor (obj) {
-      const profiles = mediaProfilesForSource(obj.name)
-      return profiles ? Object.keys(profiles) : null
+    toggleAllProfiles () {
+      this.$nextTick(() => {
+        if (this.allProfilesSelected) {
+          this.scanConfig.reprocess = []
+        } else {
+          this.scanConfig.reprocess = this.allProfiles.slice()
+        }
+      })
     }
   }
 }
 </script>
+
+<style lang="scss">
+#scanConfigOverlayContainer {
+  width: 550px;
+  max-height: 70%;
+  height: 70%;
+  overflow: scroll;
+  padding: 10px;
+  position: relative;
+  top: 20px;
+}
+</style>

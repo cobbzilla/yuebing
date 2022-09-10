@@ -68,13 +68,13 @@ const handleReindex = sourceName => async (res, name) => {
   }
 }
 
-const handleScan = sourceName => async (res, name) => {
-  if (sourceName !== name) {
-    throw new TypeError(`handleScan: Expected source named ${sourceName} but received ${name}`)
+const handleScan = sourceName => async (res, scanConfig) => {
+  if (!scanConfig || sourceName !== scanConfig.source) {
+    throw new TypeError(`handleScan: Expected source named ${sourceName} but received scanConfig.source=${scanConfig.source}`)
   }
   try {
-    const source = await s.connect(name)
-    const transforms = await scan.scan(source, '', { autoscan: false })
+    const source = await s.connect(scanConfig.source)
+    const transforms = await scan.scan(source, scanConfig)
     return api.okJson(res, transforms)
   } catch (e) {
     if (e instanceof s.SourceNotFoundError) {

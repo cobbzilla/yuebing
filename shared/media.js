@@ -15,7 +15,8 @@ function assetSuffix (mediaType) {
 
 const EXT_MAP = {}
 
-const MEDIA_TYPES = ['standard', 'video']
+const MEDIA_TYPE_STANDARD = 'standard'
+const MEDIA_TYPES = [MEDIA_TYPE_STANDARD, 'video']
 
 const MEDIA = {}
 for (const mtype of MEDIA_TYPES) {
@@ -221,7 +222,7 @@ function isMediaInfoJsonProfile (profile) {
 const objectEncodePath = path => path ? btoa(path).replaceAll('/', '_') : null
 const objectDecodePath = encoded => encoded ? atob(encoded.replaceAll('_', '/')) : null
 
-const profileAdditionalAssetRegexes = () => [...new Set(
+const PROFILE_ADDITIONAL_REGEXES = [...new Set(
   Object.keys(MEDIA)
     .map(t => !MEDIA[t].profiles
       ? []
@@ -233,13 +234,20 @@ const profileAdditionalAssetRegexes = () => [...new Set(
         .flat())
     .flat())]
 
+const ALL_MEDIA_PROFILES = Object.keys(MEDIA)
+  .map(t => t === MEDIA_TYPE_STANDARD || !MEDIA[t].profiles
+    ? []
+    : Object.keys(MEDIA[t].profiles)
+      .map((p) => { return { mediaType: t, profile: p, mediaTypeAndProfile: `${t} / ${p}` } }))
+  .flat()
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
   newMediaObject, hasMediaType, hasMediaInfo, metaHasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   objectEncodePath, objectDecodePath,
-  profileAdditionalAssetRegexes,
+  PROFILE_ADDITIONAL_REGEXES, ALL_MEDIA_PROFILES,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX, assetSuffix,
