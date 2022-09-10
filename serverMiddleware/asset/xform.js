@@ -537,9 +537,9 @@ async function createArtifacts (job, localSourceFile) {
       completedAssetKey = system.assetsDir(sourcePath) + basename(outfile)
     }
 
-    const reprocess = job.data.opts.reprocess && job.data.opts.reprocess.length > 0
-    if (reprocess) {
-      if (reprocess.includes(name)) {
+    const reprocessProfiles = job.data.opts.reprocess && job.data.opts.reprocess.length > 0 ? job.data.opts.reprocess : null
+    if (reprocessProfiles) {
+      if (reprocessProfiles.includes(name)) {
         q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
       } else {
         q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)
