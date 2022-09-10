@@ -47,7 +47,7 @@ export default {
       primary: true,
       multiFile: true,
       hlsProfile: 'hls_m3u8',
-      additionalAssets: [/\.m3u8$/]
+      additionalAssets: [/^media_\d+\.m3u8$/, /^asset_hls_m3u8@video@master\.m3u8$/]
     },
 
     // This is a stub profile, referenced above by `dash_mp4.hlsProfile`

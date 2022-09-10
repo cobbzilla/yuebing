@@ -221,12 +221,21 @@ function isMediaInfoJsonProfile (profile) {
 const objectEncodePath = path => path ? btoa(path).replaceAll('/', '_') : null
 const objectDecodePath = encoded => encoded ? atob(encoded.replaceAll('_', '/')) : null
 
+const profileAdditionalAssetRegexes = () => [...new Set(
+  Object.keys(MEDIA)
+    .map(t => !MEDIA[t].profiles ? [] : Object.keys(MEDIA[t].profiles)
+      .map(p => !MEDIA[t].profiles[p].additionalAssets ? [] : MEDIA[t].profiles[p].additionalAssets
+        .filter(a => !a.toString().startsWith('/'+ASSET_PREFIX) && !a.toString().startsWith('/^'+ASSET_PREFIX)))
+      .flat())
+    .flat())]
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
   newMediaObject, hasMediaType, hasMediaInfo, metaHasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   objectEncodePath, objectDecodePath,
+  profileAdditionalAssetRegexes,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX, assetSuffix,
