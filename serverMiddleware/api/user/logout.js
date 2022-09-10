@@ -1,13 +1,13 @@
 const api = require('../../util/api')
-const u = require('../../user/userUtil')
+const { currentUser } = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 export default {
   path: '/api/user/logout',
-  handler (req, res) {
+  async handler (req, res) {
     try {
-      const user = u.currentUser(req)
+      const user = await currentUser(req)
       if (user) {
         api.clearSessionCookie(res, user.session)
       }

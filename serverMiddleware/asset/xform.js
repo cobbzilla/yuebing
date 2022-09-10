@@ -1,7 +1,7 @@
 const { spawn } = require('node:child_process')
 
 const fs = require('fs')
-const { dirname, basename } = require('path')
+const { dirname, basename, join } = require('path')
 const { glob } = require('glob')
 const shellescape = require('shell-escape')
 const randomstring = require('randomstring')
@@ -25,50 +25,60 @@ const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncomp
 
 const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max successful 1 transcode per day
 
+const DONE_JOBS = {}
+
 const XFORM_PROCESS_FUNCTION = async (job) => {
   const logPrefix = `__xform(${job.data.sourcePath})`
-  const regAge = await pathRegistrationAge(job.data.sourcePath)
-  if (regAge && regAge < MIN_REG_AGE) {
-    if (job.data.reprocess) {
-      logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
-    } else {
-      logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
-      return null
-    }
+  if (DONE_JOBS[job.id]) {
+    logger.warn(`${logPrefix} job ID ${job.id} has already been resolved`)
+    return null
   }
-
-  logger.silly(`${logPrefix}: STARTING`)
-  const file = await ensureSourceDownloaded(job)
-  logger.silly(`${logPrefix}: ensureSourceDownloaded returned: ${file}`)
-  if (file) {
-    logger.silly(`${logPrefix}: createArtifacts STARTING`)
-    await createArtifacts(job, file)
-
-    logger.silly(`${logPrefix}: createArtifacts finished, flushing metadata and recalculating final metadata`)
-    let meta
-    try {
-      meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath, { noCache: true })
-    } catch (e) {
-      logger.error(`${logPrefix}: manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
-      throw e
+  try {
+    const regAge = await pathRegistrationAge(job.data.sourcePath)
+    if (regAge && regAge < MIN_REG_AGE) {
+      if (job.data.reprocess) {
+        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
+      } else {
+        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
+        return null
+      }
     }
-    if (!meta || (!meta.finished && !meta.status?.ready)) {
-      logger.warn(`${logPrefix}: deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
-      return null
-    } else {
+
+    logger.silly(`${logPrefix}: STARTING`)
+    const file = await ensureSourceDownloaded(job)
+    logger.silly(`${logPrefix}: ensureSourceDownloaded returned: ${file}`)
+    if (file) {
+      logger.silly(`${logPrefix}: createArtifacts STARTING`)
+      await createArtifacts(job, file)
+
+      logger.silly(`${logPrefix}: createArtifacts finished, flushing metadata and recalculating final metadata`)
+      let meta
       try {
-        await registerPath(job.data.sourcePath, meta)
+        meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath, { noCache: true })
       } catch (e) {
-        logger.error(`${logPrefix}: content.registerPath failed: ${e}`)
+        logger.error(`${logPrefix}: manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
         throw e
       }
-      return meta
-    }
+      if (!meta || (!meta.finished && !meta.status?.ready)) {
+        logger.warn(`${logPrefix}: deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
+        return null
+      } else {
+        try {
+          await registerPath(job.data.sourcePath, meta)
+        } catch (e) {
+          logger.error(`${logPrefix}: content.registerPath failed: ${e}`)
+          throw e
+        }
+        return meta
+      }
 
-  } else {
-    const message = `${logPrefix}: ensureSourceDownloaded did not return a file`
-    logger.error(message)
-    throw new TypeError(message)
+    } else {
+      const message = `${logPrefix}: ensureSourceDownloaded did not return a file`
+      logger.error(message)
+      throw new TypeError(message)
+    }
+  } finally {
+    DONE_JOBS[job.id] = true
   }
 }
 
@@ -338,7 +348,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
     if (profile.multiFile) {
       const outfilePrefix = multifilePrefix(outfile)
       logger.debug(`${logPrefix} MULTI-FILE: globbing multifilePrefix=${outfilePrefix}`)
-      await new Promise(async (resolve) => {
+      await new Promise(async (resolve, reject) => {
         await glob(outfilePrefix + '*', async (err, files) => {
           logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
           if (err) {
@@ -363,12 +373,23 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
             const assetsDir = dirname(outfile)
             const files = fs.readdirSync(assetsDir)
             for (const regex of profile.additionalAssets) {
-              const matches = files
-                .filter(f => !filesToUpload.includes(f))
-                .filter(f => regex.match(f))
-              logger.info(`${logPrefix} found ${matches.length} additionalAssets for regex ${regex}`)
-              for (const match of matches) {
-                await uploadAsset(sourcePath, match, job, jobPrefix)
+              if (!(regex instanceof RegExp)) {
+                const message = `${logPrefix} regex in profile.additionalAssets is not a RegExp: ${regex}`
+                logger.error(message)
+                return reject(message)
+              }
+              try {
+                const matches = files
+                  .filter(f => !filesToUpload.includes(f))
+                  .filter(f => regex.test(f))
+                logger.info(`${logPrefix} found ${matches.length} additionalAssets for regex ${regex}`)
+                for (const match of matches) {
+                  await uploadAsset(sourcePath, join(assetsDir, match), job, jobPrefix)
+                }
+              } catch (e) {
+                const message = `${logPrefix} error matching/uploading additionalAssets: ${e}`
+                logger.error(message)
+                return reject(message)
               }
             }
           }

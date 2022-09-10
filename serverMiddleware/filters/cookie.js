@@ -1,5 +1,5 @@
 const cookie = require('cookie')
-const u = require('../user/userUtil')
+const { currentUser } = require('../user/userUtil')
 const c = require('../../shared')
 const api = require('../util/api')
 
@@ -16,7 +16,7 @@ export default {
   async handler (req, res, next) {
     try {
       if (req.url && !req.url.startsWith('/api')) {
-        const user = await u.currentUser(req)
+        const user = await currentUser(req)
         if (user && user.session) {
           if (!hasCorrectCookie(req.headers.cookie, c.USER_SESSION_HEADER, user.session)) {
             api.setSessionCookie(res, user.session)

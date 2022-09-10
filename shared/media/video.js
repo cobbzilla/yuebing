@@ -47,15 +47,16 @@ export default {
       primary: true,
       multiFile: true,
       hlsProfile: 'hls_m3u8',
-      additionalAssets: [/^media_\d+\.m3u8$/]
+      additionalAssets: [/\.m3u8$/]
     },
 
     // This is a stub profile, referenced above by `dash_mp4.hlsProfile`
     // It exists to represent that the dash_mp4 also creates the m3u8 playlist for the media,
-    // enabling playback on Apple iOS devices and other clients that may not support DASH
+    // enabling playback on Apple iOS devices and other clients that may support HLS but not DASH
     // It's a 'noop' (does nothing) because all the m3u8 files are created by the dash_mp4 profile
     hls_m3u8: {
       noop: true,
+      primary: true,
       ext: 'm3u8',
       contentType: 'application/vnd.apple.mpegurl'
     },

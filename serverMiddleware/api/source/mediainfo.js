@@ -10,7 +10,7 @@ const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../
 export default {
   path: '/api/source/mediainfo',
   async handler (req, res) {
-    const user = currentUser(req)
+    const user = await currentUser(req)
     if (!isAdminOrVerified(user) && !system.isPublic()) {
       return api.forbidden(res)
     }
