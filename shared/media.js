@@ -93,7 +93,7 @@ for (const type in MEDIA) {
 function mediaType (path) {
   if (typeof path !== 'string') {
     try {
-      console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)}): from ${new Error().stack}`)
+      console.warn(`mediaType: unexpected arg: ${path} (as JSON=${JSON.stringify(path)}): from ${new Error('trace').stack}`)
     } catch (e) {
       console.warn(`mediaType: unexpected arg: ${path} (as JSON had error: ${e})`)
     }
@@ -223,10 +223,14 @@ const objectDecodePath = encoded => encoded ? atob(encoded.replaceAll('_', '/'))
 
 const profileAdditionalAssetRegexes = () => [...new Set(
   Object.keys(MEDIA)
-    .map(t => !MEDIA[t].profiles ? [] : Object.keys(MEDIA[t].profiles)
-      .map(p => !MEDIA[t].profiles[p].additionalAssets ? [] : MEDIA[t].profiles[p].additionalAssets
-        .filter(a => !a.toString().startsWith('/'+ASSET_PREFIX) && !a.toString().startsWith('/^'+ASSET_PREFIX)))
-      .flat())
+    .map(t => !MEDIA[t].profiles
+      ? []
+      : Object.keys(MEDIA[t].profiles)
+        .map(p => !MEDIA[t].profiles[p].additionalAssets
+          ? []
+          : MEDIA[t].profiles[p].additionalAssets
+            .filter(a => !a.toString().startsWith('/' + ASSET_PREFIX) && !a.toString().startsWith('/^' + ASSET_PREFIX)))
+        .flat())
     .flat())]
 
 export {
