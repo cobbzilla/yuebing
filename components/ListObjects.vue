@@ -51,7 +51,6 @@
                         v-if="thumbnail(obj)"
                         :src="proxyUrl(thumbnail(obj))"
                         width="200"
-                        height="200"
                         :alt="messages.thumbnail_alt_text.parseMessage({ name: displayName(obj.name) })"
                       >
                     </NuxtLink>
