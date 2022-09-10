@@ -25,7 +25,12 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-checkbox v-model="scanConfig.force" :label="messages.label_scan_force" />
+            <v-checkbox v-model="scanConfig.ignoreErrors" :label="messages.label_scan_ignoreErrors" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-checkbox v-model="scanConfig.overwrite" :label="messages.label_scan_overwrite" />
           </v-col>
         </v-row>
         <v-row v-if="mediaProfilesFor(scanConfigOverlayObject)">
@@ -339,7 +344,8 @@ export default {
       scanConfigOverlayObject: null,
       scanConfig: {
         reprocess: [],
-        force: false
+        ignoreErrors: false,
+        overwrite: false
       }
     }
   },

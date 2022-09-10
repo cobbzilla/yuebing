@@ -36,7 +36,7 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
   try {
     const regAge = await pathRegistrationAge(job.data.sourcePath)
     if (regAge && regAge < MIN_REG_AGE) {
-      if (job.data.reprocess) {
+      if (job.data.opts.reprocess) {
         logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
       } else {
         logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
@@ -223,10 +223,28 @@ async function clearErrors (job, jobPrefix, sourcePath, profile) {
 }
 
 const UPLOAD_CONFIRM_DELAY = 3000
+const MAX_SIZE_DIFF_PCT = 0.0001
 
 async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
-  const outfileSize = util.statSize(outfile)
+  const outfileStat = fs.lstatSync(outfile, { throwIfNoEntry: false })
+  if (!outfileStat || !outfileStat.size) {
+    const message = `${jobPrefix}_uploadAsset_outfile_does_not_exist_or_has_zero_size`
+    q.recordJobEvent(job, message, outfile)
+    return message
+  }
+  const overwrite = !!job.opts.overwrite
+  const outfileSize = outfileStat.size
   const destPath = system.assetsDir(sourcePath) + basename(outfile)
+  if (!overwrite) {
+    const preHead = await system.api.safeMetadata(destPath)
+    if (preHead) {
+      // file exists -- is it roughly the same size?
+      if (Math.abs(preHead.size - outfileSize) <= Math.floor(MAX_SIZE_DIFF_PCT * outfileSize)) {
+        q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset_already_exists`, outfile)
+        return null
+      }
+    }
+  }
   const fileUp = fs.createReadStream(outfile)
   logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
   q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
@@ -514,8 +532,8 @@ async function createArtifacts (job, localSourceFile) {
       completedAssetKey = system.assetsDir(sourcePath) + basename(outfile)
     }
 
-    if (job.data.reprocess && Array.isArray(job.data.reprocess)) {
-      if (job.data.reprocess.includes(name)) {
+    if (job.data.opts.reprocess && Array.isArray(job.data.opts.reprocess)) {
+      if (job.data.opts.reprocess.includes(name)) {
         q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
       } else {
         q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)
@@ -532,7 +550,7 @@ async function createArtifacts (job, localSourceFile) {
     }
     const errCount = await system.countErrors(sourcePath, name)
     if (errCount >= MAX_XFORM_ERRORS) {
-      if (job.data.force) {
+      if (job.data.opts.ignoreErrors) {
         logger.warn(`createArtifacts: transcoding artifact for profile ${name} has many times (${errCount} >= ${MAX_XFORM_ERRORS}) for ${sourcePath}, but force === true, so we are trying again`)
         q.recordJobEvent(job, `${artifactPrefix}_INFO_err_count_exceeded_trying_anyway`, `${errCount} >= ${MAX_XFORM_ERRORS} errors, not retrying`)
       } else {
@@ -643,7 +661,7 @@ async function ensureSourceDownloaded (job) {
   }
 }
 
-async function transform (sourcePath, force = false, reprocess = false) {
+async function transform (sourcePath, opts) {
   const logPrefix = `transform(${sourcePath}):`
   logger.info(`${logPrefix} starting`)
   if (!m.hasProfiles(sourcePath)) {
@@ -666,7 +684,7 @@ async function transform (sourcePath, force = false, reprocess = false) {
     if (q.isStaleJob(sourcePath)) {
       logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but that was too long ago (> ${q.MAX_JOB_TIME}), re-submitting job...`)
     } else {
-      if (force || reprocess) {
+      if (opts && (opts.ignoreErrors || opts.reprocess)) {
         logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), but force or reprocess was true, proceeding...`)
       } else {
         logger.warn(`${logPrefix} already queued (at ${q.cdate(sourcePath)}), not re-queueing`)
@@ -676,7 +694,7 @@ async function transform (sourcePath, force = false, reprocess = false) {
   }
 
   logger.debug(`${logPrefix} adding to jobQueue: ${sourcePath}`)
-  q.enqueue(sourcePath, force, reprocess)
+  q.enqueue(sourcePath, opts)
   return derivedMeta
 }
 

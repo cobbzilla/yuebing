@@ -92,8 +92,6 @@ async function scan (source, opts = {}) {
   }
 
   const autoscan = opts && opts.autoscan
-  const force = opts && opts.force
-  const reprocess = opts && opts.reprocess
   const transforms = []
   for (let i = 0; i < results.length; i++) {
     const iterPrefix = `${logPrefix} [${i+1}/${results.length}]`
@@ -105,17 +103,17 @@ async function scan (source, opts = {}) {
     const jobName = source.name + '/' + result.name
     if (m.hasProfiles(jobName)) {
       transforms.push(result)
-      if (autoscan || force) {
+      if (autoscan) {
         // perform synchronously for autoscan or force
         logger.info(`${iterPrefix} SYNC-QUEUING ${jobName}`)
-        xform.transform(jobName, force, reprocess).then((meta) => {
+        xform.transform(jobName, opts).then((meta) => {
           logger.info(`${iterPrefix} SYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
         })
       } else {
         // asynchronously for regular scan
         logger.info(`${iterPrefix} ASYNC-QUEUING ${jobName}`)
         setTimeout(() => {
-          xform.transform(jobName, force, reprocess).then((meta) => {
+          xform.transform(jobName, opts).then((meta) => {
             logger.info(`${iterPrefix} ASYNC-TRANSFORM-RESULT (${jobName}) = ${JSON.stringify(meta)}`)
           })
         }, 250)
