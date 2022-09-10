@@ -44,36 +44,41 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
       }
     }
 
-    logger.silly(`${logPrefix}: STARTING`)
+    logger.silly(`${logPrefix} STARTING`)
     const file = await ensureSourceDownloaded(job)
-    logger.silly(`${logPrefix}: ensureSourceDownloaded returned: ${file}`)
+    logger.silly(`${logPrefix} ensureSourceDownloaded returned: ${file}`)
     if (file) {
-      logger.silly(`${logPrefix}: createArtifacts STARTING`)
-      await createArtifacts(job, file)
+      logger.silly(`${logPrefix} createArtifacts STARTING`)
+      try {
+        await createArtifacts(job, file)
+      } catch (e) {
+        logger.error(`${logPrefix} create artifacts failed with error: ${e}`)
+        throw e
+      }
 
-      logger.silly(`${logPrefix}: createArtifacts finished, flushing metadata and recalculating final metadata`)
+      logger.silly(`${logPrefix} createArtifacts finished, flushing metadata and recalculating final metadata`)
       let meta
       try {
         meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath, { noCache: true })
       } catch (e) {
-        logger.error(`${logPrefix}: manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
+        logger.error(`${logPrefix} manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
         throw e
       }
       if (!meta || (!meta.finished && !meta.status?.ready)) {
-        logger.warn(`${logPrefix}: deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
+        logger.warn(`${logPrefix} deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
         return null
       } else {
         try {
           await registerPath(job.data.sourcePath, meta)
         } catch (e) {
-          logger.error(`${logPrefix}: content.registerPath failed: ${e}`)
+          logger.error(`${logPrefix} content.registerPath failed: ${e}`)
           throw e
         }
         return meta
       }
 
     } else {
-      const message = `${logPrefix}: ensureSourceDownloaded did not return a file`
+      const message = `${logPrefix} ensureSourceDownloaded did not return a file`
       logger.error(message)
       throw new TypeError(message)
     }
@@ -123,7 +128,7 @@ async function runTransformCommand (job, profile, outfile, args, closeHandler) {
 
   // you can't just run any old command here sonny!
   if (!isCommandAllowed(mediaType, command)) {
-    throw new TypeError(`${logPrefix}: profile command not allowed: ${command}`)
+    throw new TypeError(`${logPrefix} profile command not allowed: ${command}`)
   }
   const saveStdout = (profile.outfile && profile.outfile === 'stdout')
   const saveStderr = (profile.outfile && profile.outfile === 'stderr')
@@ -256,7 +261,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
     if (deleteIncompleteUploads()) {
       await system.api.remove(destPath)
     } else {
-      logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+      logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
     }
     return message
   } else {
@@ -279,7 +284,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
             if (deleteIncompleteUploads()) {
               await system.api.remove(destPath)
             } else {
-              logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+              logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
             }
             reject(message)
           }
@@ -290,7 +295,7 @@ async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
           if (deleteIncompleteUploads()) {
             await system.api.remove(destPath)
           } else {
-            logger.warn(`${jobPrefix}: deleteIncompleteUploads disabled, retaining ${destPath}`)
+            logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
           }
           reject(message)
         }
@@ -456,7 +461,7 @@ async function mediaTransform (job, file, profile, outfile) {
   const mediaDriver = require(driverPath)
   q.recordJobEvent(job, `${jobPrefix}_start`)
   const sourcePath = job.data.sourcePath
-  const logPrefix = `${jobPrefix}:transform(${sourcePath}):`
+  const logPrefix = `${jobPrefix} transform(${sourcePath}):`
   logger.debug(`${logPrefix} starting with outfile ${outfile}`)
   if (typeof profile.operation === 'undefined') {
     logger.debug(`${logPrefix} no operation defined on profile, skipping: profile=${JSON.stringify(profile)}`)
@@ -475,7 +480,7 @@ async function mediaTransform (job, file, profile, outfile) {
   } else {
     xform = mediaDriver[profile.operation]
     if (!xform) {
-      throw new TypeError(`${logPrefix}: operation '${profile.operation}' not supported: No function named ${profile.operation} exported from ${driverPath}`)
+      throw new TypeError(`${logPrefix} operation '${profile.operation}' not supported: No function named ${profile.operation} exported from ${driverPath}`)
     }
   }
   const args = xform(sourcePath, file, profile, outfile)
@@ -613,7 +618,7 @@ async function ensureSourceDownloaded (job) {
       }, () => {
         f.close(async (err) => {
           if (err) {
-            logger.error(`ensureSourceDownload: error closing file: ${tempFile}: ${err}`)
+            logger.error(`ensureSourceDownload: error closing file: ${tempFile} ${err}`)
           }
           const downloadSize = util.statSize(tempFile)
           if (head == null) {
