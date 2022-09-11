@@ -119,7 +119,7 @@ async function scan (source, opts = {}) {
         }, 250)
       }
     } else {
-      logger.warn(`scan(${path}) SKIPPING no profiles for [${i+1}/${results.length}]: ${JSON.stringify(result())}`)
+      logger.warn(`scan(${path}) SKIPPING no profiles for [${i+1}/${results.length}]: ${JSON.stringify(result)}`)
     }
   }
   return transforms

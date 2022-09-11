@@ -340,6 +340,7 @@ export default {
   admin_button_browse_source: 'Browse',
   admin_button_scan_source: 'Scan',
   admin_label_scan_config: 'Configure Scan: {{ source }}',
+  admin_label_scan_olderThan: 'Ignore media that has been processed after a specific date and time',
   admin_info_scan_scanning: 'Scanning...',
   admin_info_scan_successful: 'The scan has successfully started',
   admin_info_scan_error: 'An error occurred during the scan: {{ e }}',

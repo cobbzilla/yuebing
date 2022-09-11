@@ -81,6 +81,26 @@
         </v-row>
         <v-row>
           <v-col>
+            <v-checkbox v-model="scanConfigOlderThan.enabled" :label="messages.admin_label_scan_olderThan" />
+          </v-col>
+        </v-row>
+        <v-row v-if="scanConfigOlderThan.enabled">
+          <v-col>
+            <v-date-picker
+              v-model="scanConfigOlderThan.date"
+              :locale="user.locale"
+              :value="scanConfigOlderThan.date"
+            />
+          </v-col>
+          <v-col>
+            <v-time-picker
+              v-model="scanConfigOlderThan.time"
+              :value="scanConfigOlderThan.time"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
             <v-btn @click.stop="scanSrc(scanConfigOverlayObject)">
               {{ messages.admin_button_scan_source }}
             </v-btn>
@@ -384,7 +404,7 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { DEFAULT_ENCRYPTION_ALGO, SELF_SOURCE_NAME, publicConfigField } from '@/shared'
+import { DEFAULT_ENCRYPTION_ALGO, SELF_SOURCE_NAME, publicConfigField, isoDate, isoTime } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import {
@@ -393,7 +413,9 @@ import {
 import { ALL_MEDIA_PROFILES } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
 
-const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
+const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
+
+const NOW = new Date()
 
 export default {
   name: 'ManageSources',
@@ -427,7 +449,13 @@ export default {
         ignoreErrors: false,
         overwrite: false,
         reprocess: [],
-        path: ''
+        path: '',
+        olderThan: null
+      },
+      scanConfigOlderThan: {
+        enabled: false,
+        date: isoDate(NOW),
+        time: isoTime(NOW)
       }
     }
   },
@@ -560,6 +588,11 @@ export default {
     },
     setScanConfigOverlay (obj) { this.scanConfigOverlayObject = obj || null },
     scanSrc (obj) {
+      if (this.scanConfigOlderThan.enabled) {
+        this.scanConfig.olderThan = new Date(this.scanConfigOlderThan.date + ' ' + this.scanConfigOlderThan.time).getTime()
+      } else {
+        this.scanConfig.olderThan = null
+      }
       const scanConfig = Object.assign({}, this.scanConfig, { source: obj.name })
       this.scanSource({ scanConfig })
       this.setScanConfigOverlay(null)

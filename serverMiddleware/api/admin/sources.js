@@ -80,7 +80,7 @@ const handleScan = sourceName => async (res, scanConfig) => {
     if (e instanceof s.SourceNotFoundError) {
       return api.notFound(res, e.message)
     }
-    return api.serverError(res, `Error scanning ${name}: ${JSON.stringify(e)}`)
+    return api.serverError(res, `Error scanning ${scanConfig.source}: ${JSON.stringify(e)}`)
   }
 }
 

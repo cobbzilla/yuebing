@@ -88,6 +88,41 @@ const publicConfigField = (vue, field) => {
   return vue && vue.publicConfig && vue.publicConfig[field] ? vue.publicConfig[field] : undefined
 }
 
+// adapted from https://stackoverflow.com/a/23593099/1251543
+const isoDate = (millis) => {
+  const d = new Date(millis)
+  let month = '' + (d.getMonth() + 1)
+  let day = '' + d.getDate()
+  const year = d.getFullYear()
+  if (month.length < 2) {
+    month = '0' + month
+  }
+  if (day.length < 2) {
+    day = '0' + day
+  }
+  return [year, month, day].join('-')
+}
+
+const isoTime = (millis, showSeconds = false) => {
+  const d = new Date(millis)
+  let hour = '' + d.getHours()
+  if (hour.length < 2) {
+    hour = '0' + hour
+  }
+  let minute = '' + d.getMinutes()
+  if (minute.length < 2) {
+    minute = '0' + minute
+  }
+  if (!showSeconds) {
+    return [hour, minute].join(':')
+  }
+  let second = '' + d.getSeconds()
+  if (second.length < 2) {
+    second = '0' + second
+  }
+  return [hour, minute, second].join(':')
+}
+
 const SELF_SOURCE_NAME = ' ~ this ~ '
 
 module.exports = {
@@ -109,6 +144,8 @@ module.exports = {
   okl,
   empty,
   chopFileExt,
+  isoDate,
+  isoTime,
   snooze,
   isAllDigits,
   isAllDigitsOrNonWordChars,

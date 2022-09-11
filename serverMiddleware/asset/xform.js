@@ -36,10 +36,20 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
   try {
     const regAge = await pathRegistrationAge(job.data.sourcePath)
     if (regAge && regAge < MIN_REG_AGE) {
-      if (job.data.opts.reprocess && job.data.opts.reprocess.length > 0) {
-        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=true, so transforming again`)
+      if (job.data.opts && job.data.opts.reprocess && job.data.opts.reprocess.length > 0) {
+        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), but reprocess=${JSON.stringify(job.data.opts.reprocess)}, proceeding`)
       } else {
-        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), not transforming again`)
+        logger.warn(`${logPrefix} path was recently registered (age=${regAge}), NOT PROCESSING`)
+        return null
+      }
+    }
+    if (job.data.opts && job.data.opts.olderThan) {
+      const olderThan = job.data.opts.olderThan
+      const lastModified = await system.lastModified(job.data.sourcePath)
+      if (lastModified && lastModified < olderThan) {
+        logger.warn(`${logPrefix} olderThan (${new Date(olderThan)}) < lastModified $(${new Date(lastModified)}), proceeding`)
+      } else {
+        logger.warn(`${logPrefix} olderThan (${new Date(olderThan)}) >= lastModified $(${new Date(lastModified)}), NOT PROCESSING`)
         return null
       }
     }

@@ -261,6 +261,10 @@ const SYSTEM = {
     await SYSTEM.api.writeFile(path, '' + Date.now())
     logger.info(`touchLastModified: touched: ${path}`)
   },
+  lastModified: async (sourcePath) => {
+    const lastModified = await SYSTEM.api.safeMetadata(SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE)
+    return lastModified && lastModified.mtime ? lastModified.mtime : null
+  },
   deleteUserHandlers: {},
   deletePathHandlers: {},
   deletePath: async (path) => {

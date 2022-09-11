@@ -55,21 +55,20 @@ const getCachedMetadata = async (sourceAndPath) => {
       return cachedMeta
     }
     // check last-modified time on directory
-    const lastModified = await system.api.safeMetadata(system.assetsDir(sourceAndPath) + c.LAST_MODIFIED_FILE)
-    if (lastModified && lastModified.mtime) {
-      const destModified = new Date(lastModified.mtime)
-      if (destModified > cachedMeta.ctime) {
-        debug(`destination modified after cache created, recreating for source: ${sourceAndPath}`)
+    const lastModified = await system.lastModified(sourceAndPath)
+    if (lastModified) {
+      if (lastModified > cachedMeta.ctime) {
+        debug(`destination modified (${new Date(lastModified)}) after cache created ${new Date(cachedMeta.ctime)}, recreating for source: ${sourceAndPath}`)
       } else {
         // the cache is valid!
-        debug(`cached created after last destination mod, returning cachedMeta: ${JSON.stringify(cachedMeta)}`)
+        debug(`cache created after last destination mod (${new Date(lastModified)}), returning cachedMeta: ${JSON.stringify(cachedMeta)}`)
         if (!fromFile) {
           await writeMetadataFile(sourceAndPath, cachedMeta)
         }
         return cachedMeta
       }
     } else {
-      debug(`recalculating because lastModified file does not exist or is newer than cache for sourceAndPath: ${sourceAndPath}`)
+      debug(`recalculating because lastModified file does not exist for sourceAndPath: ${sourceAndPath}`)
     }
   } else {
     debug(`no data in cache for: ${sourceAndPath}`)
