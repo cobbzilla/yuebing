@@ -15,13 +15,13 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const manifest = require('./manifest')
 const q = require('./job')
-const { registerPath, pathRegistrationAge } = require('../user/tagUtil')
+const { pathRegistrationAge } = require('../user/tagUtil')
+const { multifilePrefix, deleteLocalFiles } = require('./cleanup')
+const { queueUploadAsset } = require('./upload')
 
 const MAX_XFORM_ERRORS = 3
 
 const showTransformOutput = () => system.privateConfig.autoscan.showTransformOutput
-const cleanupTemporaryAssets = () => system.privateConfig.autoscan.cleanupTemporaryAssets
-const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 
 const MIN_REG_AGE = 1000 * 60 * 60 * 24 // max successful 1 transcode per day
 
@@ -65,28 +65,6 @@ const XFORM_PROCESS_FUNCTION = async (job) => {
         logger.error(`${logPrefix} create artifacts failed with error: ${e}`)
         throw e
       }
-
-      logger.silly(`${logPrefix} createArtifacts finished, flushing metadata and recalculating final metadata`)
-      let meta
-      try {
-        meta = await manifest.deriveMetadataFromSourceAndPath(job.data.sourcePath, { noCache: true })
-      } catch (e) {
-        logger.error(`${logPrefix} manifest.deriveMetadataFromSourceAndPath failed: ${e}`)
-        throw e
-      }
-      if (!meta || (!meta.finished && !meta.status?.ready)) {
-        logger.warn(`${logPrefix} deriveMetadataFromSourceAndPath returned unfinished/not-ready meta: ${JSON.stringify(meta)})`)
-        return null
-      } else {
-        try {
-          await registerPath(job.data.sourcePath, meta)
-        } catch (e) {
-          logger.error(`${logPrefix} content.registerPath failed: ${e}`)
-          throw e
-        }
-        return meta
-      }
-
     } else {
       const message = `${logPrefix} ensureSourceDownloaded did not return a file`
       logger.error(message)
@@ -198,120 +176,15 @@ async function runTransformCommand (job, profile, outfile, args, closeHandler) {
   })
 }
 
-function multifilePrefix (outfile) {
-  const placeholder = outfile.lastIndexOf(c.MULTIFILE_PLACEHOLDER)
-  if (placeholder === -1) {
-    const message = `multifilePrefix: expected to find placeholder (${c.MULTIFILE_PLACEHOLDER}) in outfile: ${outfile}`
-    logger.error(message)
-    throw new TypeError(message)
-  }
-  return outfile.substring(0, placeholder)
-}
-
-function deleteLocalFiles (outfile, profile, job, jobPrefix) {
-  if (!cleanupTemporaryAssets()) {
-    logger.warn(`deleteLocalFiles: deletion disabled, retaining outfile(s) ${outfile} for profile ${profile.name}`)
-    return
-  }
-  if (profile.multiFile) {
-    const outfilePrefix = multifilePrefix(outfile)
-    glob(outfilePrefix + '*', (err, files) => {
-      if (err) {
-        logger.error(`deleteLocalFiles: glob error: ${err}`)
-        return
-      }
-      files.forEach((f) => {
-        util.deleteFile(f)
-      })
-      q.recordJobEvent(job, `${jobPrefix}_deleted_local_files`, files.join('\n'))
-    })
-  } else {
-    util.deleteFile(outfile)
-    q.recordJobEvent(job, `${jobPrefix}_deleted_local_file`, outfile)
-  }
-}
-
 async function clearErrors (job, jobPrefix, sourcePath, profile) {
   q.recordJobEvent(job, `${jobPrefix}_clearing_errors`)
   await system.clearErrors(sourcePath, profile.name)
   q.recordJobEvent(job, `${jobPrefix}_cleared_errors`)
 }
 
-const UPLOAD_CONFIRM_DELAY = 3000
-const MAX_SIZE_DIFF_PCT = 0.0001
-
-async function uploadAsset (sourcePath, outfile, job, jobPrefix) {
-  const outfileStat = fs.lstatSync(outfile, { throwIfNoEntry: false })
-  if (!outfileStat || !outfileStat.size) {
-    const message = `${jobPrefix}_uploadAsset_outfile_does_not_exist_or_has_zero_size`
-    q.recordJobEvent(job, message, outfile)
-    return message
-  }
-  const overwrite = !!job.opts.overwrite
-  const outfileSize = outfileStat.size
-  const destPath = system.assetsDir(sourcePath) + basename(outfile)
-  if (!overwrite) {
-    const preHead = await system.api.safeMetadata(destPath)
-    if (preHead) {
-      // file exists -- is it roughly the same size?
-      if (Math.abs(preHead.size - outfileSize) <= Math.floor(MAX_SIZE_DIFF_PCT * outfileSize)) {
-        q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset_already_exists`, outfile)
-        return null
-      }
-    }
-  }
-  const fileUp = fs.createReadStream(outfile)
-  logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
-  q.recordJobEvent(job, `${jobPrefix}_start_uploading_asset`, destPath)
-
-  if (await system.api.write(destPath, fileUp) !== outfileSize) {
-    const message = `uploadAsset(${destPath}): error uploading asset (upload failed)`
-    logger.error(message)
-    q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset`, destPath)
-    if (deleteIncompleteUploads()) {
-      await system.api.remove(destPath)
-    } else {
-      logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
-    }
-    return message
-  } else {
-    return new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        try {
-          // ensure it was uploaded
-          const head = await system.api.safeMetadata(destPath)
-          if (head && head.size && head.size === outfileSize) {
-            // upload success!
-            logger.debug(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
-            await system.touchLastModified(sourcePath)
-            await cache.flushMetadata(sourcePath)
-            q.recordJobEvent(job, `${jobPrefix}_SUCCESS_uploading_asset`, destPath)
-            resolve(null)
-          } else {
-            const message = `uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`
-            logger.error(message)
-            q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_size_mismatch`, message)
-            if (deleteIncompleteUploads()) {
-              await system.api.remove(destPath)
-            } else {
-              logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
-            }
-            reject(message)
-          }
-        } catch (e) {
-          const message = `uploadAsset(${destPath}): unexpected error: ${e}`
-          logger.error(message)
-          q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading_asset_unexpected`, message)
-          if (deleteIncompleteUploads()) {
-            await system.api.remove(destPath)
-          } else {
-            logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
-          }
-          reject(message)
-        }
-      }, UPLOAD_CONFIRM_DELAY)
-    })
-  }
+async function uploadAsset (sourcePath, profile, outfile, job, jobPrefix) {
+  queueUploadAsset(sourcePath, profile, outfile, job, jobPrefix)
+  return null
 }
 
 async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile, job, jobPrefix) {
@@ -339,7 +212,7 @@ async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile,
     for (let i = 0; i < multifiles.length; i++) {
       const f = multifiles[i]
       logger.debug(`${logPrefix} uploading: ${f} ...`)
-      const msg = await uploadAsset(sourcePath, f, job, jobPrefix)
+      const msg = await uploadAsset(sourcePath, profile, f, job, jobPrefix)
       if (msg != null) {
         logger.debug(`${logPrefix} ERROR uploading (${f}) ${msg}`)
         errorMessage = msg
@@ -443,7 +316,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
       } else {
         // file is OK, we can upload it to dest
         logger.debug(`${logPrefix} uploading ${outfile} ...`)
-        const msg = await uploadAsset(sourcePath, outfile, job, jobPrefix)
+        const msg = await uploadAsset(sourcePath, profile, outfile, job, jobPrefix)
         if (msg != null) {
           logger.error(`${logPrefix} ERROR: ${msg}`)
           q.recordJobEvent(job, `${jobPrefix}_ERROR_uploading`, msg)
@@ -454,7 +327,6 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
         }
         logger.debug(`${logPrefix} clearing errors and deleting local files (after successful upload)`)
         await clearErrors(job, jobPrefix, sourcePath, profile)
-        deleteLocalFiles(outfile, profile, job, jobPrefix)
       }
     }
   }
