@@ -9,7 +9,9 @@ let JOB_QUEUE = null
 const QUEUED_PATHS = {}
 
 const redisConfig = system.privateConfig.redis
-const maxConcurrency = () => system.privateConfig.autoscan.concurrency
+const maxConcurrency = () => typeof process.env.YB_AUTOSCAN_XFORM_CONCURRENCY !== 'undefined'
+  ? +process.env.YB_AUTOSCAN_XFORM_CONCURRENCY
+  : system.privateConfig.autoscan.concurrency
 
 function initializeQueue (processFunction) {
   if (JOB_QUEUE === null) {
