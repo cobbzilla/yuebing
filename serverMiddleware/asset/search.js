@@ -180,7 +180,7 @@ const _search = async (user, query) => {
 }
 
 buildSearchIndex(true).then((tags) => {
-  logger.info(`initSearchIndex returned tags: ${tags.join(' ')}`)
+  logger.info(`initSearchIndex returned tags: ${tags ? tags.join(' ') : 'null/undefined'}`)
 })
 
 export { search, buildSearchIndex }
