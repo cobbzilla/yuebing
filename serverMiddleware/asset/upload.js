@@ -13,13 +13,12 @@ const logger = system.logger
 const redisConfig = system.privateConfig.redis
 
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
-const UPLOADS_ENABLED = typeof process.env.YB_WORK_UPLOADS_ENABLED === 'undefined'
-  ? true
-  : !!JSON.parse(process.env.YB_WORK_UPLOADS_ENABLED)
+const UPLOADS_CONCURRENCY = typeof process.env.YB_WORK_UPLOADS_CONCURRENCY === 'undefined'
+  ? 2
+  : +process.env.YB_WORK_UPLOADS_ENABLED
 
 const UPLOAD_QUEUE_NAME = 'UploadAssetQueue'
 const UPLOAD_JOB_NAME = 'UploadAssetJob'
-const UPLOAD_CONCURRENCY = 2
 
 const UPLOAD_CONFIRM_DELAY = 3000
 const MAX_SIZE_DIFF_PCT = 0.0001
@@ -32,8 +31,8 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
   const outfile = uploadJob.data.outfile
   const job = uploadJob.data.xformJob
   const overwrite = !!job.data.opts.overwrite
-  if (!UPLOADS_ENABLED) {
-    logger.info(`${jobPrefix} process.env.YB_WORK_UPLOADS_ENABLED=${process.env.YB_WORK_UPLOADS_ENABLED}, not uploading`)
+  if (UPLOADS_CONCURRENCY <= 0) {
+    logger.info(`${jobPrefix} process.env.YB_WORK_UPLOADS_CONCURRENCY=${process.env.YB_WORK_UPLOADS_CONCURRENCY} <= 0, not uploading`)
     return
   }
   try {
@@ -121,8 +120,10 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
 let UPLOAD_QUEUE = null
 const uploadQueue = () => {
   if (UPLOAD_QUEUE === null) {
-    UPLOAD_QUEUE = new Queue(UPLOAD_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
-    UPLOAD_QUEUE.process(UPLOAD_JOB_NAME, UPLOAD_CONCURRENCY, UPLOAD_PROCESS_FUNCTION)
+    if (UPLOADS_CONCURRENCY > 0) {
+      UPLOAD_QUEUE = new Queue(UPLOAD_QUEUE_NAME, `redis://${redisConfig.host}:${redisConfig.port}`)
+      UPLOAD_QUEUE.process(UPLOAD_JOB_NAME, UPLOADS_CONCURRENCY, UPLOAD_PROCESS_FUNCTION)
+    }
   }
   return UPLOAD_QUEUE
 }
@@ -140,18 +141,20 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
     file: UPLOAD_QUEUE_DIR + `${Date.now()}_${shasum(outfile + ':' + profile + ':' + JSON.stringify(xformJob))}.json`
   }
   fs.writeFileSync(job.file, JSON.stringify(job))
-  uploadQueue().add(UPLOAD_JOB_NAME, job)
+  if (UPLOADS_CONCURRENCY > 0) {
+    uploadQueue().add(UPLOAD_JOB_NAME, job)
+  }
   return job
 }
 
-if (UPLOADS_ENABLED) {
-  try {
-    fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
-  } catch (e) {
-    logger.error(`upload.js: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
-    throw e
-  }
+try {
+  fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
+} catch (e) {
+  logger.error(`upload.js: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
+  throw e
+}
 
+if (UPLOADS_CONCURRENCY > 0) {
   setTimeout(() => {
     try {
       const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
