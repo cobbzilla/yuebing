@@ -148,8 +148,8 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
   return job
 }
 
-const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 50000
-const MAX_STDOUT_BUFFERED = 1024 * 1024 * 4
+const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 1
+const MAX_STDOUT_BUFFERED = 1024 * 16
 
 const { spawn } = require('node:child_process')
 
@@ -169,12 +169,12 @@ const uploadPendingAssets = async () => {
       // We spawn `ls -1` and kill it when we've read enough for this run
       let stdout = ''
       let full = false
-      let exitCode = null
-      await new Promise((resolve) => {
+      const exitCode = await new Promise((resolve) => {
         const ls = spawn('ls', ['-1', UPLOAD_QUEUE_DIR])
         ls.stdout.on('data', (data) => {
           stdout += data.toString()
           if (stdout.length > MAX_STDOUT_BUFFERED) {
+            log.info(`uploadPendingAssets: killing ls, output exceeds ${MAX_STDOUT_BUFFERED} bytes`)
             full = true
             ls.kill('SIGINT')
           }
@@ -183,8 +183,8 @@ const uploadPendingAssets = async () => {
           logger.error(`uploadPendingAssets: ls -1 ${UPLOAD_QUEUE_DIR} stderr: ${data}`)
         })
         ls.on('close', (code) => {
-          exitCode = code
-          resolve()
+          logger.info(`uploadPendingAssets: resolving with exit code: ${code}`)
+          resolve(code)
         })
       })
       if (!full && exitCode !== 0) {
