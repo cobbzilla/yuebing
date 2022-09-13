@@ -174,7 +174,7 @@ const uploadPendingAssets = async () => {
         ls.stdout.on('data', (data) => {
           stdout += data.toString()
           if (stdout.length > MAX_STDOUT_BUFFERED) {
-            log.info(`uploadPendingAssets: killing ls, output exceeds ${MAX_STDOUT_BUFFERED} bytes`)
+            logger.info(`uploadPendingAssets: killing ls, output exceeds ${MAX_STDOUT_BUFFERED} bytes`)
             full = true
             ls.kill('SIGINT')
           }
