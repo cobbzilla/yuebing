@@ -148,7 +148,7 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
   return job
 }
 
-const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 1
+const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 10000
 const MAX_STDOUT_BUFFERED = 1024 * 16
 
 const { spawn } = require('node:child_process')
