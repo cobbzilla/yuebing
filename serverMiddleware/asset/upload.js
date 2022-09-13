@@ -147,37 +147,39 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
   return job
 }
 
-try {
-  fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
-} catch (e) {
-  logger.error(`upload.js: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
-  throw e
-}
-
 const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 50000
 
-if (UPLOADS_CONCURRENCY > 0) {
-  setTimeout(() => {
-    try {
-      logger.info(`upload.js: listing files in ${UPLOAD_QUEUE_DIR} ...`)
-      const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
-      logger.info(`upload.js: re-queuing ${files.length} files`)
-      let i
-      for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
-        const f = files[i]
-        try {
-          uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
-        } catch (err) {
-          logger.error(`upload.js: error reading/parsing file ${f}: ${err}`)
+const uploadPendingAssets = () => {
+  try {
+    fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
+  } catch (e) {
+    logger.error(`upload.js: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
+    throw e
+  }
+
+  if (UPLOADS_CONCURRENCY > 0) {
+    setTimeout(() => {
+      try {
+        logger.info(`upload.js: listing files in ${UPLOAD_QUEUE_DIR} ...`)
+        const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
+        logger.info(`upload.js: re-queuing ${files.length} files`)
+        let i
+        for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
+          const f = files[i]
+          try {
+            uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
+          } catch (err) {
+            logger.error(`upload.js: error reading/parsing file ${f}: ${err}`)
+          }
         }
+        if (i !== files.length) {
+          logger.warn(`upload.js: queued MAX_UPLOADS_AT_START=${MAX_UPLOADS_AT_START} uploads, ${files.length - MAX_UPLOADS_AT_START} uploads remain for the next app restart`)
+        }
+      } catch (e) {
+        logger.error(`upload.js: error queuing files for upload: ${e}`)
       }
-      if (i !== files.length) {
-        logger.warn(`upload.js: queued MAX_UPLOADS_AT_START=${MAX_UPLOADS_AT_START} uploads, ${files.length - MAX_UPLOADS_AT_START} uploads remain for the next app restart`)
-      }
-    } catch (e) {
-      logger.error(`upload.js: error queuing files for upload: ${e}`)
-    }
-  }, 1000 * 60 * 2)
+    }, 1000 * 30)
+  }
 }
 
-export { queueUploadAsset }
+export { queueUploadAsset, uploadPendingAssets }
