@@ -154,19 +154,24 @@ try {
   throw e
 }
 
+const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 50000
+
 if (UPLOADS_CONCURRENCY > 0) {
   setTimeout(() => {
     try {
       const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
       logger.info(`upload.js: re-queuing ${files.length} files`)
-      for (const f of files) {
+      let i
+      for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
         try {
           uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
         } catch (err) {
           logger.error(`upload.js: error reading/parsing file ${f}: ${err}`)
         }
       }
-
+      if (i !== files.length) {
+        logger.warn(`upload.js: queued MAX_UPLOADS_AT_START=${MAX_UPLOADS_AT_START} uploads, ${files.length - MAX_UPLOADS_AT_START} uploads remain for the next app restart`)
+      }
     } catch (e) {
       logger.error(`upload.js: error queuing files for upload: ${e}`)
     }
