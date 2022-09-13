@@ -15,7 +15,7 @@ const redisConfig = system.privateConfig.redis
 const deleteIncompleteUploads = () => system.privateConfig.autoscan.deleteIncompleteUploads
 const UPLOADS_CONCURRENCY = typeof process.env.YB_WORK_UPLOADS_CONCURRENCY === 'undefined'
   ? 2
-  : +process.env.YB_WORK_UPLOADS_ENABLED
+  : +process.env.YB_WORK_UPLOADS_CONCURRENCY
 
 const UPLOAD_QUEUE_NAME = 'UploadAssetQueue'
 const UPLOAD_JOB_NAME = 'UploadAssetJob'
