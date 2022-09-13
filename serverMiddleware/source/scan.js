@@ -6,6 +6,7 @@ const logger = system.logger
 const src = require('../source/sourceUtil')
 const m = require('../../shared/media')
 const xform = require('../asset/xform')
+const { uploadPendingAssets } = require('../asset/upload')
 const { extractSourceAndPathAndConnect } = require('../source/sourceUtil')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
@@ -16,6 +17,7 @@ let AUTOSCAN_COUNT = 1
 
 // todo: monitor `system.privateConfig.autoscan` for changes, cancel and recreate the interval
 function initAutoscan (scanConfig) {
+  logger.info(`initAutoScan: initializing with scanConfig=${JSON.stringify(scanConfig)}`)
   if (scanConfig.enabled) {
     if (scanConfig.interval > 0) {
       const autoScanInterval = Math.max(scanConfig.interval, AUTOSCAN_MINIMUM_INTERVAL)
@@ -30,6 +32,8 @@ function initAutoscan (scanConfig) {
       logger.warn(' ~~~ AUTOSCAN (initial) is disabled ~~~')
     }
   }
+  logger.info(`initAutoScan: uploading pending assets...`)
+  uploadPendingAssets()
 }
 
 // autoscan

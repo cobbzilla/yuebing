@@ -2,12 +2,10 @@ const api = require('../../util/api')
 const { requireLoggedInUser } = require('../../user/userUtil')
 const src = require('../../source/sourceUtil')
 const scan = require('../../source/scan')
-const { uploadPendingAssets } = require('../../asset/upload')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 scan.initAutoscan(system.privateConfig.autoscan)
-uploadPendingAssets()
 
 export default {
   path: '/api/source/scan',
