@@ -150,35 +150,36 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
 const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 50000
 
 const uploadPendingAssets = () => {
+  logger.info(`uploadPendingAssets starting with UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR} and UPLOADS_CONCURRENCY=${UPLOADS_CONCURRENCY}`)
   try {
     fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
   } catch (e) {
-    logger.error(`upload.js: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
+    logger.error(`uploadPendingAssets: error creating UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR}: ${e}`)
     throw e
   }
 
   if (UPLOADS_CONCURRENCY > 0) {
-    setTimeout(() => {
-      try {
-        logger.info(`upload.js: listing files in ${UPLOAD_QUEUE_DIR} ...`)
-        const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
-        logger.info(`upload.js: re-queuing ${files.length} files`)
-        let i
-        for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
-          const f = files[i]
-          try {
-            uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
-          } catch (err) {
-            logger.error(`upload.js: error reading/parsing file ${f}: ${err}`)
-          }
+    try {
+      logger.info(`uploadPendingAssets: listing files in ${UPLOAD_QUEUE_DIR} ...`)
+      const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
+      logger.info(`uploadPendingAssets: re-queuing ${files.length} files`)
+      let i
+      for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
+        const f = files[i]
+        try {
+          uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
+        } catch (err) {
+          logger.error(`uploadPendingAssets: error reading/parsing file ${f}: ${err}`)
         }
-        if (i !== files.length) {
-          logger.warn(`upload.js: queued MAX_UPLOADS_AT_START=${MAX_UPLOADS_AT_START} uploads, ${files.length - MAX_UPLOADS_AT_START} uploads remain for the next app restart`)
-        }
-      } catch (e) {
-        logger.error(`upload.js: error queuing files for upload: ${e}`)
       }
-    }, 1000 * 30)
+      if (i !== files.length) {
+        logger.warn(`uploadPendingAssets: queued MAX_UPLOADS_AT_START=${MAX_UPLOADS_AT_START} uploads, ${files.length - MAX_UPLOADS_AT_START} uploads remain for the next app restart`)
+      }
+    } catch (e) {
+      logger.error(`uploadPendingAssets: error queuing files for upload: ${e}`)
+    }
+  } else {
+    logger.warn(`uploadPendingAssets: UPLOADS_CONCURRENCY=${UPLOADS_CONCURRENCY}, not looking for pending assets to upload`)
   }
 }
 
