@@ -33,7 +33,7 @@ function initAutoscan (scanConfig) {
     }
   }
   logger.info(`initAutoScan: uploading pending assets...`)
-  uploadPendingAssets()
+  uploadPendingAssets().then(() => { logger.info('initAutoscan: uploadPendingAssets finished') })
 }
 
 // autoscan

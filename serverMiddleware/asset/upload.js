@@ -100,7 +100,8 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
               reject(message)
             }
           } catch (e) {
-            logger.error(`uploadAsset(${destPath}): unexpected error: ${e}`)
+            const message = `uploadAsset(${destPath}): unexpected error: ${e}`
+            logger.error(message)
             if (deleteIncompleteUploads()) {
               await system.api.remove(destPath)
             } else {
@@ -148,8 +149,11 @@ function queueUploadAsset (sourcePath, profile, outfile, xformJob, jobPrefix) {
 }
 
 const MAX_UPLOADS_AT_START = +process.env.YB_WORK_MAX_UPLOADS_AT_START || 50000
+const MAX_STDOUT_BUFFERED = 1024 * 1024 * 4
 
-const uploadPendingAssets = () => {
+const { spawn } = require('node:child_process')
+
+const uploadPendingAssets = async () => {
   logger.info(`uploadPendingAssets starting with UPLOAD_QUEUE_DIR=${UPLOAD_QUEUE_DIR} and UPLOADS_CONCURRENCY=${UPLOADS_CONCURRENCY}`)
   try {
     fs.mkdirSync(UPLOAD_QUEUE_DIR, { recursive: true })
@@ -161,7 +165,37 @@ const uploadPendingAssets = () => {
   if (UPLOADS_CONCURRENCY > 0) {
     try {
       logger.info(`uploadPendingAssets: listing files in ${UPLOAD_QUEUE_DIR} ...`)
-      const files = fs.readdirSync(UPLOAD_QUEUE_DIR)
+      // There may be many thousands of pending uploads
+      // We spawn `ls -1` and kill it when we've read enough for this run
+      let stdout = ''
+      let full = false
+      let exitCode = null
+      await new Promise((resolve) => {
+        const ls = spawn('ls', ['-1', UPLOAD_QUEUE_DIR])
+        ls.stdout.on('data', (data) => {
+          stdout += data.toString()
+          if (stdout.length > MAX_STDOUT_BUFFERED) {
+            full = true
+            ls.kill('SIGINT')
+          }
+        })
+        ls.stderr.on('data', (data) => {
+          logger.error(`uploadPendingAssets: ls -1 ${UPLOAD_QUEUE_DIR} stderr: ${data}`)
+        })
+        ls.on('close', (code) => {
+          exitCode = code
+          resolve()
+        })
+      })
+      if (!full && exitCode !== 0) {
+        logger.error(`uploadPendingAssets: ls -1 ${UPLOAD_QUEUE_DIR} had exit code ${exitCode}`)
+        return
+      }
+      let files = stdout.split('\n')
+      if (full) {
+        // drop the last one, it might be a fragment
+        files = files.slice(0, files.length - 1)
+      }
       logger.info(`uploadPendingAssets: re-queuing ${files.length} files`)
       let i
       for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
