@@ -1,5 +1,5 @@
 const Redis = require('ioredis')
-const generators = require('redis-async-gen')
+const redisScan = require('node-redis-scan')
 const system = require('./config.js').SYSTEM
 const logger = system.logger
 
@@ -9,6 +9,8 @@ const redisClient = new Redis({
   host: redisConfig.host,
   port: redisConfig.port
 })
+const scanner = new redisScan(redisClient)
+
 const DEFAULT_EXPIRATION_MILLIS = 1000 * 60 * 60 * 24 * 30 // 30 days
 
 const get = async key => await redisClient.get(key)
@@ -48,12 +50,12 @@ async function flushall () {
 }
 
 async function findMatchingKeys (pattern) {
-  const { keysMatching } = generators.using(redisClient)
-  const keys = []
-  for await (const key of keysMatching(pattern)) {
-    keys.push(key)
-  }
-  return keys
+  return await new Promise((resolve, reject) => {
+    scanner.scan(pattern, (err, matchingKeys) => {
+      if (err) reject(err)
+      resolve(matchingKeys)
+    })
+  })
 }
 
 async function removeMatchingKeys (pattern) {
@@ -61,12 +63,17 @@ async function removeMatchingKeys (pattern) {
 }
 
 async function applyToMatchingKeys (pattern, asyncFunc) {
-  const { keysMatching } = generators.using(redisClient)
   const results = []
-  for await (const key of keysMatching(pattern)) {
-    results.push(await asyncFunc(key))
-  }
-  return results
+  return await new Promise((resolve, reject) => {
+    scanner.eachScan(pattern, {}, async (matchingKeys) => {
+      for (const key of matchingKeys) {
+        results.push(await asyncFunc(key))
+      }
+    }, (err, matchCount) => {
+      if (err) reject(err)
+      resolve(results)
+    })
+  })
 }
 
 setTimeout(() => {
