@@ -7814,10 +7814,10 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mobiletto-lite@^1.1.20:
-  version "1.1.20"
-  resolved "https://registry.yarnpkg.com/mobiletto-lite/-/mobiletto-lite-1.1.20.tgz#f56a6bbf49e4663b5cb52f0a3d3213337c425f48"
-  integrity sha512-ZZGUhHrYAxD49Lmt1rc0liH/DZBWuMwS4q9JQeERKnrNOuWUVf0s5IIuqqe3vwl3eHf2ip8FY/TGXwCq7vXY5A==
+mobiletto-lite@^1.1.21:
+  version "1.1.21"
+  resolved "https://registry.yarnpkg.com/mobiletto-lite/-/mobiletto-lite-1.1.21.tgz#188b7b8d7bc022882245843ad6b3c756ed7a5635"
+  integrity sha512-H8XAHxYh94+RAHaLjvv83VV8oNTLnVeS8iXZ20D7xWFm+YJx0WjX7J9mi3+WzqfHNGmswNNmBHObqg9Ens9sdQ==
   dependencies:
     "@aws-sdk/client-s3" "^3.150.0"
     "@aws-sdk/lib-storage" "^3.150.0"
@@ -7826,7 +7826,7 @@ mobiletto-lite@^1.1.20:
     ioredis "^5.2.3"
     lru-cache "^7.14.0"
     node-fetch-commonjs "^3.1.1"
-    redis-async-gen "^0.1.3"
+    node-redis-scan "^1.3.5"
     shasum "^1.0.2"
     winston "^3.8.1"
 
@@ -9569,13 +9569,6 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
-redis-async-gen@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/redis-async-gen/-/redis-async-gen-0.1.3.tgz#b9838b8ae885d35b9d6de9c2dd5fbc2caa2798c2"
-  integrity sha512-BC6DcBO7mlufs58/LFhdAfBdn7ZepmUkK21NsxDO3y01ueo/v0nTom4aByGZPsFbEOPMEuwTdrKNE9WBJyvr6g==
-  dependencies:
-    regenerator-runtime "^0.13.2"
-
 redis-commands@1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.7.0.tgz#15a6fea2d58281e27b1cd1acfb4b293e278c3a89"
@@ -9605,7 +9598,7 @@ regenerate@^1.4.2:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.2.tgz#b9346d8827e8f5a32f7ba29637d398b69014848a"
   integrity sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==
 
-regenerator-runtime@^0.13.2, regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7:
+regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7:
   version "0.13.9"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz#8925742a98ffd90814988d7566ad30ca3b263b52"
   integrity sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
