@@ -55,7 +55,7 @@
     "lru-cache": "^7.14.0",
     "md5": "^2.3.0",
     "mime-types": "^2.1.35",
-    "mobiletto-lite": "^1.1.26",
+    "mobiletto-lite": "^1.1.27",
     "node-redis-scan": "^1.3.5",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.15.8",
