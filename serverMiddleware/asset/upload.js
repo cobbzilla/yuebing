@@ -213,6 +213,7 @@ const uploadPendingAssets = async () => {
           continue
         }
         try {
+          logger.debug(`uploadPendingAssets: queueing file ${f}`)
           uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
         } catch (err) {
           logger.error(`uploadPendingAssets: error reading/parsing file ${f}: ${err}`)
