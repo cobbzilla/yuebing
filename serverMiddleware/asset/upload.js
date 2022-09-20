@@ -200,6 +200,14 @@ const uploadPendingAssets = async () => {
       let i
       for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
         const f = files[i]
+        if (typeof f === 'undefined') {
+          logger.error(`uploadPendingAssets: file at index i=${i} is undefined`)
+          continue
+        }
+        if (typeof f !== 'string') {
+          logger.error(`uploadPendingAssets: file at index i=${i} is not a string: value=${f}, type=${typeof f}`)
+          continue
+        }
         try {
           uploadQueue().add(UPLOAD_JOB_NAME, JSON.parse(fs.readFileSync(join(UPLOAD_QUEUE_DIR, f)).toString('utf8')))
         } catch (err) {
