@@ -24,6 +24,7 @@ const UPLOAD_CONFIRM_DELAY = 3000
 const MAX_SIZE_DIFF_PCT = 0.0001
 
 const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
+  logger.debug(`UPLOAD_PROCESS_FUNCTION(${JSON.stringify(uploadJob)}) starting...`)
   const sourcePath = uploadJob.data.sourcePath
   const profile = uploadJob.data.profile
   const queueFile = uploadJob.data.file
