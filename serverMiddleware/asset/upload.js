@@ -201,11 +201,15 @@ const uploadPendingAssets = async () => {
       for (i = 0; i < files.length && i < MAX_UPLOADS_AT_START; i++) {
         const f = files[i]
         if (typeof f === 'undefined') {
-          logger.error(`uploadPendingAssets: file at index i=${i} is undefined`)
+          logger.error(`uploadPendingAssets: file at index i=${i} is undefined, skipping`)
           continue
         }
         if (typeof f !== 'string') {
-          logger.error(`uploadPendingAssets: file at index i=${i} is not a string: value=${f}, type=${typeof f}`)
+          logger.error(`uploadPendingAssets: file at index i=${i} is not a string: value=${f}, type=${typeof f}, skipping`)
+          continue
+        }
+        if (f.length === 0) {
+          logger.error(`uploadPendingAssets: file at index i=${i} was a zero-length string, skipping`)
           continue
         }
         try {
