@@ -10,7 +10,7 @@ LE_EMAIL="${1}"
 LE_HOSTNAME=${2:-$YB_HOSTNAME}
 
 # Use another volume for large files
-MOUNT_PATH="${3:-/data}"
+MOUNT_PATH="${3}"
 MOUNT_DEVICE="${4:-/dev/xvdf}"
 MOVE_DOCKER_TO_MOUNT="${5:-YES}"
 
