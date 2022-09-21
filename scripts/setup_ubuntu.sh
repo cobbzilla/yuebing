@@ -4,6 +4,16 @@ THIS_USER="$(whoami)"
 LE_EMAIL="${1}"
 LE_HOSTNAME=${2:-$YB_HOSTNAME}
 
+# Use another volume for large files
+MOUNT_PATH="${3:-/data}"
+MOUNT_DEVICE="${4:-/dev/xvdf}"
+MOVE_DOCKER_TO_MOUNT="${5:-YES}"
+
+if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
+  sudo hostname "${LE_HOSTNAME}" && \
+  echo -n "${LE_HOSTNAME}" > /etc/hostname
+fi
+
 sudo apt update && \
   sudo apt upgrade -y && \
   sudo apt install apt-transport-https ca-certificates curl software-properties-common -y && \
@@ -29,6 +39,20 @@ if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
     echo "cert exists: ${CERT_FILE}"
   else
     certbot certonly --standalone -d "${LE_HOSTNAME}"
+  fi
+fi
+
+if [[ -n "${MOUNT_PATH}" ]] ; then
+  sudo mkdir -p "${MOUNT_PATH}"
+  mount "${MOUNT_DEVICE}" "${MOUNT_PATH}" || \
+    mkfs -t xfs "${MOUNT_DEVICE}" && \
+    mount "${MOUNT_DEVICE}" "${MOUNT_PATH}"
+  if [[ "${MOVE_DOCKER_TO_MOUNT}" != "NO" ]] ; then
+    mkdir -p "${MOUNT_PATH}"/docker
+    mkdir -p /etc/docker
+    service docker stop
+    echo "{\"data-root\": \"${MOUNT_PATH}/docker\"}" > /etc/docker/daemon.json
+    service docker start
   fi
 fi
 
