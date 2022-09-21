@@ -37,6 +37,7 @@ fi
 if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install certbot -y' || die 'Error installing certbot'
   if [[ $(sudo bash -c "find /etc/letsencrypt/accounts -type f -name regr.json | wc -l | tr -d ' '") -eq 0 ]] ; then
+    export LE_EMAIL=${LE_EMAIL}
     echo "certbot register starting: certbot register --agree-tos -m ${LE_EMAIL} --non-interactive"
     sudo bash -c 'certbot register --agree-tos -m '"${LE_EMAIL}"' --non-interactive' || die 'Error registering certbot'
   fi
@@ -44,6 +45,7 @@ if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   if [[ $(sudo bash -c 'ls -l "'"${CERT_FILE}"'"' 2> /dev/null | wc -l | tr -d ' ') -gt 0 ]] ; then
     echo "cert exists: ${CERT_FILE}"
   else
+    export LE_HOSTNAME=${LE_HOSTNAME}
     sudo bash -c 'certbot certonly --standalone -d '"${LE_HOSTNAME}" || die "Error getting cert for ${LE_HOSTNAME}"
   fi
 fi
@@ -58,6 +60,7 @@ if [[ -n "${MOUNT_PATH}" ]] ; then
     sudo mkdir -p "${MOUNT_PATH}"/docker || die "Error creating dir ${MOUNT_PATH}/docker"
     sudo mkdir -p /etc/docker || die "Error ensuring /etc/docker exists"
     sudo service docker stop || die "Error stopping docker"
+    export MOUNT_PATH=${MOUNT_PATH}
     sudo bash -c 'echo "{\"data-root\": \"'"${MOUNT_PATH}"'/docker\"}" > /etc/docker/daemon.json' || die "Error writing /etc/docker/daemon.json"
     sudo service docker start || die "Error starting docker"
   fi
