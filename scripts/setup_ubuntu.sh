@@ -11,7 +11,7 @@ MOVE_DOCKER_TO_MOUNT="${5:-YES}"
 
 if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo hostname "${LE_HOSTNAME}" && \
-  sudo echo -n "${LE_HOSTNAME}" > /etc/hostname
+  sudo bash -c "echo -n \"${LE_HOSTNAME}\" > /etc/hostname"
 fi
 
 sudo apt update && \
