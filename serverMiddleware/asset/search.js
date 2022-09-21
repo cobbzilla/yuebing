@@ -200,7 +200,7 @@ const _search = async (user, query) => {
 }
 
 buildSearchIndex(true).then((tags) => {
-  logger.info(`initSearchIndex returned tags: ${tags ? tags.join(' ') : 'null/undefined'}`)
+  logger.info(`initSearchIndex returned tags: ${tags && tags.length && tags.length > 0 ? tags.join(' ') : 'null/undefined'}`)
 })
 
 export { search, buildSearchIndex, getTagWeights }

@@ -5,6 +5,8 @@ function die {
   exit 1
 }
 
+YUEBING_DIR="$(cd "$(dirname $"{0}")"/.. && pwd)"
+
 THIS_USER="$(whoami)"
 LE_EMAIL="${1}"
 LE_HOSTNAME=${2:-$YB_HOSTNAME}
@@ -48,6 +50,11 @@ if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
     export LE_HOSTNAME=${LE_HOSTNAME}
     sudo bash -c 'certbot certonly --standalone -d '"${LE_HOSTNAME}" || die "Error getting cert for ${LE_HOSTNAME}"
   fi
+  sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install nginx -y' || die 'Error installing nginx'
+  sudo bash -c 'sed -e "s/your-server-name.example.com/'"${LE_HOSTNAME}"'/g"
+    < "${YUEBING_DIR}"/docs/sample-yuebing-nginx.conf
+    > /etc/nginx/sites-available/default' || die 'Error writing /etc/nginx/sites-available/default'
+  service nginx restart || die 'Error restarting nginx'
 fi
 
 if [[ -n "${MOUNT_PATH}" ]] ; then
