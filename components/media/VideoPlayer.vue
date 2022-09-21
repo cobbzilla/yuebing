@@ -25,7 +25,9 @@ export default {
   mounted () {
     this.player = videojs(this.$refs.videoPlayer, this.options, () => {
       this.player.width(this.options.width || 640)
-      this.player.height(this.options.height || 480)
+      if (this.options.height) {
+        this.player.height(this.options.height)
+      }
       if (this.options.poster) {
         this.player.poster(this.options.poster)
       }

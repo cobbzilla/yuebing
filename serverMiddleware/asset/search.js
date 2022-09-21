@@ -1,14 +1,13 @@
-const shasum = require('shasum')
 const { basename } = require('path')
 
 const { chopFileExt, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
 const { MEDIA, mediaType } = require('../../shared/media')
 const cache = require('../util/cache')
+const redis = require('../util/redis')
 
 const system = require('../util/config').SYSTEM
 const logger = system.logger
-const redis = require('../util/redis')
-const { getPathsWithTag, forAllTags } = require('../user/tagUtil')
+const { getPathsWithTag, forAllTags, normalizeTag } = require('../user/tagUtil')
 const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('./manifest')
 
 // const exampleQuery = {
@@ -72,8 +71,6 @@ const search = async (user, query) => {
   return { stillBuilding, objectList }
 }
 
-const DEFAULT_SEARCH_TAGS = Object.keys(MEDIA)
-
 const Queue = require('bull')
 const redisConfig = system.privateConfig.redis
 
@@ -82,19 +79,42 @@ let BUILD_SEARCH_QUEUE = null
 const BUILD_SEARCH_QUEUE_NAME = 'buildSearchIndexQueue'
 const BUILD_SEARCH_JOB_NAME = 'buildSearchIndexJob'
 
+const TAG_WEIGHTS_CACHE_KEY = '__ybTagWeights'
+const MAX_TAG_WEIGHTS = 30
+
+const getTagWeights = async () => {
+  const weights = await redis.get(TAG_WEIGHTS_CACHE_KEY)
+  return weights ? JSON.parse(weights) : null
+}
+
+const EXCLUDE_TAG_CLOUD_WORDS = ['video', 'mp4', 'video-mp4', 'mpeg', 'mpeg-4']
+
+const showTagInCloud = (word) => {
+  return !EXCLUDE_TAG_CLOUD_WORDS.includes(Array.isArray(word) ? word[0] : word)
+}
+
 const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
   logger.info(`initSearchIndex: starting...`)
+  const TAG_WEIGHTS = []
   const tagInit = async (tag) => {
     logger.debug(`initSearchIndex: indexing tag: ${tag}`)
-    await getPathsWithTag(tag)
+    const paths = await getPathsWithTag(tag)
+    if (paths && paths.length && paths.length >= 0 && (paths.length > 1 || paths[0] !== INDEX_STILL_BUILDING_TOKEN)) {
+      TAG_WEIGHTS.push([normalizeTag(tag), paths.length])
+    }
     logger.debug(`initSearchIndex: finished indexing tag: ${tag}`)
   }
   try {
     const tags = await forAllTags(tagInit)
-    logger.info(`initSearchIndex: completed, indexed ${tags.length} tags`)
+    logger.info(`initSearchIndex: completed, indexed ${tags.length} tags and caching ${TAG_WEIGHTS.length} tagWeights`)
+    const weights = TAG_WEIGHTS
+      .filter(showTagInCloud)
+      .sort((w1, w2) => w2[1] - w1[1])
+      .slice(0, MAX_TAG_WEIGHTS)
+    await redis.set(TAG_WEIGHTS_CACHE_KEY, JSON.stringify(weights))
     return tags
   } catch (e) {
-    logger.error(`initSearchIndex error ${e}`)
+    logger.error(`initSearchIndex: error ${e}`)
   }
 }
 
@@ -133,7 +153,7 @@ const _search = async (user, query) => {
   const tagResults = {}
   const tags = query.tags && query.tags.length > 0 && query.tags.filter(w => w.trim().length > 0).length > 0
     ? query.tags
-    : DEFAULT_SEARCH_TAGS
+    : null
   const pathsWithTags = {}
   const stillBuilding = []
   logger.debug(`${logPrefix} searching for tags: ${tags.join(' ')}`)
@@ -183,4 +203,4 @@ buildSearchIndex(true).then((tags) => {
   logger.info(`initSearchIndex returned tags: ${tags ? tags.join(' ') : 'null/undefined'}`)
 })
 
-export { search, buildSearchIndex }
+export { search, buildSearchIndex, getTagWeights }

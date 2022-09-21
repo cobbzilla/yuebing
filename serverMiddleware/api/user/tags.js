@@ -1,3 +1,5 @@
+const { getTagWeights } = require('../../asset/search')
+
 const { dirname, basename } = require('path')
 
 const { extractSourceAndPath } = require('../../../shared/source')
@@ -44,6 +46,9 @@ export default {
       return api.forbidden(res)
     }
     try {
+      if (req.method === 'GET' && req.url === '/') {
+        return api.okJson(res, await getTagWeights())
+      }
       const { sourceName, pth } = extractSourceAndPath(req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url)
       const sourceAndPath = `${sourceName}/${pth}`
       switch (req.method) {

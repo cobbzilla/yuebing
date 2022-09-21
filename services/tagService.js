@@ -1,9 +1,14 @@
 const a = require('./util')
 
 export const tagService = {
+  fetchTagWeights,
   fetchTags,
   addTags,
   removeTags
+}
+
+function fetchTagWeights () {
+  return fetch('/api/user/tags', a.authGet()).then(response => a.handleJsonResponse(response))
 }
 
 function fetchTags (sourceAndPath) {

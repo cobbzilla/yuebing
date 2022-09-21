@@ -1,6 +1,7 @@
 const shasum = require('shasum')
 const { dirname, basename } = require('path')
 const { chopFileExt, isAllDigitsOrNonWordChars, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
+const { okl } = require('../../shared')
 const { extractSourceAndPath } = require('../../shared/source')
 const { mediaType, objectEncodePath, objectDecodePath } = require('../../shared/media')
 const { MEDIAINFO_FIELDS, mediaInfoFields } = require('../../shared/mediainfo')
@@ -344,6 +345,6 @@ const forAllTags = async (func) => {
 }
 
 export {
-  registerPath, addTag, removeTag, tagDir, forAllTags,
+  registerPath, addTag, removeTag, tagDir, forAllTags, normalizeTag,
   getTagsForPath, getPathsWithTag, pathRegistrationAge
 }

@@ -54,6 +54,9 @@ export default {
       req.on('data', async (data) => {
         const query = JSON.parse(data)
         try {
+          if (!query.tags || query.tags.length === 0 || query.tags.filter(w => w.trim().length > 0).length === 0) {
+            return api.okJson(res, { objectList: [] })
+          }
           const { objectList, stillBuilding } = await search(user, query)
           return api.okJson(res, { objectList, stillBuilding })
         } catch (e) {

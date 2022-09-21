@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <SearchBar @update="onSearchUpdate" />
+        <SearchBar :search="searchTerms" @update="onSearchUpdate" />
       </v-col>
     </v-row>
     <v-row>
@@ -22,24 +22,37 @@
           </v-row>
           <v-row v-else-if="!searching && (!searchResults || searchResults.length === 0)">
             <v-col>
-              <h2 v-if="unverifiedUserAndNotPublic">
-                {{ messages.info_search_no_results_unverified.parseMessage({ email: user.email }) }}
-              </h2>
-              <h2 v-else>
-                {{ messages.info_search_no_results }}
-              </h2>
+              <div v-if="unverifiedUserAndNotPublic">
+                <h2>
+                  {{ messages.info_search_no_results_unverified.parseMessage({ email: user.email }) }}
+                </h2>
+              </div>
+              <div v-else-if="tagWeights && tagWeights.length > 0">
+                <vue-word-cloud
+                  id="searchTagCloud"
+                  :words="tagWeights"
+                  color="WhiteSmoke"
+                  font-family="Roboto, sans-serif"
+                >
+                  <template #default="{word}">
+                    <div style="cursor: pointer;" @click="tagSearch(word[0])">
+                      {{ word[0] }}
+                    </div>
+                  </template>
+                </vue-word-cloud>
+              </div>
+              <div v-else>
+                <h2>
+                  {{ messages.info_search_no_results }}
+                </h2>
+              </div>
             </v-col>
           </v-row>
           <v-row v-else>
             <div v-for="(obj, index) in searchResults" :key="index">
               <v-spacer />
               <v-col>
-                <v-card
-                  :min-height="minCardHeight"
-                  :min-width="minCardWidth"
-                  :max-height="maxCardHeight"
-                  :max-width="maxCardWidth"
-                >
+                <v-card class="searchResultCard">
                   <v-card-title>
                     <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
                       {{ displayName(obj.name) }}
@@ -70,6 +83,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 
+import VueWordCloud from 'vuewordcloud'
 import SearchBar from '@/components/SearchBar'
 
 import { proxyMediaUrl, splitSearchTerms } from '@/shared'
@@ -80,7 +94,7 @@ import { localeMessagesForUser } from '@/shared/locale'
 // noinspection JSUnusedGlobalSymbols
 export default {
   name: 'ListObjects',
-  components: { SearchBar },
+  components: { SearchBar, VueWordCloud },
   data () {
     return {
       searchTerms: '',
@@ -90,11 +104,8 @@ export default {
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale', 'publicConfig', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
+    ...mapState('tags', ['tagWeights']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
-    minCardHeight () { return 200 },
-    minCardWidth () { return 200 },
-    maxCardHeight () { return 400 },
-    maxCardWidth () { return 500 },
     unverifiedUserAndNotPublic () {
       return this.publicConfig && this.publicConfig.public === false &&
         this.user && this.user.email && this.userStatus && !this.user.verified
@@ -106,9 +117,15 @@ export default {
       }
     }
   },
-  created () { this.runSearch() },
+  created () {
+    this.runSearch()
+    if (!this.tagWeights) {
+      this.fetchTagWeights()
+    }
+  },
   methods: {
     ...mapActions(['searchContent']),
+    ...mapActions('tags', ['fetchTagWeights']),
     thumbnail (obj) { return findThumbnail(obj) },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
     displayName (name) { return name ? name.replaceAll('_', ' ') : name },
@@ -120,7 +137,27 @@ export default {
       this.searchTerms = update
       this.runSearch()
     },
+    tagSearch (tag) {
+      this.searchTerms = tag
+      this.runSearch()
+    },
     encPath (path) { return objectEncodePath(path) }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.searchResultCard {
+  min-height: 200px;
+  min-width: 200px;
+  max-height: 400px;
+  max-width: 500px;
+}
+#searchTagCloud {
+  display: block;
+  min-height: 200px;
+  max-height: 600px;
+  min-width: 500px;
+  max-width: 1000px;
+}
+</style>

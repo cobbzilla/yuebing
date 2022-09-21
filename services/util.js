@@ -27,6 +27,7 @@ function authHeader () {
   }
 }
 
+function authHead (headers = null) { return authReq('HEAD', headers) }
 function authGet (headers = null) { return authReq('GET', headers) }
 function authDelete (headers = null) { return authReq('DELETE', headers) }
 
@@ -76,5 +77,5 @@ const saveAnonLocale = (locale) => {
 export {
   USER_LOCAL_STORAGE_KEY, UI_CONFIG,
   currentUser, authHeader, handleJsonResponse, saveAnonLocale,
-  authGet, authPostJson, authPutJson, authPatchJson, authDelete
+  authHead, authGet, authPostJson, authPutJson, authPatchJson, authDelete
 }

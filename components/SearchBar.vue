@@ -18,8 +18,8 @@ import { localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'SearchBar',
-  data () {
-    return { search: '' }
+  props: {
+    search: { type: String, default: '' }
   },
   computed: {
     ...mapState(['publicConfig', 'browserLocale']),

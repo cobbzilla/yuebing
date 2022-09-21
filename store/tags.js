@@ -5,6 +5,10 @@ export const state = () => ({
   fetchingTags: {},
   fetchTagsError: {},
 
+  tagWeights: null,
+  fetchingTagWeights: null,
+  fetchTagWeightsError: null,
+
   addingTags: {},
   addTagsSuccess: {},
   addTagsError: {},
@@ -22,6 +26,19 @@ export const actions = {
         (tags) => { commit('fetchTagsSuccess', { sourceAndPath, tags }) },
         (error) => { commit('fetchTagsFailure', { sourceAndPath, error }) }
       )
+  },
+
+  fetchTagWeights ({ commit }) {
+    commit('fetchTagWeightsRequest')
+    if (this.tagWeights) {
+      commit('fetchTagWeightsSuccess', { tags: this.tagWeights })
+    } else {
+      tagService.fetchTagWeights()
+        .then(
+          (tags) => { commit('fetchTagWeightsSuccess', { tags }) },
+          (error) => { commit('fetchTagWeightsFailure', { error }) }
+        )
+    }
   },
 
   addTags ({ commit }, { sourceAndPath, tags }) {
@@ -67,6 +84,18 @@ export const mutations = {
     update = {}
     update[sourceAndPath] = error
     state.fetchTagsError = Object.assign({}, state.fetchTagsError, update)
+  },
+
+  fetchTagWeightsRequest (state) {
+    state.fetchingTagWeights = true
+  },
+  fetchTagWeightsSuccess (state, { tags }) {
+    state.fetchingTagWeights = false
+    state.tagWeights = tags
+  },
+  fetchTagWeightsFailure (state, { error }) {
+    state.fetchingTagWeights = false
+    state.fetchTagWeightsError = error
   },
 
   addTagsRequest (state, { sourceAndPath }) {

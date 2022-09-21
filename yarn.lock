@@ -11217,6 +11217,11 @@ vuetify@^2.6, vuetify@^2.6.1:
   resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.9.tgz#abd3884bee9947c4a5b1dd560ad832bc4d8fccbf"
   integrity sha512-f4jy/DWCwyrkgbbArg0ugSX70aHfv7oO3zz2nuXqoD3W0X8AgunrakzKkt0H+BnuZgesoit9NzLoJNj1GY5DWw==
 
+vuewordcloud@^18.7.12:
+  version "18.7.12"
+  resolved "https://registry.yarnpkg.com/vuewordcloud/-/vuewordcloud-18.7.12.tgz#7cd02aafc57315f0548c9b9940f9f5e9de1d07f6"
+  integrity sha512-0oqqI47bGj+PxHSFrFe+8EAj1Vwb2lXj0EYFz9a1PO7CuGDCPjxdYKOPN4TlWuXYsstZX8lQTVRkCPEjE55PiA==
+
 vuex@^3.6.2:
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.6.2.tgz#236bc086a870c3ae79946f107f16de59d5895e71"

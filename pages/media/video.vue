@@ -10,7 +10,6 @@
     <v-row>
       <v-col v-if="isReady" cols="2">
         <VideoPlayer :options="videoOptions" />
-        <!-- todo -- show this info as an overlay -- what is going on and why can't we play this video? -->
       </v-col>
     </v-row>
     <v-row>
@@ -69,8 +68,8 @@ export default {
       videoOptions: {
         autoplay: false,
         controls: true,
-        width: Math.floor(document.documentElement.clientWidth * 0.88),
-        height: Math.floor(document.documentElement.clientHeight * 0.46),
+        width: this.mediaInfo?.width || 640,
+        height: this.mediaInfo?.height || null,
         poster: null,
         sources: []
       }
