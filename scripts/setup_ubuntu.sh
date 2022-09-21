@@ -16,12 +16,16 @@ fi
 
 sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y update' && \
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y upgrade' && \
-  sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install apt-transport-https ca-certificates curl software-properties-common -y' && \
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+  sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install apt-transport-https ca-certificates curl software-properties-common -y'
+
+DOCKER_GPG_FILE=/usr/share/keyrings/docker-archive-keyring.gpg
+if [[ ! -f "${DOCKER_GPG_FILE}" ]] ; then
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o ${DOCKER_GPG_FILE} && \
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y update' && \
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install docker-ce -y' && \
   sudo -E usermod -aG docker "${THIS_USER}"
+fi
 
 if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install certbot -y'
