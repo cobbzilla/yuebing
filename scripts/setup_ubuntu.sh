@@ -36,7 +36,7 @@ fi
 
 if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install certbot -y' || die 'Error installing certbot'
-  if [[ $(sudo bash -c 'find /etc/letsencrypt/accounts -type f -name regr.json | xargs grep -l '"${LE_EMAIL}"' | wc -l | tr -d " " ') -eq 0 ]] ; then
+  if [[ $(sudo bash -c "find /etc/letsencrypt/accounts -type f -name regr.json | wc -l | tr -d ' '") -eq 0 ]] ; then
     echo "certbot register starting: certbot register --agree-tos -m ${LE_EMAIL} --non-interactive"
     sudo bash -c 'certbot register --agree-tos -m '"${LE_EMAIL}"' --non-interactive' || die 'Error registering certbot'
   fi
