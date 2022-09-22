@@ -87,14 +87,13 @@ const getTagWeights = async () => {
   return weights ? JSON.parse(weights) : null
 }
 
-const envExcludeTagCloudWords = () =>
-  typeof process.env.YB_TAGCLOUD_EXCLUDE_WORDS === 'string' ? process.env.YB_TAGCLOUD_EXCLUDE_WORDS.split(/[,\s]+/) : []
+const envExcludeTagCloudWords = () => typeof process.env.YB_TAGCLOUD_EXCLUDE_WORDS === 'string'
+  ? process.env.YB_TAGCLOUD_EXCLUDE_WORDS.split(/[,\s]+/)
+  : []
 
 const EXCLUDE_TAG_CLOUD_WORDS = ['video', 'videos', 'mp4', 'video-mp4', 'mpeg', 'mpeg-4', ...envExcludeTagCloudWords()]
 
-const showTagInCloud = (word) => {
-  return !EXCLUDE_TAG_CLOUD_WORDS.includes(Array.isArray(word) ? word[0] : word)
-}
+const showTagInCloud = word => !EXCLUDE_TAG_CLOUD_WORDS.includes(Array.isArray(word) ? word[0] : word)
 
 const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
   const TAG_WEIGHTS = []
