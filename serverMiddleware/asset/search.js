@@ -94,15 +94,16 @@ const showTagInCloud = (word) => {
 }
 
 const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
-  logger.info(`initSearchIndex: starting...`)
   const TAG_WEIGHTS = []
   const tagInit = async (tag) => {
     logger.debug(`initSearchIndex: indexing tag: ${tag}`)
     const paths = await getPathsWithTag(tag)
     if (paths && paths.length && paths.length >= 0 && (paths.length > 1 || paths[0] !== INDEX_STILL_BUILDING_TOKEN)) {
+      logger.debug(`initSearchIndex: finished indexing tag ${tag}, paths=${typeof paths === 'undefined' ? 'undefined' : JSON.stringify(paths)}`)
       TAG_WEIGHTS.push([normalizeTag(tag), paths.length])
+    } else {
+      logger.debug(`initSearchIndex: finished indexing tag ${tag}, INVALID paths=${typeof paths === 'undefined' ? 'undefined' : JSON.stringify(paths)}`)
     }
-    logger.debug(`initSearchIndex: finished indexing tag: ${tag}`)
   }
   try {
     const tags = await forAllTags(tagInit)
