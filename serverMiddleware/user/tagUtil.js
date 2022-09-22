@@ -224,7 +224,6 @@ const removeAllTagsForPath = async (sourceAndPath) => {
 
 const TAGS_FOR_PATH_CACHE_PREFIX = 'getTagsForPath_'
 const PATHS_WITH_TAG_CACHE_PREFIX = 'getPathsWithTag_'
-const TAG_CACHE_EXPIRATION = 1000 * 60 * 60 * 24
 
 const getTagsForPath = async (sourceAndPath) => {
   const hash = shasum(sourceAndPath)
@@ -236,7 +235,7 @@ const getTagsForPath = async (sourceAndPath) => {
   const contentToTagPath = tagsForPathDir(sourceAndPath)
   const tagObjs = await system.api.list(contentToTagPath)
   const tags = tagObjs.map(o => denormalizeTag(basename(o.name)))
-  await redis.set(cacheKey, JSON.stringify(tags), TAG_CACHE_EXPIRATION)
+  await redis.set(cacheKey, JSON.stringify(tags))
   return tags
 }
 
@@ -267,7 +266,7 @@ const PATHS_WITH_TAG_PROCESS_FUNCTION = async (job) => {
     const encodedPathObjs = await system.api.list(dir, { recursive: true })
     logger.info(`${logPrefix} found ${encodedPathObjs ? encodedPathObjs.length : 'undefined?'} paths in: ${dir}`)
     const paths = encodedPathObjs.map(o => objectDecodePath(basename(o.name)))
-    await redis.set(cacheKey, JSON.stringify(paths), TAG_CACHE_EXPIRATION)
+    await redis.set(cacheKey, JSON.stringify(paths))
     queuedPathsLRU.set(normTag, paths)
     logger.info(`${logPrefix} returning ${paths.length} paths`)
     return paths

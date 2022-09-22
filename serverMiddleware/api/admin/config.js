@@ -40,12 +40,9 @@ export default {
       })
     } else if (req.method === 'PATCH') {
       buildSearchIndex().then(
-        (tags) => {
-          logger.info(`/api/admin/config buildSearchIndex returned ${tags ? tags.length : 'no'} tags`)
-        },
-        (err) => {
-          logger.info(`/api/admin/config buildSearchIndex error: ${err}`)
-        })
+        () => { logger.info(`/api/admin/config buildSearchIndex started`) },
+        (err) => { logger.info(`/api/admin/config buildSearchIndex error: ${err}`) }
+      )
       return api.okJson(res, {})
     } else {
       return api.badRequest(res, 'HTTP method must be GET or POST')
