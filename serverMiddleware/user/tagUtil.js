@@ -302,18 +302,15 @@ const getPathsWithTag = async (tag) => {
     if (Array.isArray(lruCached)) {
       logger.debug(`getPathsWithTag(${tag}) found in LRU, returning ${lruCached.length} paths`)
       return lruCached
-    } else {
-      logger.debug(`getPathsWithTag(${tag}) marked as processing in LRU, not queueing...`)
-      return [INDEX_STILL_BUILDING_TOKEN]
     }
   }
   const cacheKey = PATHS_WITH_TAG_CACHE_PREFIX + normTag
   const cached = cache_enabled ? await redis.get(cacheKey) : null
   if (cached) {
+    queuedPathsLRU.set(normTag, cached)
     return JSON.parse(cached)
   } else {
     logger.debug(`getPathsWithTag(${tag}) not in LRU, queueing and returning still-building`)
-    queuedPathsLRU.set(normTag, true)
     queuePathsForTag(normTag, cacheKey)
   }
   return [INDEX_STILL_BUILDING_TOKEN]

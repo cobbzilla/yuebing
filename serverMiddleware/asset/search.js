@@ -21,7 +21,7 @@ const MAX_QUERY_PAGE_SIZE = 50
 const search = async (user, query) => {
   const { stillBuilding, paths } = await _search(user, query)
   if (stillBuilding && stillBuilding.length > 0) {
-    logger.warn(`search(${query}) still building indexes for: ${stillBuilding.join(', ')}`)
+    logger.warn(`search(${JSON.stringify(query)}) still building indexes for: ${stillBuilding.join(', ')}`)
   }
   const results = paths
 
@@ -161,7 +161,7 @@ const buildSearchIndex = async (fromStartup = false) => {
 }
 
 const _search = async (user, query) => {
-  const logPrefix = `search(${JSON.stringify(query)})`
+  const logPrefix = `_search(${JSON.stringify(query)})`
   logger.debug(`${logPrefix} starting`)
   const promises = []
   const tagResults = {}
