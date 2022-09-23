@@ -353,5 +353,29 @@ export default {
   admin_label_reindex_path: 'المصدر والمسار',
   admin_label_reindex_time: 'زمن',
   admin_label_reindex_status: 'حالة',
-  admin_label_reindex_noResults: 'لم يتم العثور على نتائج إعادة الفهرسة'
+  admin_label_reindex_noResults: 'لم يتم العثور على نتائج إعادة الفهرسة',
+  footer_credit: '<a style="text-decoration: none;" href="https://github.com/cobbzilla/yuebing">مدعوم من 🥮 Yuebing</a>',
+  info_search_indexes_building: 'قد يؤدي هذا البحث نفسه إلى ظهور المزيد من النتائج في المستقبل. يتم إعادة بناء بعض فهارس البحث: {{ indexes }}',
+  info_search_no_results_unverified: 'لمشاهدة نتائج البحث ، يرجى التحقق من حسابك باستخدام الرابط المرسل إلى {{ email }}',
+  label_metadata: 'البيانات الوصفية للملف',
+  label_mediainfo: 'ملف mediainfo',
+  label_add_tag: 'إضافة علامة',
+  label_adding_tag: 'إضافة علامة ...',
+  label_removing_tag: 'إزالة العلامة ...',
+  label_scan_ignoreErrors: 'تجاهل الأخطاء السابقة',
+  label_scan_overwrite: 'الكتابة فوق الملفات الموجودة',
+  label_scan_reprocess: 'إعادة المعالجة',
+  label_scan_reprocess_profiles: 'إعادة معالجة هذه الملفات الشخصية',
+  label_path: 'طريق',
+  label_select_all: 'اختر الكل',
+  locale_text_list_separator: 'و',
+  admin_title_source_browser: 'تصفح المصادر',
+  admin_title_reindex_status: 'حالة الفهرسة',
+  admin_button_browse_source: 'تصفح',
+  admin_label_scan_config: 'تكوين المسح: {{ source }}',
+  admin_label_scan_olderThan: 'تجاهل الوسائط التي تمت معالجتها بعد تاريخ ووقت محددين',
+  admin_button_delete_path: 'حذف',
+  admin_button_rebuildSearchIndex: 'إعادة بناء فهرس البحث',
+  admin_button_rebuildSearchIndex_warning: 'سيؤدي هذا إلى إعادة إنشاء فهارس البحث عبر جميع المصادر وقد يستغرق وقتًا طويلاً جدًا',
+  admin_info_path_delete: 'جارٍ حذف المسار ...'
 }
