@@ -157,7 +157,6 @@ export default {
   display: block;
   min-height: 200px;
   max-height: 600px;
-  min-width: 500px;
-  max-width: 1000px;
+  min-width: 300px;
 }
 </style>

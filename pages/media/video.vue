@@ -68,8 +68,8 @@ export default {
       videoOptions: {
         autoplay: false,
         controls: true,
-        width: this.mediaInfo?.width || 640,
-        height: this.mediaInfo?.height || null,
+        width: Math.min(this.mediaInfo?.width || 640, window.screen.width - 50),
+        height: null, // always auto-set height based on width, maintains aspect ratio
         poster: null,
         sources: []
       }
