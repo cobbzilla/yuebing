@@ -1,7 +1,7 @@
 const { basename } = require('path')
 
 const { chopFileExt, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
-const { MEDIA, mediaType } = require('../../shared/media')
+const { mediaType } = require('../../shared/media')
 const cache = require('../util/cache')
 const redis = require('../util/redis')
 
@@ -83,8 +83,17 @@ const TAG_WEIGHTS_CACHE_KEY = '__ybTagWeights'
 const MAX_TAG_WEIGHTS = 30
 
 const getTagWeights = async () => {
-  const weights = await redis.get(TAG_WEIGHTS_CACHE_KEY)
-  return weights ? JSON.parse(weights) : null
+  const weights = await redis.getJson(TAG_WEIGHTS_CACHE_KEY)
+  if (weights !== null) {
+    return weights
+  }
+  // check filesystem
+  const fsCache = await system.api.safeReadFile(TAG_WEIGHTS_CACHE_KEY)
+  if (fsCache !== null) {
+    await redis.set(TAG_WEIGHTS_CACHE_KEY, fsCache.toString())
+    return JSON.parse(fsCache.toString())
+  }
+  return null
 }
 
 const envExcludeTagCloudWords = () => typeof process.env.YB_TAGCLOUD_EXCLUDE_WORDS === 'string'
@@ -114,7 +123,9 @@ const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
       .filter(showTagInCloud)
       .sort((w1, w2) => w2[1] - w1[1])
       .slice(0, MAX_TAG_WEIGHTS)
-    await redis.set(TAG_WEIGHTS_CACHE_KEY, JSON.stringify(weights))
+    const json = JSON.stringify(weights)
+    await redis.set(TAG_WEIGHTS_CACHE_KEY, json)
+    await system.api.writeFile(TAG_WEIGHTS_CACHE_KEY, json)
     return tags
   } catch (e) {
     logger.error(`initSearchIndex: error ${e}`)

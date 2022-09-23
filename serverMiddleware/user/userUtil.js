@@ -36,6 +36,7 @@ function initLimitRegistration () {
       throw new TypeError(`initLimitRegistration: invalid backend.publicConfig.limitRegistration: expected string or array of strings, found: ${JSON.stringify(LIMIT_REG)}`)
     }
   } else if (typeof LIMIT_REG === 'string') {
+    // todo: rewrite using proper Promise/resolve/reject
     return system.api.readFile(LIMIT_REG).then((data) => {
       const text = data.toString()
       if (text.toString().trim().startsWith('[')) {
