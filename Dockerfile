@@ -20,7 +20,7 @@ COPY . /usr/src/yuebing/
 # Install dependencies required to build @ronomon/crypto-async
 RUN apk add --no-cache make g++ python3 linux-headers libressl-dev musl-dev libffi-dev
 
-RUN yarn install
+RUN yarn install --network-timeout 60000
 
 # Remove build dependencies for @ronomon/crypto-async
 RUN apk del make g++ python3 linux-headers libressl-dev musl-dev libffi-dev
