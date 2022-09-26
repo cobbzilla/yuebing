@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Usage:
+#     setup_ubuntu.sh <le-email> <le-hostname> <mount-path> <mount-device> <move-docker-to-mount>
+# OR
+#     setup_ubuntu.sh <le-tgz> <le-hostname> <mount-path> <mount-device> <move-docker-to-mount>
+#
 
 function die {
   echo 1>&2 "${1}"
@@ -8,7 +14,7 @@ function die {
 YUEBING_DIR="$(cd "$(dirname $"{0}")"/.. && pwd)"
 
 THIS_USER="$(whoami)"
-LE_EMAIL="${1}"
+LE_EMAIL_OR_BUNDLE="${1}"
 LE_HOSTNAME=${2:-$YB_HOSTNAME}
 
 # Use another volume for large files
@@ -16,7 +22,7 @@ MOUNT_PATH="${3}"
 MOUNT_DEVICE="${4:-/dev/xvdf}"
 MOVE_DOCKER_TO_MOUNT="${5:-YES}"
 
-if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
+if [[ -n "${LE_EMAIL_OR_BUNDLE}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo hostname "${LE_HOSTNAME}" && \
   sudo bash -c "echo -n \"${LE_HOSTNAME}\" > /etc/hostname" || die 'Error setting hostname'
 fi
@@ -36,9 +42,19 @@ if [[ ! -f "${DOCKER_GPG_FILE}" ]] ; then
     die 'Error installing docker'
 fi
 
-if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
+LE_IS_BUNDLE=0
+LE_EMAIL=""
+if [[ -f "${LE_EMAIL_OR_BUNDLE}" ]] ; then
+  LE_IS_BUNDLE=1
+else
+  LE_EMAIL="${LE_EMAIL_OR_BUNDLE}"
+fi
+
+if [[ -n "${LE_EMAIL_OR_BUNDLE}" && -n "${LE_HOSTNAME}" ]] ; then
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install certbot -y' || die 'Error installing certbot'
-  if [[ $(sudo bash -c "find /etc/letsencrypt/accounts -type f -name regr.json | wc -l | tr -d ' '") -eq 0 ]] ; then
+  if [[ ${LE_IS_BUNDLE} -eq 1 ]] ; then
+    cd / && sudo tar xf "${LE_EMAIL_OR_BUNDLE}" || die "Error unpacking ${LE_EMAIL_OR_BUNDLE}"
+  elif [[ $(sudo bash -c "find /etc/letsencrypt/accounts -type f -name regr.json | wc -l | tr -d ' '") -eq 0 ]] ; then
     export LE_EMAIL=${LE_EMAIL}
     echo "certbot register starting: certbot register --agree-tos -m ${LE_EMAIL} --non-interactive"
     sudo bash -c 'certbot register --agree-tos -m '"${LE_EMAIL}"' --non-interactive' || die 'Error registering certbot'
@@ -52,7 +68,7 @@ if [[ -n "${LE_EMAIL}" && -n "${LE_HOSTNAME}" ]] ; then
   fi
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install nginx -y' || die 'Error installing nginx'
   export YUEBING_DIR=${YUEBING_DIR}
-  sudo bash -c 'cat '${YUEBING_DIR}'/docs/sample-yuebing-nginx.conf | sed -e "s/your-server-name.example.com/'${LE_HOSTNAME}'/g" > /etc/nginx/sites-available/default' || die 'Error writing /etc/nginx/sites-available/default'
+  sudo bash -c 'cat '"${YUEBING_DIR}"'/docs/sample-yuebing-nginx.conf | sed -e "s/your-server-name.example.com/'"${LE_HOSTNAME}"'/g" > /etc/nginx/sites-available/default' || die 'Error writing /etc/nginx/sites-available/default'
   service nginx restart || die 'Error restarting nginx'
 fi
 
@@ -71,5 +87,3 @@ if [[ -n "${MOUNT_PATH}" ]] ; then
     sudo service docker start || die "Error starting docker"
   fi
 fi
-
-exec sudo -u "${THIS_USER}" docker run -it cobbzilla/yuebing
