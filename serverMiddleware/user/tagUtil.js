@@ -321,18 +321,22 @@ const TAG_PATH_REGEX = new RegExp('^' + TAG_TO_CONTENT_INDEX + '[\\dA-F]{2}/[\\d
 const forAllTags = async (func) => {
   const tags = new Set()
   const visitor = async (obj) => {
-    logger.debug(`forAllTags: visiting object: ${JSON.stringify(obj)}`)
-    // are we at the correct depth?
-    const match = obj.name.match(TAG_PATH_REGEX)
-    if (match) {
-      const tag = basename(match[0])
-      if (!tags.has(tag)) {
-        tags.add(tag)
-        logger.debug(`forAllTags: found tag: ${tag}`)
-        await func(tag)
+    if (obj && obj.name) {
+      logger.debug(`forAllTags: visiting object: ${JSON.stringify(obj)}`)
+      // are we at the correct depth?
+      const match = obj.name.match(TAG_PATH_REGEX)
+      if (match) {
+        const tag = basename(match[0])
+        if (!tags.has(tag)) {
+          tags.add(tag)
+          logger.debug(`forAllTags: found tag: ${tag}`)
+          await func(tag)
+        }
+      } else {
+        logger.info(`not a tag: ${obj.name}`)
       }
     } else {
-      logger.info(`not a tag: ${obj.name}`)
+      logger.debug(`forAllTags: skipping non-object: ${typeof obj === 'undefined' ? 'undefined' : JSON.stringify(obj)}`)
     }
   }
   const listing = await system.api.safeList(TAG_TO_CONTENT_INDEX, { recursive: true, visitor })
