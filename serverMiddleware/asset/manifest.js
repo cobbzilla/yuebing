@@ -1,5 +1,5 @@
 const shasum = require('shasum')
-const path = require('path')
+const { basename } = require('path')
 const { extractSourceAndPath } = require('../../shared/source')
 const m = require('../../shared/media')
 const cache = require('../util/cache')
@@ -45,7 +45,7 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
   debug(`(find assets took ${''+((end - start)/1000)+' seconds'}), now examining ${assets.length} assets over profiles ${Object.keys(profiles).toString()}`)
   assets.forEach((asset) => {
     silly(`examining asset: ${asset ? JSON.stringify(asset) : 'undefined/null'}`)
-    const base = path.basename(asset.name)
+    const base = basename(asset.name)
     const underscore = base.indexOf('_')
     const dot = base.indexOf('.')
     const at = base.indexOf('@')
@@ -64,7 +64,13 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
             if (!(foundProfile in meta.assets)) {
               meta.assets[foundProfile] = []
             }
-            meta.assets[foundProfile].push(asset.name)
+            if (prof.manifestAssets && prof.manifestAssets.length > 0) {
+              if (prof.manifestAssets.includes(base)) {
+                meta.assets[foundProfile].push(asset.name)
+              }
+            } else {
+              meta.assets[foundProfile].push(asset.name)
+            }
           } else {
             meta.assets[foundProfile] = [asset.name]
           }

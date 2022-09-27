@@ -29,7 +29,7 @@ fi
 
 sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y update' && \
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y upgrade' && \
-  sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install apt-transport-https ca-certificates curl software-properties-common -y' || \
+  sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install apt-transport-https ca-certificates curl software-properties-common safe-rm -y' || \
   die 'Error updating/upgrading/installing basics'
 
 DOCKER_GPG_FILE=/usr/share/keyrings/docker-archive-keyring.gpg
@@ -68,7 +68,6 @@ if [[ -n "${LE_EMAIL_OR_BUNDLE}" && -n "${LE_HOSTNAME}" ]] ; then
   fi
   sudo bash -c 'DEBIAN_FRONTEND=noninteractive apt install nginx -y' || die 'Error installing nginx'
   export YUEBING_DIR=${YUEBING_DIR}
-  echo "Found YUEBING_DIR=${YUEBING_DIR} ..."
   sudo bash -c 'cat '"${YUEBING_DIR}"'/docs/sample-yuebing-nginx.conf | sed -e "s/your-server-name.example.com/'"${LE_HOSTNAME}"'/g" > /etc/nginx/sites-available/default' || die 'Error writing /etc/nginx/sites-available/default'
   sudo service nginx restart || die 'Error restarting nginx'
 fi

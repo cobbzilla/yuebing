@@ -47,6 +47,7 @@ export default {
       primary: true,
       multiFile: true,
       hlsProfile: 'hls_m3u8',
+      manifestAssets: ['asset_dash_mp4@video@001.mpd'],
       additionalAssets: [/^media_\d+\.m3u8$/, /^asset_hls_m3u8@video@master\.m3u8$/]
     },
 
@@ -58,6 +59,7 @@ export default {
       noop: true,
       primary: true,
       ext: 'm3u8',
+      manifestAssets: ['asset_hls_m3u8@video@master.m3u8'],
       contentType: 'application/vnd.apple.mpegurl'
     },
 
