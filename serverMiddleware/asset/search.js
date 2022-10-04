@@ -208,7 +208,9 @@ const _search = async (user, query) => {
       matchCount
     })
   }
-  tagCounts.sort((o1, o2) => o2.matchCount - o1.matchCount)
+  tagCounts.sort((o1, o2) => o2.matchCount === o1.matchCount
+    ? o1.path.localeCompare(o2.path)
+    : o2.matchCount - o1.matchCount)
   const paths = tagCounts.map(tc => tc.path)
   return { stillBuilding, paths }
 }
