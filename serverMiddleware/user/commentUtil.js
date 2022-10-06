@@ -47,7 +47,8 @@ const adminUsername = () => {
   return ADMIN_USERNAME
 }
 
-const isAdmin = user => user.username === adminUsername()
+const isAdmin = user => user && user.username === adminUsername()
+const isEditor = user => user && user.editor === true
 
 const editComment = async (user, path, commentId, comment) => {
   const updatePath = pathToSingleComment(path, commentId)
@@ -57,7 +58,7 @@ const editComment = async (user, path, commentId, comment) => {
     return null
   }
   const existingComment = JSON.parse(existingCommentJson)
-  if (existingComment.author !== user.username && !isAdmin(user)) {
+  if (existingComment.author !== user.username && !isAdmin(user) && !isEditor(user)) {
     logger.warn(`editComment(${path}, ${commentId}): user ${user.username} cannot edit comment by existingComment.author=${existingComment.author}`)
     return null
   }
@@ -66,7 +67,13 @@ const editComment = async (user, path, commentId, comment) => {
     return null
   }
   await redis.srem(commentCacheKeyForPath(path), existingCommentJson)
-  const updatedComment = Object.assign({}, existingComment, { comment, mtime: Date.now() })
+  const existingVersion = Object.assign({}, existingComment)
+  if (existingVersion.versions) {
+    delete existingVersion.versions
+  }
+  const updatedComment = Object.assign({}, existingVersion, { comment, mtime: Date.now() })
+  updatedComment.versions = existingComment.versions || []
+  updatedComment.versions.push(existingVersion)
   const updatedCommentJson = JSON.stringify(updatedComment)
   await redis.sadd(commentCacheKeyForPath(path), updatedCommentJson)
   await system.api.writeFile(updatePath, updatedCommentJson)

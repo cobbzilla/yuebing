@@ -33,6 +33,7 @@ export default {
   label_token: 'Verification token',
   label_ctime: 'Created',
   label_mtime: 'Modified',
+  label_editor: 'Editor?',
   button_login: 'Sign In',
   button_logout: 'Sign Out',
   button_register: 'Sign Up',
@@ -57,6 +58,7 @@ export default {
 
   label_search: 'Search',
   button_search: 'Search',
+  label_noCache: 'reset cache?',
   label_sort: 'Sort by',
   label_sort_order: 'Order',
   label_sort_ascending: 'ascending',

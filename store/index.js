@@ -12,6 +12,7 @@ export const state = () => ({
   publicConfig: null,
   loadingPublicConfig: false,
   loadingPublicConfigError: null,
+  searchQuery: null,
   searching: null,
   searchResults: null,
   searchIndexesBuilding: null,
@@ -97,6 +98,7 @@ export const mutations = {
 
   searchContentRequest (state, { query }) {
     state.searching = true
+    state.searchQuery = query
     state.searchError = null
   },
   searchContentSuccess (state, { results }) {

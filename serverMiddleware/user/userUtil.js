@@ -377,8 +377,9 @@ function updateUserRecord (proposed, successHandler) {
   }
 
   return findUser(proposed.username, proposed.email).then(async (user) => {
-    // copy user object, set mtime, delete the plaintext password and admin properties
-    const update = Object.assign({}, user, proposed, { mtime: Date.now() })
+    // merge proposed changes into user object, using stringify/parse to remove explicitly 'undefined' props, set mtime
+    const update = Object.assign({}, user, JSON.parse(JSON.stringify(proposed)), { mtime: Date.now() })
+    // never store a plaintext password
     if (update.password) {
       delete update.password
     }

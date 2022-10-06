@@ -22,7 +22,7 @@
         <ContentComments :object="object" />
       </v-col>
     </v-row>
-    <v-row v-if="loggedIn && user.admin && thumbnail()">
+    <v-row v-if="loggedIn && (user.editor || user.admin) && thumbnail()">
       <v-col cols="2">
         <ThumbnailSelector :object="object" />
       </v-col>

@@ -1,7 +1,7 @@
 const { basename } = require('path')
 
 const { chopFileExt, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
-const { mediaType } = require('../../shared/media')
+const { mediaType, mediaProfileByName, isThumbnailProfile } = require('../../shared/media')
 const cache = require('../util/cache')
 const redis = require('../util/redis')
 
@@ -43,18 +43,54 @@ const search = async (user, query) => {
   const objectList = []
   for (const sourceAndPath of page) {
     promises.push(new Promise((resolve) => {
-      deriveMetadataFromSourceAndPath(sourceAndPath).then(
+      deriveMetadataFromSourceAndPath(sourceAndPath, { noCache: query.noCache }).then(
         (meta) => {
+          const metaAssets = meta.assets || {}
           const obj = {}
           obj.name = chopFileExt(basename(sourceAndPath))
           obj.path = sourceAndPath
           obj.mediaType = mediaType(sourceAndPath)
           obj.meta = meta
+          obj.meta.assets = {}
+          const thumbCandidates = []
+          if (metaAssets) {
+            for (const p of Object.keys(metaAssets)) {
+              const profile = mediaProfileByName(obj.mediaType, p)
+              if (profile === null) {
+                logger.warn(`search: unknown profile: ${p} (skipping)`)
+                continue
+              }
+              const assets = metaAssets[p]
+              if (assets && assets.length > 0) {
+                if (isThumbnailProfile(p)) {
+                  thumbCandidates.push( ...metaAssets )
+                }
+                if (p.multiFile) {
+                  let objAssets
+                  if (assets.length <= 2) {
+                    objAssets = assets.slice(0, assets.length)
+                  } else {
+                    // keep first, middle and last asset
+                    objAssets = []
+                    objAssets.push(assets[0])
+                    objAssets.push(assets[Math.floor(assets.length / 2)])
+                    objAssets.push(assets[assets.length - 1])
+                  }
+                  obj.meta.assets[p] = objAssets
+                } else {
+                  obj.meta.assets[p] = [ assets[0] ]
+                }
+              }
+            }
+          }
           objectList.push(obj)
           cache.findSelectedThumbnail(sourceAndPath).then(
             (thumb) => {
               if (thumb) {
                 obj.meta.selectedThumbnail = thumb
+              } else if (thumbCandidates.length > 0) {
+                // pick the second candidate if we have > 1, or the first if it's the only one we have
+                obj.meta.selectedThumbnail = thumbCandidates[thumbCandidates.length === 1 ? 0 : 1]
               }
             }).then(
             async () => {
@@ -209,7 +245,7 @@ const _search = async (user, query) => {
     })
   }
   tagCounts.sort((o1, o2) => o2.matchCount === o1.matchCount
-    ? o1.path.localeCompare(o2.path)
+    ? basename(o1.path).localeCompare(basename(o2.path))
     : o2.matchCount - o1.matchCount)
   const paths = tagCounts.map(tc => tc.path)
   return { stillBuilding, paths }

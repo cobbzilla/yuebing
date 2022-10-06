@@ -18,6 +18,10 @@ export const state = () => ({
   deleteUserSuccess: null,
   deleteUserError: null,
 
+  updatingEditorFlag: false,
+  updateEditorFlagSuccess: null,
+  updateEditorFlagError: null,
+
   findingSources: false,
   sourceList: null,
   totalSourceCount: null,
@@ -104,6 +108,15 @@ export const actions = {
       .then(
         (ok) => { commit('deleteUserSuccess', { ok, email }) },
         (error) => { commit('deleteUserFailure', { error }) }
+      )
+  },
+
+  setEditor ({ commit }, { email, editor }) {
+    commit('setEditorRequest', { email, editor })
+    adminService.setEditor(email, editor)
+      .then(
+        (user) => { commit('setEditorSuccess', { user }) },
+        (error) => { commit('setEditorFailure', { error }) }
       )
   },
 
@@ -273,6 +286,22 @@ export const mutations = {
   deleteUserFailure (state, { error }) {
     state.deletingUser = false
     state.deleteUserError = error
+  },
+
+  setEditorRequest (state, { email, editor }) {
+    state.updatingEditorFlag = true
+  },
+  setEditorSuccess (state, { user }) {
+    state.updatingEditorFlag = false
+    state.updateEditorFlagSuccess = user || true
+    state.updateEditorFlagError = null
+    const newList = state.userList.map(u => u.email === user.email ? user : u)
+    state.userList.splice(0, state.userList.length)
+    state.userList.push(...newList)
+  },
+  setEditorFailure (state, { error }) {
+    state.updatingEditorFlag = false
+    state.updateEditorFlagError = error
   },
 
   findSourcesRequest (state, { query }) {

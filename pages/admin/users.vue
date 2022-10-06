@@ -64,22 +64,28 @@
             </tr>
             <tr>
               <th>{{ messages.label_email }}</th>
+              <th>{{ messages.label_username }}</th>
               <th>{{ messages.label_firstName }}</th>
               <th>{{ messages.label_lastName }}</th>
               <th>{{ messages.label_locale }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
+              <th>{{ messages.label_editor }}</th>
               <th>{{ messages.admin_button_delete_user }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(u, userIndex) in userList" :key="userIndex">
               <td>{{ u.email }}</td>
+              <td>{{ u.username }}</td>
               <td>{{ u.firstName }}</td>
               <td>{{ u.lastName }}</td>
               <td>{{ u.locale }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(u.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(u.mtime, messages) }}</td>
+              <td>
+                <v-checkbox v-if="u.email !== user.email" v-model="editorFlags[u.email]" @change="editorCheckbox(u)" />
+              </td>
               <td>
                 <v-btn v-if="u.email !== user.email" @click.stop="delUser(u)">
                   {{ messages.admin_button_delete_user }}
@@ -111,7 +117,8 @@ export default {
       sortOrder: 'ascending',
       searchTerms: '',
       deleteConfirmCount: 0,
-      sortOrders: null
+      sortOrders: null,
+      editorFlags: {}
     }
   },
   computed: {
@@ -145,6 +152,15 @@ export default {
       return msg
     }
   },
+  watch: {
+    userList (newUserList) {
+      if (newUserList && newUserList.length > 0) {
+        for (const u of newUserList) {
+          this.editorFlags[u.email] = u.editor
+        }
+      }
+    }
+  },
   created () {
     const query = this.searchQuery
     this.sortOrders = [
@@ -154,7 +170,7 @@ export default {
     this.findUsers({ query })
   },
   methods: {
-    ...mapActions('admin', ['findUsers', 'deleteUser']),
+    ...mapActions('admin', ['findUsers', 'deleteUser', 'setEditor']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
@@ -171,6 +187,9 @@ export default {
       } else {
         this.deleteConfirmCount = 0
       }
+    },
+    editorCheckbox (u) {
+      this.setEditor({ email: u.email, editor: this.editorFlags[u.email] })
     }
   }
 }

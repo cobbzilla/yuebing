@@ -2,12 +2,17 @@
   <v-container>
     <v-row>
       <v-col>
-        <SearchBar :search="searchTerms" @update="onSearchUpdate" />
+        <SearchBar />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <v-container fluid>
+          <v-row v-if="searchIndexesBuilding">
+            <v-col>
+              <h4>{{ messages.info_search_indexes_building.parseMessage({ indexes: searchIndexesBuilding.join(messages.locale_text_list_separator) }) }}</h4>
+            </v-col>
+          </v-row>
           <v-row v-if="searching">
             <v-col>
               <h2>
@@ -15,12 +20,7 @@
               </h2>
             </v-col>
           </v-row>
-          <v-row v-else-if="searchIndexesBuilding">
-            <v-col>
-              <h4>{{ messages.info_search_indexes_building.parseMessage({ indexes: searchIndexesBuilding.join(messages.locale_text_list_separator) }) }}</h4>
-            </v-col>
-          </v-row>
-          <v-row v-else-if="!searching && (!searchResults || searchResults.length === 0)">
+          <v-row v-else-if="!searching && (!searchResults || searchResults.length === 0 || noQuery)">
             <v-col>
               <div v-if="unverifiedUserAndNotPublic">
                 <h2>
@@ -86,7 +86,7 @@ import { mapState, mapActions } from 'vuex'
 import VueWordCloud from 'vuewordcloud'
 import SearchBar from '@/components/SearchBar'
 
-import { proxyMediaUrl, splitSearchTerms } from '@/shared'
+import { proxyMediaUrl } from '@/shared'
 import { objectEncodePath } from '@/shared/media'
 import { findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
@@ -97,49 +97,38 @@ export default {
   components: { SearchBar, VueWordCloud },
   data () {
     return {
-      searchTerms: '',
-      offset: 0
+      searchTerms: this.searchQuery && this.searchQuery.tags
+        ? this.searchQuery.tags.join(' ')
+        : '',
+      noCache: this.searchQuery && this.searchQuery.noCache === true,
+      offset: this.searchQuery && this.searchQuery.offset ? +this.searchQuery.offset : 0
     }
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-    ...mapState(['browserLocale', 'publicConfig', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
+    ...mapState(['browserLocale', 'publicConfig', 'searchQuery', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
     ...mapState('tags', ['tagWeights']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     unverifiedUserAndNotPublic () {
       return this.publicConfig && this.publicConfig.public === false &&
         this.user && this.user.email && this.userStatus && !this.user.verified
     },
-    query () {
-      return {
-        tags: splitSearchTerms(this.searchTerms),
-        offset: this.offset
-      }
+    noQuery () {
+      return typeof this.$route.query.s === 'undefined' || this.$route.query.s.length === 0
     }
   },
   created () {
-    this.runSearch()
     if (!this.tagWeights) {
       this.fetchTagWeights()
     }
   },
   methods: {
-    ...mapActions(['searchContent']),
     ...mapActions('tags', ['fetchTagWeights']),
     thumbnail (obj) { return findThumbnail(obj) },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
     displayName (name) { return name ? name.replaceAll('_', ' ') : name },
-    runSearch () {
-      const query = this.query
-      this.searchContent({ query })
-    },
-    onSearchUpdate (update) {
-      this.searchTerms = update
-      this.runSearch()
-    },
     tagSearch (tag) {
-      this.searchTerms = tag
-      this.runSearch()
+      this.$router.push({ path: this.$route.path, query: { s: tag || '' } })
     },
     encPath (path) { return objectEncodePath(path) }
   }

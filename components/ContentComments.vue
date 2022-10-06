@@ -84,7 +84,7 @@
                       </div>
                     </v-col>
                     <v-col>
-                      <div v-if="user && user.username && (user.username === comment.author || user.admin)">
+                      <div v-if="user && user.username && (user.username === comment.author || user.editor || user.admin)">
                         <v-btn icon @click.stop="toggleEditComment(comment)">
                           <v-icon v-if="!selectedCommentId">
                             mdi-pencil
@@ -93,7 +93,7 @@
                             mdi-close
                           </v-icon>
                         </v-btn>
-                        <v-btn icon @click.stop="doRemoveComment(comment.id)">
+                        <v-btn v-if="user.username === comment.author || user.admin" icon @click.stop="doRemoveComment(comment.id)">
                           <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </div>

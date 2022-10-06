@@ -5,6 +5,7 @@ export const adminService = {
   findUsers,
   migrate,
   deleteUser,
+  setEditor,
   findSources,
   findSource,
   addSource,
@@ -34,6 +35,10 @@ function migrate (migration) {
 
 function deleteUser (email) {
   return fetch('/api/admin/deleteUser', a.authPostJson({ email })).then(response => a.handleJsonResponse(response))
+}
+
+function setEditor (email, editor) {
+  return fetch(`/api/admin/users/${email}/editor`, a.authPostJson({ email, editor })).then(response => a.handleJsonResponse(response))
 }
 
 function findSources (query) {

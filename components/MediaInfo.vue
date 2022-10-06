@@ -116,7 +116,7 @@ export default {
     minorFields () {
       return this.showMinorFields && this.hasAnyMinorFieldValues ? minorMediaInfoFields() : []
     },
-    canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn && this.user.admin },
+    canEditMediainfo () { return this.user && this.userStatus && this.userStatus.loggedIn && (this.user.editor || this.user.admin) },
     editableInfoFields () { return editableMediaInfoFields() }
   },
   watch: {
