@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Silmek',
   admin_button_rebuildSearchIndex: 'Arama Dizinini Yeniden Oluştur',
   admin_button_rebuildSearchIndex_warning: 'Bu, tüm kaynaklardaki arama dizinlerini yeniden oluşturacak ve çok uzun zaman alabilir',
-  admin_info_path_delete: 'Yol siliniyor...'
+  admin_info_path_delete: 'Yol siliniyor...',
+  label_editor: 'Editör?',
+  label_noCache: 'önbelleği sıfırla?',
+  label_previous_page: 'önceki sonuç sayfası',
+  label_next_page: 'sonraki sonuç sayfası',
+  label_results_info: '{{ start }} ile {{ end }} toplam {{ total }} sonuçları gösteriliyor'
 }

@@ -67,6 +67,9 @@ export default {
 
   // media browsing
   title_browsing_folder: 'Folder: {{ folder }}',
+  label_previous_page: 'previous page of results',
+  label_next_page: 'next page of results',
+  label_results_info: 'showing results {{ start }} to {{ end }} of {{ total }} total',
   button_back_to: 'Back to {{ prefix }}',
   button_back_to_root_folder: 'Back to top-level',
   info_search_searching: '...',

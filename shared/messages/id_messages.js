@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Menghapus',
   admin_button_rebuildSearchIndex: 'Membangun kembali Indeks Pencarian',
   admin_button_rebuildSearchIndex_warning: 'Ini akan membangun kembali indeks pencarian di semua sumber dan bisa memakan waktu yang sangat lama',
-  admin_info_path_delete: 'Menghapus jalur...'
+  admin_info_path_delete: 'Menghapus jalur...',
+  label_editor: 'Editor?',
+  label_noCache: 'setel ulang cache?',
+  label_previous_page: 'halaman hasil sebelumnya',
+  label_next_page: 'halaman hasil berikutnya',
+  label_results_info: 'menunjukkan hasil {{ start }} hingga {{ end }} dari {{ total }} total'
 }

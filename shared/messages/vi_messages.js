@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Xóa bỏ',
   admin_button_rebuildSearchIndex: 'Xây dựng lại chỉ mục tìm kiếm',
   admin_button_rebuildSearchIndex_warning: 'Điều này sẽ xây dựng lại các chỉ mục tìm kiếm trên tất cả các nguồn và có thể mất rất nhiều thời gian',
-  admin_info_path_delete: 'Đang xóa đường dẫn ...'
+  admin_info_path_delete: 'Đang xóa đường dẫn ...',
+  label_editor: 'Biên tập viên?',
+  label_noCache: 'đặt lại bộ nhớ cache?',
+  label_previous_page: 'trang kết quả trước đó',
+  label_next_page: 'trang kết quả tiếp theo',
+  label_results_info: 'hiển thị kết quả từ {{ start }} đến {{ end }} trong tổng số {{ total }}'
 }

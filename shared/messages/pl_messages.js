@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Usuwać',
   admin_button_rebuildSearchIndex: 'Odbuduj indeks wyszukiwania',
   admin_button_rebuildSearchIndex_warning: 'Spowoduje to odbudowanie indeksów wyszukiwania we wszystkich źródłach i może zająć bardzo dużo czasu',
-  admin_info_path_delete: 'Usuwam ścieżkę...'
+  admin_info_path_delete: 'Usuwam ścieżkę...',
+  label_editor: 'Redaktor?',
+  label_noCache: 'zresetować pamięć podręczną?',
+  label_previous_page: 'poprzednia strona wyników',
+  label_next_page: 'następna strona wyników',
+  label_results_info: 'pokazuje wyniki od {{ start }} do {{ end }} z {{ total }} łącznie'
 }

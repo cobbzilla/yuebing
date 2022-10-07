@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Futa',
   admin_button_rebuildSearchIndex: 'Jenga upya Kielezo cha Utafutaji',
   admin_button_rebuildSearchIndex_warning: 'Hii itaunda upya faharasa za utafutaji kwenye vyanzo vyote na inaweza kuchukua muda mrefu sana',
-  admin_info_path_delete: 'Inafuta njia...'
+  admin_info_path_delete: 'Inafuta njia...',
+  label_editor: 'Mhariri?',
+  label_noCache: 'ungependa kuweka upya akiba?',
+  label_previous_page: 'ukurasa uliopita wa matokeo',
+  label_next_page: 'ukurasa unaofuata wa matokeo',
+  label_results_info: 'kuonyesha matokeo {{ start }} kwa {{ end }} ya jumla ya {{ total }}'
 }

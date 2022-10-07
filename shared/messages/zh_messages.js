@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: '删除',
   admin_button_rebuildSearchIndex: '重建搜索索引',
   admin_button_rebuildSearchIndex_warning: '这将重建所有来源的搜索索引，并且可能需要很长时间',
-  admin_info_path_delete: '正在删除路径...'
+  admin_info_path_delete: '正在删除路径...',
+  label_editor: '编辑？',
+  label_noCache: '重置缓存？',
+  label_previous_page: '结果的上一页',
+  label_next_page: '下一页结果',
+  label_results_info: '显示结果{{ start }}到{{ end }}总计{{ total }}'
 }

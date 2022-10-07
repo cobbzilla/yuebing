@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Tanggalin',
   admin_button_rebuildSearchIndex: 'Muling Buuin ang Index ng Paghahanap',
   admin_button_rebuildSearchIndex_warning: 'Ito ay muling bubuo ng mga index ng paghahanap sa lahat ng pinagmumulan at maaaring tumagal ng napakatagal',
-  admin_info_path_delete: 'Tinatanggal ang landas...'
+  admin_info_path_delete: 'Tinatanggal ang landas...',
+  label_editor: 'Editor?',
+  label_noCache: 'i-reset ang cache?',
+  label_previous_page: 'nakaraang pahina ng mga resulta',
+  label_next_page: 'susunod na pahina ng mga resulta',
+  label_results_info: 'nagpapakita ng mga resulta {{ start }} hanggang {{ end }} ng {{ total }} kabuuan'
 }

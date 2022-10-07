@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Share',
   admin_button_rebuildSearchIndex: 'Sake Gina Fihirisar Bincike',
   admin_button_rebuildSearchIndex_warning: 'Wannan zai sake gina firikwensin nema a duk tushe kuma yana iya ɗaukar lokaci mai tsawo',
-  admin_info_path_delete: 'Ana share hanya...'
+  admin_info_path_delete: 'Ana share hanya...',
+  label_editor: 'Edita?',
+  label_noCache: 'sake saita cache?',
+  label_previous_page: 'shafi na baya na sakamako',
+  label_next_page: 'shafi na gaba na sakamako',
+  label_results_info: 'yana nuna sakamako {{ start }} zuwa {{ end }} na {{ total }} duka'
 }

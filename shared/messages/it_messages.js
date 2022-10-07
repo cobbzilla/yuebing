@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Elimina',
   admin_button_rebuildSearchIndex: 'Ricostruisci l\'indice di ricerca',
   admin_button_rebuildSearchIndex_warning: 'Ciò ricostruirà gli indici di ricerca in tutte le origini e potrebbe richiedere molto tempo',
-  admin_info_path_delete: 'Eliminazione del percorso...'
+  admin_info_path_delete: 'Eliminazione del percorso...',
+  label_editor: 'Editore?',
+  label_noCache: 'resettare la cache?',
+  label_previous_page: 'pagina precedente dei risultati',
+  label_next_page: 'pagina successiva dei risultati',
+  label_results_info: 'mostrando risultati da {{ start }} a {{ end }} di {{ total }} totale'
 }

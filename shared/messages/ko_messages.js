@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: '삭제',
   admin_button_rebuildSearchIndex: '검색 색인 다시 작성',
   admin_button_rebuildSearchIndex_warning: '이렇게 하면 모든 소스에서 검색 인덱스를 다시 작성하고 시간이 매우 오래 걸릴 수 있습니다.',
-  admin_info_path_delete: '경로 삭제 중...'
+  admin_info_path_delete: '경로 삭제 중...',
+  label_editor: '편집자?',
+  label_noCache: '캐시를 재설정하시겠습니까?',
+  label_previous_page: '결과의 이전 페이지',
+  label_next_page: '결과의 다음 페이지',
+  label_results_info: '총 {{ start }} 중 {{ end }} 에서 {{ total }} 까지의 결과 표시'
 }

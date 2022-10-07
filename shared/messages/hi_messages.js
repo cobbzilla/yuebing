@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'मिटाना',
   admin_button_rebuildSearchIndex: 'खोज सूचकांक का पुनर्निर्माण करें',
   admin_button_rebuildSearchIndex_warning: 'यह सभी स्रोतों में खोज अनुक्रमणिका का पुनर्निर्माण करेगा और इसमें बहुत लंबा समय लग सकता है',
-  admin_info_path_delete: 'पथ हटाया जा रहा है...'
+  admin_info_path_delete: 'पथ हटाया जा रहा है...',
+  label_editor: 'संपादक?',
+  label_noCache: 'कैश रीसेट करें?',
+  label_previous_page: 'परिणामों का पिछला पृष्ठ',
+  label_next_page: 'परिणाम का अगला पृष्ठ',
+  label_results_info: 'कुल {{ start }} का {{ end }} से {{ total }} परिणाम दिखा रहा है'
 }

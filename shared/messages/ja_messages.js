@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: '消去',
   admin_button_rebuildSearchIndex: '検索インデックスの再構築',
   admin_button_rebuildSearchIndex_warning: 'これにより、すべてのソースで検索インデックスが再構築され、非常に長い時間がかかる可能性があります',
-  admin_info_path_delete: 'パスを削除しています...'
+  admin_info_path_delete: 'パスを削除しています...',
+  label_editor: '編集者？',
+  label_noCache: 'キャッシュをリセットしますか？',
+  label_previous_page: '結果の前のページ',
+  label_next_page: '結果の次のページ',
+  label_results_info: '合計{{ start }}のうち{{ end }}から{{ total }}までの結果を表示しています'
 }

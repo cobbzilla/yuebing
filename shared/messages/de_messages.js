@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Löschen',
   admin_button_rebuildSearchIndex: 'Suchindex neu erstellen',
   admin_button_rebuildSearchIndex_warning: 'Dadurch werden die Suchindizes für alle Quellen neu erstellt, was sehr lange dauern kann',
-  admin_info_path_delete: 'Pfad löschen...'
+  admin_info_path_delete: 'Pfad löschen...',
+  label_editor: 'Editor?',
+  label_noCache: 'Cache zurücksetzen?',
+  label_previous_page: 'vorherige Ergebnisseite',
+  label_next_page: 'nächste Ergebnisseite',
+  label_results_info: 'zeigt Ergebnisse {{ start }} bis {{ end }} von {{ total }} insgesamt'
 }

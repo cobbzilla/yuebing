@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'Удалить',
   admin_button_rebuildSearchIndex: 'Восстановить поисковый индекс',
   admin_button_rebuildSearchIndex_warning: 'Это перестроит поисковые индексы по всем источникам и может занять очень много времени.',
-  admin_info_path_delete: 'Удаление пути...'
+  admin_info_path_delete: 'Удаление пути...',
+  label_editor: 'Редактор?',
+  label_noCache: 'сбросить кеш?',
+  label_previous_page: 'предыдущая страница результатов',
+  label_next_page: 'следующая страница результатов',
+  label_results_info: 'показаны результаты с {{ start }} по {{ end }} из {{ total }} всего'
 }

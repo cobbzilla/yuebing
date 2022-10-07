@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'حذف کریں۔',
   admin_button_rebuildSearchIndex: 'سرچ انڈیکس کو دوبارہ بنائیں',
   admin_button_rebuildSearchIndex_warning: 'یہ تمام ذرائع میں تلاش کے اشاریہ جات کو دوبارہ بنائے گا اور اس میں کافی وقت لگ سکتا ہے۔',
-  admin_info_path_delete: 'راستہ حذف ہو رہا ہے...'
+  admin_info_path_delete: 'راستہ حذف ہو رہا ہے...',
+  label_editor: 'ایڈیٹر؟',
+  label_noCache: 'کیشے کو دوبارہ ترتیب دیں؟',
+  label_previous_page: 'نتائج کا پچھلا صفحہ',
+  label_next_page: 'نتائج کا اگلا صفحہ',
+  label_results_info: 'کل {{ start }} کے {{ end }} سے {{ total }} تک نتائج دکھا رہے ہیں۔'
 }

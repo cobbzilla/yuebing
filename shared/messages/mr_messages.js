@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'हटवा',
   admin_button_rebuildSearchIndex: 'शोध निर्देशांक पुन्हा तयार करा',
   admin_button_rebuildSearchIndex_warning: 'हे सर्व स्त्रोतांमध्ये शोध अनुक्रमणिका पुन्हा तयार करेल आणि खूप वेळ लागू शकेल',
-  admin_info_path_delete: 'मार्ग हटवत आहे...'
+  admin_info_path_delete: 'मार्ग हटवत आहे...',
+  label_editor: 'संपादक?',
+  label_noCache: 'कॅशे रीसेट करा?',
+  label_previous_page: 'निकालांचे मागील पृष्ठ',
+  label_next_page: 'परिणामांचे पुढील पृष्ठ',
+  label_results_info: 'एकूण {{ start }} पैकी {{ end }} ते {{ total }} परिणाम दर्शवित आहे'
 }

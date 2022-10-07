@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'মুছে ফেলা',
   admin_button_rebuildSearchIndex: 'অনুসন্ধান সূচক পুনর্নির্মাণ',
   admin_button_rebuildSearchIndex_warning: 'এটি সমস্ত উত্স জুড়ে অনুসন্ধান সূচী পুনর্নির্মাণ করবে এবং একটি খুব দীর্ঘ সময় নিতে পারে',
-  admin_info_path_delete: 'পথ মুছে ফেলা হচ্ছে...'
+  admin_info_path_delete: 'পথ মুছে ফেলা হচ্ছে...',
+  label_editor: 'সম্পাদক?',
+  label_noCache: 'ক্যাশে রিসেট করবেন?',
+  label_previous_page: 'ফলাফলের আগের পৃষ্ঠা',
+  label_next_page: 'ফলাফলের পরবর্তী পৃষ্ঠা',
+  label_results_info: 'মোট {{ start }} এর {{ end }} থেকে {{ total }} ফলাফল দেখাচ্ছে'
 }

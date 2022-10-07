@@ -377,5 +377,10 @@ export default {
   admin_button_delete_path: 'حذف',
   admin_button_rebuildSearchIndex: 'إعادة بناء فهرس البحث',
   admin_button_rebuildSearchIndex_warning: 'سيؤدي هذا إلى إعادة إنشاء فهارس البحث عبر جميع المصادر وقد يستغرق وقتًا طويلاً جدًا',
-  admin_info_path_delete: 'جارٍ حذف المسار ...'
+  admin_info_path_delete: 'جارٍ حذف المسار ...',
+  label_editor: 'محرر؟',
+  label_noCache: 'إعادة تعيين ذاكرة التخزين المؤقت؟',
+  label_previous_page: 'الصفحة السابقة من النتائج',
+  label_next_page: 'الصفحة التالية من النتائج',
+  label_results_info: 'إظهار النتائج {{ start }} إلى {{ end }} من إجمالي {{ total }}'
 }
