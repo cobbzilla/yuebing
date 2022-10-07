@@ -31,6 +31,7 @@ export default {
   data () {
     return {
       searchField: '',
+      offsetField: null,
       noCacheField: false
     }
   },
@@ -57,7 +58,16 @@ export default {
         this.searchField = newSearch
         this.runSearch()
       }
-      console.log(`watch query.s: got newSearch=${newSearch}`)
+    })
+    this.$watch('$route.query.o', (newOffset) => {
+      if (typeof newOffset === 'undefined') {
+        this.offsetField = this.$route.query.o || 0
+      } else {
+        this.offsetField = newOffset
+      }
+      if (this.searchField && this.searchField.trim().length > 0) {
+        this.runSearch()
+      }
     })
     this.searchField = typeof this.$route.query.s !== 'undefined' ? this.$route.query.s : this.searchField || ''
     this.noCacheField = (this.$route.query.c && (this.$route.query.c === true || this.$route.query.c === 'true')) || false
@@ -69,9 +79,8 @@ export default {
       const query = {
         tags: splitSearchTerms(this.searchField),
         noCache: this.noCacheField || this.noCache,
-        offset: this.offset
+        offset: this.offsetField || this.offset
       }
-      console.log('>>> created: searching with query = ' + JSON.stringify(query))
       return this.searchContent({ query })
     },
     search () {
@@ -82,7 +91,6 @@ export default {
       if (this.offset !== 0) {
         query.o = this.offset
       }
-      console.log('>>> search: pushing query params = ' + JSON.stringify(query))
       this.$router.push({ path: this.$route.path, query })
       this.runSearch()
     }

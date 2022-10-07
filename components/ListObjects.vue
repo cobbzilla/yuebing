@@ -5,6 +5,13 @@
         <SearchBar />
       </v-col>
     </v-row>
+    <v-row v-if="!searching && searchResults && searchResults.objectList.length > 0 && typeof searchResults.start === 'number' && typeof searchResults.end === 'number' && typeof searchResults.total === 'number'">
+      <v-col>
+        <span style="font-size: x-small">
+          {{ messages.label_results_info.parseMessage({ start: searchResults.start + 1, end: searchResults.end, total: searchResults.total }) }}
+        </span>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col>
         <v-container fluid>
@@ -20,7 +27,7 @@
               </h2>
             </v-col>
           </v-row>
-          <v-row v-else-if="!searching && (!searchResults || searchResults.length === 0 || noQuery)">
+          <v-row v-else-if="!searching && (!searchResults || searchResults.objectList.length === 0 || noQuery)">
             <v-col>
               <div v-if="unverifiedUserAndNotPublic">
                 <h2>
@@ -49,28 +56,58 @@
             </v-col>
           </v-row>
           <v-row v-else>
-            <div v-for="(obj, index) in searchResults" :key="index">
-              <v-spacer />
+            <div v-if="hasPrev">
               <v-col>
-                <v-card class="searchResultCard">
+                <v-card class="searchResultCard" @click.stop="prevPage">
                   <v-card-title>
-                    <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
-                      {{ displayName(obj.name) }}
-                    </NuxtLink>
+                    <span>{{ messages.label_previous_page }}</span>
                   </v-card-title>
                   <v-card-text>
-                    <NuxtLink :to="{ path: '/media/'+obj.mediaType, query: { n: encPath(obj.path) } }">
+                    <v-btn icon>
+                      <v-icon style="font-size: xxx-large; color: whitesmoke">
+                        mdi-arrow-left
+                      </v-icon>
+                    </v-btn>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </div>
+            <div v-for="(obj, index) in searchResults.objectList" :key="index">
+              <v-spacer />
+              <v-col>
+                <NuxtLink :to="{path: '/media/'+obj.mediaType, query: {n: encPath(obj.path)}}">
+                  <v-card class="searchResultCard">
+                    <v-card-title>
+                      {{ displayName(obj.name) }}
+                    </v-card-title>
+                    <v-card-text>
                       <img
                         v-if="thumbnail(obj)"
                         :src="proxyUrl(thumbnail(obj))"
                         width="200"
                         :alt="messages.thumbnail_alt_text.parseMessage({ name: displayName(obj.name) })"
                       >
-                    </NuxtLink>
+                    </v-card-text>
+                  </v-card>
+                </NuxtLink>
+              </v-col>
+              <!-- <v-spacer />-->
+            </div>
+            <div v-if="hasNext">
+              <v-col>
+                <v-card class="searchResultCard" @click.stop="nextPage">
+                  <v-card-title>
+                    <span>{{ messages.label_next_page }}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-btn icon>
+                      <v-icon style="font-size: xxx-large; color: whitesmoke">
+                        mdi-arrow-right
+                      </v-icon>
+                    </v-btn>
                   </v-card-text>
                 </v-card>
               </v-col>
-              <!-- <v-spacer />-->
             </div>
           </v-row>
         </v-container>
@@ -101,7 +138,8 @@ export default {
         ? this.searchQuery.tags.join(' ')
         : '',
       noCache: this.searchQuery && this.searchQuery.noCache === true,
-      offset: this.searchQuery && this.searchQuery.offset ? +this.searchQuery.offset : 0
+      offset: this.searchQuery && this.searchQuery.offset ? +this.searchQuery.offset : 0,
+      pageSize: 20
     }
   },
   computed: {
@@ -115,7 +153,9 @@ export default {
     },
     noQuery () {
       return typeof this.$route.query.s === 'undefined' || this.$route.query.s.length === 0
-    }
+    },
+    hasPrev () { return this.searchResults && this.searchResults.start && this.searchResults.start > 0 },
+    hasNext () { return this.searchResults && this.searchResults.more }
   },
   created () {
     if (!this.tagWeights) {
@@ -124,13 +164,40 @@ export default {
   },
   methods: {
     ...mapActions('tags', ['fetchTagWeights']),
+    ...mapActions(['searchContent']),
     thumbnail (obj) { return findThumbnail(obj) },
     proxyUrl (obj) { return proxyMediaUrl(obj, this.user, this.userStatus) },
     displayName (name) { return name ? name.replaceAll('_', ' ') : name },
     tagSearch (tag) {
       this.$router.push({ path: this.$route.path, query: { s: tag || '' } })
     },
-    encPath (path) { return objectEncodePath(path) }
+    prevPage () {
+      const query = {
+        s: this.$route.query.s || '',
+        o: this.searchResults && this.searchResults.start > 0
+          ? Math.max(0, this.searchResults.start - this.pageSize)
+          : this.searchResults.start || 0
+      }
+      this.$router.push({
+        path: this.$route.path,
+        query
+      })
+      this.runSearch(query)
+    },
+    nextPage () {
+      const query = {
+        s: this.$route.query.s || '',
+        o: this.searchResults && this.searchResults.more
+          ? Math.min(this.searchResults.total, this.searchResults.start + this.pageSize)
+          : this.pageSize
+      }
+      this.$router.push({ path: this.$route.path, query })
+      this.runSearch(query)
+    },
+    encPath (path) { return objectEncodePath(path) },
+    runSearch (query) {
+      return this.searchContent({ query })
+    }
   }
 }
 </script>

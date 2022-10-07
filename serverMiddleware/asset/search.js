@@ -15,6 +15,7 @@ const { deriveMediaInfo, deriveMetadataFromSourceAndPath } = require('./manifest
 //   tags: ['birthday', 'family'],
 // }
 
+const DEFAULT_QUERY_PAGE_SIZE = 20
 const MAX_QUERY_PAGE_SIZE = 50
 
 // todo: weight results by likes/comments; weight by tags the user has watched the most
@@ -24,9 +25,8 @@ const search = async (user, query) => {
     logger.warn(`search(${JSON.stringify(query)}) still building indexes for: ${stillBuilding.join(', ')}`)
   }
   const results = paths
-
   const pageNum = query.pageNumber || 1
-  const pageSize = Math.min(query.pageSize || 20, MAX_QUERY_PAGE_SIZE)
+  const pageSize = Math.min(query.pageSize || DEFAULT_QUERY_PAGE_SIZE, MAX_QUERY_PAGE_SIZE)
 
   let start = query.offset || (pageNum - 1) * pageSize
   let end = start + pageSize
@@ -37,8 +37,8 @@ const search = async (user, query) => {
     end = results.length
     start = Math.max(end - pageSize, 0)
   }
-
   const page = results.slice(start, end)
+  logger.debug(`search(${JSON.stringify(query)}: sliced results = ${JSON.stringify(results)} -> page(start/end=${start}/${end}) ${JSON.stringify(page)}`)
   const promises = []
   const objectList = []
   for (const sourceAndPath of page) {
@@ -83,7 +83,12 @@ const search = async (user, query) => {
               }
             }
           }
-          objectList.push(obj)
+          const pageIndex = page.indexOf(obj.path)
+          if (pageIndex !== -1) {
+            objectList[pageIndex] = obj
+          } else {
+            objectList.push(obj)
+          }
           cache.findSelectedThumbnail(sourceAndPath).then(
             (thumb) => {
               if (thumb) {
@@ -104,7 +109,14 @@ const search = async (user, query) => {
     }))
   }
   await Promise.all(promises)
-  return { stillBuilding, objectList }
+  return {
+    stillBuilding,
+    objectList: objectList.filter(e => e),
+    total: results.length,
+    start,
+    end,
+    more: end < results.length
+  }
 }
 
 const Queue = require('bull')
