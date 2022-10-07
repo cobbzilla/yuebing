@@ -103,7 +103,7 @@ export const mutations = {
   },
   searchContentSuccess (state, { results }) {
     state.searching = false
-    state.searchResults = results.objectList
+    state.searchResults = Object.assign({}, results)
     if (results.stillBuilding && results.stillBuilding.length > 0) {
       state.searchIndexesBuilding = results.stillBuilding
     } else {
