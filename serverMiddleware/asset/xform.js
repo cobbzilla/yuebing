@@ -9,7 +9,6 @@ const c = require('../../shared')
 const m = require('../../shared/media')
 const { extractSourceAndPath } = require('../../shared/source')
 const util = require('../util/file')
-const cache = require('../util/cache')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 const src = require('../source/sourceUtil')
@@ -18,6 +17,7 @@ const q = require('./job')
 const { pathRegistrationAge } = require('../user/tagUtil')
 const { multifilePrefix, deleteLocalFiles } = require('./cleanup')
 const { queueUploadAsset } = require('./upload')
+const { loadMediaDriver } = require('./driver')
 
 const MAX_XFORM_ERRORS = 3
 
@@ -290,7 +290,7 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
                   .filter(f => regex.test(f))
                 logger.info(`${logPrefix} found ${matches.length} additionalAssets for regex ${regex}`)
                 for (const match of matches) {
-                  await uploadAsset(sourcePath, join(assetsDir, match), job, jobPrefix)
+                  await uploadAsset(sourcePath, profile, join(assetsDir, match), job, jobPrefix)
                 }
               } catch (e) {
                 const message = `${logPrefix} error matching/uploading additionalAssets: ${e}`
@@ -339,8 +339,7 @@ async function mediaTransform (job, file, profile, outfile) {
   if (!MEDIA_COMMANDS[mediaType]) {
     throw new TypeError(`invalid media type: ${mediaType}`)
   }
-  const driverPath = `./driver/${mediaType}`
-  const mediaDriver = require(driverPath)
+  const mediaDriver = loadMediaDriver(mediaType)
   q.recordJobEvent(job, `${jobPrefix}_start`)
   const sourcePath = job.data.sourcePath
   const logPrefix = `${jobPrefix} transform(${sourcePath}):`

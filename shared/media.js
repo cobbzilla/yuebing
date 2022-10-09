@@ -16,7 +16,7 @@ function assetSuffix (mediaType) {
 const EXT_MAP = {}
 
 const MEDIA_TYPE_STANDARD = 'standard'
-const MEDIA_TYPES = [MEDIA_TYPE_STANDARD, 'video']
+const MEDIA_TYPES = [MEDIA_TYPE_STANDARD, VIDEO_MEDIA_TYPE]
 
 const MEDIA = {}
 for (const mtype of MEDIA_TYPES) {
@@ -109,7 +109,12 @@ function mediaType (path) {
 }
 
 function mediaProfileByName (mediaType, profileName) {
-  return MEDIA[mediaType] && MEDIA[mediaType].profiles ? MEDIA[mediaType].profiles[profileName] : null
+  if (MEDIA[mediaType] && MEDIA[mediaType].profiles && MEDIA[mediaType].profiles[profileName]) {
+    return MEDIA[mediaType].profiles[profileName]
+  } else {
+    console.log(`mediaProfileByName(${profileName}) profile ${profileName} not found`)
+    return undefined
+  }
 }
 
 function mediaProfilesForSource (path) {
@@ -241,12 +246,26 @@ const ALL_MEDIA_PROFILES = Object.keys(MEDIA)
       .map((p) => { return { mediaType: t, profile: p, mediaTypeAndProfile: `${t} / ${p}` } }))
   .flat()
 
+const bitrateInt = (rate) => {
+  if (rate.toLowerCase().endsWith('m')) {
+    return +(rate.substring(0, rate.length - 1) + '000000')
+  } else if (rate.toLowerCase().endsWith('k')) {
+    return +(rate.substring(0, rate.length - 1) + '000')
+  } else if (c.isAllDigits(rate)) {
+    return +rate
+  } else {
+    console.warn(`bitrateInt(${rate}) un-parseable rate`)
+    return rate
+  }
+}
+
 export {
   mediaType, mediaProfilesForSource, hasProfiles, minFileSize,
   newMediaObject, hasMediaType, hasMediaInfo, metaHasMediaInfo,
   profileNameFromAsset, mediaProfileByName, profileFromAsset,
   isThumbnailProfile, isMediaInfoJsonProfile,
   objectEncodePath, objectDecodePath,
+  bitrateInt,
   PROFILE_ADDITIONAL_REGEXES, ALL_MEDIA_PROFILES,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
   VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,

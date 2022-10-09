@@ -8,9 +8,7 @@ const logger = system.logger
 function multifilePrefix (outfile) {
   const placeholder = outfile.lastIndexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
-    const message = `multifilePrefix: expected to find placeholder (${c.MULTIFILE_PLACEHOLDER}) in outfile: ${outfile}`
-    logger.error(message)
-    throw new TypeError(message)
+    return outfile
   }
   return outfile.substring(0, placeholder)
 }

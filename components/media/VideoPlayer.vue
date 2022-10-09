@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <video ref="videoPlayer" class="video-js"></video>
+  <div :style="`display: ${visible === true ? 'block' : 'none'}`">
+    <video :id="videoId" ref="videoPlayer" class="video-js"></video>
   </div>
 </template>
 
@@ -10,12 +10,9 @@ import videojs from 'video.js'
 export default {
   name: 'VideoPlayer',
   props: {
-    options: {
-      type: Object,
-      default () {
-        return {}
-      }
-    }
+    options: { type: Object, default () { return {} } },
+    visible: { type: Boolean, default: null },
+    videoId: { type: String, default: 'videoPlayer' }
   },
   data () {
     return {

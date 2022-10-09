@@ -1,14 +1,17 @@
 const { basename } = require('path')
 const mime = require('mime-types')
 const shared = require('../../../shared')
+const { mediaType } = require('../../../shared/media')
 const { ASSET_PREFIX, PROFILE_ADDITIONAL_REGEXES } = require('../../../shared/media')
 const api = require('../../util/api')
+const { queryParamValue } = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
+const { loadMediaDriver } = require('../../asset/driver')
 
-async function head (req, res, source, path) {
-  const head = await source.safeMetadata(path)
+async function head (req, res, storage, path) {
+  const head = await storage.safeMetadata(path)
   if (head) {
     res.statusCode = 200
     res.end(head)
@@ -17,8 +20,8 @@ async function head (req, res, source, path) {
   }
 }
 
-async function get (req, res, source, path) {
-  const head = await source.safeMetadata(path)
+async function get (req, res, storage, path, quality = null) {
+  const head = await storage.safeMetadata(path)
   if (!head) {
     logger.info(`stream.get: HEAD request failed, returning 404 Not Found for path=${path}`)
     return api.notFound(res)
@@ -32,9 +35,22 @@ async function get (req, res, source, path) {
   // todo -- write object to cache
   // then stream from cache as we apply ranges
   res.statusCode = 200
-  res.contentType = mime.contentType(path)
+  res.contentType = mime.contentType(basename(path))
   logger.info(`stream >>>> set contentType = ${res.contentType} for path=${path}`)
-  await source.read(path, chunk => res.write(chunk))
+  if (quality !== null) {
+    // allow type-specific drivers to adjust stream based on quality
+    const mt = mediaType(path)
+    if (mt) {
+      const mediaDriver = loadMediaDriver(mt)
+      if (mediaDriver && typeof mediaDriver.quality === 'function') {
+        if (await mediaDriver.quality(storage, path, quality, res)) {
+          res.end()
+          return
+        }
+      }
+    }
+  }
+  await storage.read(path, chunk => res.write(chunk))
   res.end()
 }
 
@@ -67,7 +83,7 @@ export default {
         await head(req, res, system.api, p)
         break
       case 'GET':
-        await get(req, res, system.api, p)
+        await get(req, res, system.api, p, queryParamValue(req, shared.QUALITY_PARAM))
         break
       default:
         api.notFound(res)

@@ -7,9 +7,34 @@
         </h4>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col v-if="isReady" cols="2">
-        <VideoPlayer :options="videoOptions" />
+    <v-row v-if="isReady">
+      <v-col>
+        <v-container>
+          <v-row>
+            <div v-for="(qualitySetting, index) in qualitySettings" :key="index">
+              <v-col cols="2">
+                <VideoPlayer
+                  :video-id="videoId(qualitySetting.key)"
+                  :visible="qualitySetting.key === quality"
+                  :options="allVideoOptions[qualitySetting.key]"
+                />
+              </v-col>
+            </div>
+          </v-row>
+          <v-row v-if="hasQualitySettings">
+            <v-col>
+              <v-select
+                v-model="quality"
+                :label="messages.label_playback_quality"
+                :items="qualitySettings"
+                item-text="label"
+                item-value="key"
+                class="form-control"
+                @change="selectQuality"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
     <v-row>
@@ -37,6 +62,7 @@
 
 <script>
 import { basename } from 'path'
+import videojs from 'video.js'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
@@ -45,14 +71,10 @@ import ThumbnailSelector from '../../components/ThumbnailSelector'
 import ContentComments from '../../components/ContentComments'
 import VideoPlayer from '@/components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
-import { proxyMediaUrl, getExtension, okl, chopFileExt } from '@/shared'
+import { proxyMediaUrl, addQualityParam, getExtension, okl, chopFileExt } from '@/shared'
 import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, objectDecodePath } from '@/shared/media'
 import { hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
-
-function hasSourceVideos (vid) {
-  return vid.videoOptions.sources && vid.videoOptions.sources.length && vid.videoOptions.sources.length > 0
-}
 
 export default {
   name: 'VideoObject',
@@ -65,14 +87,18 @@ export default {
       object: {},
       mediaInfo: null,
       error: null,
-      videoOptions: {
+      allVideoOptions: {},
+      defaultVideoOptions: {
         autoplay: false,
         controls: true,
         width: Math.min(this.mediaInfo?.width || 640, window.screen.width - 50),
         height: null, // always auto-set height based on width, maintains aspect ratio
         poster: null,
         sources: []
-      }
+      },
+      qualitySettings: [],
+      prevQuality: null,
+      quality: null
     }
   },
   computed: {
@@ -81,6 +107,7 @@ export default {
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
     loggedIn () { return this.user && this.userStatus && this.user.email },
+    videoOptions () { return this.quality && this.allVideoOptions[this.quality] ? this.allVideoOptions[this.quality] : null },
     videoTitle () {
       return this.mediaInfo && this.mediaInfo.title
         ? this.mediaInfo.title
@@ -90,9 +117,10 @@ export default {
             ? chopFileExt(basename(this.object.path))
             : null
     },
-    hasSources () { return hasSourceVideos(this) },
+    hasQualitySettings () { return this.qualitySettings && this.qualitySettings.length > 1 },
     isReady () {
-      return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready && hasSourceVideos(this)
+      return this.object && this.object.meta && this.object.meta.status && this.object.meta.status.ready &&
+        this.defaultVideoOptions.sources.length > 0 && okl(this.allVideoOptions) > 0
     }
   },
   watch: {
@@ -103,7 +131,10 @@ export default {
         this.object.meta = newMeta[this.name]
       }
       if (this.object.meta.selectedThumbnail) {
-        this.videoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail, this.user, this.status)
+        this.defaultVideoOptions.poster = proxyMediaUrl(this.object.meta.selectedThumbnail, this.user, this.status)
+        for (const quality of Object.keys(this.allVideoOptions)) {
+          this.allVideoOptions[quality].poster = this.defaultVideoOptions.poster
+        }
       }
       this.object = Object.assign({}, this.object) // force vue refresh
       this.refreshMeta()
@@ -138,29 +169,50 @@ export default {
   methods: {
     ...mapActions('source', ['fetchMetadata', 'fetchAsset', 'fetchUserMediaInfo', 'updateUserMediaInfo']),
     refreshMeta () {
-      const sources = this.videoOptions.sources
-      if (hasAssets(this.object) && !this.hasSources) {
-        Object.keys(this.object.meta.assets).forEach((assetProfileName) => {
-          const assets = this.object.meta.assets[assetProfileName]
+      if (hasAssets(this.object) && this.defaultVideoOptions.sources.length === 0) {
+        this.qualitySettings = []
+        for (const assetProfileName in this.object.meta.assets) {
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
+          if (mediaProfile.primary && mediaProfile.noop !== true) {
+            if (mediaProfile.subProfiles) {
+              this.qualitySettings.push({ key: '', label: this.messages.label_playback_quality_auto })
+              this.qualitySettings.push(...mediaProfile.subProfiles
+                .map(sub => sub && sub.name && sub.videoSize && sub.videoBitrate
+                  ? this.qualityForProfile(sub)
+                  : null).filter(e => e))
+            } else {
+              this.qualitySettings.push(this.qualityForProfile(mediaProfile))
+            }
+          }
+          const assets = this.object.meta.assets[assetProfileName]
           assets.forEach((asset) => {
             if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              const src = proxyMediaUrl(asset, this.user, this.userStatus)
-              console.log(`refreshMeta: pushing source: ${src}`)
-              sources.push({
-                src,
+              this.defaultVideoOptions.sources.push({
+                src: proxyMediaUrl(asset, this.user, this.userStatus),
                 type: mediaProfile.contentType
               })
             }
           })
-          if (sources.length > 0) {
-            console.log(`refreshMeta: prepared video with ${sources.length} sources`)
-          } else {
-            console.log('refreshMeta: no sources, video not prepared')
+        }
+        if (this.defaultVideoOptions.sources.length === 0) {
+          // console.log('refreshMeta: no default sources, video not prepared')
+          return
+        }
+        for (const qSetting of this.qualitySettings) {
+          const q = qSetting.key
+          if (this.quality === null) {
+            this.quality = q
+            this.prevQuality = this.quality.key
           }
-        })
-      } else {
-        console.log(`refreshMeta: sources already loaded for video, not replacing=${JSON.stringify(sources)}`)
+          this.allVideoOptions[q] = Object.assign({}, this.defaultVideoOptions)
+          this.allVideoOptions[q].sources = this.defaultVideoOptions.sources.map((source) => {
+            return {
+              src: addQualityParam(source.src, q),
+              type: source.type,
+              label: q
+            }
+          })
+        }
       }
     },
     mediaInfoField (field) {
@@ -170,6 +222,23 @@ export default {
     onMediaInfoUpdate (newMediaInfo) {
       if (newMediaInfo) {
         this.mediaInfo = newMediaInfo
+      }
+    },
+    qualityForProfile (p) { return { key: p.name, label: `${p.videoSize} @ ${p.videoBitrate}bps` } },
+    videoId (quality) { return `videoPlayer_${quality && quality.length > 0 ? quality : 'auto'}` },
+    selectQuality () {
+      if (this.prevQuality !== this.quality) {
+        const prevPlayer = videojs(this.videoId(this.prevQuality))
+        const currentPlayer = videojs(this.videoId(this.quality))
+        const playing = prevPlayer && prevPlayer.paused && !prevPlayer.paused()
+        if (playing) {
+          prevPlayer.pause()
+          currentPlayer.currentTime(prevPlayer.currentTime())
+          if (currentPlayer && currentPlayer.play && playing) {
+            currentPlayer.play()
+          }
+        }
+        this.prevQuality = this.quality
       }
     }
   }

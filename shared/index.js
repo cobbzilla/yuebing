@@ -11,9 +11,10 @@ function getExtension (filename) {
   return filename.split('.').pop()
 }
 
-const NO_CACHE_HEADER = 'x-yb-nocache'
+// const NO_CACHE_HEADER = 'x-yb-nocache'
 const USER_SESSION_HEADER = 'x-yb-session'
 const USER_SESSION_QUERY_PARAM = 's'
+const QUALITY_PARAM = 'q'
 const ANON_LOCALE_STORAGE_KEY = 'anon_locale'
 const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en'
 
@@ -31,7 +32,12 @@ function sessionParams (user, status) {
 const STREAM_API = '/api/source/stream'
 
 function proxyMediaUrl (asset, user, status) {
-  return `${STREAM_API}/${asset}${sessionParams(user, status)}`
+  const sessionParam = sessionParams(user, status)
+  return `${STREAM_API}/${asset}${sessionParam}`
+}
+
+function addQualityParam (url, quality) {
+  return url + (quality === null ? '' : (url.includes('?') ? '&' : '?') + `${QUALITY_PARAM}=${quality}`)
 }
 
 function normalizeUrl (base, path) {
@@ -54,8 +60,8 @@ const chopFileExt = (s) => {
   return dot === -1 || dot === s.length ? s : s.substring(0, dot)
 }
 
-const isAllDigits = (s) => /^\d+$/.test(s)
-const isAllDigitsOrNonWordChars = (s) => /^[\d\W]+$/.test(s)
+const isAllDigits = s => /^\d+$/.test(s)
+const isAllDigitsOrNonWordChars = s => /^[\d\W]+$/.test(s)
 
 const SEARCH_REGEX = /[^\s"]+|"([^"]*)"/gi
 
@@ -64,11 +70,11 @@ const splitSearchTerms = (terms) => {
   const found = []
   let match
   do {
-    //Each call to exec returns the next regex match as an array
+    // Each call to exec returns the next regex match as an array
     match = SEARCH_REGEX.exec(terms)
     if (match != null) {
-      //Index 1 in the array is the captured group if it exists
-      //Index 0 is the matched text, which we use if no captured group exists
+      // Index 1 in the array is the captured group if it exists
+      // Index 0 is the matched text, which we use if no captured group exists
       found.push(match[1] ? match[1] : match[0])
     }
   } while (match != null)
@@ -128,6 +134,7 @@ const SELF_SOURCE_NAME = ' ~ this ~ '
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
+  QUALITY_PARAM,
   ANON_LOCALE_STORAGE_KEY,
   DEFAULT_LOCALE,
   STREAM_API,
@@ -153,5 +160,6 @@ module.exports = {
   sessionParams,
   normalizeUrl,
   splitSearchTerms,
-  proxyMediaUrl
+  proxyMediaUrl,
+  addQualityParam
 }

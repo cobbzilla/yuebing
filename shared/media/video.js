@@ -4,7 +4,7 @@ export default {
   from: 'standard', // inherit mediainfo operation and profiles
 
   // Source assets with these extensions will be filtered onto the destination
-  ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp'],
+  ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp', 'mpd', 'm4s', 'm3u8'],
 
   // Configuration params for the supported operations
   // Currently the video transformer only uses these to verify that
@@ -27,7 +27,7 @@ export default {
 
   // Each profile can produce one asset, or many assets
   // the existence of at least one 'primary' asset is required for
-  // an object to be considered "ready" for viewing in the webapp.
+  // an object to be considered 'ready' for viewing in the webapp.
   // The 'operation' field determines what the media-specific transformer does
   profiles: {
     // The various transcode_ profiles create different versions of the video
@@ -133,5 +133,61 @@ export default {
       from: 'first_thumbnail_small',
       size: 'hd1080'
     }
+  },
+  // from https://ffmpeg.org/ffmpeg-utils.html#Video-size
+  ffmpeg_sizes: {
+    ntsc: '720x480',
+    pal: '720x576',
+    qntsc: '352x240',
+    qpal: '352x288',
+    sntsc: '640x480',
+    spal: '768x576',
+    film: '352x240',
+    'ntsc-film': '352x240',
+    sqcif: '128x96',
+    qcif: '176x144',
+    cif: '352x288',
+    '4cif': '704x576',
+    '16cif': '1408x1152',
+    qqvga: '160x120',
+    qvga: '320x240',
+    vga: '640x480',
+    svga: '800x600',
+    xga: '1024x768',
+    uxga: '1600x1200',
+    qxga: '2048x1536',
+    sxga: '1280x1024',
+    qsxga: '2560x2048',
+    hsxga: '5120x4096',
+    wvga: '852x480',
+    wxga: '1366x768',
+    wsxga: '1600x1024',
+    wuxga: '1920x1200',
+    woxga: '2560x1600',
+    wqsxga: '3200x2048',
+    wquxga: '3840x2400',
+    whsxga: '6400x4096',
+    whuxga: '7680x4800',
+    cga: '320x200',
+    ega: '640x350',
+    hd480: '852x480',
+    hd720: '1280x720',
+    hd1080: '1920x1080',
+    '2k': '2048x1080',
+    '2kflat': '1998x1080',
+    '2kscope': '2048x858',
+    '4k': '4096x2160',
+    '4kflat': '3996x2160',
+    '4kscope': '4096x1716',
+    nhd: '640x360',
+    hqvga: '240x160',
+    wqvga: '400x240',
+    fwqvga: '432x240',
+    hvga: '480x320',
+    qhd: '960x540',
+    '2kdci': '2048x1080',
+    '4kdci': '4096x2160',
+    uhd2160: '3840x2160',
+    uhd4320: '7680x4320'
   }
 }
