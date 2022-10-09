@@ -382,5 +382,7 @@ export default {
   label_noCache: 'إعادة تعيين ذاكرة التخزين المؤقت؟',
   label_previous_page: 'الصفحة السابقة من النتائج',
   label_next_page: 'الصفحة التالية من النتائج',
-  label_results_info: 'إظهار النتائج {{ start }} إلى {{ end }} من إجمالي {{ total }}'
+  label_results_info: 'إظهار النتائج {{ start }} إلى {{ end }} من إجمالي {{ total }}',
+  label_playback_quality: 'جودة التشغيل',
+  label_playback_quality_auto: 'تلقائي'
 }

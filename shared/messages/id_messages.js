@@ -382,5 +382,7 @@ export default {
   label_noCache: 'setel ulang cache?',
   label_previous_page: 'halaman hasil sebelumnya',
   label_next_page: 'halaman hasil berikutnya',
-  label_results_info: 'menunjukkan hasil {{ start }} hingga {{ end }} dari {{ total }} total'
+  label_results_info: 'menunjukkan hasil {{ start }} hingga {{ end }} dari {{ total }} total',
+  label_playback_quality: 'Kualitas pemutaran',
+  label_playback_quality_auto: 'otomatis'
 }

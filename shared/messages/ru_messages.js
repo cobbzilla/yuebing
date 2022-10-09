@@ -382,5 +382,7 @@ export default {
   label_noCache: 'сбросить кеш?',
   label_previous_page: 'предыдущая страница результатов',
   label_next_page: 'следующая страница результатов',
-  label_results_info: 'показаны результаты с {{ start }} по {{ end }} из {{ total }} всего'
+  label_results_info: 'показаны результаты с {{ start }} по {{ end }} из {{ total }} всего',
+  label_playback_quality: 'Качество воспроизведения',
+  label_playback_quality_auto: 'автоматический'
 }

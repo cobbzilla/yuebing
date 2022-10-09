@@ -382,5 +382,7 @@ export default {
   label_noCache: '重置缓存？',
   label_previous_page: '结果的上一页',
   label_next_page: '下一页结果',
-  label_results_info: '显示结果{{ start }}到{{ end }}总计{{ total }}'
+  label_results_info: '显示结果{{ start }}到{{ end }}总计{{ total }}',
+  label_playback_quality: '播放质量',
+  label_playback_quality_auto: '自动的'
 }

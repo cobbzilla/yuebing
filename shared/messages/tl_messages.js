@@ -382,5 +382,7 @@ export default {
   label_noCache: 'i-reset ang cache?',
   label_previous_page: 'nakaraang pahina ng mga resulta',
   label_next_page: 'susunod na pahina ng mga resulta',
-  label_results_info: 'nagpapakita ng mga resulta {{ start }} hanggang {{ end }} ng {{ total }} kabuuan'
+  label_results_info: 'nagpapakita ng mga resulta {{ start }} hanggang {{ end }} ng {{ total }} kabuuan',
+  label_playback_quality: 'Kalidad ng pag-playback',
+  label_playback_quality_auto: 'awtomatiko'
 }

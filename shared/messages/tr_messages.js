@@ -382,5 +382,7 @@ export default {
   label_noCache: 'önbelleği sıfırla?',
   label_previous_page: 'önceki sonuç sayfası',
   label_next_page: 'sonraki sonuç sayfası',
-  label_results_info: '{{ start }} ile {{ end }} toplam {{ total }} sonuçları gösteriliyor'
+  label_results_info: '{{ start }} ile {{ end }} toplam {{ total }} sonuçları gösteriliyor',
+  label_playback_quality: 'oynatma kalitesi',
+  label_playback_quality_auto: 'otomatik'
 }

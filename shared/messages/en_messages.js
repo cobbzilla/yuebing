@@ -109,6 +109,8 @@ export default {
   label_scan_reprocess_profiles: 'Reprocess these profiles',
   label_path: 'Path',
   label_select_all: 'Select All',
+  label_playback_quality: 'Playback quality',
+  label_playback_quality_auto: 'automatic',
 
   // vee-validate error types
   error_field_required: '{{ field }} is required',

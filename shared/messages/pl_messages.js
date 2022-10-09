@@ -382,5 +382,7 @@ export default {
   label_noCache: 'zresetować pamięć podręczną?',
   label_previous_page: 'poprzednia strona wyników',
   label_next_page: 'następna strona wyników',
-  label_results_info: 'pokazuje wyniki od {{ start }} do {{ end }} z {{ total }} łącznie'
+  label_results_info: 'pokazuje wyniki od {{ start }} do {{ end }} z {{ total }} łącznie',
+  label_playback_quality: 'Jakość odtwarzania',
+  label_playback_quality_auto: 'automatyczny'
 }

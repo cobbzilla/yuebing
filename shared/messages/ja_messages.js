@@ -382,5 +382,7 @@ export default {
   label_noCache: 'キャッシュをリセットしますか？',
   label_previous_page: '結果の前のページ',
   label_next_page: '結果の次のページ',
-  label_results_info: '合計{{ start }}のうち{{ end }}から{{ total }}までの結果を表示しています'
+  label_results_info: '合計{{ start }}のうち{{ end }}から{{ total }}までの結果を表示しています',
+  label_playback_quality: '再生品質',
+  label_playback_quality_auto: '自動'
 }

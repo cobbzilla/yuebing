@@ -382,5 +382,7 @@ export default {
   label_noCache: 'کیشے کو دوبارہ ترتیب دیں؟',
   label_previous_page: 'نتائج کا پچھلا صفحہ',
   label_next_page: 'نتائج کا اگلا صفحہ',
-  label_results_info: 'کل {{ start }} کے {{ end }} سے {{ total }} تک نتائج دکھا رہے ہیں۔'
+  label_results_info: 'کل {{ start }} کے {{ end }} سے {{ total }} تک نتائج دکھا رہے ہیں۔',
+  label_playback_quality: 'پلے بیک کا معیار',
+  label_playback_quality_auto: 'خودکار'
 }

@@ -382,5 +382,7 @@ export default {
   label_noCache: 'sake saita cache?',
   label_previous_page: 'shafi na baya na sakamako',
   label_next_page: 'shafi na gaba na sakamako',
-  label_results_info: 'yana nuna sakamako {{ start }} zuwa {{ end }} na {{ total }} duka'
+  label_results_info: 'yana nuna sakamako {{ start }} zuwa {{ end }} na {{ total }} duka',
+  label_playback_quality: 'ingancin sake kunnawa',
+  label_playback_quality_auto: 'atomatik'
 }

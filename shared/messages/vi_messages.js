@@ -382,5 +382,7 @@ export default {
   label_noCache: 'đặt lại bộ nhớ cache?',
   label_previous_page: 'trang kết quả trước đó',
   label_next_page: 'trang kết quả tiếp theo',
-  label_results_info: 'hiển thị kết quả từ {{ start }} đến {{ end }} trong tổng số {{ total }}'
+  label_results_info: 'hiển thị kết quả từ {{ start }} đến {{ end }} trong tổng số {{ total }}',
+  label_playback_quality: 'Chất lượng phát lại',
+  label_playback_quality_auto: 'tự động'
 }

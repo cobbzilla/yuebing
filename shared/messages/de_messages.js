@@ -382,5 +382,7 @@ export default {
   label_noCache: 'Cache zurücksetzen?',
   label_previous_page: 'vorherige Ergebnisseite',
   label_next_page: 'nächste Ergebnisseite',
-  label_results_info: 'zeigt Ergebnisse {{ start }} bis {{ end }} von {{ total }} insgesamt'
+  label_results_info: 'zeigt Ergebnisse {{ start }} bis {{ end }} von {{ total }} insgesamt',
+  label_playback_quality: 'Wiedergabequalität',
+  label_playback_quality_auto: 'automatisch'
 }

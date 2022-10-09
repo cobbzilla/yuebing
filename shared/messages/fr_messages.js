@@ -384,5 +384,7 @@ export default {
   label_noCache: 'réinitialiser le cache ?',
   label_previous_page: 'page de résultats précédente',
   label_next_page: 'prochaine page de résultats',
-  label_results_info: 'montrant les résultats {{ start }} à {{ end }} sur le total de {{ total }}'
+  label_results_info: 'montrant les résultats {{ start }} à {{ end }} sur le total de {{ total }}',
+  label_playback_quality: 'Qualité de lecture',
+  label_playback_quality_auto: 'automatique'
 }

@@ -382,5 +382,7 @@ export default {
   label_noCache: 'ungependa kuweka upya akiba?',
   label_previous_page: 'ukurasa uliopita wa matokeo',
   label_next_page: 'ukurasa unaofuata wa matokeo',
-  label_results_info: 'kuonyesha matokeo {{ start }} kwa {{ end }} ya jumla ya {{ total }}'
+  label_results_info: 'kuonyesha matokeo {{ start }} kwa {{ end }} ya jumla ya {{ total }}',
+  label_playback_quality: 'Ubora wa kucheza',
+  label_playback_quality_auto: 'moja kwa moja'
 }

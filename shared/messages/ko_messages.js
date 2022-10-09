@@ -382,5 +382,7 @@ export default {
   label_noCache: '캐시를 재설정하시겠습니까?',
   label_previous_page: '결과의 이전 페이지',
   label_next_page: '결과의 다음 페이지',
-  label_results_info: '총 {{ start }} 중 {{ end }} 에서 {{ total }} 까지의 결과 표시'
+  label_results_info: '총 {{ start }} 중 {{ end }} 에서 {{ total }} 까지의 결과 표시',
+  label_playback_quality: '재생 품질',
+  label_playback_quality_auto: '자동적 인'
 }

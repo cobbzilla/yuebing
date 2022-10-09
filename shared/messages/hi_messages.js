@@ -382,5 +382,7 @@ export default {
   label_noCache: 'कैश रीसेट करें?',
   label_previous_page: 'परिणामों का पिछला पृष्ठ',
   label_next_page: 'परिणाम का अगला पृष्ठ',
-  label_results_info: 'कुल {{ start }} का {{ end }} से {{ total }} परिणाम दिखा रहा है'
+  label_results_info: 'कुल {{ start }} का {{ end }} से {{ total }} परिणाम दिखा रहा है',
+  label_playback_quality: 'प्लेबैक गुणवत्ता',
+  label_playback_quality_auto: 'स्वचालित'
 }
