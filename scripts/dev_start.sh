@@ -39,12 +39,16 @@ if [ $(cd "${BASE_DIR}" && grep -c YB_WORK_SYS_REDIS .env) -gt 0 ] && [ "$(. .en
   SYS_REDIS_PORT="-p ${R_PORT}:${R_PORT}"
 fi
 
+SYS_REDIS_PORT=""
+if [ -n "$(cd "${BASE_DIR}" && . .env && echo -n "${YB_WORK_SYS_REDIS_PORT}")" ] ; then
+  SYS_REDIS_PORT="${YB_WORK_SYS_REDIS_PORT}"
+fi
+
 cd "${BASE_DIR}" && \
   docker run -it \
     --ulimit nofile=500000:500000 \
-    --mount type=bind,source="$(pwd)",target=/usr/src/yuebing \
     --mount type=bind,source="${YB_WORK_DIR}",target=/usr/src/scratch \
-    --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo ; echo "YB_WORK_DIR=/usr/src/scratch") \
+    --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo ; echo "YB_WORK_DIR=/usr/src/scratch" ; if [ -n "${SYS_REDIS_PORT}" ] ; then echo "YB_REDIS_PORT=${SYS_REDIS_PORT}" ; fi) \
     --env HOST=0.0.0.0 \
     --publish 127.0.0.1:3000:3000/tcp ${SYS_REDIS_PORT} \
     "${DOCKER_NAME}" ${COMMAND}
