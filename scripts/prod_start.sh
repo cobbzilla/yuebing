@@ -14,7 +14,7 @@ DOCKER_TAG="latest"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
 
 function die () {
-  echo >&2 "${0}: ${1}"
+  echo 1>&2 "${0}: ${1}"
   exit 1
 }
 
@@ -36,7 +36,7 @@ cd "${BASE_DIR}" && \
   docker run -it \
     --ulimit nofile=500000:500000 \
     --mount type=bind,source="${YB_WORK_DIR}",target=/usr/src/scratch \
-    --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo "YB_WORK_DIR=/usr/src/scratch") \
+    --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo ; echo "YB_WORK_DIR=/usr/src/scratch") \
     --env HOST=0.0.0.0 \
     --publish 127.0.0.1:3000:3000/tcp \
     "${DOCKER_NAME}" ${COMMAND}
