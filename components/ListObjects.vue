@@ -34,7 +34,7 @@
                   {{ messages.info_search_no_results_unverified.parseMessage({ email: user.email }) }}
                 </h2>
               </div>
-              <div v-else-if="tagWeights && tagWeights.length > 0">
+              <div v-else-if="isPublic && tagWeights && tagWeights.length > 0">
                 <vue-word-cloud
                   id="searchTagCloud"
                   :words="tagWeights"
@@ -147,8 +147,9 @@ export default {
     ...mapState(['browserLocale', 'publicConfig', 'searchQuery', 'searching', 'searchResults', 'searchIndexesBuilding', 'searchError']),
     ...mapState('tags', ['tagWeights']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+    isPublic () { return this.publicConfig && this.publicConfig.public === true },
     unverifiedUserAndNotPublic () {
-      return this.publicConfig && this.publicConfig.public === false &&
+      return !this.isPublic &&
         this.user && this.user.email && this.userStatus && !this.user.verified
     },
     noQuery () {
