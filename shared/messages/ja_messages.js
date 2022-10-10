@@ -384,5 +384,6 @@ export default {
   label_next_page: '結果の次のページ',
   label_results_info: '合計{{ start }}のうち{{ end }}から{{ total }}までの結果を表示しています',
   label_playback_quality: '再生品質',
-  label_playback_quality_auto: '自動'
+  label_playback_quality_auto: '自動',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: '起動時に検索インデックスを構築する'
 }

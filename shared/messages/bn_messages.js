@@ -384,5 +384,6 @@ export default {
   label_next_page: 'ফলাফলের পরবর্তী পৃষ্ঠা',
   label_results_info: 'মোট {{ start }} এর {{ end }} থেকে {{ total }} ফলাফল দেখাচ্ছে',
   label_playback_quality: 'প্লেব্যাক গুণমান',
-  label_playback_quality_auto: 'স্বয়ংক্রিয়'
+  label_playback_quality_auto: 'স্বয়ংক্রিয়',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'স্টার্টআপের পরে অনুসন্ধান সূচী তৈরি করুন'
 }

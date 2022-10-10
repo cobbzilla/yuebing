@@ -384,5 +384,6 @@ export default {
   label_next_page: 'sonraki sonuç sayfası',
   label_results_info: '{{ start }} ile {{ end }} toplam {{ total }} sonuçları gösteriliyor',
   label_playback_quality: 'oynatma kalitesi',
-  label_playback_quality_auto: 'otomatik'
+  label_playback_quality_auto: 'otomatik',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Başlangıçta arama dizinleri oluşturun'
 }

@@ -384,5 +384,6 @@ export default {
   label_next_page: 'trang kết quả tiếp theo',
   label_results_info: 'hiển thị kết quả từ {{ start }} đến {{ end }} trong tổng số {{ total }}',
   label_playback_quality: 'Chất lượng phát lại',
-  label_playback_quality_auto: 'tự động'
+  label_playback_quality_auto: 'tự động',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Xây dựng chỉ mục tìm kiếm khi khởi động'
 }

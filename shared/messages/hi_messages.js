@@ -384,5 +384,6 @@ export default {
   label_next_page: 'परिणाम का अगला पृष्ठ',
   label_results_info: 'कुल {{ start }} का {{ end }} से {{ total }} परिणाम दिखा रहा है',
   label_playback_quality: 'प्लेबैक गुणवत्ता',
-  label_playback_quality_auto: 'स्वचालित'
+  label_playback_quality_auto: 'स्वचालित',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'स्टार्टअप पर सर्च इंडेक्स बनाएं'
 }

@@ -384,5 +384,6 @@ export default {
   label_next_page: '결과의 다음 페이지',
   label_results_info: '총 {{ start }} 중 {{ end }} 에서 {{ total }} 까지의 결과 표시',
   label_playback_quality: '재생 품질',
-  label_playback_quality_auto: '자동적 인'
+  label_playback_quality_auto: '자동적 인',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: '시작 시 검색 색인 작성'
 }

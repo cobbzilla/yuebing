@@ -384,5 +384,6 @@ export default {
   label_next_page: '下一页结果',
   label_results_info: '显示结果{{ start }}到{{ end }}总计{{ total }}',
   label_playback_quality: '播放质量',
-  label_playback_quality_auto: '自动的'
+  label_playback_quality_auto: '自动的',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: '启动时建立搜索索引'
 }

@@ -384,5 +384,6 @@ export default {
   label_next_page: 'ukurasa unaofuata wa matokeo',
   label_results_info: 'kuonyesha matokeo {{ start }} kwa {{ end }} ya jumla ya {{ total }}',
   label_playback_quality: 'Ubora wa kucheza',
-  label_playback_quality_auto: 'moja kwa moja'
+  label_playback_quality_auto: 'moja kwa moja',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Unda faharisi za utaftaji unapoanza'
 }

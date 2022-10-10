@@ -384,5 +384,6 @@ export default {
   label_next_page: 'susunod na pahina ng mga resulta',
   label_results_info: 'nagpapakita ng mga resulta {{ start }} hanggang {{ end }} ng {{ total }} kabuuan',
   label_playback_quality: 'Kalidad ng pag-playback',
-  label_playback_quality_auto: 'awtomatiko'
+  label_playback_quality_auto: 'awtomatiko',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Bumuo ng mga index ng paghahanap sa pagsisimula'
 }

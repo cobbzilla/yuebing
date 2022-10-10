@@ -384,5 +384,6 @@ export default {
   label_next_page: 'następna strona wyników',
   label_results_info: 'pokazuje wyniki od {{ start }} do {{ end }} z {{ total }} łącznie',
   label_playback_quality: 'Jakość odtwarzania',
-  label_playback_quality_auto: 'automatyczny'
+  label_playback_quality_auto: 'automatyczny',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Buduj indeksy wyszukiwania po uruchomieniu'
 }

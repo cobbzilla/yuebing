@@ -314,6 +314,7 @@ export default {
   admin_label_privateConfig_redis_flushAtStartup: 'Flush at startup?',
   admin_label_privateConfig_redis_listingCacheExpiration: 'Listing cache expiration',
   admin_label_privateConfig_redis_manifestCacheExpiration: 'Manifest cache expiration',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Build search indexes upon startup',
   admin_label_privateConfig_media: 'Media Support',
   admin_label_privateConfig_media_video: 'Video',
   admin_label_privateConfig_media_video_allowedCommands: 'Allowed commands',

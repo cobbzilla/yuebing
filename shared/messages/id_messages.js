@@ -384,5 +384,6 @@ export default {
   label_next_page: 'halaman hasil berikutnya',
   label_results_info: 'menunjukkan hasil {{ start }} hingga {{ end }} dari {{ total }} total',
   label_playback_quality: 'Kualitas pemutaran',
-  label_playback_quality_auto: 'otomatis'
+  label_playback_quality_auto: 'otomatis',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Bangun indeks pencarian saat startup'
 }

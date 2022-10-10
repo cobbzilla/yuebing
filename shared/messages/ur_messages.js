@@ -384,5 +384,6 @@ export default {
   label_next_page: 'نتائج کا اگلا صفحہ',
   label_results_info: 'کل {{ start }} کے {{ end }} سے {{ total }} تک نتائج دکھا رہے ہیں۔',
   label_playback_quality: 'پلے بیک کا معیار',
-  label_playback_quality_auto: 'خودکار'
+  label_playback_quality_auto: 'خودکار',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'شروع ہونے پر تلاش کے اشاریہ جات بنائیں'
 }

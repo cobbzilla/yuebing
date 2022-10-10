@@ -384,5 +384,6 @@ export default {
   label_next_page: 'shafi na gaba na sakamako',
   label_results_info: 'yana nuna sakamako {{ start }} zuwa {{ end }} na {{ total }} duka',
   label_playback_quality: 'ingancin sake kunnawa',
-  label_playback_quality_auto: 'atomatik'
+  label_playback_quality_auto: 'atomatik',
+  admin_label_privateConfig_redis_buildSearchIndexAtStartup: 'Gina fihirisar bincike yayin farawa'
 }
