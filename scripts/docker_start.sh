@@ -10,7 +10,7 @@ die () {
 
 ulimit -f unlimited
 
-if [ -n "${YB_WORK_SYS_REDIS}" ] && [ "${YB_WORK_SYS_REDIS}" = "true" ] ; then
+if [ -n "${YB_WORK_SYS_REDIS_PORT}" ] ; then
   echo 1>&2 " *** Not starting docker redis"
 else
   echo 1>&2 " *** Starting redis, date=$(date)..."
