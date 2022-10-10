@@ -68,3 +68,6 @@ Your value for ${req}: "
     echo "export ${req}=${ENV_VALUE}" >> "${ENV_TEMP}" || die "Error writing ${req} env var to ${ENV_TEMP}"
   fi
 done
+
+echo "export MOBILETTO_REDIS_HOST=${YB_REDIS_HOST:-127.0.0.1}" >> "${ENV_TEMP}"
+echo "export MOBILETTO_REDIS_PORT=${YB_REDIS_PORT:-6379}" >> "${ENV_TEMP}"
