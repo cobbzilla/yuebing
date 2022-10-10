@@ -14,7 +14,7 @@
       v-model="noCacheField"
       :label="messages.label_noCache"
     />
-    <div v-if="searchError" class="error">
+    <div v-if="searchError && (searchError.toString().toLowerCase() !== 'forbidden') && (isPublic || user)" class="error">
       {{ typeof searchError === 'object' ? JSON.stringify(searchError) : `${searchError}` }}
     </div>
   </div>
@@ -39,6 +39,7 @@ export default {
     ...mapState(['publicConfig', 'browserLocale', 'searching', 'searchError']),
     ...mapState('user', ['user']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    isPublic () { return this.publicConfig && this.publicConfig.public === true },
     noCache () {
       return this.$route.query.c
         ? +this.$route.query.c
