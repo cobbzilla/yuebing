@@ -33,6 +33,12 @@ if [[ -z "${YB_WORK_DIR}" ]] ; then
   die "Error initializing YB_WORK_DIR"
 fi
 
+SYS_REDIS_PORT=""
+if [ $(cd "${BASE_DIR}" && grep -c YB_WORK_SYS_REDIS .env) -gt 0 ] && [ "$(. .env && echo -n "${YB_WORK_SYS_REDIS}")" = "true" ] ; then
+  R_PORT=$(. .env && echo -n "${YB_REDIS_PORT:-6379}" | awk '{print $1}')
+  SYS_REDIS_PORT="-p ${R_PORT}:${R_PORT}"
+fi
+
 cd "${BASE_DIR}" && \
   docker run -it \
     --ulimit nofile=500000:500000 \
@@ -40,5 +46,5 @@ cd "${BASE_DIR}" && \
     --mount type=bind,source="${YB_WORK_DIR}",target=/usr/src/scratch \
     --env-file <(grep -v YB_WORK_DIR .env | sed -e 's/^export //' ; echo ; echo "YB_WORK_DIR=/usr/src/scratch") \
     --env HOST=0.0.0.0 \
-    --publish 127.0.0.1:3000:3000/tcp \
+    --publish 127.0.0.1:3000:3000/tcp ${SYS_REDIS_PORT} \
     "${DOCKER_NAME}" ${COMMAND}
