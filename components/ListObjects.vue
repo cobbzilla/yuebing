@@ -34,7 +34,7 @@
                   {{ messages.info_search_no_results_unverified.parseMessage({ email: user.email }) }}
                 </h2>
               </div>
-              <div v-else-if="isPublic && tagWeights && tagWeights.length > 0">
+              <div v-else-if="(isPublic || loggedIn) && tagWeights && tagWeights.length > 0">
                 <vue-word-cloud
                   id="searchTagCloud"
                   :words="tagWeights"
@@ -156,7 +156,8 @@ export default {
       return typeof this.$route.query.s === 'undefined' || this.$route.query.s.length === 0
     },
     hasPrev () { return this.searchResults && this.searchResults.start && this.searchResults.start > 0 },
-    hasNext () { return this.searchResults && this.searchResults.more }
+    hasNext () { return this.searchResults && this.searchResults.more },
+    loggedIn () { return this.user && this.userStatus && this.user.email }
   },
   created () {
     if (!this.tagWeights) {
