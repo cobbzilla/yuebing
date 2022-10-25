@@ -2,7 +2,7 @@ Yuebing 🥮
  =========
  Yuebing software ce ta buɗe tushen don gudanar da rukunin yanar gizon bidiyo.
 
- Yana canza bidiyon tushen ku ta atomatik zuwa tsarin yawo na zamani, wanda za'a iya kunnawa akan kowane
+ Yuebing yana shirya bidiyon tushen ku ta atomatik don yawo ta amfani da tsarin zamani, ana iya kunna kowane
  na'urar akan kowane haɗi.
 
  Yuebing na iya amfani da Amazon S3 ko Backblaze B2 don ajiyar baya, kuma yana da fasali da yawa.
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Karanta wannan a wani yare
  An fassara wannan takaddar README.md, ta [hokeylization](https://github.com/cobbzilla/hokeylization), zuwa
- harsuna daban-daban.
+ harsuna da yawa.
 
  Na tabbata ba cikakke ba ne, amma ina fata ya fi komai kyau!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Wahayi
  A bara mahaifiyata ta kashe ton na lokaci (da kuɗi!) don tsarawa da ƙididdige tarihin tsoffin bidiyon iyali.
- Wasu daga cikin waɗannan sun tsufa sosai, sun koma shekarun 1950. Kyawawan gaske, kayan gargajiya.
+ Wasu daga cikin waɗannan sun tsufa sosai, sun koma shekarun 1940. Kyawawan gaske, kayan gargajiya.
 
  Mun so mu raba waɗannan tare da dangi, amma *ba tare da manyan fasaha ba*.
  Tafi tare da "free" bidiyo hosting daga babban mai bada ya kasance daga tebur.
@@ -77,19 +77,18 @@ Yuebing 🥮
  ba zai iya samun wani abu mai kyau ba. Na kalli ayyukan buɗaɗɗen maɓuɓɓuka da yawa, ba na faɗi wanne ne saboda duk suna da su
  mahara kyalli flaws.
 
- Don haka, na yanke shawarar, yaya wuya zai kasance? Kuna waya da S3 zuwa ffmpeg, sanya gaba mai kyau na zamani a kai, kuma kun gama,
- dama?
-
- .... uh, OK, Ina kusan wata guda a wannan lokacin, amma yana da ban sha'awa sosai! Ina fatan ku ma ku ji daɗinsa!
+ Don haka, na yanke shawarar, yaya wuya zai kasance? Kuna waya da S3 zuwa ffmpeg, sanya gaba mai kyau na zamani a kai, kuma kun gama, daidai?
+ ... da kyau, uh, yawancin aikin ya ɗauki watanni biyu, amma yana da daɗi da yawa don tsayawa!
+ Ina fatan ku ma ku ji daɗinsa!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Bari mu sanya gidajen yanar gizon bidiyo masu ɗaukar nauyin kansu su zama masu sauƙi!**</a>
 
  ## Fasali
- * Canza guga S3 tare da bidiyo zuwa rukunin bidiyo mai zaman kansa don abokai da dangi!
+ * Canza guga na bidiyo S3 (ko B2) zuwa rukunin bidiyo na sirri don abokai da dangi!
  * Haɗa buckets guda ɗaya ko fiye da ke ba da fayilolin mai jarida danye
  * Yuebing yana canza bidiyo ta atomatik zuwa sabon tsari kuma mafi yawan tallafi don yawowar bitrate (DASH/mp4)
- * Duk bayanan ana adana su a cikin bokitin da aka nufa, don haka zaku iya lalata akwati ku kawo daga baya
- * Yana da amfani don gudana da farko akan ingantaccen misali na CPU don canjin farko, sannan kunna \
+ * DUKAN bayanan ana adana su a cikin bokitin manufa; za ku iya lalata uwar garken a duk lokacin da kuke so
+ * Yana da amfani don yin aiki da farko akan ingantaccen misali na CPU don fassarar farko, sannan kunna \
     on a much cheaper instance for 24/7/365 service.
  * Yana goyan bayan cikakken rufaffen ajiya (rufin-gefen app, kawai kuna da maɓallin)
  * Koyaushe karantawa-kawai daga tushe, kar a taɓa canza abun ciki na tushe
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Cikakken duniya! Duk rubutun ganuwa mai amfani (da sauran ƙayyadaddun ƙayyadaddun yanki) sun fito ne daga albarkatun gida
  * [Taimakawa al'umma, fassara Yuebing zuwa sababbin harsuna!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Cikakkun na'ura mai sarrafa na'ura
- **Abu daya da na yarda har yanzu yana tsotsa:**
- * "Kwarewar ganowa" ta ƙunshi * kewaya matsayi na directory *. Wannan shine *super gurgu**, amma sai mun fara wani wuri.
- * Za mu ƙara goyan baya don bincike mai kyau, yiwa alama, shawarwari, da sauransu.
- * Yayi, a zahiri akwai abubuwa da yawa waɗanda har yanzu suna tsotsewa, kuma wannan software ce gabaɗaya 1.0, amma kayan da ke aiki suna da kyau sosai.
+ * Bincika bidiyo ta keywords, ko daga alamar girgije
  <a href="https://www.patreon.com/cobbzilla">**Zan zo nan ba da jimawa ba tare da tallafin ku**</a> :
  * Taimako don ƙarin nau'ikan kafofin watsa labarai (audio, hotuna, da sauransu)
  * Mai amfani da aka ɗora kafofin watsa labarai
+ * So, rabawa, da sanarwar turawa
  * Sabon "nau'in tushe": Wani misalin Yuebing!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Binciken kafofin watsa labarai
  * Kalli kafofin watsa labarai!
  * Ƙara sharhi, gyara sharhin ku, share sharhinku!
- * Kamar kafofin watsa labarai (mai zuwa nan ba da jimawa ba!)
  * Gayyato abokai
- * Saita harshe zuwa Ingilishi ko Faransanci (da fatan za a ƙara ƙarin fassarori!)
  * Gyara bayanan asusu
  * Share asusu, yana goge duk abin da ke naku gami da duk maganganun ku
 
@@ -132,12 +127,12 @@ Yuebing 🥮
  * Duba jerin gwano mai canza labarai da matsayin aiki
  * Fara sabon bincike da fihirisar kafofin watsa labarai na tushe
 
- ## Fasalolin Sabar/Baya
+ ## Sabar uwar garken/baya
  * Abokai na wucin gadi, ZERO naci / mahimman bayanai ana adana su a cikin akwati.
  * Duk bayanai masu ɗorewa suna dagewa a cikin bokitin manufa; da gaske, muna amfani da S3 azaman bayanan mu
  * Bincike ta atomatik na bokitin tushe don sabbin kafofin watsa labarai
  * Ƙara kuma canza metadata mai jarida; Ana adana gyare-gyare a kan guga mai zuwa, kafofin watsa labarai ba a taɓa yin gyare-gyare ba
- * Bayanan martaba masu daidaitawa. Default shine DASH-mp4 tare da bayanan martaba guda huɗu, yana tallafawa matakan inganci daga mafi kyawun-HD zuwa babban-ƙananan bandwidth
+ * Bayanan martaba masu daidaitawa. Default shine DASH-mp4 tare da ƙananan bayanan martaba masu yawa
  * Ana kuma adana bayanan asusun mai amfani a kan guga mai zuwa, rufaffen zaɓi na zaɓi
  * Idan an canza maɓallin ɓoyewa, mai gudanarwa na iya ƙaura masu amfani zuwa sabon maɓalli tare da na'ura mai sarrafa yanar gizo
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  ƙarin bayani kan yadda ake saita abubuwa.
 
  ### nginx config
- Yuebing app ne kawai na Nuxt, kuma yana tsammanin za ku saka nginx (ko wasu sabar gidan yanar gizo) a ciki.
+ Yuebing app ne na Nuxt, kuma yana tsammanin zaku saka nginx (ko wasu sabar gidan yanar gizo) a ciki.
  gabansa don sarrafa SSL, iyakance ƙimar idan an buƙata, da sauransu.
 
  Idan kana amfani da nginx, ga [samfurin config](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) zaka iya amfani dashi.

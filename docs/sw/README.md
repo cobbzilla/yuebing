@@ -2,10 +2,10 @@ Yuebing 🥮
  ===========
  Yuebing ni programu huria ya kuendesha tovuti za upangishaji video.
 
- Hubadilisha kiotomatiki video zako chanzo hadi umbizo la kisasa la utiririshaji, linaloweza kuchezwa kwenye yoyote
+ Yuebing hutayarisha video zako chanzo kiotomatiki kwa ajili ya kutiririsha kwa kutumia fomati za kisasa, zinazoweza kuchezwa kwenye yoyote
  kifaa juu ya uhusiano wowote.
 
- Yuebing inaweza kutumia Amazon S3 au Backblaze B2 kwa hifadhi ya nyuma, na ina vipengele vingi vya kina.
+ Yuebing inaweza kutumia Amazon S3 au Backblaze B2 kwa uhifadhi wa nyuma, na ina vipengele vingi vya kina.
 
  ### Chanzo
  * [yuebing kwenye GitHub](https://github.com/cobbzilla/yuebing)
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Soma hii kwa lugha nyingine
  Hati hii ya README.md imetafsiriwa, kupitia [hokeylization](https://github.com/cobbzilla/hokeylization), hadi
- lugha nyingi tofauti.
+ lugha nyingi.
 
  Nina hakika sio kamili, lakini natumai ni bora kuliko chochote!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ##Msukumo
  Mwaka jana mama yangu alitumia toni ya muda (na pesa!) kupanga na kuweka kumbukumbu kwenye kumbukumbu ya video za zamani za familia.
- Baadhi yao walikuwa wazee sana, kuanzia miaka ya 1950. Mambo mazuri sana, ya classic.
+ Baadhi yao walikuwa wazee sana, wakirudi nyuma katika miaka ya 1940. Mambo mazuri sana, ya classic.
 
  Tulitaka kushiriki haya kwa faragha na familia, lakini *sio kwa teknolojia kubwa*.
  Kwenda na upangishaji video "bila malipo" kutoka kwa mtoa huduma mkuu hakukuwa kwenye jedwali.
@@ -77,19 +77,18 @@ Yuebing 🥮
  hakuweza kupata chochote cha heshima. Niliangalia miradi kadhaa ya chanzo wazi, sisemi ni ipi kwa sababu wote walikuwa nayo
  kasoro nyingi za kung'aa.
 
- Kwa hiyo, niliamua, inaweza kuwa ngumu kiasi gani? Unaweka waya S3 kwa ffmpeg, weka sehemu ya mbele ya kisasa juu yake, na umemaliza,
- haki?
-
- .... uh, Sawa, nina karibu mwezi mmoja kwa wakati huu, lakini inafurahisha sana! Natumai unaifurahia pia!
+ Kwa hiyo, niliamua, inaweza kuwa ngumu kiasi gani? Unaweka waya S3 kwa ffmpeg, unaweka sehemu ya mbele ya kisasa juu yake, na umemaliza, sivyo?
+ ... vizuri, uh, sehemu kubwa ya kazi ilichukua miezi kadhaa, lakini ilikuwa ya kufurahisha sana kuacha!
+ Natumai unaifurahia pia!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Hebu tufanye tovuti za kujipangia video kuwa rahisi sana!**</a>
 
  ## Vipengele
- * Badilisha ndoo ya S3 na video kuwa tovuti ya kibinafsi ya video kwa marafiki na familia!
+ * Badilisha ndoo ya S3 (au B2) ya video kuwa tovuti ya kibinafsi ya video kwa marafiki na familia!
  * Unganisha ndoo moja au zaidi chanzo kutoa faili ghafi za midia
  * Yuebing hupitisha msimbo wa video kiotomatiki hadi umbizo la hivi punde zaidi na linalotumika zaidi kwa utiririshaji wa kasi wa biti (DASH/mp4)
- * Data ZOTE huhifadhiwa kwenye ndoo lengwa, ili uweze kuharibu kontena na kuileta baadaye
- * Inafaa kwa kukimbia mwanzoni kwa mfano ulioboreshwa na CPU kwa mabadiliko ya awali, kisha endesha \
+ * Data ZOTE zimehifadhiwa kwenye ndoo ya marudio; unaweza kuharibu seva wakati wowote unapotaka
+ * Inafaa kwa kukimbia mwanzoni kwa mfano ulioboreshwa na CPU kwa upitishaji wa awali, kisha endesha \
     on a much cheaper instance for 24/7/365 service.
  * Inasaidia uhifadhi uliosimbwa kikamilifu (usimbuaji wa upande wa programu, ni wewe tu una ufunguo)
  * Soma-tu kutoka kwa chanzo kila wakati, usiwahi kubadilisha maudhui ya chanzo
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Kikamilifu kimataifa! Maandishi yote yanayoonekana na mtumiaji (na mambo mengine mahususi ya eneo) hutoka kwenye rasilimali zilizojanibishwa
  * [Isaidie jumuiya, kutafsiri Yuebing hadi lugha mpya!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Kiweko kamili cha msimamizi
- **Jambo moja ninakiri bado ni mbaya kabisa:**
- * "Ugunduzi" unajumuisha *kuelekeza safu ya saraka*. Hiyo ni ** super lame **, lakini ilibidi kuanza mahali fulani.
- * Tutaongeza usaidizi kwa utafutaji sahihi, kuweka lebo, mapendekezo, n.k.
- * Sawa, kuna mambo mengi ambayo bado ni duni, na hii ni programu 1.0 kabisa, lakini mambo yanayofanya kazi ni mazuri sana.
+ * Tafuta video kwa maneno muhimu, au kutoka kwa wingu la lebo
  <a href="https://www.patreon.com/cobbzilla">**Inakuja hivi karibuni kwa usaidizi wako**</a> :
  * Msaada kwa aina zaidi za media (sauti, picha, nk)
  * Midia iliyopakiwa na mtumiaji
+ * Vipendwa, vilivyoshirikiwa na arifa zinazotumwa na programu hata wakati huitumii
  * "Aina mpya ya chanzo": Mfano mwingine wa Yuebing!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Vinjari media
  * Tazama media!
  * Ongeza maoni, hariri maoni yako, futa maoni yako!
- * Kama media (inakuja hivi karibuni!)
  * Alika marafiki
- * Weka lugha kwa Kiingereza au Kifaransa (tafadhali ongeza tafsiri zaidi!)
  * Badilisha maelezo ya akaunti
  * Futa akaunti, futa kila kitu ambacho ni chako pamoja na maoni yako yote
 
@@ -137,7 +132,7 @@ Yuebing 🥮
  * Data yote ya kudumu inadumishwa kwenye ndoo lengwa; kimsingi, tunatumia S3 kama hifadhidata yetu
  * Uchanganuzi wa mara kwa mara wa ndoo ya chanzo kwa media mpya
  * Ongeza na ubadilishe metadata ya media; Uhariri huhifadhiwa kwenye ndoo lengwa, midia ya chanzo haibadilishwi kamwe
- * Profaili za pato zinazoweza kusanidiwa. Chaguomsingi ni DASH-mp4 yenye wasifu nne, zinazosaidia viwango vya ubora kutoka bora kuliko HD hadi kipimo data cha chini sana.
+ * Profaili za pato zinazoweza kusanidiwa. Chaguo-msingi ni DASH-mp4 iliyo na maelezo mafupi mengi
  * Maelezo ya akaunti ya mtumiaji pia huhifadhiwa kwenye ndoo lengwa, yakiwa yamesimbwa kwa hiari
  * Ufunguo wa usimbaji ukibadilishwa, msimamizi anaweza kuhamisha watumiaji hadi kwa ufunguo mpya kwa kutumia kiweko cha msimamizi wa wavuti
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  habari zaidi juu ya jinsi ya kuweka mambo.
 
  ### nginx usanidi
- Yuebing ni programu ya Nuxt tu, na inatarajia kuwa utaweka nginx (au seva nyingine ya wavuti) ndani.
+ Yuebing ni programu ya Nuxt, na inatarajia kuwa utaweka nginx (au seva nyingine ya wavuti) ndani.
  mbele yake kushughulikia SSL, kupunguza kiwango ikiwa inahitajika, nk.
 
  Ikiwa unatumia nginx, hapa kuna [sampuli ya usanidi](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) unaweza kutumia.

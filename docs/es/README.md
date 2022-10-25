@@ -2,10 +2,10 @@ Yuebing 🥮
  ==========
  Yuebing es un software de código abierto para ejecutar sitios de alojamiento de videos.
 
- Transcodifica automáticamente sus videos de origen en formatos de transmisión modernos, reproducibles en cualquier
+ Yuebing prepara automáticamente sus videos de origen para la transmisión utilizando formatos modernos, reproducibles en cualquier
  dispositivo a través de cualquier conexión.
 
- Yuebing puede usar Amazon S3 o Backblaze B2 para el almacenamiento de back-end y tiene muchas funciones avanzadas.
+ Yuebing puede usar Amazon S3 o Backblaze B2 para el almacenamiento de back-end y tiene muchas características avanzadas.
 
  ### Fuente
  * [yuebing en GitHub](https://github.com/cobbzilla/yuebing)
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Leer esto en otro idioma
  Este documento README.md ha sido traducido, a través de [hokeylization](https://github.com/cobbzilla/hokeylization), a
- muchos idiomas diferentes.
+ muchos lenguajes.
 
  Estoy seguro de que no es perfecto, ¡pero espero que sea mejor que nada!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Inspiración
  El año pasado, mi madre dedicó mucho tiempo (¡y dinero!) a organizar y digitalizar un archivo de viejos videos familiares.
- Algunos de estos eran bastante antiguos, se remontan a la década de 1950. Cosas realmente hermosas, clásicas.
+ Algunos de estos eran bastante antiguos, remontándose a la década de 1940. Cosas realmente hermosas, clásicas.
 
  Queríamos compartir esto en privado con la familia, pero *no con la gran tecnología*.
  Ir con alojamiento de video "gratuito" de un proveedor importante estaba fuera de la mesa.
@@ -77,24 +77,23 @@ Yuebing 🥮
  No pude encontrar nada decente. Observé varios proyectos de código abierto, no digo cuáles porque todos tenían
  múltiples defectos evidentes.
 
- Entonces, decidí, ¿qué tan difícil podría ser? Conectas S3 a ffmpeg, le pones una interfaz decentemente moderna y listo.
- ¿Correcto?
-
- .... uh, está bien, ya llevo un mes en este punto, ¡pero es demasiado divertido! ¡Espero que tú también lo disfrutes!
+ Entonces, decidí, ¿qué tan difícil podría ser? Conectas S3 a ffmpeg, le pones una interfaz decentemente moderna y listo, ¿verdad?
+ ... bueno, la mayor parte del trabajo tomó un par de meses, ¡pero fue demasiado divertido para detenerlo!
+ ¡Espero que tú también lo disfrutes!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**¡Hagamos que los sitios de videos con alojamiento propio sean súper fáciles!**</a>
 
  ## Características
- * ¡Transforme un cubo S3 con videos en un sitio de videos privado para amigos y familiares!
+ * ¡Transforme un cubo de videos S3 (o B2) en un sitio de videos privado para amigos y familiares!
  * Conecte uno o más cubos de origen que proporcionen archivos de medios sin procesar
  * Yuebing transcodifica automáticamente los videos de origen al formato más reciente y más compatible para la transmisión de tasa de bits adaptativa (DASH/mp4)
- * TODOS los datos se almacenan en el cubo de destino, por lo que puede destruir el contenedor y recuperarlo más tarde
- * Útil para ejecutar inicialmente en una instancia optimizada para CPU para la transformación inicial, luego ejecutar \
+ * TODOS los datos se almacenan en el cubo de destino; puedes destruir el servidor cuando quieras
+ * Útil para ejecutar inicialmente en una instancia optimizada para CPU para la transcodificación inicial, luego ejecutar \
     on a much cheaper instance for 24/7/365 service.
  * Admite almacenamiento completamente encriptado (cifrado del lado de la aplicación, solo usted tiene la clave)
  * Siempre de solo lectura desde la fuente, nunca cambie el contenido de la fuente
  * Escaneo automático y manual de nuevos archivos multimedia
- * ¿Qué tan privadas o públicas quieres las cosas? Yuebing apoya:
+ * ¿Qué tan privadas o públicas quieres las cosas? Yuebing admite:
  * Totalmente privado: no se muestran medios a usuarios anónimos, solo las direcciones de correo electrónico aprobadas pueden crear cuentas
  * Semiprivado: no se muestran medios a usuarios anónimos, pero cualquiera puede crear una cuenta de usuario
  * Público con registro limitado: los medios se muestran a todos, pero solo las direcciones de correo electrónico aprobadas pueden crear cuentas
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Totalmente internacionalizado! Todo el texto visible para el usuario (y otras cosas específicas de la configuración regional) proviene de recursos localizados
  * [¡Ayuda a la comunidad, traduce Yuebing a nuevos idiomas!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Consola de administración con todas las funciones
- * **Una cosa que admito que todavía apesta:**
- * La "experiencia de descubrimiento" consiste en *navegar por una jerarquía de directorios*. Eso es **muy patético**, pero teníamos que empezar por algún lado.
- * Agregaremos soporte para búsqueda adecuada, etiquetado, sugerencias, etc.
- * OK, en realidad hay muchas cosas que todavía apestan, y este es un software totalmente 1.0, pero las cosas que funcionan son geniales
+ * Buscar videos por palabras clave o desde la nube de etiquetas
  * <a href="https://www.patreon.com/cobbzilla">**Próximamente con su apoyo**</a> :
  * Soporte para más tipos de medios (audio, imágenes, etc.)
  * Medios subidos por el usuario
+ * Me gusta, acciones y notificaciones push
  * Nuevo "tipo de fuente": ¡Otra instancia de Yuebing!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Explorar medios
  * ¡Mira los medios!
  * ¡Agregue un comentario, edite su comentario, elimine su comentario!
- * Dar me gusta a los medios (¡próximamente!)
  * Invitar a amigos
- * Establezca el idioma en inglés o francés (¡agregue más traducciones!)
  * Editar información de la cuenta
  * Eliminar cuenta, elimina todo lo que es tuyo, incluidos todos tus comentarios.
 
@@ -137,7 +132,7 @@ Yuebing 🥮
  * Todos los datos duraderos se conservan en el depósito de destino; esencialmente, usamos S3 como nuestra base de datos
  * Escaneo periódico automático del cubo de origen para nuevos medios
  * Agregar y cambiar metadatos de medios; las ediciones se almacenan en el depósito de destino, los medios de origen nunca se modifican
- * Perfiles de salida configurables. El valor predeterminado es DASH-mp4 con cuatro perfiles, que admite niveles de calidad desde mejor que HD hasta ancho de banda muy bajo
+ * Perfiles de salida configurables. El valor predeterminado es DASH-mp4 con múltiples subperfiles
  * La información de la cuenta de usuario también se almacena en el depósito de destino, opcionalmente encriptada
  * Si se cambia la clave de cifrado, el administrador puede migrar a los usuarios a la nueva clave con la consola de administración web
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  más información sobre cómo configurar las cosas.
 
  ### configuración nginx
- Yuebing es simplemente una aplicación de Nuxt y espera que coloque nginx (o algún otro servidor web) en
+ Yuebing es una aplicación de Nuxt y espera que coloque nginx (o algún otro servidor web) en
  frente a él para manejar SSL, limitación de velocidad si es necesario, etc.
 
  Si usa nginx, aquí hay una [configuración de muestra](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) que puede usar.

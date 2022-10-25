@@ -2,10 +2,10 @@ Yuebing 🥮
 ==========
 Yuebing is open-source software for running video hosting sites.
 
-It automatically transcodes your source videos into modern streaming formats, playable on any
+Yuebing automatically prepares your source videos for streaming using modern formats, playable on any
 device over any connection.
 
-Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many advanced features.
+Yuebing can use either Amazon S3 or Backblaze B2 for backend storage, and has many advanced features.
 
 ### Source
 * [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
@@ -14,7 +14,7 @@ Yuebing can use Amazon S3 or Backblaze B2 for backend storage, and has many adva
 
 # Read this in another language
 This README.md document has been translated, via [hokeylization](https://github.com/cobbzilla/hokeylization), into
-many different languages.
+many languages.
 
 I'm certain it's not perfect, but I hope it's better than nothing!
 
@@ -55,7 +55,7 @@ I'm certain it's not perfect, but I hope it's better than nothing!
 
 ## Inspiration
 Last year my mom spent a ton of time (and money!) to organize and digitize an archive of old family videos.
-Some of these were quite old, going back to the 1950's. Really beautiful, classic stuff.
+Some of these were quite old, going back to the 1940's. Really beautiful, classic stuff.
 
 We wanted to privately share these with family, but *not with big tech*.
 Going with "free" video hosting from a major provider was off the table.
@@ -77,19 +77,18 @@ I took a couple of weeks to survey what was out there. I started to greatly rela
 could find nothing decent. I looked at several open source projects, I'm not saying which because they all had
 multiple glaring flaws.
 
-So, I decided, how hard could it be? You wire up S3 to ffmpeg, put a decently modern frontend on it, and you're done,
-right?
-
-.... uh, OK, I'm about a month in at this point, but it's too much fun! I hope you enjoy it too!
+So, I decided, how hard could it be? You wire up S3 to ffmpeg, put a decently modern frontend on it, and you're done, right?
+... well, uh, the bulk of the work took a couple of months, but it was too much fun to stop!
+I hope you enjoy it too!
 
 ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Let's make self-hosting video sites super-easy!**</a>
 
 ## Features
-* Transform an S3 bucket with videos into a private video site for friends and family!
+* Transform an S3 (or B2) bucket of videos into a private video site for friends and family!
 * Connect one or more source buckets providing raw media files
 * Yuebing automatically transcodes source videos into the latest and most widely supported format for adaptive bitrate streaming (DASH/mp4)
-* ALL data is stored in the destination bucket, so you can destroy the container and bring it up later
-  * Useful for running initially on a CPU-optimized instance for the initial transformation, then run \
+* ALL data is stored in the destination bucket; you can destroy the server whenever you want
+  * Useful for running initially on a CPU-optimized instance for the initial transcoding, then run \
     on a much cheaper instance for 24/7/365 service.
   * Supports fully encrypted storage (app-side encryption, only you have the key)
   * Always read-only from source, never change source content
@@ -102,13 +101,11 @@ right?
 * Fully internationalized! All user-visible text (and other locale-specific stuff) comes from localized resources
   * [Help the community, translate Yuebing to new languages!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
 * Full-featured admin console
-* **One thing I admit still totally sucks:**
-  * The "discovery experience" consists in *navigating a directory hierarchy*. That is **super lame**, but we had to start somewhere.
-  * We will add support for proper search, tagging, suggestions, etc.
-  * OK, there's actually a lot of stuff that still sucks, and this is totally 1.0 software, but the stuff that works is pretty cool
+* Search videos by keywords, or from tag cloud
 * <a href="https://www.patreon.com/cobbzilla">**Coming soon with your support**</a>:
   * Support for more media types (audio, images, etc)
   * User-uploaded media
+  * Likes, shares, and push notifications
   * New "source type": Another Yuebing instance!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ right?
 * Browse media
 * Watch media!
 * Add a comment, edit your comment, delete your comment!
-* Like media (coming soon!)
 * Invite friends
-* Set language to English or French (please add more translations!)
 * Edit account info
 * Delete account, deletes everything that's yours including all your comments
 
@@ -137,7 +132,7 @@ right?
   * All durable data is persisted in the destination bucket; essentially, we use S3 as our database
 * Automatic periodic scanning of source bucket for new media
 * Add and change media metadata; edits are stored on the destination bucket, source media is never modified
-* Configurable output profiles. Default is DASH-mp4 with four profiles, supporting quality levels from better-than-HD to super-low bandwidth
+* Configurable output profiles. Default is DASH-mp4 with multiple sub-profiles
 * User account info is also stored on the destination bucket, optionally encrypted
   * If encryption key is changed, admin can migrate users to the new key with web admin console
 
@@ -187,7 +182,7 @@ If you plan on running Yuebing for a while, see the [configuration docs](https:/
 more info on how to set things up.
 
 ### nginx config
-Yuebing is merely a Nuxt app, and expects that you'll put nginx (or some other web server) in
+Yuebing is a Nuxt app, and expects that you'll put nginx (or some other web server) in
 front of it to handle SSL, rate limiting if needed, etc.
 
 If you're using nginx, here is a [sample config](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) you can use.

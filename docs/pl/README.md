@@ -2,7 +2,7 @@ Yuebing
  ===========
  Yuebing to oprogramowanie typu open source do prowadzenia witryn do hostingu wideo.
 
- Automatycznie transkoduje filmy źródłowe do nowoczesnych formatów strumieniowych, które można odtwarzać na dowolnym
+ Yuebing automatycznie przygotowuje filmy źródłowe do przesyłania strumieniowego przy użyciu nowoczesnych formatów, które można odtwarzać na dowolnym
  urządzenie przez dowolne połączenie.
 
  Yuebing może używać Amazon S3 lub Backblaze B2 do przechowywania zaplecza i ma wiele zaawansowanych funkcji.
@@ -14,7 +14,7 @@ Yuebing
 
  # Przeczytaj to w innym języku
  Ten dokument README.md został przetłumaczony przez [hokeylization](https://github.com/cobbzilla/hokeylization) na
- wiele różnych języków.
+ wiele języków.
 
  Jestem pewien, że nie jest idealny, ale mam nadzieję, że to lepsze niż nic!
 
@@ -55,7 +55,7 @@ Yuebing
 
  ## Inspiracja
  W zeszłym roku moja mama poświęciła mnóstwo czasu (i pieniędzy!) na uporządkowanie i digitalizację archiwum starych rodzinnych filmów.
- Niektóre z nich były dość stare, sięgały lat pięćdziesiątych. Naprawdę piękne, klasyczne rzeczy.
+ Niektóre z nich były dość stare, sięgały lat czterdziestych. Naprawdę piękne, klasyczne rzeczy.
 
  Chcieliśmy podzielić się nimi prywatnie z rodziną, ale *nie z wielkimi technologiami*.
  Wybór „darmowego” hostingu wideo od dużego dostawcy nie wchodził w grę.
@@ -77,19 +77,18 @@ Yuebing
  nie mogłem znaleźć nic przyzwoitego. Przyjrzałem się kilku projektom open source, nie mówię które, bo wszystkie miały
  wiele rażących wad.
 
- Więc zdecydowałem, jak trudne może być? Podłączasz S3 do ffmpeg, umieszczasz na nim przyzwoicie nowoczesny frontend i gotowe,
- prawo?
-
- .... uh, OK, mam już około miesiąca, ale to za dużo zabawy! Mam nadzieję, że Tobie też się spodoba!
+ Więc zdecydowałem, jak trudne może być? Podłączasz S3 do ffmpeg, umieszczasz na nim przyzwoicie nowoczesny frontend i gotowe, prawda?
+ ... cóż, większość pracy zajęła kilka miesięcy, ale przerwanie było zbyt zabawne!
+ Mam nadzieję, że Tobie też się spodoba!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Zróbmy bardzo proste hostowanie witryn wideo!**</a>
 
  ## Cechy
- * Przekształć wiadro S3 z filmami w prywatną witrynę wideo dla przyjaciół i rodziny!
+ * Przekształć wiadro filmów S3 (lub B2) w prywatną witrynę wideo dla przyjaciół i rodziny!
  * Połącz jeden lub więcej zasobników źródłowych z plikami raw media
  * Yuebing automatycznie transkoduje filmy źródłowe do najnowszego i najszerzej obsługiwanego formatu do przesyłania strumieniowego z adaptacyjną szybkością transmisji bitów (DASH/mp4)
- * WSZYSTKIE dane są przechowywane w wiadrze docelowym, więc możesz zniszczyć pojemnik i przywołać go później
- * Przydatne do uruchomienia początkowo na instancji zoptymalizowanej pod kątem procesora w celu początkowej transformacji, a następnie uruchom \
+ * WSZYSTKIE dane są przechowywane w zasobniku docelowym; możesz zniszczyć serwer, kiedy tylko chcesz
+ * Przydatne do uruchomienia początkowo na instancji zoptymalizowanej pod kątem procesora w celu wstępnego transkodowania, a następnie uruchom \
     on a much cheaper instance for 24/7/365 service.
  * Obsługuje w pełni zaszyfrowane przechowywanie (szyfrowanie po stronie aplikacji, tylko Ty masz klucz)
  * Zawsze tylko do odczytu ze źródła, nigdy nie zmieniaj zawartości źródła
@@ -102,13 +101,11 @@ Yuebing
  * W pełni umiędzynarodowiony! Cały tekst widoczny dla użytkownika (i inne rzeczy specyficzne dla lokalizacji) pochodzi ze zlokalizowanych zasobów
  * [Pomóż społeczności, przetłumacz Yuebing na nowe języki!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * W pełni funkcjonalna konsola administracyjna
- * **Jedna rzecz, którą przyznaję, nadal jest do bani:**
- * „Doświadczenie odkrywania” polega na *nawigowaniu po hierarchii katalogów*. To jest **super kiepskie**, ale gdzieś musieliśmy zacząć.
- * Dodamy obsługę prawidłowego wyszukiwania, tagowania, sugestii itp.
- * OK, tak naprawdę jest wiele rzeczy, które wciąż są do bani, a to jest oprogramowanie w wersji 1.0, ale to, co działa, jest całkiem fajne
+ * Wyszukuj filmy według słów kluczowych lub z chmury tagów
  * <a href="https://www.patreon.com/cobbzilla">**Wkrótce z Twoim wsparciem**</a> :
  * Obsługa większej liczby typów mediów (audio, obrazy itp.)
  * Media przesłane przez użytkownika
+ * Polubienia, udostępnienia i powiadomienia push
  * Nowy "typ źródła": kolejna instancja Yuebinga!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing
  * Przeglądaj multimedia
  * Oglądaj media!
  * Dodaj komentarz, edytuj swój komentarz, usuń swój komentarz!
- * Polub media (wkrótce!)
  * Zaprosić przyjaciół
- * Ustaw język na angielski lub francuski (proszę dodać więcej tłumaczeń!)
  * Edytuj informacje o koncie
  * Usuń konto, usuwa wszystko, co należy do Ciebie, w tym wszystkie komentarze
 
@@ -137,7 +132,7 @@ Yuebing
  * Wszystkie trwałe dane są utrwalane w zasobniku docelowym; zasadniczo używamy S3 jako naszej bazy danych
  * Automatyczne okresowe skanowanie zasobnika źródłowego w poszukiwaniu nowych mediów
  * Dodawaj i zmieniaj metadane mediów; zmiany są przechowywane w zasobniku docelowym, media źródłowe nigdy nie są modyfikowane
- * Konfigurowalne profile wyjściowe. Domyślnie jest to DASH-mp4 z czterema profilami, obsługującymi poziomy jakości od lepszej niż HD do bardzo niskiej przepustowości
+ * Konfigurowalne profile wyjściowe. Domyślnie jest to DASH-mp4 z wieloma podprofilami
  * Informacje o koncie użytkownika są również przechowywane w zasobniku docelowym, opcjonalnie zaszyfrowane
  * Jeśli klucz szyfrowania zostanie zmieniony, administrator może przenieść użytkowników do nowego klucza za pomocą konsoli administratora sieci
 
@@ -187,7 +182,7 @@ Yuebing
  więcej informacji na temat konfiguracji.
 
  ### konfiguracja nginx
- Yuebing to tylko aplikacja Nuxt i oczekuje, że umieścisz nginx (lub inny serwer WWW) w
+ Yuebing to aplikacja Nuxt i oczekuje, że umieścisz nginx (lub inny serwer WWW) w
  z przodu, aby obsługiwać SSL, w razie potrzeby ograniczanie szybkości itp.
 
  Jeśli używasz nginx, oto [przykładowa konfiguracja](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf), której możesz użyć.

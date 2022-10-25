@@ -2,10 +2,10 @@ Yuebing 🥮
  ==========
  Ang Yuebing ay open-source na software para sa pagpapatakbo ng mga site ng pagho-host ng video.
 
- Awtomatiko nitong tina-transcode ang iyong mga pinagmulang video sa mga modernong format ng streaming, na puwedeng laruin sa alinman
+ Awtomatikong inihahanda ng Yuebing ang iyong mga pinagmulang video para sa streaming gamit ang mga modernong format, na puwedeng laruin sa alinman
  device sa anumang koneksyon.
 
- Maaaring gamitin ni Yuebing ang Amazon S3 o Backblaze B2 para sa backend na storage, at mayroong maraming advanced na feature.
+ Maaaring gamitin ni Yuebing ang alinman sa Amazon S3 o Backblaze B2 para sa backend na storage, at mayroong maraming advanced na feature.
 
  ### Pinagmulan
  * [yuebing sa GitHub](https://github.com/cobbzilla/yuebing)
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Basahin ito sa ibang wika
  Itong README.md na dokumento ay isinalin, sa pamamagitan ng [hokeylization](https://github.com/cobbzilla/hokeylization), sa
- maraming iba't ibang wika.
+ maraming wika.
 
  Natitiyak kong hindi ito perpekto, ngunit umaasa ako na ito ay mas mahusay kaysa sa wala!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Inspirasyon
  Noong nakaraang taon ang aking ina ay gumugol ng isang toneladang oras (at pera!) upang ayusin at i-digitize ang isang archive ng mga lumang video ng pamilya.
- Ang ilan sa mga ito ay medyo matanda na, pabalik noong dekada ng 1950. Talagang maganda, klasikong bagay.
+ Ang ilan sa mga ito ay medyo matanda na, pabalik noong dekada ng 1940. Talagang maganda, klasikong bagay.
 
  Gusto naming pribadong ibahagi ang mga ito sa pamilya, ngunit *hindi sa malaking teknolohiya*.
  Ang pagpunta sa "libre" na pagho-host ng video mula sa isang pangunahing provider ay hindi dapat gawin.
@@ -77,19 +77,18 @@ Yuebing 🥮
  walang mahanap na disente. Tumingin ako sa ilang mga open source na proyekto, hindi ko sinasabi kung alin dahil mayroon silang lahat
  maramihang nakasisilaw na mga bahid.
 
- Kaya, nagpasya ako, gaano kahirap ito? I-wire up mo ang S3 sa ffmpeg, ilagay ang isang disenteng modernong frontend dito, at tapos ka na,
- tama ba?
-
- .... uh, OK, halos isang buwan na ako sa puntong ito, pero sobrang saya! Sana ay mag-enjoy ka rin!
+ Kaya, nagpasya ako, gaano kahirap ito? I-wire up mo ang S3 sa ffmpeg, lagyan mo ito ng disenteng modernong frontend, at tapos ka na, di ba?
+ ... well, uh, ang karamihan sa trabaho ay tumagal ng ilang buwan, ngunit napakasayang huminto!
+ Sana ay mag-enjoy ka rin!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Gawin nating napakadali ang pagho-host ng mga video site!**</a>
 
  ## Mga Tampok
- * Ibahin ang anyo ng isang S3 bucket na may mga video sa isang pribadong video site para sa mga kaibigan at pamilya!
+ * Ibahin ang isang S3 (o B2) bucket ng mga video sa isang pribadong video site para sa mga kaibigan at pamilya!
  * Ikonekta ang isa o higit pang source bucket na nagbibigay ng mga raw media file
  * Awtomatikong tina-transcode ni Yuebing ang mga source na video sa pinakabago at pinaka-tinatanggap na suportadong format para sa adaptive bitrate streaming (DASH/mp4)
- * LAHAT ng data ay nakaimbak sa patutunguhang bucket, kaya maaari mong sirain ang lalagyan at ilabas ito sa ibang pagkakataon
- * Kapaki-pakinabang para sa pagtakbo sa simula sa isang instance na na-optimize ng CPU para sa paunang pagbabago, pagkatapos ay patakbuhin ang \
+ * LAHAT ng data ay naka-imbak sa destination bucket; maaari mong sirain ang server kahit kailan mo gusto
+ * Kapaki-pakinabang para sa pagtakbo sa simula sa isang CPU-optimized na halimbawa para sa paunang transcoding, pagkatapos ay patakbuhin ang \
     on a much cheaper instance for 24/7/365 service.
  * Sinusuportahan ang ganap na naka-encrypt na storage (app-side encryption, ikaw lang ang may susi)
  * Palaging read-only mula sa pinagmulan, huwag baguhin ang pinagmulang nilalaman
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Ganap na internationalized! Lahat ng text na nakikita ng user (at iba pang bagay na partikular sa lokal) ay nagmumula sa mga lokal na mapagkukunan
  * [Tulungan ang komunidad, isalin ang Yuebing sa mga bagong wika!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Full-feature na admin console
- * **Isang bagay na inaamin ko ay nakakainis pa rin:**
- * Ang "karanasan sa pagtuklas" ay binubuo sa *pag-navigate sa isang hierarchy ng direktoryo*. Iyon ay **sobrang pilay**, ngunit kailangan naming magsimula sa isang lugar.
- * Magdaragdag kami ng suporta para sa tamang paghahanap, pag-tag, mga mungkahi, atbp.
- * OK, mayroon talagang maraming bagay na hindi maganda, at ito ay ganap na 1.0 software, ngunit ang mga bagay na gumagana ay medyo cool.
+ * Maghanap ng mga video sa pamamagitan ng mga keyword, o mula sa tag cloud
  * <a href="https://www.patreon.com/cobbzilla">**Malapit na kasama ang iyong suporta**</a> :
  * Suporta para sa higit pang mga uri ng media (audio, mga imahe, atbp)
  * Media na na-upload ng user
+ * Mga like, share, at push notification
  * Bagong "uri ng pinagmulan": Isa pang halimbawa ng Yuebing!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Mag-browse ng media
  * Manood ng media!
  * Magdagdag ng komento, i-edit ang iyong komento, tanggalin ang iyong komento!
- * Tulad ng media (paparating na!)
  * Mag-imbita ng mga kaibigan
- * Itakda ang wika sa Ingles o Pranses (mangyaring magdagdag ng higit pang mga pagsasalin!)
  * I-edit ang impormasyon ng account
  * Tanggalin ang account, tanggalin ang lahat ng bagay na sa iyo kasama ang lahat ng iyong mga komento
 
@@ -134,10 +129,10 @@ Yuebing 🥮
 
  ## Mga tampok ng server/backend
  * Transient-friendly, ZERO persistent/important data ay naka-store sa loob ng container.
- * Ang lahat ng matibay na data ay nananatili sa patutunguhang bucket; esensyal, ginagamit namin ang S3 bilang aming database
+ * Ang lahat ng matibay na data ay nananatili sa patutunguhang bucket; mahalagang, ginagamit namin ang S3 bilang aming database
  * Awtomatikong pana-panahong pag-scan ng source bucket para sa bagong media
  * Magdagdag at baguhin ang media metadata; Ang mga pag-edit ay iniimbak sa patutunguhang bucket, ang pinagmulang media ay hindi kailanman nababago
- * Nako-configure ang mga profile ng output. Ang default ay DASH-mp4 na may apat na profile, na sumusuporta sa mga antas ng kalidad mula sa mas mahusay kaysa sa HD hanggang sa napakababang bandwidth
+ * Nako-configure ang mga profile ng output. Ang default ay DASH-mp4 na may maraming sub-profile
  * Ang impormasyon ng user account ay nakaimbak din sa patutunguhang bucket, opsyonal na naka-encrypt
  * Kung binago ang encryption key, maaaring ilipat ng admin ang mga user sa bagong key gamit ang web admin console
 
@@ -184,10 +179,10 @@ Yuebing 🥮
  Patakbuhin `yuebing` at ipo-prompt kang ipasok ang minimal na config kapag nagsimula ito.
 
  Kung plano mong patakbuhin ang Yuebing saglit, tingnan ang [configuration docs](https://github.com/cobbzilla/yuebing/blob/master/docs/config.md) para sa
- higit pang impormasyon sa kung paano i-set up ang mga bagay.
+ higit pang impormasyon kung paano i-set up ang mga bagay.
 
  ### nginx config
- Ang Yuebing ay isang Nuxt app lamang, at inaasahan na maglalagay ka ng nginx (o ilang iba pang web server) sa
+ Ang Yuebing ay isang Nuxt app, at inaasahan na maglalagay ka ng nginx (o ilang iba pang web server) sa
  harap nito upang pangasiwaan ang SSL, paglilimita sa rate kung kinakailangan, atbp.
 
  Kung gumagamit ka ng nginx, narito ang isang [sample config](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) na magagamit mo.
@@ -198,7 +193,7 @@ Yuebing 🥮
  dalawang taon bago umiral ang isang partikular na sikat na serbisyo ng video!
 
  Ang kahalili ni Oolong ay pinangalanang Yuebing. Si Yuebing ay hindi kasing sikat ni Oolong, ngunit mahalaga ba iyon?
- Gayunpaman, nagtagumpay si Yuebing.
+ Nagtagumpay naman si Yuebing.
 
  Marahil mas kawili-wili, ang ibig sabihin ng yuebing ay [mooncake](https://en.wikipedia.org/wiki/Mooncake)
  (Intsik: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),

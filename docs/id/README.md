@@ -2,7 +2,7 @@ Yuebing
  ===========
  Yuebing adalah perangkat lunak sumber terbuka untuk menjalankan situs hosting video.
 
- Ini secara otomatis mentranskode video sumber Anda ke format streaming modern, dapat dimainkan di mana saja
+ Yuebing secara otomatis menyiapkan video sumber Anda untuk streaming menggunakan format modern, dapat diputar di mana saja
  perangkat melalui koneksi apa pun.
 
  Yuebing dapat menggunakan Amazon S3 atau Backblaze B2 untuk penyimpanan backend, dan memiliki banyak fitur lanjutan.
@@ -14,7 +14,7 @@ Yuebing
 
  # Baca ini dalam bahasa lain
  Dokumen README.md ini telah diterjemahkan, melalui [hokeylization](https://github.com/cobbzilla/hokeylization), ke
- banyak bahasa yang berbeda.
+ banyak bahasa.
 
  Saya yakin itu tidak sempurna, tapi saya harap ini lebih baik daripada tidak sama sekali!
 
@@ -55,7 +55,7 @@ Yuebing
 
  ## Inspirasi
  Tahun lalu ibu saya menghabiskan banyak waktu (dan uang!) untuk mengatur dan mendigitalkan arsip video keluarga lama.
- Beberapa di antaranya cukup tua, kembali ke tahun 1950-an. Cantik banget, barang klasik.
+ Beberapa di antaranya cukup tua, kembali ke tahun 1940-an. Cantik banget, barang klasik.
 
  Kami ingin membagikan ini secara pribadi dengan keluarga, tetapi *tidak dengan teknologi besar*.
  Pergi dengan hosting video "gratis" dari penyedia utama tidak cocok.
@@ -77,19 +77,18 @@ Yuebing
  tidak dapat menemukan apa pun yang layak. Saya melihat beberapa proyek open source, saya tidak mengatakan yang mana karena semuanya memiliki
  banyak kekurangan yang mencolok.
 
- Jadi, saya memutuskan, seberapa sulitkah itu? Anda menyambungkan S3 ke ffmpeg, memasang frontend modern yang sopan, dan selesai,
- Baik?
-
- .... eh, oke, saya sekitar satu bulan pada saat ini, tapi itu terlalu menyenangkan! Saya harap Anda menikmatinya juga!
+ Jadi, saya memutuskan, seberapa sulitkah itu? Anda memasang S3 ke ffmpeg, memasang frontend modern yang sopan, dan selesai, bukan?
+ ... well, eh, sebagian besar pekerjaan memakan waktu beberapa bulan, tapi terlalu menyenangkan untuk dihentikan!
+ Saya harap Anda menikmatinya juga!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Mari buat situs video yang menghosting sendiri menjadi sangat mudah!**</a>
 
  ## Fitur
- * Ubah ember S3 dengan video menjadi situs video pribadi untuk teman dan keluarga!
+ * Ubah kumpulan video S3 (atau B2) menjadi situs video pribadi untuk teman dan keluarga!
  * Hubungkan satu atau lebih ember sumber yang menyediakan file media mentah
  * Yuebing secara otomatis mentranskode video sumber ke format terbaru dan paling banyak didukung untuk streaming bitrate adaptif (DASH/mp4)
- * SEMUA data disimpan di ember tujuan, sehingga Anda dapat menghancurkan wadah dan membawanya nanti
- * Berguna untuk menjalankan awalnya pada instance yang dioptimalkan CPU untuk transformasi awal, lalu jalankan \
+ * SEMUA data disimpan di ember tujuan; Anda dapat menghancurkan server kapan pun Anda mau
+ * Berguna untuk menjalankan awalnya pada instance yang dioptimalkan CPU untuk transcoding awal, kemudian jalankan \
     on a much cheaper instance for 24/7/365 service.
  * Mendukung penyimpanan terenkripsi sepenuhnya (enkripsi sisi aplikasi, hanya Anda yang memiliki kuncinya)
  * Selalu baca-saja dari sumber, jangan pernah mengubah konten sumber
@@ -102,13 +101,11 @@ Yuebing
  * Sepenuhnya diinternasionalkan! Semua teks yang terlihat oleh pengguna (dan hal-hal khusus lokal lainnya) berasal dari sumber daya yang dilokalkan
  * [Bantu komunitas, terjemahkan Yuebing ke bahasa baru!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Konsol admin berfitur lengkap
- * **Satu hal yang saya akui masih benar-benar menyebalkan:**
- * "Pengalaman penemuan" terdiri dari *menavigasi hierarki direktori*. Itu **sangat lumpuh**, tapi kami harus memulai dari suatu tempat.
- * Kami akan menambahkan dukungan untuk pencarian yang tepat, penandaan, saran, dll.
- * Oke, sebenarnya ada banyak hal yang masih menyebalkan, dan ini benar-benar perangkat lunak 1.0, tetapi hal-hal yang berfungsi cukup keren
+ * Cari video dengan kata kunci, atau dari tag cloud
  * <a href="https://www.patreon.com/cobbzilla">**Segera hadir dengan dukungan Anda**</a> :
  * Dukungan untuk lebih banyak jenis media (audio, gambar, dll)
  * Media yang diunggah pengguna
+ * Suka, bagikan, dan pemberitahuan push
  * "Jenis sumber" baru: Contoh Yuebing lainnya!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing
  * Jelajahi media
  * Perhatikan media!
  * Tambahkan komentar, edit komentar Anda, hapus komentar Anda!
- * Suka media (segera hadir!)
  * Mengundang teman-teman
- * Atur bahasa ke bahasa Inggris atau Prancis (tambahkan lebih banyak terjemahan!)
  * Edit info akun
  * Hapus akun, hapus semua milik Anda termasuk semua komentar Anda
 
@@ -137,7 +132,7 @@ Yuebing
  * Semua data tahan lama disimpan di bucket tujuan; pada dasarnya, kami menggunakan S3 sebagai database kami
  * Pemindaian berkala otomatis ember sumber untuk media baru
  * Tambahkan dan ubah metadata media; suntingan disimpan di keranjang tujuan, media sumber tidak pernah dimodifikasi
- * Profil keluaran yang dapat dikonfigurasi. Standarnya adalah DASH-mp4 dengan empat profil, mendukung tingkat kualitas dari yang lebih baik dari HD hingga bandwidth super rendah
+ * Profil keluaran yang dapat dikonfigurasi. Defaultnya adalah DASH-mp4 dengan beberapa sub-profil
  * Info akun pengguna juga disimpan di keranjang tujuan, dienkripsi secara opsional
  * Jika kunci enkripsi diubah, admin dapat memigrasikan pengguna ke kunci baru dengan konsol admin web
 
@@ -187,7 +182,7 @@ Yuebing
  info lebih lanjut tentang cara mengatur segalanya.
 
  ### konfigurasi nginx
- Yuebing hanyalah aplikasi Nuxt, dan berharap Anda akan memasukkan nginx (atau server web lain)
+ Yuebing adalah aplikasi Nuxt, dan mengharapkan Anda memasukkan nginx (atau server web lain)
  depannya untuk menangani SSL, pembatasan tarif jika diperlukan, dll.
 
  Jika Anda menggunakan nginx, berikut adalah [konfigurasi sampel](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) yang dapat Anda gunakan.

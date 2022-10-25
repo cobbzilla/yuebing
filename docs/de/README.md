@@ -2,10 +2,10 @@ Yuebing 🥮
  ==========
  Yuebing ist eine Open-Source-Software zum Ausführen von Video-Hosting-Sites.
 
- Es transkodiert Ihre Quellvideos automatisch in moderne Streaming-Formate, die auf jedem abspielbar sind
+ Yuebing bereitet Ihre Quellvideos automatisch für das Streaming mit modernen Formaten vor, die auf jedem abspielbar sind
  Gerät über eine beliebige Verbindung.
 
- Yuebing kann Amazon S3 oder Backblaze B2 als Backend-Speicher verwenden und verfügt über viele erweiterte Funktionen.
+ Yuebing kann entweder Amazon S3 oder Backblaze B2 als Backend-Speicher verwenden und verfügt über viele erweiterte Funktionen.
 
  ### Quelle
  * [yuebing auf GitHub](https://github.com/cobbzilla/yuebing)
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Lesen Sie dies in einer anderen Sprache
  Dieses README.md-Dokument wurde über [hokeylization](https://github.com/cobbzilla/hokeylization) übersetzt in
- viele verschiedene Sprachen.
+ viele Sprachen.
 
  Ich bin sicher, es ist nicht perfekt, aber ich hoffe, es ist besser als nichts!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Inspiration
  Letztes Jahr hat meine Mutter eine Menge Zeit (und Geld!) aufgewendet, um ein Archiv alter Familienvideos zu organisieren und zu digitalisieren.
- Einige davon waren ziemlich alt und gingen bis in die 1950er Jahre zurück. Wirklich schöne, klassische Sachen.
+ Einige davon waren ziemlich alt und gingen bis in die 1940er Jahre zurück. Wirklich schöne, klassische Sachen.
 
  Wir wollten diese privat mit der Familie teilen, aber *nicht mit Big Tech*.
  Sich für „kostenloses“ Videohosting eines großen Anbieters zu entscheiden, war vom Tisch.
@@ -77,19 +77,18 @@ Yuebing 🥮
  konnte nichts anständiges finden. Ich habe mir mehrere Open-Source-Projekte angesehen, ich sage nicht welche, weil sie alle hatten
  mehrere eklatante Mängel.
 
- Also entschied ich, wie schwer könnte es sein? Sie verkabeln S3 mit ffmpeg, setzen ein anständig modernes Frontend darauf und fertig.
- Rechts?
-
- .... äh, OK, ich bin jetzt ungefähr einen Monat dabei, aber es macht zu viel Spaß! Ich hoffe es gefällt euch auch!
+ Also entschied ich, wie schwer könnte es sein? Sie verdrahten S3 mit ffmpeg, setzen ein anständig modernes Frontend darauf und Sie sind fertig, richtig?
+ ... nun, äh, der Großteil der Arbeit hat ein paar Monate gedauert, aber es hat zu viel Spaß gemacht, um aufzuhören!
+ Ich hoffe es gefällt euch auch!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Machen wir das Selbsthosten von Videoseiten supereinfach!**</a>
 
  ## Merkmale
- * Verwandeln Sie einen S3-Bucket mit Videos in eine private Video-Site für Freunde und Familie!
+ * Verwandeln Sie einen S3- (oder B2-) Eimer mit Videos in eine private Video-Site für Freunde und Familie!
  * Verbinden Sie einen oder mehrere Quell-Buckets, die Rohmediendateien bereitstellen
  * Yuebing transkodiert Quellvideos automatisch in das neueste und am weitesten verbreitete unterstützte Format für Streaming mit adaptiver Bitrate (DASH/mp4)
- * ALLE Daten werden im Ziel-Bucket gespeichert, sodass Sie den Container zerstören und später wieder aufrufen können
- * Nützlich, um zunächst auf einer CPU-optimierten Instanz für die anfängliche Transformation ausgeführt zu werden und dann \
+ * ALLE Daten werden im Ziel-Bucket gespeichert; Sie können den Server zerstören, wann immer Sie wollen
+ * Nützlich für die anfängliche Ausführung auf einer CPU-optimierten Instanz für die anfängliche Transcodierung, dann Ausführen von \
     on a much cheaper instance for 24/7/365 service.
  * Unterstützt vollständig verschlüsselte Speicherung (App-seitige Verschlüsselung, nur Sie haben den Schlüssel)
  * Immer schreibgeschützt von der Quelle, Quellinhalt niemals ändern
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Vollständig internationalisiert! Alle für den Benutzer sichtbaren Texte (und andere gebietsschemaspezifische Inhalte) stammen aus lokalisierten Ressourcen
  * [Helfen Sie der Community, übersetzen Sie Yuebing in neue Sprachen!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Voll funktionsfähige Verwaltungskonsole
- * **Eines muss ich zugeben, immer noch total scheiße:**
- * Die "Entdeckungserfahrung" besteht darin, *in einer Verzeichnishierarchie zu navigieren*. Das ist **super lahm**, aber irgendwo mussten wir ja anfangen.
- * Wir werden Unterstützung für die richtige Suche, Tagging, Vorschläge usw. hinzufügen.
- * OK, es gibt tatsächlich eine Menge Zeug, das immer noch scheiße ist, und dies ist völlig 1.0-Software, aber das Zeug, das funktioniert, ist ziemlich cool
+ * Suchen Sie Videos nach Schlüsselwörtern oder aus der Tag-Cloud
  * <a href="https://www.patreon.com/cobbzilla">**Demnächst mit Ihrer Unterstützung**</a> :
  * Unterstützung für mehr Medientypen (Audio, Bilder usw.)
  * Vom Benutzer hochgeladene Medien
+ * Likes, Shares und Push-Benachrichtigungen
  * Neuer "Quellentyp": Eine weitere Yuebing-Instanz!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Medien durchsuchen
  * Medien ansehen!
  * Fügen Sie einen Kommentar hinzu, bearbeiten Sie Ihren Kommentar, löschen Sie Ihren Kommentar!
- * Like-Medien (bald verfügbar!)
  * Freunde einladen
- * Stellen Sie die Sprache auf Englisch oder Französisch ein (bitte weitere Übersetzungen hinzufügen!)
  * Kontoinformationen bearbeiten
  * Konto löschen, löscht alles, was Ihnen gehört, einschließlich aller Ihrer Kommentare
 
@@ -137,7 +132,7 @@ Yuebing 🥮
  * Alle dauerhaften Daten werden im Ziel-Bucket gespeichert; Im Wesentlichen verwenden wir S3 als unsere Datenbank
  * Automatisches regelmäßiges Scannen des Quell-Buckets nach neuen Medien
  * Medienmetadaten hinzufügen und ändern; Änderungen werden im Ziel-Bucket gespeichert, Quellmedien werden nie geändert
- * Konfigurierbare Ausgabeprofile. Standard ist DASH-mp4 mit vier Profilen, die Qualitätsstufen von besser als HD bis zu extrem niedriger Bandbreite unterstützen
+ * Konfigurierbare Ausgabeprofile. Standard ist DASH-mp4 mit mehreren Unterprofilen
  * Benutzerkontoinformationen werden auch im Ziel-Bucket gespeichert, optional verschlüsselt
  * Wenn der Verschlüsselungsschlüssel geändert wird, kann der Administrator Benutzer mit der Web-Admin-Konsole auf den neuen Schlüssel migrieren
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  weitere Informationen zur Einrichtung.
 
  ### nginx-Konfiguration
- Yuebing ist lediglich eine Nuxt-App und erwartet, dass Sie nginx (oder einen anderen Webserver) installieren
+ Yuebing ist eine Nuxt-App und erwartet, dass Sie nginx (oder einen anderen Webserver) installieren
  davor, um SSL zu handhaben, bei Bedarf eine Ratenbegrenzung usw.
 
  Wenn Sie nginx verwenden, finden Sie hier eine [Beispielkonfiguration](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf), die Sie verwenden können.

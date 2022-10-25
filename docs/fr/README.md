@@ -2,7 +2,7 @@ Yuebing 🥮
  ==========
  Yuebing est un logiciel open source pour l'exécution de sites d'hébergement vidéo.
 
- Il transcode automatiquement vos vidéos source dans des formats de streaming modernes, lisibles sur n'importe quel
+ Yuebing prépare automatiquement vos vidéos source pour le streaming en utilisant des formats modernes, lisibles sur n'importe quel
  périphérique sur n'importe quelle connexion.
 
  Yuebing peut utiliser Amazon S3 ou Backblaze B2 pour le stockage backend et possède de nombreuses fonctionnalités avancées.
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Lire ceci dans une autre langue
  Ce document README.md a été traduit, via [hokeylization](https://github.com/cobbzilla/hokeylization), en
- beaucoup de langues différentes.
+ de nombreuses langues.
 
  Je suis certain que ce n'est pas parfait, mais j'espère que c'est mieux que rien !
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Inspiration
  L'année dernière, ma mère a passé beaucoup de temps (et d'argent !) à organiser et à numériser une archive de vieilles vidéos familiales.
- Certains d'entre eux étaient assez anciens, remontant aux années 1950. Vraiment beau, des trucs classiques.
+ Certains d'entre eux étaient assez anciens, remontant aux années 1940. Vraiment beau, des trucs classiques.
 
  Nous voulions les partager en privé avec la famille, mais *pas avec les grandes technologies*.
  Aller avec l'hébergement vidéo "gratuit" d'un fournisseur majeur n'était pas envisageable.
@@ -77,19 +77,18 @@ Yuebing 🥮
  n'a rien pu trouver de convenable. J'ai regardé plusieurs projets open source, je ne dis pas lesquels car ils avaient tous
  multiples défauts flagrants.
 
- Alors, j'ai décidé, à quel point cela pouvait-il être difficile? Vous connectez S3 à ffmpeg, mettez une interface moderne et décente dessus, et vous avez terminé,
- droit?
-
- .... euh, OK, j'en suis à environ un mois à ce stade, mais c'est trop amusant ! J'espère que vous l'apprécierez aussi !
+ Alors, j'ai décidé, à quel point cela pouvait-il être difficile? Vous connectez S3 à ffmpeg, y mettez une interface moderne et vous avez terminé, n'est-ce pas ?
+ ... eh bien, euh, le gros du travail a pris quelques mois, mais c'était trop amusant pour s'arrêter !
+ J'espère que vous l'apprécierez aussi !
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">** Rendons les sites vidéo auto-hébergés super faciles ! **</a>
 
  ## Fonctionnalités
- * Transformez un bucket S3 avec des vidéos en un site vidéo privé pour vos amis et votre famille !
+ * Transformez un ensemble de vidéos S3 (ou B2) en un site vidéo privé pour vos amis et votre famille !
  * Connectez un ou plusieurs buckets sources fournissant des fichiers multimédias bruts
  * Yuebing transcode automatiquement les vidéos source dans le format le plus récent et le plus largement pris en charge pour le streaming à débit binaire adaptatif (DASH/mp4)
- * TOUTES les données sont stockées dans le compartiment de destination, vous pouvez donc détruire le conteneur et le récupérer plus tard
- * Utile pour s'exécuter initialement sur une instance optimisée pour le processeur pour la transformation initiale, puis exécutez \
+ * TOUTES les données sont stockées dans le compartiment de destination ; vous pouvez détruire le serveur quand vous le souhaitez
+ * Utile pour s'exécuter initialement sur une instance optimisée pour le processeur pour le transcodage initial, puis exécutez \
     on a much cheaper instance for 24/7/365 service.
  * Prend en charge le stockage entièrement crypté (cryptage côté application, vous seul avez la clé)
  * Toujours en lecture seule à partir de la source, ne modifiez jamais le contenu de la source
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Entièrement internationalisé ! Tout le texte visible par l'utilisateur (et d'autres éléments spécifiques aux paramètres régionaux) provient de ressources localisées
  * [Aidez la communauté, traduisez Yuebing dans de nouvelles langues !](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Console d'administration complète
- * **Une chose que j'admets est encore totalement nulle :**
- * "L'expérience de découverte" consiste à *naviguer dans une hiérarchie de répertoires*. C'est ** super boiteux **, mais nous devions commencer quelque part.
- * Nous ajouterons un support pour la recherche, le balisage, les suggestions, etc.
- * OK, il y a en fait beaucoup de trucs qui craignent encore, et c'est totalement un logiciel 1.0, mais ce qui fonctionne est plutôt cool
- * <a href="https://www.patreon.com/cobbzilla">**Bientôt disponible avec votre soutien**</a> :
+ * Rechercher des vidéos par mots-clés ou à partir d'un nuage de tags
+ * <a href="https://www.patreon.com/cobbzilla">**Bientôt disponible avec votre soutien**</a> :
  * Prise en charge de plusieurs types de médias (audio, images, etc.)
  * Médias téléchargés par l'utilisateur
+ * Aime, partage et notifications push
  * Nouveau "type de source" : une autre instance de Yuebing !
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Parcourir les médias
  * Regardez les médias !
  * Ajoutez un commentaire, modifiez votre commentaire, supprimez votre commentaire !
- * J'aime les médias (à venir !)
  * Inviter des amis
- * Réglez la langue sur l'anglais ou le français (veuillez ajouter plus de traductions !)
  * Modifier les informations de compte
  * Supprimer le compte, supprime tout ce qui vous appartient, y compris tous vos commentaires
 
@@ -137,7 +132,7 @@ Yuebing 🥮
  * Toutes les données durables sont conservées dans le compartiment de destination ; essentiellement, nous utilisons S3 comme base de données
  * Analyse périodique automatique du compartiment source pour les nouveaux médias
  * Ajouter et modifier les métadonnées des médias ; les modifications sont stockées sur le compartiment de destination, le média source n'est jamais modifié
- * Profils de sortie configurables. La valeur par défaut est DASH-mp4 avec quatre profils, prenant en charge des niveaux de qualité allant de mieux que la HD à une bande passante ultra-faible
+ * Profils de sortie configurables. La valeur par défaut est DASH-mp4 avec plusieurs sous-profils
  * Les informations de compte utilisateur sont également stockées sur le compartiment de destination, éventuellement cryptées
  * Si la clé de chiffrement est modifiée, l'administrateur peut migrer les utilisateurs vers la nouvelle clé avec la console d'administration Web
 
@@ -145,7 +140,7 @@ Yuebing 🥮
  Vous pouvez installer et exécuter `yuebing` via docker, npm ou directement depuis la source.
 
  ### Docker
- Si vous avez docker, vous pouvez commencer rapidement avec Yuebing :
+ Si vous avez docker, vous pouvez commencer rapidement avec Yuebing :
 
     docker run -it cobbzilla/yuebing
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  plus d'informations sur la façon de configurer les choses.
 
  ### configuration nginx
- Yuebing est simplement une application Nuxt et s'attend à ce que vous mettiez nginx (ou un autre serveur Web) dans
+ Yuebing est une application Nuxt et s'attend à ce que vous mettiez nginx (ou un autre serveur Web) dans
  devant pour gérer SSL, limiter le débit si nécessaire, etc.
 
  Si vous utilisez nginx, voici un [exemple de configuration](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) que vous pouvez utiliser.
@@ -203,7 +198,7 @@ Yuebing 🥮
  Peut-être plus intéressant, yuebing signifie [gâteau de lune](https://en.wikipedia.org/wiki/Mooncake)
  (Chinois : [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
  Japonais : [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)) ; les gâteaux de lune sont très savoureux et peuvent être trouvés dans
- une grande variété de saveurs et de styles. Savourez un style régional séculaire ou essayez un gâteau exotique de style contemporain
- boulangers qui explorent un territoire délicieusement inexploré ! Il y a vraiment un yuebing pour tout le monde !
+ une grande variété de saveurs et de styles. Savourez un style régional séculaire ou essayez un gâteau exotique de cuisine contemporaine
+ boulangers qui explorent un territoire délicieusement inexploré ! Il y a vraiment un yuebing pour tout le monde!
 
 </pre>

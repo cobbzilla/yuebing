@@ -2,7 +2,7 @@ Yuebing 🥮
  ==========
  Yuebing, video barındırma sitelerini çalıştırmak için açık kaynaklı bir yazılımdır.
 
- Kaynak videolarınızı otomatik olarak herhangi bir videoda oynatılabilen modern akış biçimlerine dönüştürür.
+ Yuebing, kaynak videolarınızı herhangi bir videoda oynatılabilen modern formatları kullanarak akış için otomatik olarak hazırlar.
  cihazı herhangi bir bağlantı üzerinden
 
  Yuebing, arka uç depolaması için Amazon S3 veya Backblaze B2'yi kullanabilir ve birçok gelişmiş özelliğe sahiptir.
@@ -14,7 +14,7 @@ Yuebing 🥮
 
  # Bunu başka bir dilde oku
  Bu README.md belgesi [hokeylization](https://github.com/cobbzilla/hokeylization) aracılığıyla şu dile çevrildi:
- birçok farklı dil.
+ birçok dil.
 
  Mükemmel olmadığına eminim ama umarım hiç yoktan iyidir!
 
@@ -55,7 +55,7 @@ Yuebing 🥮
 
  ## Esin
  Geçen yıl annem eski aile videolarından oluşan bir arşivi düzenlemek ve dijitalleştirmek için tonlarca zaman (ve para!) harcadı.
- Bunlardan bazıları 1950'lere kadar giden oldukça eskiydi. Gerçekten güzel, klasik şeyler.
+ Bunlardan bazıları oldukça eskiydi, 1940'lara kadar uzanıyordu. Gerçekten güzel, klasik şeyler.
 
  Bunları aileyle özel olarak paylaşmak istedik ama *büyük teknolojiyle değil*.
  Büyük bir sağlayıcıdan "ücretsiz" video barındırma hizmeti almak masanın dışındaydı.
@@ -77,19 +77,18 @@ Yuebing 🥮
  düzgün bir şey bulamadı. Birkaç açık kaynak projesine baktım, hangisi olduğunu söylemiyorum çünkü hepsinin
  birden fazla göze çarpan kusur.
 
- Ve karar verdim, ne kadar zor olabilir? S3'ü ffmpeg'e bağlarsınız, üzerine oldukça modern bir ön uç koyarsınız ve işiniz biter,
- Sağ?
-
- .... uh, tamam, bu noktada yaklaşık bir aydır, ama çok eğlenceli! Umarım siz de eğlenirsiniz!
+ Ve karar verdim, ne kadar zor olabilir? S3'ü ffmpeg'e bağladınız, üzerine oldukça modern bir ön uç koydunuz ve işiniz bitti, değil mi?
+ ...pekala, uh, işin büyük kısmı birkaç ay sürdü, ama durması çok eğlenceliydi!
+ Umarım siz de eğlenirsiniz!
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Kendi kendini barındıran video sitelerini çok kolay hale getirelim!**</a>
 
  ## Özellikler
- * Videolu bir S3 kovasını arkadaşlarınız ve aileniz için özel bir video sitesine dönüştürün!
+ * Bir S3 (veya B2) kova videosunu arkadaşlarınız ve aileniz için özel bir video sitesine dönüştürün!
  * Ham medya dosyaları sağlayan bir veya daha fazla kaynak paketi bağlayın
  * Yuebing, kaynak videoları otomatik olarak uyarlanabilir bit hızı akışı (DASH/mp4) için en son ve en yaygın olarak desteklenen biçime dönüştürür
- * TÜM veriler hedef kovada saklanır, böylece kabı yok edebilir ve daha sonra açabilirsiniz
- * İlk dönüşüm için başlangıçta CPU için optimize edilmiş bir örnekte çalıştırmak ve ardından çalıştırmak için kullanışlıdır \
+ * TÜM veriler hedef kovada saklanır; sunucuyu istediğin zaman yok edebilirsin
+ * İlk kod dönüştürme için başlangıçta CPU için optimize edilmiş bir örnekte çalıştırmak ve ardından çalıştırmak için kullanışlıdır \
     on a much cheaper instance for 24/7/365 service.
  * Tamamen şifrelenmiş depolamayı destekler (uygulama tarafı şifreleme, anahtar yalnızca sizdedir)
  * Her zaman kaynaktan salt okunur, kaynak içeriği asla değiştirmeyin
@@ -102,13 +101,11 @@ Yuebing 🥮
  * Tamamen uluslararasılaştırılmış! Kullanıcı tarafından görülebilen tüm metinler (ve diğer yerel ayara özgü şeyler) yerelleştirilmiş kaynaklardan gelir
  * [Topluluğa yardım edin, Yuebing'i yeni dillere çevirin!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Tam özellikli yönetici konsolu
- * **İtiraf ettiğim bir şey hâlâ tamamen berbat:**
- * "Keşif deneyimi", *bir dizin hiyerarşisinde gezinmeyi içerir*. Bu **çok kötü** ama bir yerden başlamamız gerekiyordu.
- * Uygun arama, etiketleme, öneriler vb. için destek ekleyeceğiz.
- * Tamam, aslında hala berbat olan bir sürü şey var ve bu tamamen 1.0 yazılım ama işe yarayan şeyler oldukça havalı
+ * Videoları anahtar kelimelere göre veya etiket bulutundan arayın
  * <a href="https://www.patreon.com/cobbzilla">**Desteklerinizle çok yakında**</a> :
  * Daha fazla medya türü için destek (ses, görüntü vb.)
  * Kullanıcı tarafından yüklenen medya
+ * Beğeniler, paylaşımlar ve push bildirimleri
  * Yeni "kaynak türü": Başka bir Yuebing örneği!
     * Federation between friendly instances: unified search, user accounts, etc
 
@@ -121,9 +118,7 @@ Yuebing 🥮
  * Medyaya göz atın
  * Medyayı izleyin!
  * Yorum ekleyin, yorumunuzu düzenleyin, yorumunuzu silin!
- * Medya gibi (çok yakında!)
  * Arkadaşları davet etmek
- * Dili İngilizce veya Fransızca olarak ayarlayın (lütfen daha fazla çeviri ekleyin!)
  * Hesap bilgilerini düzenle
  * Hesabı sil, tüm yorumların dahil sana ait olan her şeyi siler
 
@@ -137,7 +132,7 @@ Yuebing 🥮
  * Tüm kalıcı veriler hedef kovada kalıcıdır; aslında, veritabanımız olarak S3 kullanıyoruz
  * Yeni medya için kaynak kovanın otomatik periyodik taraması
  * Medya meta verilerini ekleyin ve değiştirin; düzenlemeler hedef klasörde saklanır, kaynak medya asla değiştirilmez
- * Yapılandırılabilir çıktı profilleri. Varsayılan, HD'den daha iyiden süper düşük bant genişliğine kadar kalite seviyelerini destekleyen dört profilli DASH-mp4'tür.
+ * Yapılandırılabilir çıktı profilleri. Varsayılan, birden çok alt profilli DASH-mp4'tür
  * Kullanıcı hesabı bilgileri, isteğe bağlı olarak şifrelenmiş olarak hedef kovada da saklanır
  * Şifreleme anahtarı değiştirilirse, yönetici web yönetici konsolu ile kullanıcıları yeni anahtara taşıyabilir
 
@@ -187,7 +182,7 @@ Yuebing 🥮
  şeylerin nasıl kurulacağı hakkında daha fazla bilgi.
 
  ### nginx yapılandırması
- Yuebing yalnızca bir Nuxt uygulamasıdır ve nginx'i (veya başka bir web sunucusunu)
+ Yuebing bir Nuxt uygulamasıdır ve nginx'i (veya başka bir web sunucusunu)
  SSL'yi işlemek, gerekirse hız sınırlaması vb.
 
  nginx kullanıyorsanız, kullanabileceğiniz bir [örnek yapılandırma](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) burada.
