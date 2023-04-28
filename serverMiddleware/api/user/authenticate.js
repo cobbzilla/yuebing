@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs'
+
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
@@ -11,7 +13,18 @@ export default {
     logger.info(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
-      if (typeof loginRequest.usernameOrEmail === 'string' && loginRequest.usernameOrEmail.length > 1) {
+      if (system.allowLocalAdmin()) {
+        u.startSession(u.LOCAL_ADMIN_USER).then(
+          (sessionUser) => {
+            sessionUser.admin = true
+            api.setSessionCookie(res, sessionUser.session)
+            api.okJson(res, sessionUser)
+          },
+          (error) => {
+            logger.error(`>>>>> API: Authenticate: error starting local/admin session: ${error}`)
+            api.serverError(res, `Error: ${error}`)
+          })
+      } else if (typeof loginRequest.usernameOrEmail === 'string' && loginRequest.usernameOrEmail.length > 1) {
         u.findUser(loginRequest.usernameOrEmail).then(
           (user) => {
             if (!user) {

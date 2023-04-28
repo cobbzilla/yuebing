@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: '초기화 벡터(IV)',
   admin_label_source_encryption_algo: '연산',
   label_sourceType_local: '로컬 파일 시스템',
-  label_sourceType_local_field_baseDir: '마운트 디렉토리',
+  label_sourceType_local_field_key: '마운트 디렉토리',
   label_sourceType_local_field_mode: '파일/디렉토리 생성 모드',
   label_sourceType_s3: '아마존 S3',
   label_sourceType_s3_field_key: 'AWS 액세스 키',

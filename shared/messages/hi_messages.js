@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: 'आरंभीकरण वेक्टर (IV)',
   admin_label_source_encryption_algo: 'कलन विधि',
   label_sourceType_local: 'स्थानीय फाइल सिस्टम',
-  label_sourceType_local_field_baseDir: 'माउंट निर्देशिका',
+  label_sourceType_local_field_key: 'माउंट निर्देशिका',
   label_sourceType_local_field_mode: 'फ़ाइल/निर्देशिका निर्माण मोड',
   label_sourceType_s3: 'अमेज़न S3',
   label_sourceType_s3_field_key: 'एडब्ल्यूएस एक्सेस कुंजी',

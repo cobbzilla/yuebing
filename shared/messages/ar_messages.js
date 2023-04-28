@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: 'ناقلات التهيئة (IV)',
   admin_label_source_encryption_algo: 'الخوارزمية',
   label_sourceType_local: 'نظام الملفات المحلي',
-  label_sourceType_local_field_baseDir: 'دليل جبل',
+  label_sourceType_local_field_key: 'دليل جبل',
   label_sourceType_local_field_mode: 'وضع إنشاء الملف / الدليل',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'مفتاح AWS Access',

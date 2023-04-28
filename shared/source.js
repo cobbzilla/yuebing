@@ -1,7 +1,7 @@
 
 const SOURCE_TYPES = {
   local: {
-    baseDir: {
+    key: {
       rules: 'required|max:1024'
     },
     mode: {

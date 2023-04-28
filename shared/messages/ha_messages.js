@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Farawa vector (IV)',
   admin_label_source_encryption_algo: 'Algorithm',
   label_sourceType_local: 'Tsarin fayil na gida',
-  label_sourceType_local_field_baseDir: 'Dutsen directory',
+  label_sourceType_local_field_key: 'Dutsen directory',
   label_sourceType_local_field_mode: 'Yanayin ƙirƙirar fayil/directory',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'Maɓallin Shiga AWS',

@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'ابتدائی ویکٹر (IV)',
   admin_label_source_encryption_algo: 'الگورتھم',
   label_sourceType_local: 'مقامی فائل سسٹم',
-  label_sourceType_local_field_baseDir: 'ماؤنٹ ڈائرکٹری',
+  label_sourceType_local_field_key: 'ماؤنٹ ڈائرکٹری',
   label_sourceType_local_field_mode: 'فائل/ڈائریکٹری بنانے کا موڈ',
   label_sourceType_s3: 'ایمیزون S3',
   label_sourceType_s3_field_key: 'AWS رسائی کلید',

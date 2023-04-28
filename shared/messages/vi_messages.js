@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Véc tơ khởi tạo (IV)',
   admin_label_source_encryption_algo: 'Thuật toán',
   label_sourceType_local: 'Hệ thống tệp cục bộ',
-  label_sourceType_local_field_baseDir: 'Gắn kết thư mục',
+  label_sourceType_local_field_key: 'Gắn kết thư mục',
   label_sourceType_local_field_mode: 'Chế độ tạo tệp / thư mục',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'Khóa truy cập AWS',

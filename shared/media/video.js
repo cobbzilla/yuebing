@@ -4,7 +4,7 @@ export default {
   from: 'standard', // inherit mediainfo operation and profiles
 
   // Source assets with these extensions will be filtered onto the destination
-  ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp', 'mpd', 'm4s', 'm3u8'],
+  ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp', 'mpd', 'm4s', 'ts', 'm3u8'],
 
   // Configuration params for the supported operations
   // Currently the video transformer only uses these to verify that
@@ -22,11 +22,19 @@ export default {
     },
     firstThumbnail: {
       minFileSize: 64 // 64 bytes min valid size
+    },
+    copyTextTracks: {
+      func: true,    // don't execute an external command, instead call the 'copyTextTracks_command' function
+      minFileSize: 0 // no minimum size, there may be no subtitle files
+    },
+    vttTextTracks: {
+      func: true,    // don't execute an external command, instead call the 'vttTextTracks_command' function
+      minFileSize: 0 // no minimum size, there may be no subtitle files
     }
   },
 
-  // Each profile can produce one asset, or many assets
-  // the existence of at least one 'primary' asset is required for
+  // Each profile can produce one asset, or many assets.
+  // The existence of at least one 'primary' asset is required for
   // an object to be considered 'ready' for viewing in the webapp.
   // The 'operation' field determines what the media-specific transformer does
   profiles: {
@@ -40,8 +48,8 @@ export default {
       operation: 'dash',
       // At startup, each element of this array is transformed into the corresponding profile object
       // subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
-      subProfiles: ['transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
-      // subProfiles: ['transcode_low_mp4', 'transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
+      // subProfiles: ['transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
+      subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
       contentType: 'application/dash+xml',
       ext: 'mpd',
       primary: true,
@@ -102,37 +110,62 @@ export default {
     // because some videos are shorter than 60 seconds, there is another
     // set of first_thumbnail_ profiles to grab some screenshots of the video
     // just a few seconds from the start (the 'offset' property)
-    thumbnail_small: {
-      operation: 'thumbnails',
-      size: 'vga',
-      fps: '1/60',
-      ext: 'jpg',
-      contentType: 'image/jpeg',
-      multiFile: true
-    },
-    first_thumbnail_small: {
-      operation: 'firstThumbnail',
-      size: 'vga',
-      offset: 6,
-      ext: 'jpg',
-      contentType: 'image/jpeg'
-    },
-    thumbnail_medium: {
-      from: 'thumbnail_small',
-      size: 'hd720'
-    },
-    first_thumbnail_medium: {
-      from: 'first_thumbnail_small',
-      size: 'hd720'
-    },
-    thumbnail_large: {
-      from: 'thumbnail_small',
-      size: 'hd1080'
-    },
-    first_thumbnail_large: {
-      from: 'first_thumbnail_small',
-      size: 'hd1080'
-    }
+    // thumbnail_small: {
+    //   operation: 'thumbnails',
+    //   size: 'vga',
+    //   fps: '1/60',
+    //   ext: 'jpg',
+    //   contentType: 'image/jpeg',
+    //   multiFile: true
+    // },
+    // first_thumbnail_small: {
+    //   operation: 'firstThumbnail',
+    //   size: 'vga',
+    //   offset: 6,
+    //   ext: 'jpg',
+    //   contentType: 'image/jpeg'
+    // },
+    // thumbnail_medium: {
+    //   from: 'thumbnail_small',
+    //   size: 'hd720'
+    // },
+    // first_thumbnail_medium: {
+    //   from: 'first_thumbnail_small',
+    //   size: 'hd720'
+    // },
+    // thumbnail_large: {
+    //   from: 'thumbnail_small',
+    //   size: 'hd1080'
+    // },
+    // first_thumbnail_large: {
+    //   from: 'first_thumbnail_small',
+    //   size: 'hd1080'
+    // },
+
+    // The vttTracks_copy profile copies vtt subtitles files from
+    // source to destination, using standardized names
+    // vttTracks_copy: {
+    //   operation: 'copyTextTracks',
+    //   ext: 'vtt',
+    //   contentType: 'text/vtt',
+    //   multiFile: true // per-language subtitle files
+    // },
+    // The srtTracks_copy profile copies srt subtitles files from
+    // source to destination, using standardized names
+    srtTracks_copy: {
+      operation: 'copyTextTracks',
+      ext: 'srt',
+      contentType: 'application/x-subrip',
+      multiFile: true // per-language subtitle files
+    }//,
+    // The vttTextTracks profile creates a vtt file for each srt file
+    // unless the vtt file already exists at the destination
+    // vttTextTracks: {
+    //   operation: 'vttTextTracks',
+    //   ext: 'vtt',
+    //   contentType: 'text/vtt',
+    //   multiFile: true // per-language subtitle files
+    // }
   },
   // from https://ffmpeg.org/ffmpeg-utils.html#Video-size
   ffmpeg_sizes: {

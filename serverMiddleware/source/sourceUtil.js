@@ -1,13 +1,14 @@
 const LRU = require('lru-cache')
 const shasum = require('shasum')
-const { mobiletto, MobilettoNotFoundError, setLogLevel } = require('mobiletto-lite')
+const {
+  mobiletto, MobilettoError, MobilettoNotFoundError, setLogLevel
+} = require('mobiletto-lite')
 const c = require('../../shared')
 const m = require('../../shared/media')
 const s = require('../../shared/source')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
-const redis = require('../util/redis')
 
 setLogLevel(process.env.MOBILETTO_LOG_LEVEL || 'info')
 
@@ -110,7 +111,16 @@ async function createSource (source) {
   }
 
   // test connection
-  await connectSource(source)
+  try {
+    await connectSource(source)
+  } catch (e) {
+    if (e instanceof MobilettoError) {
+      throw new SourceError(`${e}`)
+    } else {
+      logger.error(`createSource: connectSource error: ${e}`)
+      throw e
+    }
+  }
 
   // save source
   const now = Date.now()
@@ -168,7 +178,7 @@ async function extractSourceAndPathAndConnect (from) {
     throw new SourceError(`extractSourceAndPathAndConnect(${from}): error connecting to source`)
   }
   source.name = sourceName
-  return { source, pth }
+  return { source, pth: decodeURI(pth) }
 }
 
 export {

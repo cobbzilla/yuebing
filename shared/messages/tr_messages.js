@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Başlatma vektörü (IV)',
   admin_label_source_encryption_algo: 'algoritma',
   label_sourceType_local: 'Yerel dosya sistemi',
-  label_sourceType_local_field_baseDir: 'Dizini bağla',
+  label_sourceType_local_field_key: 'Dizini bağla',
   label_sourceType_local_field_mode: 'Dosya/dizin oluşturma modu',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'AWS Erişim Anahtarı',

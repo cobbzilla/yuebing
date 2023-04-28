@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Vekta ya uanzishaji (IV)',
   admin_label_source_encryption_algo: 'Algorithm',
   label_sourceType_local: 'Mfumo wa faili wa ndani',
-  label_sourceType_local_field_baseDir: 'Weka saraka',
+  label_sourceType_local_field_key: 'Weka saraka',
   label_sourceType_local_field_mode: 'Hali ya kuunda faili/saraka',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'Ufunguo wa Ufikiaji wa AWS',

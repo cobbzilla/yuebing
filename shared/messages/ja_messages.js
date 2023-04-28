@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: '初期化ベクトル (IV)',
   admin_label_source_encryption_algo: 'アルゴリズム',
   label_sourceType_local: 'ローカルファイルシステム',
-  label_sourceType_local_field_baseDir: 'マウント ディレクトリ',
+  label_sourceType_local_field_key: 'マウント ディレクトリ',
   label_sourceType_local_field_mode: 'ファイル/ディレクトリ作成モード',
   label_sourceType_s3: 'アマゾン S3',
   label_sourceType_s3_field_key: 'AWS アクセス キー',

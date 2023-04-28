@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: '初始化向量 (IV)',
   admin_label_source_encryption_algo: '算法',
   label_sourceType_local: '本地文件系统',
-  label_sourceType_local_field_baseDir: '挂载目录',
+  label_sourceType_local_field_key: '挂载目录',
   label_sourceType_local_field_mode: '文件/目录创建模式',
   label_sourceType_s3: '亚马逊 S3',
   label_sourceType_s3_field_key: 'AWS 访问密钥',

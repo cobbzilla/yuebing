@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Initialization vector (IV)',
   admin_label_source_encryption_algo: 'Algorithm',
   label_sourceType_local: 'Lokal na filesystem',
-  label_sourceType_local_field_baseDir: 'Direktoryo ng pag-mount',
+  label_sourceType_local_field_key: 'Direktoryo ng pag-mount',
   label_sourceType_local_field_mode: 'Mode ng paglikha ng file/direktoryo',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'AWS Access Key',

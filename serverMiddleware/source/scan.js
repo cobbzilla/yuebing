@@ -41,7 +41,7 @@ async function autoscan () {
   const logPrefix = `autoscan[${AUTOSCAN_COUNT}]:`
   AUTOSCAN_COUNT++
   if (AUTOSCAN_COUNT > 0) {
-    logger.info(`${logPrefix} wtf disabled?`)
+    logger.info(`${logPrefix} autoscan forcibly disabled, returning`)
     return
   }
   logger.info(`${logPrefix} starting`)

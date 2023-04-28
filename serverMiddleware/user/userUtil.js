@@ -61,10 +61,12 @@ if (LIMIT_REGISTRATION) {
 }
 
 function isAdmin (userOrEmail) {
-  return ADMIN_USER && ADMIN_USER.email &&
+  return system.allowLocalAdmin() || (
+    ADMIN_USER && ADMIN_USER.email &&
     (typeof userOrEmail === 'object' && userOrEmail.email
       ? userOrEmail.email === ADMIN_USER.email
       : userOrEmail === ADMIN_USER.email)
+  )
 }
 
 const VERIFY_MIN_VALUE = new Date(2022, 9, 9).getMilliseconds()
@@ -117,6 +119,10 @@ const SESSION_PARAM = c.USER_SESSION_QUERY_PARAM
 const REDIS_SESSION_PREFIX = 'session_'
 const REDIS_SESSION_SET_PREFIX = 'session_SET_'
 
+function nullOrLocalAdmin () {
+  return system.allowLocalAdmin() ? LOCAL_ADMIN_USER : null
+}
+
 async function currentUser (req) {
   let session = null
   if (req.headers && req.headers[SESSION_HEADER]) {
@@ -127,14 +133,14 @@ async function currentUser (req) {
     session = cookie.parse(req.headers.cookie)[c.USER_SESSION_HEADER]
   }
   if (!session) {
-    return null
+    return nullOrLocalAdmin()
   }
   try {
     const val = await redis.get(REDIS_SESSION_PREFIX + session)
-    return val ? JSON.parse(val) : null
+    return val ? JSON.parse(val) : nullOrLocalAdmin()
   } catch (e) {
     logger.info(`currentUser: error ${e}`)
-    return null
+    return nullOrLocalAdmin()
   }
 }
 
@@ -148,6 +154,19 @@ async function requireLoggedInUser (req, res) {
     }
   }
   return api.forbidden(res)
+}
+
+const LOCAL_ADMIN_USER = {
+  ctime: Date.now(),
+  mtime: Date.now(),
+  username: 'admin',
+  firstName: 'Admin',
+  lastName: 'Admin',
+  email: 'admin@localhost',
+  locale: system.publicConfig.defaultLocale,
+  hashedPassword: '',
+  admin: true,
+  verified: true
 }
 
 async function requireAdmin (req, res) {
@@ -508,6 +527,7 @@ if (ADMIN_USER) {
 
 module.exports = {
   USERS_PREFIX,
+  LOCAL_ADMIN_USER,
   userKey,
   emailKey,
   startSession,
