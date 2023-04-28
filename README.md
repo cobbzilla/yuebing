@@ -30,7 +30,7 @@ I'm certain it's not perfect, but I hope it's better than nothing!
 &nbsp;&nbsp;&nbsp;[🇮🇹 Italian](docs/it/README.md)
 &nbsp;&nbsp;&nbsp;[🇯🇵 Japanese](docs/ja/README.md)
 &nbsp;&nbsp;&nbsp;[🇰🇷 Korean](docs/ko/README.md)
-&nbsp;&nbsp;&nbsp;[🇮🇳 Maranthi](docs/mr/README.md)
+&nbsp;&nbsp;&nbsp;[🇮🇳 Marathi](docs/mr/README.md)
 &nbsp;&nbsp;&nbsp;[🇵🇱 Polish](docs/pl/README.md)
 &nbsp;&nbsp;&nbsp;[🇧🇷 Portuguese](docs/pt/README.md)
 &nbsp;&nbsp;&nbsp;[🇷🇺 Russian](docs/ru/README.md)
