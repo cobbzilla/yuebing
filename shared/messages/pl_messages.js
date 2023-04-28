@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Wystąpił błąd podczas migracji danych',
   http_invalid_request_method: 'Metoda żądania HTTP {{ method }} nie jest obsługiwana przez ten punkt końcowy',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'turecki',
   info_search_searching: '...',
   search_stop_words: 'a,o,powyżej,po,znowu,przeciwko,wszystkim,jestem,i,każdy,nie są,jak,w,być,ponieważ,byłem,przed,byciem,poniżej,między,obie,ale, przez,nie,nie,nie,mogło,nie,nie,nie,nie,robi,nie,nie,robi,nie,w dół,podczas każdego,kilka,dla,od,dalszy,miałem, nie miał, nie miał, nie miał, miał, on, on, on, on, on, ona, tutaj, oto, jej, ona, on, on, jego, jak, jak się ma, jeśli,w,w,jest,nie,to,to,to,to,to,to,to,mnie,więcej,większość,nie wolno, ja,ja,nie,ani,nie,z,wyłączone,włączone,raz,tylko,lub,inne,powinniśmy,nasze,nasze sami,nad,własne,to samo,nie,ona,ona,ona Czy,ona,powinna,nie powinna,więc,niektórzy , oni, oni, to, te, przez, do, pod, do, w górę, UCT, UTC, bardzo, było, nie było, my, będziemy, będziemy , my, byliśmy, nie byliśmy, co, co, kiedy, kiedy, gdzie, gdzie, gdzie, który, podczas, kto, kto jest, kogo, dlaczego, dlaczego, z, nie chce, nie chciałby, ty ,będziecie,jesteście,swoje,swoje,siebie,siebie',

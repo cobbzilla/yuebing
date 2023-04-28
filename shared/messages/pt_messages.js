@@ -332,7 +332,7 @@ export default {
   locale_pl: 'polonês',
   locale_vi: 'vietnamita',
   locale_ha: 'Hauçá',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'turco',
   info_search_searching: '...',
   search_stop_words: 'a,sobre,acima,depois de,novamente,contra,todos,sou,um,e,qualquer,estão,não são,como,em,ser,porque,ser,antes,ser,abaixo,entre,ambos,mas, por,não pode,não pode,poderia,não poderia,fez,não fez,faz,não,faz,não,para baixo,durante,cada,poucos,para,de,adicional,tinha, não teve,tem,não tem,tem,não tem,tendo,ele,ele,ele vai,ele é,ela,aqui,aqui está,dela,ela mesma,ele mesmo,seu,como,como está, eu, eu, eu, eu sou, eu tenho, se, em, em, é, não é, é, é, é, em si, vamos, eu, mais, a maioria, não deve, meu,eu mesmo,não,nem,não,de,desligado,ligado,uma vez,somente,ou,outro,deveria,nosso,nosso nós mesmos,fora,sobre,próprio,o mesmo,não,ela,ela,ela \'ll,ela é,deveria,não deveria,assim,algum,tal,que,isso,é,o,seu,deles,eles,eles,então,há,estes,eles,eles,eles,eles ,eles são,eles,este,aqueles,através de,para,também,sob,até,até,uct,utc,muito,foi,não era,nós,nós,nós,nós,estamos ,nós, fomos, não fomos, o que, o que é, quando, quando, onde, onde, qual, enquanto, quem, quem é, quem, por que, por que, com, não, faria, não, você ,você, você, você, você, você, seu, seu, você mesmo, você mesmo',

@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Terjadi kesalahan saat memigrasikan data',
   http_invalid_request_method: 'Metode permintaan HTTP {{ method }} tidak didukung oleh titik akhir ini',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Turki',
   info_search_searching: '...',
   search_stop_words: 'a,tentang,di atas,sesudah,sekali lagi,terhadap,semua,am,an,dan,setiap,adalah,tidak,sebagai,di,menjadi,karena,sebelum,menjadi,di bawah,antara,keduanya,tetapi, oleh, tidak bisa, tidak bisa, bisa, tidak bisa, tidak, tidak, melakukan, tidak, tidak, melakukan, tidak, turun, selama, masing-masing, beberapa, untuk, dari, lebih lanjut, telah, belum,telah,belum,memiliki,belum,memiliki,dia,dia,dia,dia,dia,ini,ini,miliknya,dirinya,dia,dirinya,dia,bagaimana,bagaimana, saya, saya akan, saya akan, saya, saya, jika, di, ke, adalah, bukan, itu, itu, itu, itu sendiri, mari, saya, lebih, paling, tidak boleh, saya,saya sendiri,tidak,atau,tidak,dari,mati,on,sekali,hanya,atau,lainnya,seharusnya,kita,kita sendiri,keluar,lebih,sendiri,sama,tidak,dia,dia,dia akan, dia, seharusnya, tidak, jadi, beberapa, seperti, dari, itu, itu, itu, mereka, mereka, mereka, mereka sendiri, lalu, di sana, ada, ini, mereka, mereka akan, mereka akan , mereka, mereka, ini, itu, melalui, untuk, juga, di bawah, sampai, atas, uct, utc, sangat, dulu, bukan, kami, kami akan, kami , kami, kami, tidak, apa, apa, kapan, kapan, di mana, di mana, yang, sementara, siapa, siapa, siapa, mengapa, mengapa, dengan, tidak akan, akan, tidak akan, Anda , kamu akan, kamu akan, kamu, kamu, kamu, kamu, dirimu sendiri, dirimu sendiri',

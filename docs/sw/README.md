@@ -30,7 +30,7 @@ Yuebing 🥮
  [🇮🇹 Kiitaliano](hati/it/README.md)
  [🇯🇵 Kijapani](hati/ja/README.md)
  [🇰🇷 Kikorea](hati/ko/README.md)
- [🇮🇳 Maranthi](hati/mr/README.md)
+ [🇮🇳 Marathi](hati/mr/README.md)
  [🇵🇱 Kipolandi](hati/pl/README.md)
  [🇧🇷 Kireno](hati/pt/README.md)
  [🇷🇺 Kirusi](hati/ru/README.md)

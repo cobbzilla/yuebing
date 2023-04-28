@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Nagkaroon ng error habang naglilipat ng data',
   http_invalid_request_method: 'Ang paraan ng paghiling ng HTTP {{ method }} ay hindi sinusuportahan ng endpoint na ito',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Turkish',
   info_search_searching: '...',
   search_stop_words: 'a,tungkol,sa itaas,pagkatapos,muli,laban,sa,lahat,am,an,at,anuman,ay hindi,sa,sa,sa,dahil,dati,nasa ibaba,sa pagitan,kapwa,ngunit, ni, hindi, hindi, hindi, hindi, hindi, nagawa, hindi, ginagawa, hindi, pababa, sa panahon, bawat, ilang, para, mula sa, higit pa, nagkaroon, hindi pa, mayroon, wala, wala, wala, siya, siya, siya, narito, narito, sa kanya, sa sarili niya, sa kanyang sarili, sa kanya, paano, paano, ako, ako, ako, ako, ako, kung, sa, sa, ay, hindi, ito, ito, mismo, tayo, ako, higit pa, karamihan, hindi dapat, ang sarili ko, hindi, ni, hindi, ng, off, on, once, only, or, other, should, our, our ourselves, out, over, own, same, hindi, she\'d, she \'ay, siya, dapat, hindi, kaya, ang ilan, ganyan, kaysa, iyon, iyon, ang, kanila, sa kanila, sa kanila, sa kanilang sarili, pagkatapos, doon, mayroon, ito, sila, sila, sila, ,sila, mayroon, ito, mga, sa, sa, sa, sa ilalim, hanggang, pataas, uct, utc, napaka, ay, hindi, kami, kami, kami, kami, kami ,namin, naging, hindi, ano, ano, kailan, kailan, saan, nasaan, alin, habang, sino, sino, sino, bakit, bakit, kasama, hindi, gagawin, hindi, ikaw ,ikaw,ikaw,ikaw ay,ikaw na,iyo,iyo,iyong sarili,iyong sarili',

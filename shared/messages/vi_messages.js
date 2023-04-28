@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Đã xảy ra lỗi khi di chuyển dữ liệu',
   http_invalid_request_method: 'Phương thức yêu cầu HTTP {{ method }} không được điểm cuối này hỗ trợ',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Thổ nhĩ kỳ',
   info_search_searching: '...',
   search_stop_words: 'a, về, ở trên, sau, lại, chống lại, tất cả, sáng, an, và, bất kỳ, là, không, như, tại, được, bởi vì, đã, trước, đang, ở dưới, giữa, cả hai, nhưng, bởi, không thể, không thể, có thể, không thể, đã làm, đã không, làm, hiện, không, đang làm, không, xuống, trong khi, mỗi, một vài, cho, từ, hơn nữa, đã, đã không, đã, chưa, có, chưa, có, anh ấy, anh ấy sẽ, anh ấy sẽ, anh ấy, cô ấy, đây, đây, cô ấy, chính cô ấy, anh ấy, chính anh ấy, anh ấy, thế nào, thế nào, tôi, tôi sẽ, tôi sẽ, tôi, tôi đã, nếu, vào, vào, là, không, nó, nó, nó, chính nó, hãy, tôi, hơn nữa, hầu hết, không được, của tôi, bản thân tôi, không, cũng không, không, của, tắt, vào, một lần, duy nhất, hoặc, người khác, phải, của chúng ta, của chính chúng ta, hết, hết, riêng, giống nhau, không phải, cô ấy, cô ấy sẽ, cô ấy \'ll, cô ấy, nên, không nên, vì vậy, một số, chẳng hạn, hơn, đó, đó, cái, của họ, của họ, họ, chính họ, sau đó, ở đó, những thứ này, họ, họ sẽ, họ sẽ , họ, họ đã, cái này, cái kia, qua, đến, quá, dưới, cho đến khi, lên, uct, utc, rất, đã, không phải, chúng tôi, chúng tôi sẽ, chúng tôi sẽ, chúng tôi , chúng tôi đã, đã, đã không, cái gì, cái gì, khi nào, khi nào, ở đâu, ở đâu, trong khi đó, ai, ai, ai, tại sao, tại sao, với, sẽ không, sẽ không, bạn , bạn, bạn sẽ, bạn, bạn, bạn, của bạn, chính bạn, chính bạn',

@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Veriler taşınırken bir hata oluştu',
   http_invalid_request_method: 'HTTP istek yöntemi {{ method }} bu uç nokta tarafından desteklenmiyor',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Türk',
   info_search_searching: '...',
   search_stop_words: 'bir,hakkında,yukarıda,sonra,tekrar,karşı,hepsi,am,bir,ve,herhangi,are,are,as,ol,çünkü,oldu,önce,olmak,aşağıda,arasında,her ikisi,ama, tarafından,yapılamaz,yapılamaz,olabilir,yapılamaz,yaptı,yapmadı,yaptı,yapmaz,yapma,yapma,aşağı,sırasında,her,birkaç,için,den,ileri,vardı, sahip değil, sahip değil, sahip değil, sahip, o, o, o,o,o,burada,işte,onun,kendisi,o,kendisi,onun,nasıl,nasıl, ben, ben, ben, ben, ben, ben,eğer,içine,is,is,is,it,it,it,kendisi,haydi,ben,daha,çoğu,mustn\'t, benim,kendim,hayır,ne,değil,of,off,on,bir kez,sadece,veya,diğer,olmalı,bizim,bizim kendimiz,dışarı,bitti,kendi,aynı,shan\'t,o,o,o O,olmalı,olmalı,olmamalı,bazı,böyle,daha,bu,bu,onların,onların,onlar,kendileri,o zaman,orada,bunlar,onlar,onlar,onlar ,onlar,onlar,bu,bunlar,üzerinden,to,çok,altında,kadar,yukarı,uct,utc,çok,oldu, değildi,biz,biz,biz,biz ,biz,biz, değildik,ne,ne,ne zaman,ne zaman,nerede,nerede,hangi,kime,kim,kim,kimin,neden,neden,ile,yapmayacak,olur,olmaz,sen , sen, sen, sen, sen, sen, senin, senin, kendin, kendin',

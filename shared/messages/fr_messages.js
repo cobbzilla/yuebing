@@ -334,7 +334,7 @@ export default {
   locale_pl: 'polonais',
   locale_vi: 'vietnamien',
   locale_ha: 'Haoussa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'turc',
   info_search_searching: '...',
   search_stop_words: 'un,sur,au-dessus,après,encore,contre,tous,suis,un,et,tout,ne,sont,pas,comme,à,être,parce que,été,avant,être,en-dessous,entre,les deux,mais, par, ne peut pas, ne peut pas, ne peut pas, n\'a pas, n\'a pas, fait, ne, ne, fait, ne, vers le bas, pendant, chaque, quelques, pour, de, plus loin, avait, n\'a pas, n\'a pas, n\'a pas, n\'a pas, il, il, il va, il est, elle, ici, voici, elle, elle-même, lui, lui-même, son, comment, comment va, je, je, je vais, je suis, j\'ai, si, dans, dans, est, n\'est pas, il, c\'est, c\'est, lui-même, allons, moi, plus, la plupart, ne doit pas, mon, moi-même, non, ni, pas, de, off, on, une fois, seulement, ou, autre, devrait, notre, nôtre nous-mêmes, dehors, sur, propre, même, ne doit pas, elle, elle, elle \'ll,she\'s, should, should not, so, some, such, than, that, that\'s, the, their, theirs, them, themselves, then, there, there\'s, these, they, they\'d, they\'d ,ils sont,ils ont,ce,ceux,à travers,aussi,sous,jusqu\'à,uct,utc,très,était,n\'était pas,nous,nous,nous,nous , nous avons, étions, n\'étions pas, quoi, quoi, quand, quand, où, où est, qui, tandis que, qui, qui est, avec qui, pourquoi, pourquoi, avec, ne, ne, ne, ne, ne, serait pas, toi , vous, vous, vous êtes, vous avez, votre, vos, vous-mêmes, vous-mêmes',

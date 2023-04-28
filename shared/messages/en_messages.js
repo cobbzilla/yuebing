@@ -151,7 +151,7 @@ export default {
   locale_id: 'Indonesian',
   locale_ja: 'Japanese',
   locale_ko: 'Korean',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_pl: 'Polish',
   locale_pt: 'Portuguese',
   locale_ru: 'Russian',

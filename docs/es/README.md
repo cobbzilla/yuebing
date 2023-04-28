@@ -30,7 +30,7 @@ Yuebing 🥮
  [🇮🇹 Italiano](../it/README.md)
  [🇯🇵 Japonés](../ja/README.md)
  [🇰🇷 Coreano](../ko/README.md)
- [🇮🇳 Maranthi](../mr/README.md)
+ [🇮🇳 Marathi](../mr/README.md)
  [🇵🇱 Polaco](../pl/README.md)
  [🇧🇷 Portugués](../pt/README.md)
  [🇷🇺 Ruso](../ru/README.md)

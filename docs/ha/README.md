@@ -30,7 +30,7 @@ Yuebing 🥮
  [🇮🇹 Italiyanci](../it/README.md)
  [🇯🇵 Jafananci](../ja/README.md)
  [🇰🇷 Korean](../ko/README.md)
- [🇮🇳 Maranthi](../mr/README.md)
+ [🇮🇳 Marathi](../mr/README.md)
  [🇵🇱 Yaren mutanen Poland](../pl/README.md)
  [🇧🇷 Portuguese](../pt/README.md)
  [🇷🇺 Rashanci](../ru/README.md)

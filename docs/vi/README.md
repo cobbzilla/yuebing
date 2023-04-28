@@ -30,7 +30,7 @@ Yuebing 🥮
  [🇮🇹 Tiếng Ý](docs / it / README.md)
  [🇯🇵 Tiếng Nhật](docs / ja / README.md)
  [🇰🇷 Tiếng Hàn](docs / ko / README.md)
- [🇮🇳 Maranthi](docs / mr / README.md)
+ [🇮🇳 Marathi](docs / mr / README.md)
  [🇵🇱 Tiếng Ba Lan](docs / pl / README.md)
  [🇧🇷 tiếng Bồ Đào Nha](docs / pt / README.md)
  [🇷🇺 tiếng Nga](docs / ru / README.md)

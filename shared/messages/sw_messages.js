@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'Hitilafu ilitokea wakati wa kuhamisha data',
   http_invalid_request_method: 'Mbinu ya ombi la HTTP {{ method }} haitumiki katika sehemu hii ya mwisho',
   locale_ha: 'Kihausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Kituruki',
   info_search_searching: '...',
   search_stop_words: 'a,karibu,juu,baada ya,tena,dhidi ya,yote,am,an,na,yoyote,haziko,kama,kwa,kuwa,kwa sababu,kuwa,kabla,kuwa,chini,kati,zote mbili,lakini, kwa,haiwezi,haiwezi,haikuweza,haikuweza,haikuweza,haikuweza,haikuweza,haikuweza,haiwezi,haiwezi,haiwezi,haiwezi,haikuweza,haikuweza,haikuweza,haikuweza,haikuweza,haifanyi,haifanyi,haifanyi,haifanyi,chini,wakati wa,kila,chache,kwa,kutoka,zaidi, alikuwa hana, hana, hana, angekuwa, angekuwa, yeye, hapa, hapa, yeye, mwenyewe, yeye, mwenyewe, wake, vipi, vipi, mimi,ninge,nita,nimeweka,kama,ndani,ni,sio,ni,ni,yenyewe,hebu,mimi,zaidi,zaidi,lazima sivyo, yangu,mwenyewe,hapana,wala,sio,ya,mara,mara moja,pekee,au,nyingine,tunapaswa,yetu,yetu sisi wenyewe,toka,kumiliki,sawa,hawezi, yeye, itabidi, yeye, hapaswi, hivyo, baadhi, vile, kuliko, kwamba, ni, wao, wao, wao, wenyewe, basi, kuna, hawa, wao, wao, wao, wao ,wao, wana,hii,wale,kupitia,pia,chini,mpaka,up,uct,utc,sana,ilikuwa,haikuwa,sisi,tutaweza,tutaweza,tupo. ,tumekuwa,hatukuwa,nini,nini,lini,lini,wapi,kipi,wapi,nani,nani,nani,mbona,mbona,usingefanya,usingefanya, ,ungekuwa,wewe,wewe,wewe,wako,wenyewe,wewe',

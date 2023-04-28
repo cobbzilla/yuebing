@@ -332,7 +332,7 @@ export default {
   admin_info_migration_error: 'An sami kuskure yayin ƙaura bayanai',
   http_invalid_request_method: 'Hanyar buƙatar HTTP {{ method }} ba ta da goyan bayan wannan ƙarshen ƙarshen',
   locale_ha: 'Hausa',
-  locale_mr: 'Maranthi',
+  locale_mr: 'Marathi',
   locale_tr: 'Baturke',
   info_search_searching: '...',
   search_stop_words: 'a, game da, sama, bayan, sake, gaba da, duk, am, an, da, wani, ba, kamar yadda, a, zama, domin, kasance, kafin, kasancewa, kasa, tsakanin, biyu, amma, ta, ba zai iya, ba zai iya, ba zai iya, ba zai iya, ba, ba zai iya, yi, ba, yi, yi, bã ya, yi, kada, kasa, a lokacin, kowane, \'yan, domin, daga, kara, da, da, ba, ba, ba, da, ba, da, shi, ya so, zai, ya, ta, nan, nan, nata, kanta, shi, kansa, nasa, yaya, yaya, i, i, i, i\'m, i\'ve, if, in, in, is, is, is ba, it, it\'s, its, kanta, let\'s, me, more, most, must not, ni, kaina, a\'a, ko, ba, na, kashe, sau ɗaya, kawai, ko, wasu, ya kamata, namu, kanmu, fita, kan, namu, ɗaya, ba, ta, ta, ta, \', ita, bai kamata ba, don haka, wasu, irin wannan, waccan, wato, nasu, nasu, su, da kansu, sannan, akwai, akwai, waɗannan, za su, za su, za su. , su ne, suna da, wannan, waɗancan, ta, zuwa, ma, ƙarƙashin, har, up, uct,utc, sosai, ya kasance, ba, mu, za mu, za mu, muna. , mun kasance, ba, me, menene, yaushe, yaushe, ina, ina, wane, alhalin, wane, wane, wane, me ya sa, me ya sa, me ya sa, tare da, ba za, ba, ba za ku, ba , za ku, ku, ku, ku, ku, ku, ku, kanku, kanku',
