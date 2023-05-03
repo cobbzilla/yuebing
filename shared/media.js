@@ -58,6 +58,7 @@ for (const type in MEDIA) {
   //  * Populate the 'name' property for each profile object
   //  * Populate the 'mediaType' property for each profile object
   //  * Define 'enabled: true' for profiles that do not have an 'enabled' property
+  //  * Define 'func: <operation>_command' for profiles whose operations also have 'func: true'
   //  * Expand the magic 'from' property where found
   //  * Expand the magic 'subProfiles' property where found
   if (typeConfig.profiles && !c.empty(typeConfig.profiles)) {
@@ -71,6 +72,11 @@ for (const type in MEDIA) {
       profile.mediaType = type
       if (typeof profile.enabled !== 'boolean' && typeof profile.from === 'undefined') {
         profile.enabled = true
+      }
+      if (typeConfig.operations[profile.operation]
+        && typeof typeConfig.operations[profile.operation].func === 'boolean'
+        && typeof typeConfig.operations[profile.operation].func) {
+        profile.func = profile.operation + '_command'
       }
       typeProfiles.push(profile)
       typeProfileMap[profileName] = profile

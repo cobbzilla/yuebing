@@ -72,6 +72,7 @@
     "safe-eval": "^0.4.1",
     "shasum": "^1.0.2",
     "shell-escape": "^0.2.0",
+    "sqlite": "^4.1.2",
     "uuid": "^8.3.2",
     "vee-validate": "^3.4.14",
     "videojs-contrib-dash": "^5.1.1",

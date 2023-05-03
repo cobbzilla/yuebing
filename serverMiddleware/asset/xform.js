@@ -95,7 +95,7 @@ function mediainfo (sourcePath, sourceFile, profile, outfile) {
 }
 
 function profileCommand (profile) {
-  return profile.command ? profile.command : MEDIA_COMMANDS[profile.mediaType].allowedCommands[0]
+  return profile.command ? profile.command : profile.func ? `function:${profile.func}` : MEDIA_COMMANDS[profile.mediaType].allowedCommands[0]
 }
 
 function looksLikeShellCommand (command) {
@@ -108,72 +108,92 @@ function isCommandAllowed (mediaType, command) {
     (ALWAYS_ALLOWED_COMMANDS.includes(command) || (allowedCommands && allowedCommands.includes(command)))
 }
 
-async function runTransformCommand (job, profile, outfile, args, closeHandler) {
+async function runTransformCommand (job, mediaDriver, profile, outfile, args, closeHandler) {
   const mediaType = profile.mediaType
-  const command = profileCommand(profile)
+  const command = profile.func ? `function: ${profile.func}` : profileCommand(profile)
+  const jobPrefix = profile.func
+    ? `${mediaType}_${profile.name}_runTransformFunction`
+    : `${mediaType}_${profile.name}_runTransformCommand`
+
   const logPrefix = `runTransformCommand(command=${command}, profile=${profile.name}):`
-  const jobPrefix = `${mediaType}_${profile.name}_runTransformCommand`
 
-  // you can't just run any old command here sonny!
-  if (!isCommandAllowed(mediaType, command)) {
-    throw new TypeError(`${logPrefix} profile command not allowed: ${command}`)
-  }
-  const saveStdout = (profile.outfile && profile.outfile === 'stdout')
-  const saveStderr = (profile.outfile && profile.outfile === 'stderr')
-
-  const escapedArgs = shellescape(args)
-  q.recordJobEvent(job, `${jobPrefix}_spawn`, `${command} ${escapedArgs}`)
-  const xform = spawn(command, args)
-  const stream = (saveStdout || saveStderr) ? fs.createWriteStream(outfile) : null
-  return new Promise((resolve, reject) => {
-    xform.stdout.on('data', (data) => {
-      if (saveStdout) {
-        stream.write(data, (err) => {
-          if (err) {
-            logger.debug(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
-            throw err
-          }
-        })
-      } else if (showTransformOutput()) {
-        logger.debug(`stdout >>>>>> ${data}`)
-      }
-    })
-
-    xform.stderr.on('data', (data) => {
-      if (saveStderr) {
-        stream.write(data, (err) => {
-          if (err) {
-            logger.debug(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
-            throw err
-          }
-        })
-      } else if (showTransformOutput()) {
-        logger.debug(`stderr >>>>>> ${data}`)
-      }
-    })
-
-    xform.on('close', async (code) => {
-      try {
-        if (code !== 0) {
-          logger.error(`${logPrefix} spawned command exited with code ${code}. command was: ${command} ${escapedArgs}`)
-          reject(code)
-        } else {
-          logger.debug(`${logPrefix} spawned command exited OK (code ${code}). command was: ${command} ${escapedArgs}`)
-          q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
-          try {
-            await closeHandler(code)
-            resolve(code)
-          } catch (closeErr) {
-            logger.error(`${logPrefix} error in closeHandler: ${closeErr}`)
-            q.recordJobEvent(job, `${jobPrefix}_ERROR_closeHandler`, `${command}: closeHandler error ${closeErr}`)
-            reject(closeErr)
-          }
+  const completionHandler = (resolve, reject, args) => async (code) => {
+    try {
+      if (code !== 0) {
+        logger.error(`${logPrefix} spawned command exited with code ${code}. command was: ${command} ${args}`)
+        reject(code)
+      } else {
+        logger.debug(`${logPrefix} spawned command exited OK (code ${code}). command was: ${command} ${args}`)
+        q.recordJobEvent(job, `${jobPrefix}_spawn_END`, `${command}: exit code ${code}`)
+        try {
+          await closeHandler(code)
+          resolve(code)
+        } catch (closeErr) {
+          logger.error(`${logPrefix} error in closeHandler: ${closeErr}`)
+          q.recordJobEvent(job, `${jobPrefix}_ERROR_closeHandler`, `${command}: closeHandler error ${closeErr}`)
+          reject(closeErr)
         }
+      }
+    } catch (e) {
+      reject(e)
+    }
+  }
+  if (profile.func) {
+    const driverFunc = mediaDriver[profile.func]
+    if (!driverFunc) {
+      throw new TypeError(`${logPrefix} profile function not found: ${profile.func}`)
+    }
+    return new Promise(async (resolve, reject) => {
+      q.recordJobEvent(job, `${jobPrefix}_spawn`, `${profile.func} ${JSON.stringify(args)}`)
+      try {
+        const code = await driverFunc(args)
+        await completionHandler(resolve, reject, args)(code)
       } catch (e) {
-        reject(e)
+        await completionHandler(resolve, reject, args)(e)
       }
     })
-  })
+  } else {
+    // you can't just run any old command here sonny!
+    if (!isCommandAllowed(mediaType, command)) {
+      throw new TypeError(`${logPrefix} profile command not allowed: ${command}`)
+    }
+    const saveStdout = (profile.outfile && profile.outfile === 'stdout')
+    const saveStderr = (profile.outfile && profile.outfile === 'stderr')
+
+    const escapedArgs = shellescape(args)
+    q.recordJobEvent(job, `${jobPrefix}_spawn`, `${command} ${escapedArgs}`)
+    const xform = spawn(command, args)
+    const stream = (saveStdout || saveStderr) ? fs.createWriteStream(outfile) : null
+    return new Promise((resolve, reject) => {
+      xform.stdout.on('data', (data) => {
+        if (saveStdout) {
+          stream.write(data, (err) => {
+            if (err) {
+              logger.debug(`${logPrefix} error writing stdout to ${outfile}: ${err}`)
+              throw err
+            }
+          })
+        } else if (showTransformOutput()) {
+          logger.debug(`stdout >>>>>> ${data}`)
+        }
+      })
+
+      xform.stderr.on('data', (data) => {
+        if (saveStderr) {
+          stream.write(data, (err) => {
+            if (err) {
+              logger.debug(`${logPrefix} error writing stderr to ${outfile}: ${err}`)
+              throw err
+            }
+          })
+        } else if (showTransformOutput()) {
+          logger.debug(`stderr >>>>>> ${data}`)
+        }
+      })
+
+      xform.on('close', completionHandler(resolve, reject, escapedArgs))
+    })
+  }
 }
 
 async function clearErrors (job, jobPrefix, sourcePath, profile) {
@@ -252,10 +272,11 @@ function handleOutputFiles (job, sourcePath, profile, outfile) {
 
     const filesToUpload = []
     if (profile.multiFile) {
-      const outfilePrefix = multifilePrefix(outfile)
+      const outfilePrefix = multifilePrefix(profile, outfile)
+      const outfileSuffix = typeof profile.ext === 'string' ? '.'+profile.ext : ''
       logger.debug(`${logPrefix} MULTI-FILE: globbing multifilePrefix=${outfilePrefix}`)
       await new Promise(async (resolve, reject) => {
-        await glob(outfilePrefix + '*', async (err, files) => {
+        await glob(outfilePrefix + '*' + outfileSuffix, async (err, files) => {
           logger.debug(`found multifiles in outfilePrefix ${outfilePrefix}: ${JSON.stringify(files)}`)
           if (err) {
             const message = `${logPrefix} GLOB: Error listing multifiles: ${err}`
@@ -340,6 +361,9 @@ async function mediaTransform (job, file, profile, outfile) {
     throw new TypeError(`invalid media type: ${mediaType}`)
   }
   const mediaDriver = loadMediaDriver(mediaType)
+  if (!mediaDriver) {
+    throw new TypeError(`loadMediaDriver: no media driver for type: ${mediaType}`)
+  }
   q.recordJobEvent(job, `${jobPrefix}_start`)
   const sourcePath = job.data.sourcePath
   const logPrefix = `${jobPrefix} transform(${sourcePath}):`
@@ -364,16 +388,16 @@ async function mediaTransform (job, file, profile, outfile) {
       throw new TypeError(`${logPrefix} operation '${profile.operation}' not supported: No function named ${profile.operation} exported from ${driverPath}`)
     }
   }
-  const args = xform(sourcePath, file, profile, outfile)
   const outputHandler = handleOutputFiles(job, sourcePath, profile, outfile)
-  logger.debug(`transform: running xform command: ${profileCommand(profile)} ${args.join(' ')}`)
+  const closeHandler = async (code) => {
+      q.recordJobEvent(job, `${logPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
+      await outputHandler(code)
+      q.recordJobEvent(job, `${logPrefix}_outputHandler_COMPLETE`)
+      logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
+  }
   q.recordJobEvent(job, `${logPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
-  await runTransformCommand(job, profile, outfile, args, async (code) => {
-    q.recordJobEvent(job, `${logPrefix}_outputHandler_start`, `${profileCommand(profile)} exit code: ${code}`)
-    await outputHandler(code)
-    q.recordJobEvent(job, `${logPrefix}_outputHandler_COMPLETE`)
-    logger.debug(`handleOutputFiles: finished (${profile.operation}/${profile.name}): ${sourcePath}`)
-  })
+  const args = await xform(sourcePath, file, profile, outfile)
+  await runTransformCommand(job, mediaDriver, profile, outfile, args, closeHandler)
   q.recordJobEvent(job, `${logPrefix}_DONE`)
 }
 
@@ -420,7 +444,7 @@ async function createArtifacts (job, localSourceFile) {
 
     const reprocessProfiles = job.data.opts.reprocess && job.data.opts.reprocess.length > 0 ? job.data.opts.reprocess : null
     if (reprocessProfiles) {
-      if (reprocessProfiles.includes(name)) {
+      if (reprocessProfiles.includes(name) || reprocessProfiles.find(p => p.profile === name)) {
         q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest_SKIPPED_FOR_REPROCESSING`)
       } else {
         q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)

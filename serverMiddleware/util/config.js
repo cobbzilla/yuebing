@@ -1,3 +1,4 @@
+const { existsSync, mkdirSync } = require('fs')
 const { basename } = require('path')
 const winston = require('winston')
 const vv = require('vee-validate')
@@ -23,14 +24,11 @@ const logger = winston.createLogger({
     : [new winston.transports.Console({ stderrLevels: Object.keys(winston.config.npm.levels) })]
 })
 
-const key = process.env.YB_DEST_KEY
-const secret = process.env.YB_DEST_SECRET
-
 const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 
-const SUPPORTED_DEST_TYPES = ['s3', 'b2']
+const SUPPORTED_DEST_TYPES = ['local', 's3', 'b2']
 
-const DEST_TYPE = process.env.YB_DEST_TYPE ? process.env.YB_DEST_TYPE.toLowerCase() : null
+const DEST_TYPE = process.env.YB_DEST_TYPE ? process.env.YB_DEST_TYPE.toLowerCase() : 'local'
 
 const opts = DEST_TYPE === 's3'
   ? {
@@ -39,12 +37,16 @@ const opts = DEST_TYPE === 's3'
       bucket: process.env.YB_DEST_BUCKET,
       prefix: DEST_PREFIX
     }
-  : {
+  : DEST_TYPE === 'b2'
+    ? {
       type: 'b2',
       bucket: process.env.YB_DEST_BUCKET,
       partSize: process.env.YB_DEST_B2_PART_SIZE || null, // null enables autodetect recommendedPartSize
       prefix: DEST_PREFIX
     }
+    : DEST_TYPE === 'local' ? {
+      type: 'local'
+    } : null
 
 const encryption = {
   key: process.env.YB_DATA_ENCRYPTION_KEY,
@@ -55,6 +57,17 @@ const encryption = {
 const CONFIGS = ['public', 'private']
 
 const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
+
+function defaultLocalStorageDir () {
+  const path = '/tmp/yuebing-local-storage'
+  if (!existsSync(path)) {
+    mkdirSync(path)
+  }
+  return path
+}
+
+const key = process.env.YB_DEST_KEY || (opts && opts.type && opts.type === 'local' ? defaultLocalStorageDir() : null)
+const secret = process.env.YB_DEST_SECRET
 
 const SYSTEM = {
   logger,
@@ -101,11 +114,12 @@ const SYSTEM = {
     }
   },
   isPublic: () => SYSTEM.publicConfig.public,
+  allowLocalAdmin: () => DEST_TYPE === 'local'
+    && SYSTEM.privateConfig.admin?.user?.email === null
+    && SYSTEM.privateConfig.admin?.user?.password === null,
   connect: async () => {
     if (!SYSTEM.api) {
-      if (!DEST_TYPE) {
-        throw new TypeError('config: required env var YB_DEST_TYPE was undefined')
-      } else if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
+      if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
         throw new TypeError(`config: YB_DEST_TYPE (${process.env.YB_DEST_TYPE}) is not a supported type. Should be one of: ${SUPPORTED_DEST_TYPES.toString()}`)
       }
 
@@ -126,8 +140,14 @@ const SYSTEM = {
         SYSTEM.api.find = async (dir, prefix) => {
           const pth = dir.endsWith('/') ? dir : dir + '/'
           try {
-            const listing = await SYSTEM.api.list(pth)
-            return listing.filter(obj => basename(obj.name).startsWith(prefix))
+            const meta = await SYSTEM.api.safeMetadata(pth)
+            if (meta && meta.mtime) {
+              const listing = await SYSTEM.api.list(pth)
+              return listing.filter(obj => basename(obj.name).startsWith(prefix))
+            } else {
+              logger.warn(`system.api.find(${dir}, ${prefix}) path not found, returning empty array`)
+              return []
+            }
           } catch (e) {
             logger.error(`system.api.find(${dir}, ${prefix}) error: ${e}`)
             throw e

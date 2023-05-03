@@ -6,6 +6,7 @@ const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const { reindexPath } = require('../../source/reindex')
 const src = require('../../source/sourceUtil')
 const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
+const { MobilettoNotFoundError } = require('mobiletto-lite')
 
 export default {
   path: '/api/source/mediainfo',
@@ -18,7 +19,7 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const sourceAndPath = req.url
+      const sourceAndPath = req.url.replaceAll('//', '/')
       const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
       if (!source || !pth) { return api.notFound() }
       if (req.method === 'GET') {
@@ -51,6 +52,9 @@ export default {
         return api.badRequest(res, 'HTTP method must be GET or POST')
       }
     } catch (e) {
+      if (e instanceof MobilettoNotFoundError) {
+
+      }
       return api.handleSourceError(res, e)
     }
   }

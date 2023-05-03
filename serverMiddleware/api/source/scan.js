@@ -14,7 +14,7 @@ export default {
     if (!user || !user.admin) {
       return api.forbidden(res)
     }
-    const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+    const { source, pth } = await src.extractSourceAndPathAndConnect(req.url.replaceAll('//', '/'))
     if (!source || !pth) { return api.notFound() }
     logger.info(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${pth}`)
     const transforms = await scan.scan(source, pth)

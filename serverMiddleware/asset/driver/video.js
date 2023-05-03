@@ -1,7 +1,10 @@
-const { basename } = require('path')
+const { basename, dirname } = require('path')
+const { existsSync, writeFileSync } = require('fs')
 
 const c = require('../../../shared')
+const s = require('../../../shared/source')
 const m = require('../../../shared/media')
+const src = require('../../source/sourceUtil')
 const VIDEO = require('../../../shared/media/video').default
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
@@ -10,7 +13,7 @@ const DEFAULT_FIRST_THUMBNAIL_OFFSET = '3'
 
 const VIDEO_ASSET_SUFFIX = m.assetSuffix(m.VIDEO_MEDIA_TYPE)
 
-function transcode (sourcePath, sourceFile, profile, outfile) {
+async function transcode (sourcePath, sourceFile, profile, outfile) {
   const args = []
   args.push('-i')
   args.push(sourceFile)
@@ -35,7 +38,7 @@ function transcode (sourcePath, sourceFile, profile, outfile) {
   return args
 }
 
-function dash (sourcePath, sourceFile, profile, outfile) {
+async function dash (sourcePath, sourceFile, profile, outfile) {
   // adjust output file to match what xform.js checks for, for multiFile profiles
   const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
@@ -122,7 +125,7 @@ function dash (sourcePath, sourceFile, profile, outfile) {
   return args
 }
 
-function thumbnails (sourcePath, sourceFile, profile, outfile) {
+async function thumbnails (sourcePath, sourceFile, profile, outfile) {
   const args = []
   args.push('-i')
   args.push(sourceFile)
@@ -135,7 +138,7 @@ function thumbnails (sourcePath, sourceFile, profile, outfile) {
   return args
 }
 
-function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
+async function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
   const offset = profile.offset && profile.offset > 0 ? profile.offset : DEFAULT_FIRST_THUMBNAIL_OFFSET
   const args = []
   args.push('-ss')
@@ -150,6 +153,62 @@ function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
   args.push('-y')
   args.push(outfile)
   return args
+}
+
+function toLang (lang) {
+  
+}
+
+// return value is an array of strings, which becomes the args to copyTextTracks_command below
+async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
+
+  const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
+  if (placeholder === -1) {
+    throw new TypeError(`copyTextTracks: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
+  }
+
+  const TRACK_REGEX = new RegExp('(.+?)(\\.(\\w{2}(\\.(sdh))?))?\\.'+profile.ext+'$', 'ui')
+  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
+  const sourceDir = dirname(pth)
+  const source = await src.connect(sourceName)
+
+  const dirFiles = await source.safeList(sourceDir, {recursive: true})
+  const filesCopied = []
+  for (const f of dirFiles) {
+    const filename = basename(f.name)
+    const m = f.type && f.type === 'file' && f.name ? filename.match(TRACK_REGEX) : false
+    if (m && m[0] === filename) {
+      const sdh = typeof m[5] !== 'undefined' && m[5] === 'sdh' ? '.sdh' : ''
+      const lang = typeof m[3] !== 'undefined' ? toLang(m[3]) : 'default'
+      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + "." + profile.ext
+      const assetsFile = system.assetsDir(f.name) + basename(destOutfile)
+      if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
+        logger.debug(`copyTextTracks: copying src=${f.name} -> destOutfile=${destOutfile}`)
+        writeFileSync(destOutfile, await source.readFile(f.name))
+        filesCopied.push({ source: f.name, dest: destOutfile })
+      } else {
+        logger.debug(`copyTextTracks: skipping src=${f.name} because destOutfile already exists: ${destOutfile}`)
+      }
+    }
+  }
+  return filesCopied
+}
+
+async function copyTextTracks_command (files) {
+  logger.info(`copyTextTracks_command called with files=${JSON.stringify(files)}`)
+  return 0
+}
+
+async function vttTextTracks (sourcePath, sourceFile, profile, outfile) {
+  logger.info(`vttTextTracks called with sourcePath=${sourcePath}, sourceFile=${sourceFile}`)
+}
+
+async function vttTextTracks_command (files) {
+  logger.info(`vttTextTracks_command called with files=${JSON.stringify(files)}`)
+  for (const f of files) {
+    // transform file to vtt, return
+  }
+  return 0
 }
 
 const normSize = (val) => {
@@ -278,4 +337,9 @@ async function quality (storage, path, profileName, res) {
   return qFilter(Buffer.concat(chunks), profile, res)
 }
 
-export { transcode, dash, thumbnails, firstThumbnail, quality }
+export {
+  transcode, dash, thumbnails, firstThumbnail,
+  copyTextTracks, copyTextTracks_command,
+  vttTextTracks, vttTextTracks_command,
+  quality
+}
