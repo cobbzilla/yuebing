@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Wektor inicjujący (IV)',
   admin_label_source_encryption_algo: 'Algorytm',
   label_sourceType_local: 'Lokalny system plików',
-  label_sourceType_local_field_baseDir: 'Katalog montowania',
+  label_sourceType_local_field_key: 'Katalog montowania',
   label_sourceType_local_field_mode: 'Tryb tworzenia pliku/katalogu',
   label_sourceType_s3: 'Amazonka S3',
   label_sourceType_s3_field_key: 'Klucz dostępu AWS',

@@ -5,7 +5,7 @@ const util = require('../util/file')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
-function multifilePrefix (outfile) {
+function multifilePrefix (profile, outfile) {
   const placeholder = outfile.lastIndexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
     return outfile
@@ -21,7 +21,7 @@ function deleteLocalFiles (outfile, profile, job, jobPrefix) {
     return
   }
   if (profile.multiFile) {
-    const outfilePrefix = multifilePrefix(outfile)
+    const outfilePrefix = multifilePrefix(profile, outfile)
     glob(outfilePrefix + '*', (err, files) => {
       if (err) {
         logger.error(`deleteLocalFiles: glob error: ${err}`)

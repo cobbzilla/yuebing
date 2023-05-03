@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'Vektor inisialisasi (IV)',
   admin_label_source_encryption_algo: 'algoritma',
   label_sourceType_local: 'Sistem file lokal',
-  label_sourceType_local_field_baseDir: 'Pasang direktori',
+  label_sourceType_local_field_key: 'Pasang direktori',
   label_sourceType_local_field_mode: 'Mode pembuatan file/direktori',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'Kunci Akses AWS',

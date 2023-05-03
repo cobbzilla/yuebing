@@ -1,8 +1,8 @@
 
 const SOURCE_TYPES = {
   local: {
-    baseDir: {
-      rules: 'required|max:1024'
+    key: {
+      rules: 'required|min:2|max:1024'
     },
     mode: {
       default: '0700',

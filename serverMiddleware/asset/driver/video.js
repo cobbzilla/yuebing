@@ -1,11 +1,13 @@
 const { basename, dirname } = require('path')
 const { existsSync, writeFileSync } = require('fs')
+const { ALL_LANGS } = require('hokeylization/util/constants')
 
 const c = require('../../../shared')
 const s = require('../../../shared/source')
 const m = require('../../../shared/media')
 const src = require('../../source/sourceUtil')
 const VIDEO = require('../../../shared/media/video').default
+const { srt2webvtt } = require('../../../shared/media/video_srt2vtt')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
@@ -155,13 +157,49 @@ async function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
   return args
 }
 
+const LANG_MAP = {}
+
+function getLangMap () {
+  if (c.okl(LANG_MAP) > 0) {
+    return LANG_MAP
+  }
+  try {
+    for (const langCode of ALL_LANGS.split(',')) {
+      const lang = langCode.toLowerCase()
+      LANG_MAP[lang] = lang
+      const langSpecificLangs = require('hokeylization/messages/locales_' + lang)
+      for (const locVar in langSpecificLangs) {
+        if (locVar.startsWith('locale_')) {
+          const loc = locVar.substring('locale_'.length).toLowerCase()
+          const langValue = langSpecificLangs[locVar]
+          LANG_MAP[langValue] = loc
+          LANG_MAP[langValue.toLocaleLowerCase(loc)] = loc
+          LANG_MAP[langValue.toLowerCase()] = loc
+        }
+      }
+    }
+  } catch (e) {
+    logger.error(`getLangMap: error: ${JSON.stringify(e)}`)
+    throw e
+  }
+  return LANG_MAP
+}
+
 function toLang (lang) {
-  
+  const langMap = getLangMap()
+  if (langMap.hasOwnProperty(lang)) {
+    return langMap[lang]
+  }
+  const lcLang = lang.toLowerCase()
+  if (langMap.hasOwnProperty(lcLang)) {
+    return langMap[lcLang]
+  }
+  logger.warn(`toLang(${lang}): unrecognized, returning as-is`)
+  return lang
 }
 
 // return value is an array of strings, which becomes the args to copyTextTracks_command below
 async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
-
   const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
     throw new TypeError(`copyTextTracks: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
@@ -180,7 +218,7 @@ async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
     if (m && m[0] === filename) {
       const sdh = typeof m[5] !== 'undefined' && m[5] === 'sdh' ? '.sdh' : ''
       const lang = typeof m[3] !== 'undefined' ? toLang(m[3]) : 'default'
-      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + "." + profile.ext
+      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + '.' + profile.ext
       const assetsFile = system.assetsDir(f.name) + basename(destOutfile)
       if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
         logger.debug(`copyTextTracks: copying src=${f.name} -> destOutfile=${destOutfile}`)
@@ -199,15 +237,49 @@ async function copyTextTracks_command (files) {
   return 0
 }
 
-async function vttTextTracks (sourcePath, sourceFile, profile, outfile) {
-  logger.info(`vttTextTracks called with sourcePath=${sourcePath}, sourceFile=${sourceFile}`)
+async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
+  const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
+  if (placeholder === -1) {
+    throw new TypeError(`srt2vttTracks: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
+  }
+  if (profile.ext !== 'vtt') {
+    throw new TypeError(`srt2vttTracks: expected profile.ext === 'vtt' but was '${profile.ext}'`)
+  }
+  const SRT_TRACK_REGEX = new RegExp('(.+?)(\\.(\\w{2}(\\.(sdh))?))?\\.srt$', 'ui')
+  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
+  const sourceDir = dirname(pth)
+  const source = await src.connect(sourceName)
+
+  const dirFiles = await source.safeList(sourceDir, {recursive: true})
+  const srtFilesConverted = []
+  for (const f of dirFiles) {
+    const filename = basename(f.name)
+    const srtMatch = f.type && f.type === 'file' && f.name ? filename.match(SRT_TRACK_REGEX) : false
+    if (srtMatch && srtMatch[0] === filename) {
+      const sdh = typeof m[5] !== 'undefined' && m[5] === 'sdh' ? '.sdh' : ''
+      const lang = typeof m[3] !== 'undefined' ? toLang(m[3]) : 'default'
+      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + '.vtt'
+      const assetsFile = system.assetsDir(f.name) + basename(destOutfile)
+      if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
+        logger.debug(`srt2vttTracks: translating src=${f.name} -> destOutfile=${destOutfile}`)
+        try {
+          const srtData = await source.readFile(f.name)
+          const vttData = srt2webvtt(srtData)
+          writeFileSync(destOutfile, vttData)
+          srtFilesConverted.push({ source: f.name, dest: destOutfile })
+        } catch (e) {
+          logger.error(`srt2vttTracks: error: ${JSON.stringify(e)}`)
+        }
+      } else {
+        logger.debug(`srt2vttTracks: skipping src=${f.name} because destOutfile already exists: ${destOutfile}`)
+      }
+    }
+  }
+  return srtFilesConverted
 }
 
-async function vttTextTracks_command (files) {
-  logger.info(`vttTextTracks_command called with files=${JSON.stringify(files)}`)
-  for (const f of files) {
-    // transform file to vtt, return
-  }
+async function srt2vttTracks_command (files) {
+  logger.info(`srt2vttTracks_command called with files=${JSON.stringify(files)}`)
   return 0
 }
 
@@ -340,6 +412,6 @@ async function quality (storage, path, profileName, res) {
 export {
   transcode, dash, thumbnails, firstThumbnail,
   copyTextTracks, copyTextTracks_command,
-  vttTextTracks, vttTextTracks_command,
+  srt2vttTracks, srt2vttTracks_command,
   quality
 }

@@ -210,9 +210,8 @@ export default {
         // The first command listed is the default command and will be used for any profiles that
         // do not specify a 'command' property.
         //
-        // All drivers are allowed to run 'mediainfo', that does not need to be listed.
         // Anything that looks like a shell will fail validation (bash/zsh/ssh/etc)
-        allowedCommands: ['./scripts/ffmpeg_wrapper']
+        allowedCommands: ['./scripts/ffmpeg_wrapper', './scripts/mediainfo_wrapper']
       }
     },
 

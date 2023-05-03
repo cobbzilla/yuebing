@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -n "$(which mediainfo)" ] ; then
+  exec "$(which mediainfo)" "${@}"
+fi
+if [ -x /usr/local/bin/mediainfo ] ; then
+  exec /usr/local/bin/mediainfo "${@}"
+fi
+echo >&2 "mediainfo command not found on PATH nor in /usr/local/bin"
+exit 1

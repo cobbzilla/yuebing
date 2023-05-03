@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'इनिशियलायझेशन वेक्टर (IV)',
   admin_label_source_encryption_algo: 'अल्गोरिदम',
   label_sourceType_local: 'स्थानिक फाइल सिस्टम',
-  label_sourceType_local_field_baseDir: 'माउंट निर्देशिका',
+  label_sourceType_local_field_key: 'माउंट निर्देशिका',
   label_sourceType_local_field_mode: 'फाइल/डिरेक्टरी निर्मिती मोड',
   label_sourceType_s3: 'ऍमेझॉन S3',
   label_sourceType_s3_field_key: 'AWS प्रवेश की',

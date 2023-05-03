@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: 'Вектор инициализации (IV)',
   admin_label_source_encryption_algo: 'Алгоритм',
   label_sourceType_local: 'Локальная файловая система',
-  label_sourceType_local_field_baseDir: 'Смонтировать каталог',
+  label_sourceType_local_field_key: 'Смонтировать каталог',
   label_sourceType_local_field_mode: 'Режим создания файла/каталога',
   label_sourceType_s3: 'Амазонка S3',
   label_sourceType_s3_field_key: 'Ключ доступа к AWS',

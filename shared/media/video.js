@@ -27,8 +27,8 @@ export default {
       func: true,    // don't execute an external command, instead call the 'copyTextTracks_command' function
       minFileSize: 0 // no minimum size, there may be no subtitle files
     },
-    vttTextTracks: {
-      func: true,    // don't execute an external command, instead call the 'vttTextTracks_command' function
+    srt2vttTracks: {
+      func: true,    // don't execute an external command, instead call the 'srt2vttTracks_command' function
       minFileSize: 0 // no minimum size, there may be no subtitle files
     }
   },
@@ -38,10 +38,6 @@ export default {
   // an object to be considered 'ready' for viewing in the webapp.
   // The 'operation' field determines what the media-specific transformer does
   profiles: {
-    // The various transcode_ profiles create different versions of the video
-    // so that the video player can serve up an appropriate selection of choices
-    // to the browser
-
     // The DASH profile supports adaptive streaming based on other profile definitions
     // Ensure that the `videoSize` for each subProfile has the same aspect ratio
     dash_mp4: {
@@ -71,6 +67,9 @@ export default {
       contentType: 'application/vnd.apple.mpegurl'
     },
 
+    // The various transcode_ profiles create different versions of the video
+    // so that the video player can serve up an appropriate selection of choices
+    // to the browser
     transcode_high_mp4: {
       operation: 'transcode',
       enabled: false,
@@ -144,12 +143,12 @@ export default {
 
     // The vttTracks_copy profile copies vtt subtitles files from
     // source to destination, using standardized names
-    // vttTracks_copy: {
-    //   operation: 'copyTextTracks',
-    //   ext: 'vtt',
-    //   contentType: 'text/vtt',
-    //   multiFile: true // per-language subtitle files
-    // },
+    vttTracks_copy: {
+      operation: 'copyTextTracks',
+      ext: 'vtt',
+      contentType: 'text/vtt',
+      multiFile: true // per-language subtitle files
+    },
     // The srtTracks_copy profile copies srt subtitles files from
     // source to destination, using standardized names
     srtTracks_copy: {
@@ -157,15 +156,17 @@ export default {
       ext: 'srt',
       contentType: 'application/x-subrip',
       multiFile: true // per-language subtitle files
-    }//,
-    // The vttTextTracks profile creates a vtt file for each srt file
-    // unless the vtt file already exists at the destination
-    // vttTextTracks: {
-    //   operation: 'vttTextTracks',
-    //   ext: 'vtt',
-    //   contentType: 'text/vtt',
-    //   multiFile: true // per-language subtitle files
-    // }
+    },
+    // The srt2vttTracks profile creates a vtt file for each srt file
+    // This vtt-from-srt file has a different name from the vtt file that may
+    // have been copied by a copyTextTracks operation. This allows a web-player
+    // to offer the viewer a choice of vtt tracks: the one that came with the video, or
+    srt2vttTracks: {
+      operation: 'srt2vttTracks',
+      ext: 'vtt',
+      contentType: 'text/vtt',
+      multiFile: true // per-language subtitle files
+    }
   },
   // from https://ffmpeg.org/ffmpeg-utils.html#Video-size
   ffmpeg_sizes: {

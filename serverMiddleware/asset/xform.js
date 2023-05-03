@@ -99,11 +99,12 @@ function profileCommand (profile) {
 }
 
 function looksLikeShellCommand (command) {
-  return command.length <= 5 && command.endsWith('sh')
+  return basename(command).length <= 5 && command.endsWith('sh')
 }
 
 function isCommandAllowed (mediaType, command) {
   const allowedCommands = MEDIA_COMMANDS[mediaType].allowedCommands
+
   return !looksLikeShellCommand(command) &&
     (ALWAYS_ALLOWED_COMMANDS.includes(command) || (allowedCommands && allowedCommands.includes(command)))
 }

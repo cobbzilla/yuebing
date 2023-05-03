@@ -295,7 +295,7 @@ export default {
   admin_label_source_encryption_iv: 'ইনিশিয়ালাইজেশন ভেক্টর (IV)',
   admin_label_source_encryption_algo: 'অ্যালগরিদম',
   label_sourceType_local: 'স্থানীয় ফাইল সিস্টেম',
-  label_sourceType_local_field_baseDir: 'মাউন্ট ডিরেক্টরি',
+  label_sourceType_local_field_key: 'মাউন্ট ডিরেক্টরি',
   label_sourceType_local_field_mode: 'ফাইল/ডিরেক্টরি তৈরির মোড',
   label_sourceType_s3: 'আমাজন S3',
   label_sourceType_s3_field_key: 'AWS অ্যাক্সেস কী',

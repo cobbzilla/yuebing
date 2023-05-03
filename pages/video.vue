@@ -13,9 +13,10 @@
 </template>
 
 <script>
+// noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '~/media'
-import VideoPlayer from '@/components/VideoPlayer.vue'
+import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName } from '../shared/media'
+import VideoPlayer from '../components/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 
 export default {

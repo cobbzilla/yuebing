@@ -14,8 +14,8 @@ export default {
     // See pages/media/video.vue for an example
     mediainfo_json: {
       operation: 'mediainfo',
-      // this is the command to run, just happens to be the same as the operation name
-      command: 'mediainfo',
+      // this is the command to run
+      command: './scripts/mediainfo_wrapper',
       ext: 'json',
       contentType: 'application/json',
       outfile: 'stdout',

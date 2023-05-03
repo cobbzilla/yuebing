@@ -138,13 +138,21 @@ function mediaProfilesForSource (path) {
   }
 
   // ensure profile objects have their name as a property
-  Object.keys(typeConfig.profiles).forEach((p) => {
+  const profileNames = Object.keys(typeConfig.profiles)
+  profileNames.forEach((p) => {
     if (typeof typeConfig.profiles[p].name === 'undefined') {
       typeConfig.profiles[p].name = p
     }
   })
 
-  return typeConfig.profiles
+  const sortedProfileNames = typeConfig.from
+    ? profileNames.sort((k1, k2) => k1 in MEDIA[typeConfig.from].profiles ? -1 : k2 in MEDIA[typeConfig.from].profiles ? 1 : 0)
+    : profileNames
+  const profiles = {}
+  for (const n of sortedProfileNames) {
+    profiles[n] = typeConfig.profiles[n]
+  }
+  return profiles
 }
 
 function hasProfiles (path) {

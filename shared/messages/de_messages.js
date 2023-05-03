@@ -289,7 +289,7 @@ export default {
   admin_label_source_encryption_iv: 'Initialisierungsvektor (IV)',
   admin_label_source_encryption_algo: 'Algorithmus',
   label_sourceType_local: 'Lokales Dateisystem',
-  label_sourceType_local_field_baseDir: 'Mount-Verzeichnis',
+  label_sourceType_local_field_key: 'Mount-Verzeichnis',
   label_sourceType_local_field_mode: 'Datei-/Verzeichniserstellungsmodus',
   label_sourceType_s3: 'Amazon S3',
   label_sourceType_s3_field_key: 'AWS-Zugriffsschlüssel',
