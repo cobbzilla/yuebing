@@ -43,9 +43,9 @@ export default {
     dash_mp4: {
       operation: 'dash',
       // At startup, each element of this array is transformed into the corresponding profile object
-      // subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
+      subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
       // subProfiles: ['transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
-      subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
+      // subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
       contentType: 'application/dash+xml',
       ext: 'mpd',
       primary: true,
@@ -109,37 +109,37 @@ export default {
     // because some videos are shorter than 60 seconds, there is another
     // set of first_thumbnail_ profiles to grab some screenshots of the video
     // just a few seconds from the start (the 'offset' property)
-    // thumbnail_small: {
-    //   operation: 'thumbnails',
-    //   size: 'vga',
-    //   fps: '1/60',
-    //   ext: 'jpg',
-    //   contentType: 'image/jpeg',
-    //   multiFile: true
-    // },
-    // first_thumbnail_small: {
-    //   operation: 'firstThumbnail',
-    //   size: 'vga',
-    //   offset: 6,
-    //   ext: 'jpg',
-    //   contentType: 'image/jpeg'
-    // },
-    // thumbnail_medium: {
-    //   from: 'thumbnail_small',
-    //   size: 'hd720'
-    // },
-    // first_thumbnail_medium: {
-    //   from: 'first_thumbnail_small',
-    //   size: 'hd720'
-    // },
-    // thumbnail_large: {
-    //   from: 'thumbnail_small',
-    //   size: 'hd1080'
-    // },
-    // first_thumbnail_large: {
-    //   from: 'first_thumbnail_small',
-    //   size: 'hd1080'
-    // },
+    thumbnail_small: {
+      operation: 'thumbnails',
+      size: 'vga',
+      fps: '1/60',
+      ext: 'jpg',
+      contentType: 'image/jpeg',
+      multiFile: true
+    },
+    first_thumbnail_small: {
+      operation: 'firstThumbnail',
+      size: 'vga',
+      offset: 6,
+      ext: 'jpg',
+      contentType: 'image/jpeg'
+    },
+    thumbnail_medium: {
+      from: 'thumbnail_small',
+      size: 'hd720'
+    },
+    first_thumbnail_medium: {
+      from: 'first_thumbnail_small',
+      size: 'hd720'
+    },
+    thumbnail_large: {
+      from: 'thumbnail_small',
+      size: 'hd1080'
+    },
+    first_thumbnail_large: {
+      from: 'first_thumbnail_small',
+      size: 'hd1080'
+    },
 
     // The vttTracks_copy profile copies vtt subtitles files from
     // source to destination, using standardized names
