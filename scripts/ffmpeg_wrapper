@@ -26,7 +26,8 @@ log () {
 
 loadAverage () {
   # Use the 5-minute load average; the 2nd-to-last word in `uptime` output
-  uptime | awk '{print $(NF-1)}'
+  # Return only the integer part of the load, drop any decimal
+  uptime | awk '{print $(NF-1)}' | cut -d. -f1
 }
 
 # This block of load-related code is to keep the system from grinding
