@@ -1,3 +1,8 @@
+// Don't change this variable. If you want to enable/disable email, set the YB_EMAIL_HOST environment
+// variable (and others, see below in privateRuntimeConfig for email settings)
+const EMAIL_ENABLED = typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0
+const EMAIL_REQUIRED = EMAIL_ENABLED ? 'required|' : ''
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -58,9 +63,9 @@ export default {
     // When enabled, logged-in users will see an "invite friends" feature in page footer
     inviteFriendsEnabled: process.env.YB_INVITE_FRIENDS_ENABLED || true,
 
-    // Don't change this line. If you want to enable email, set the YB_EMAIL_HOST environment
+    // Don't change this line. If you want to enable/disable email, set the YB_EMAIL_HOST environment
     // variable (and others, see below in privateRuntimeConfig for email settings)
-    emailEnabled: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0),
+    emailEnabled: EMAIL_ENABLED,
 
     // the various 'configurable' sections provide metadata (validation rules/etc) for the "System
     // Configuration" page in the admin panel, which allows most settings to be updated at runtime
@@ -96,7 +101,7 @@ export default {
       emailEnabled: {
         rules: 'required',
         format: 'flag',
-        default: (typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0)
+        default: EMAIL_ENABLED
       }
     }
   },
@@ -123,27 +128,26 @@ export default {
       user: process.env.YB_EMAIL_USER || null,
       password: process.env.YB_EMAIL_PASSWORD || null,
       secure: process.env.YB_EMAIL_SECURE || true,
-      fromEmail: process.env.YB_EMAIL_FROM || 'nobody@localhost',
+      fromEmail: process.env.YB_EMAIL_FROM || 'nobody@localhost.localhost',
       configurable: {
         host: {
-          // eslint-disable-next-line no-useless-escape
-          rules: 'required|host|min:6|max:128'
+          rules: `${EMAIL_REQUIRED}host|min:6|max:128`
         },
         port: {
-          rules: 'required|integer|min_value:10|max_value:65000'
+          rules: `${EMAIL_REQUIRED}integer|min_value:10|max_value:65000`
         },
         user: {
-          rules: 'required|min:2|max:100'
+          rules: `${EMAIL_REQUIRED}min:2|max:100`
         },
         password: {
-          rules: 'required|min:2|max:100'
+          rules: `${EMAIL_REQUIRED}min:2|max:100`
         },
         secure: {
-          rules: 'required',
+          rules: EMAIL_REQUIRED,
           format: 'flag'
         },
         fromEmail: {
-          rules: 'required|email|min:2|max:100'
+          rules: `${EMAIL_REQUIRED}email|min:2|max:100`
         }
       }
     },

@@ -118,7 +118,8 @@ const MEDIAINFO_FIELDS = {
     sort: 1500,
     editable: true,
     major: true,
-    find: ['$.media.track[?(@.@type=="General")].Tags'] // fixme: is this correct?
+    find: ['$.media.track[?(@.@type=="General")].Tags'], // fixme: is this correct?
+    array: true
   },
 
   // sort: 2xxx -- important read-only fields
@@ -155,38 +156,59 @@ const MEDIAINFO_FIELDS = {
     ],
     disableIndex: true
   },
+  videoLanguage: {
+    sort: 2040,
+    find: ['$.media.track[?(@.@type=="Video")].Language'],
+    disableIndex: true
+  },
+  audioLanguage: {
+    sort: 2050,
+    find: ['$.media.track[?(@.@type=="Audio")].Language'],
+    disableIndex: true
+  },
+  textTrackLanguages: {
+    sort: 2060,
+    find: ['$.media.track[?(@.@type=="Text")].Language'],
+    disableIndex: true,
+    array: true
+  },
 
   // sort: 3xxx -- less well-known fields
-  videoTracks: {
+  videoTrackCount: {
     sort: 3000,
     find: ['$.media.track[?(@.@type=="General")].VideoCount'],
     disableIndex: true
   },
-  audioTracks: {
+  audioTrackCount: {
     sort: 3010,
     find: ['$.media.track[?(@.@type=="General")].AudioCount'],
     disableIndex: true
   },
-  format: {
+  textTrackCount: {
     sort: 3020,
+    find: ['$.media.track[?(@.@type=="Text")].TextCount'],
+    disableIndex: true
+  },
+  format: {
+    sort: 3030,
     find: ['$.media.track[?(@.@type=="General")].Format']
   },
   contentType: {
-    sort: 3030,
+    sort: 3040,
     find: ['$.media.track[?(@.@type=="General")].InternetMediaType']
   },
   bitRate: {
-    sort: 3040,
+    sort: 3050,
     find: ['$.media.track[?(@.@type=="General")].OverallBitRate'],
     disableIndex: true
   },
   frameRate: {
-    sort: 3050,
+    sort: 3060,
     find: ['$.media.track[?(@.@type=="General")].FrameRate'],
     disableIndex: true
   },
   dateEncoded: {
-    sort: 3060,
+    sort: 3070,
     find: ['$.media.track[?(@.@type=="General")].File_Modified_Date'],
     disableIndex: true,
     major: true
@@ -235,9 +257,10 @@ function mediaInfoField (field, mediainfo, userMediainfo) {
   if (candidates && candidates.find) {
     for (let i = 0; i < candidates.find.length; i++) {
       const candidate = candidates.find[i]
-      const found = jp.query(mediainfo, candidate, 1)
+      const maxFind = 'array' in candidates && candidates.array === true ? 1000 : 1
+      const found = jp.query(mediainfo, candidate, maxFind)
       if (found && found.length && found.length > 0) {
-        const value = found[0]
+        const value = maxFind === 1 ? found[0] : JSON.stringify(found)
         return typeof value === 'string' ? value : JSON.stringify(value)
       }
     }

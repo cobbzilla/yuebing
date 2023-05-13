@@ -229,7 +229,7 @@ async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile,
     errorMessage = message
   }
   if (errorMessage === null) {
-    // OK, upload all the thumbnails
+    // OK, upload all the files
     for (let i = 0; i < multifiles.length; i++) {
       const f = multifiles[i]
       logger.debug(`${logPrefix} uploading: ${f} ...`)
@@ -251,8 +251,6 @@ async function handleMultiOutputFiles (sourcePath, profile, multifiles, outfile,
     logger.debug(`${logPrefix} clearing errors after successful upload)`)
     await clearErrors(job, jobPrefix, sourcePath, profile)
   }
-  logger.debug(`${logPrefix} deleting local outfiles (${errorMessage ? `ERROR: ${errorMessage}` : 'after successful upload'})`)
-  deleteLocalFiles(outfile, profile, job, jobPrefix)
 }
 
 function handleOutputFiles (job, sourcePath, profile, outfile) {
@@ -398,7 +396,11 @@ async function mediaTransform (job, file, profile, outfile) {
   }
   q.recordJobEvent(job, `${logPrefix}_xform_${xform.name}`, `${profileCommand(profile)}`)
   const args = await xform(sourcePath, file, profile, outfile)
-  await runTransformCommand(job, mediaDriver, profile, outfile, args, closeHandler)
+  if (args === null) {
+    q.recordJobEvent(job, `${logPrefix}_xform_${xform.name}_SKIPPED_NO_ARGS`, `${profileCommand(profile)}`)
+  } else {
+    await runTransformCommand(job, mediaDriver, profile, outfile, args, closeHandler)
+  }
   q.recordJobEvent(job, `${logPrefix}_DONE`)
 }
 

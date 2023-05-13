@@ -7,9 +7,9 @@ export default {
   ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp', 'mpd', 'm4s', 'ts', 'm3u8'],
 
   // Configuration params for the supported operations
-  // Currently the video transformer only uses these to verify that
-  // the assets created have some minimum size to be considered valid
-  // It's a very rudimentary check. Better validation of final assets would be great
+  // Currently supported:
+  //   * minFileSize: used by the video transformer, assets must this minimum size to be considered valid
+  //   * func: if true, call the video driver function with this operation name
   operations: {
     transcode: {
       minFileSize: 1024 * 128 // 128k min valid size
@@ -26,6 +26,9 @@ export default {
     copyTextTracks: {
       func: true,    // don't execute an external command, instead call the 'copyTextTracks_command' function
       minFileSize: 0 // no minimum size, there may be no subtitle files
+    },
+    extractTextTracks: {
+      minFileSize: 64 // a subtitle file for even a very short video should be at least 64 bytes
     },
     srt2vttTracks: {
       func: true,    // don't execute an external command, instead call the 'srt2vttTracks_command' function
@@ -155,6 +158,14 @@ export default {
       operation: 'copyTextTracks',
       ext: 'srt',
       contentType: 'application/x-subrip',
+      multiFile: true // per-language subtitle files
+    },
+    // The vttTracks_extract profile extracts subtitles from the source video (if present)
+    // converts them to vtt and saves them to the destination, using standardized names
+    vttTracks_extract: {
+      operation: 'extractTextTracks',
+      ext: 'vtt',
+      contentType: 'text/vtt',
       multiFile: true // per-language subtitle files
     },
     // The srt2vttTracks profile creates a vtt file for each srt file

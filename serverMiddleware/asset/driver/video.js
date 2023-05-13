@@ -1,6 +1,9 @@
+const { deriveMediaInfo, deriveMetadata } = require('../manifest')
+
 const { basename, dirname } = require('path')
 const { existsSync, writeFileSync } = require('fs')
 const { ALL_LANGS } = require('hokeylization/util/constants')
+const ISO_639 = require('hokeylization/util/iso639')
 
 const c = require('../../../shared')
 const s = require('../../../shared/source')
@@ -159,12 +162,14 @@ async function firstThumbnail (sourcePath, sourceFile, profile, outfile) {
 
 const LANG_MAP = {}
 
+const ALL_LANGS_ARRAY = ALL_LANGS.split(',')
+
 function getLangMap () {
   if (c.okl(LANG_MAP) > 0) {
     return LANG_MAP
   }
   try {
-    for (const langCode of ALL_LANGS.split(',')) {
+    for (const langCode of ALL_LANGS_ARRAY) {
       const lang = langCode.toLowerCase()
       LANG_MAP[lang] = lang
       const langSpecificLangs = require('hokeylization/messages/locales_' + lang)
@@ -177,6 +182,9 @@ function getLangMap () {
           LANG_MAP[langValue.toLowerCase()] = loc
         }
       }
+    }
+    for (const langCode of ISO_639) {
+      LANG_MAP[langCode] = ISO_639[langCode]
     }
   } catch (e) {
     logger.error(`getLangMap: error: ${JSON.stringify(e)}`)
@@ -199,6 +207,7 @@ function toLang (lang) {
 }
 
 // return value is an array of strings, which becomes the args to copyTextTracks_command below
+// noinspection JSUnusedGlobalSymbols
 async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
   const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
@@ -232,11 +241,13 @@ async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
   return filesCopied
 }
 
+// noinspection JSUnusedGlobalSymbols
 async function copyTextTracks_command (files) {
   logger.info(`copyTextTracks_command called with files=${JSON.stringify(files)}`)
   return 0
 }
 
+// noinspection JSUnusedGlobalSymbols
 async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
   const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
@@ -278,9 +289,82 @@ async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
   return srtFilesConverted
 }
 
+// noinspection JSUnusedGlobalSymbols
 async function srt2vttTracks_command (files) {
   logger.info(`srt2vttTracks_command called with files=${JSON.stringify(files)}`)
   return 0
+}
+
+function codecForTextTrackContentType (contentType) {
+  const ct = contentType.toLowerCase()
+  if (ct === 'text/vtt') return 'webvtt'
+  if (ct === 'application/x-subrip') return 'subrip'
+  // todo: support other text track types?
+  return null
+}
+
+async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
+  const logPrefix = `extractTextTracks(sourcePath=${sourcePath}, profile=${profile.name}):`
+  const codec = codecForTextTrackContentType(profile.contentType)
+  if (codec == null) {
+    logger.warn(`${logPrefix} skipping (unsupported text track contentType: ${profile.contentType})`)
+    return null
+  }
+
+  const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
+  const meta = await deriveMetadata(source, pth)
+  const textTracks = []
+  if (!meta) {
+    logger.warn(`${logPrefix} skipping (deriveMetadata returned null)`)
+    return null
+  }
+
+  const mediainfo = await system.rawMediaInfo(meta, source, pth)
+  if (!(mediainfo && 'media' in mediainfo && 'track' in mediainfo.media)) {
+    logger.warn(`${logPrefix} skipping (no tracks found)`)
+    return null
+  }
+  for (const track of mediainfo.media.track) {
+    if (!('@type' in track && track['@type'] === 'Text')) {
+      logger.silly(`${logPrefix} skipping non-text track: ${JSON.stringify(track)}`)
+      continue
+    }
+    if (!('Format' in track)) {
+      logger.warn(`${logPrefix} skipping text track (no Format): ${JSON.stringify(track)}`)
+      continue
+    }
+    if (!('Language' in track && ALL_LANGS_ARRAY.indexOf(track.Language) !== -1)) {
+      logger.warn(`${logPrefix} skipping unsupported text track (expected valid Language): ${JSON.stringify(track)}`)
+      continue
+    }
+    textTracks.push(track)
+  }
+
+  if (textTracks.length === 0) {
+    logger.info(`${logPrefix} no supported text tracks found, skipping`)
+    return null
+  }
+
+  const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
+  if (placeholder === -1) {
+    throw new TypeError(`extractTextTracks: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
+  }
+  const outfilePrefix = outfile.substring(0, placeholder)
+
+  const args = []
+  args.push('-i')
+  args.push(sourceFile)
+  for (let i=0; i<textTracks.length; i++) {
+    // const track = textTracks[i]
+    args.push('-c')
+    args.push(codec)
+    args.push('-map')
+    args.push(`0:s:${i}`)
+    // fixme: use proper left-zero-padding
+    args.push(`${outfilePrefix}00${i+1}.${profile.ext}`)
+  }
+  args.push("-y")
+  return args
 }
 
 const normSize = (val) => {
@@ -413,5 +497,5 @@ export {
   transcode, dash, thumbnails, firstThumbnail,
   copyTextTracks, copyTextTracks_command,
   srt2vttTracks, srt2vttTracks_command,
-  quality
+  extractTextTracks, quality
 }

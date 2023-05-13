@@ -86,17 +86,22 @@ const SYSTEM = {
     return 'source.' + ext
   },
   userMediaInfoPath: (sourceName, pth) => SYSTEM.assetsDir(sourceName + '/' + pth) + USER_MEDIAINFO_JSON,
+  rawMediaInfo: async (meta, sourceName, pth) => {
+    const profilesForSource = mediaProfilesForSource(pth)
+    const mediaInfoProfile = Object.keys(meta.assets)
+      .find(p => profilesForSource[p] && isMediaInfoJsonProfile(profilesForSource[p]))
+    if (mediaInfoProfile && mediaInfoProfile.length > 0) {
+      const mediaInfoPath = meta.assets[mediaInfoProfile][0]
+      const mediaInfoJson = await SYSTEM.api.safeReadFile(mediaInfoPath)
+      return mediaInfoJson ? JSON.parse(mediaInfoJson) : null
+    }
+  },
   userMediaInfo: async (meta, sourceName, pth) => {
     try {
-      const profilesForSource = mediaProfilesForSource(pth)
-      const mediaInfoProfile = Object.keys(meta.assets)
-        .find(p => profilesForSource[p] && isMediaInfoJsonProfile(profilesForSource[p]))
-      if (mediaInfoProfile && mediaInfoProfile.length > 0) {
-        const mediaInfoPath = meta.assets[mediaInfoProfile][0]
-        const mediaInfoJson = await SYSTEM.api.safeReadFile(mediaInfoPath)
-        const mediaInfo = mediaInfoJson ? JSON.parse(mediaInfoJson) : null
-        const userMediaInfoJson = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
-        const userMediaInfo = userMediaInfoJson ? JSON.parse(userMediaInfoJson) : null
+      const mediaInfo = SYSTEM.rawMediaInfo(meta, sourceName, pth)
+      const userMediaInfoJson = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
+      const userMediaInfo = userMediaInfoJson ? JSON.parse(userMediaInfoJson) : null
+      if (mediaInfo !== null) {
         const result = {}
         if (mediaInfo || userMediaInfo) {
           for (const field of mediaInfoFields()) {
@@ -105,7 +110,6 @@ const SYSTEM = {
         }
         return result
       } else {
-        const userMediaInfo = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
         return userMediaInfo || null
       }
     } catch (e) {
