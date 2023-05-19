@@ -5,7 +5,7 @@ Yuebing 🥮
  Yuebing prepara automáticamente sus videos de origen para la transmisión utilizando formatos modernos, reproducibles en cualquier
  dispositivo a través de cualquier conexión.
 
- Yuebing puede usar Amazon S3 o Backblaze B2 para el almacenamiento de back-end y tiene muchas características avanzadas.
+ Yuebing puede usar Amazon S3 o Backblaze B2 para el almacenamiento de back-end y tiene muchas funciones avanzadas.
 
  ### Fuente
  * [yuebing en GitHub](https://github.com/cobbzilla/yuebing)

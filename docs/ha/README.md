@@ -198,7 +198,7 @@ Yuebing 🥮
  Wataƙila mafi ban sha'awa, yuebing yana nufin [mooncake](https://en.wikipedia.org/wiki/Mooncake)
  ( Sinanci: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
  Jafananci: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); mooncakes suna da daɗi sosai kuma ana iya samun su a ciki
- nau'ikan dandano da salo iri-iri. Yi farin ciki da salon yanki na lokaci-girmamawa, ko gwada kek mai ban mamaki daga zamani
- masu yin burodi waɗanda ke binciken yanki mai daɗi da ba a tantance ba! Akwai gaske yuebing ga kowa da kowa!
+ nau'ikan dandano da salo iri-iri. Yi farin ciki da salon yanki na lokaci-girmamawa, ko gwada kek mai ban mamaki daga na zamani
+ masu yin burodi waɗanda ke binciko yanki mai daɗi da ba a tantance ba! Akwai gaske yuebing ga kowa da kowa!
 
 </pre>

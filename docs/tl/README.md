@@ -137,7 +137,7 @@ Yuebing 🥮
  * Kung binago ang encryption key, maaaring ilipat ng admin ang mga user sa bagong key gamit ang web admin console
 
  ## Pag-install
- Maaari mong i-install at patakbuhin `yuebing` pamamagitan ng docker, npm o direkta mula sa pinagmulan.
+ Maaari mong i-install at patakbuhin `yuebing` sa pamamagitan ng docker, npm o direkta mula sa pinagmulan.
 
  ### Docker
  Kung mayroon kang docker, maaari kang magsimula sa Yuebing nang mabilis:
@@ -176,7 +176,7 @@ Yuebing 🥮
 
  ## Configuration
  Para makipaglaro kay Yuebing, mainam na simulan ito nang hindi nagko-configure ng anuman.
- Patakbuhin `yuebing` at ipo-prompt kang ipasok ang minimal na config kapag nagsimula ito.
+ Patakbuhin ang `yuebing` at ipo-prompt kang ipasok ang minimal na config kapag nagsimula ito.
 
  Kung plano mong patakbuhin ang Yuebing saglit, tingnan ang [configuration docs](https://github.com/cobbzilla/yuebing/blob/master/docs/config.md) para sa
  higit pang impormasyon kung paano i-set up ang mga bagay.

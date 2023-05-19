@@ -7,7 +7,7 @@ Yuebing 🥮
 
  Yuebing peut utiliser Amazon S3 ou Backblaze B2 pour le stockage backend et possède de nombreuses fonctionnalités avancées.
 
- ### La source
+ ### Source
  * [yuebing sur GitHub](https://github.com/cobbzilla/yuebing)
  * [yuebing sur npm](https://www.npmjs.com/package/yuebing)
  * [yuebing sur DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
@@ -83,7 +83,7 @@ Yuebing 🥮
 
  ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">** Rendons les sites vidéo auto-hébergés super faciles ! **</a>
 
- ## Fonctionnalités
+ ## Caractéristiques
  * Transformez un ensemble de vidéos S3 (ou B2) en un site vidéo privé pour vos amis et votre famille !
  * Connectez un ou plusieurs buckets sources fournissant des fichiers multimédias bruts
  * Yuebing transcode automatiquement les vidéos source dans le format le plus récent et le plus largement pris en charge pour le streaming à débit binaire adaptatif (DASH/mp4)
@@ -102,7 +102,7 @@ Yuebing 🥮
  * [Aidez la communauté, traduisez Yuebing dans de nouvelles langues !](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Console d'administration complète
  * Rechercher des vidéos par mots-clés ou à partir d'un nuage de tags
- * <a href="https://www.patreon.com/cobbzilla">**Bientôt disponible avec votre soutien**</a> :
+ * <a href="https://www.patreon.com/cobbzilla">**Bientôt disponible avec votre soutien**</a> :
  * Prise en charge de plusieurs types de médias (audio, images, etc.)
  * Médias téléchargés par l'utilisateur
  * Aime, partage et notifications push
@@ -125,7 +125,7 @@ Yuebing 🥮
  ## Fonctionnalités de l'utilisateur administrateur
  * Modifier les métadonnées des médias, afficher les vignettes, modifier la vignette sélectionnée
  * Afficher la file d'attente de transformation des médias et l'état du travail
- * Démarrer de nouveaux scans et index des médias source
+ * Démarrer de nouveaux scans et index des médias sources
 
  ## Fonctionnalités serveur/backend
  * Transient-friendly, ZERO persistant/importantes données sont stockées dans le conteneur.
@@ -140,7 +140,7 @@ Yuebing 🥮
  Vous pouvez installer et exécuter `yuebing` via docker, npm ou directement depuis la source.
 
  ### Docker
- Si vous avez docker, vous pouvez commencer rapidement avec Yuebing :
+ Si vous avez docker, vous pouvez commencer rapidement avec Yuebing :
 
     docker run -it cobbzilla/yuebing
 
@@ -199,6 +199,6 @@ Yuebing 🥮
  (Chinois : [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
  Japonais : [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)) ; les gâteaux de lune sont très savoureux et peuvent être trouvés dans
  une grande variété de saveurs et de styles. Savourez un style régional séculaire ou essayez un gâteau exotique de cuisine contemporaine
- boulangers qui explorent un territoire délicieusement inexploré ! Il y a vraiment un yuebing pour tout le monde!
+ boulangers qui explorent un territoire délicieusement inexploré ! Il y a vraiment un yuebing pour tout le monde !
 
 </pre>

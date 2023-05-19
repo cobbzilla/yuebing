@@ -1,5 +1,5 @@
 Yuebing 🥮
- ===========
+ ==========
  Yuebing è un software open source per l'esecuzione di siti di hosting video.
 
  Yuebing prepara automaticamente i tuoi video sorgente per lo streaming utilizzando formati moderni, riproducibili su qualsiasi
@@ -16,7 +16,7 @@ Yuebing 🥮
  Questo documento README.md è stato tradotto, tramite [hokeylization](https://github.com/cobbzilla/hokeylization), in
  molte lingue.
 
- Sono certa che non sia perfetto, ma spero sia meglio di niente!
+ Sono certo che non è perfetto, ma spero che sia meglio di niente!
 
  [🇸🇦 Arabo](../ar/README.md)
  [🇧🇩 Bengali](../bn/README.md)
@@ -29,7 +29,7 @@ Yuebing 🥮
  [🇮🇩 Indonesiano](../id/README.md)
  [🇮🇹 Italiano](../it/README.md)
  [🇯🇵 Giapponese](../ja/README.md)
- [🇰🇷 Coreano](../ko/README.md)
+ [🇰🇷 coreano](../ko/README.md)
  [🇮🇳 Marathi](../mr/README.md)
  [🇵🇱 Polacco](../pl/README.md)
  [🇧🇷 Portoghese](../pt/README.md)
@@ -47,58 +47,58 @@ Yuebing 🥮
  * [Caratteristiche](#Caratteristiche)
  * [Installazione](#Installazione)
  * [Docker](#Docker)
- * [pacchetto npm](pacchetto #npm)
- * [Da fonte](#Da-fonte)
+ * [pacchetto npm](#pacchetto npm)
+ * [Dalla fonte](#From-source)
  * [Configurazione](#Configurazione)
- * [nginx config](#nginx-config)
+ * [configurazione nginx](#nginx-config)
  * [Perché il nome yuebing?](#Perché-il-nome-yuebing?)
 
  ## Ispirazione
- L'anno scorso mia madre ha speso un sacco di tempo (e denaro!) Per organizzare e digitalizzare un archivio di vecchi video di famiglia.
- Alcuni di questi erano piuttosto vecchi, risalenti agli anni '40. Roba davvero bella, classica.
+ L'anno scorso mia madre ha speso un sacco di tempo (e denaro!) per organizzare e digitalizzare un archivio di vecchi video di famiglia.
+ Alcuni di questi erano piuttosto vecchi, risalenti agli anni '40. Roba davvero bella e classica.
 
  Volevamo condividerli privatamente con la famiglia, ma *non con la grande tecnologia*.
- Andare con l'hosting video "gratuito" da un importante provider era fuori discussione.
+ Andare con l'hosting video "gratuito" di un importante provider era fuori discussione.
 
- Cosa cercavamo:
- * Self-hosted, ma totalmente **semplice** da gestire e mantenere
+ Cosa stavamo cercando:
+ * Self-hosted, ma totalmente **facile** da eseguire e mantenere
  * Streaming in formati video moderni, incluso il bitrate adattivo
  * I video vengono riprodotti su qualsiasi dispositivo, desktop o mobile
  * Con una connessione ad alta larghezza di banda, la qualità video è eccezionale; così come viene
  * **Anche con una cattiva connessione**, la riproduzione è di qualità decente e *non salta o bufferizza*
  * Archiviazione crittografata, quindi in grado di utilizzare soluzioni di archiviazione su cloud pubblico con una certa sicurezza
- * Server senza stato: salva tutto ciò che è importante nell'archiviazione che è altamente resiliente
+ * Server stateless: persiste qualsiasi elemento importante per lo storage altamente resiliente
  * **Non voglio preoccuparmi dei backup!**
- * *Questo è stato bello da avere. A quanto pare niente là fuori ha qualcosa di simile. Yuebing sì!*
+ * *È stato bello averlo. A quanto pare niente là fuori ha qualcosa di simile. Yuebing sì!*
  * Dopo aver eseguito un'istanza robusta per transcodificare tutto, abbattila ed esegui qualcosa di più economico a lungo termine
- * Puoi eseguire Yuebing per meno di $ 10 al mese; e, si spera, anche meno lungo la strada mentre ottimizziamo l'impronta di Yuebing
+ * Puoi eseguire Yuebing per meno di $ 10 al mese; e si spera ancora meno lungo la strada mentre ottimizziamo l'impronta di Yuebing
 
  Ho impiegato un paio di settimane per esaminare cosa c'era là fuori. Ho iniziato a rilassare notevolmente le mie esigenze, e ancora
- non ho trovato niente di decente. Ho esaminato diversi progetti open source, non dico quale perché tutti avevano
+ trovato niente di decente. Ho esaminato diversi progetti open source, non dico quali perché li avevano tutti
  molteplici difetti evidenti.
 
- Quindi, ho deciso, quanto potrebbe essere difficile? Connetti S3 a ffmpeg, ci metti un frontend decentemente moderno e il gioco è fatto, giusto?
- ... beh, la maggior parte del lavoro ha richiesto un paio di mesi, ma è stato troppo divertente fermarlo!
- Spero che ti piaccia anche tu!
+ Quindi, ho deciso, quanto potrebbe essere difficile? Colleghi S3 a ffmpeg, ci metti un frontend decentemente moderno e il gioco è fatto, giusto?
+ ... beh, il grosso del lavoro ha richiesto un paio di mesi, ma è stato troppo divertente fermarsi!
+ Spero che piaccia anche a te!
 
- ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Rendiamo i siti di video self-hosting super facili!**</a>
+ ### <a style="text-decoration: none; color: inherit" href="https://open.spotify.com/track/0HEYFRBo4pBLLWjXsAZjod?si=riLTqMknTji7_X_4XzSkGQ&context=spotify%3Aalbum%3A20KGjm5xRROTqP0UY1EVRg">**Semplifichiamo i siti di video self-hosting!**</a>
 
  ## Caratteristiche
- * Trasforma un secchio di video S3 (o B2) in un sito di video privato per amici e familiari!
- * Collega uno o più bucket di origine che forniscono file multimediali grezzi
- * Yuebing transcodifica automaticamente i video sorgente nel formato più recente e ampiamente supportato per lo streaming adattivo del bitrate (DASH/mp4)
+ * Trasforma un bucket di video S3 (o B2) in un sito di video privato per amici e familiari!
+ * Collega uno o più bucket di origine fornendo file multimediali non elaborati
+ * Yuebing transcodifica automaticamente i video sorgente nel formato più recente e più ampiamente supportato per lo streaming a bitrate adattivo (DASH/mp4)
  * TUTTI i dati sono archiviati nel bucket di destinazione; puoi distruggere il server quando vuoi
- * Utile per l'esecuzione inizialmente su un'istanza ottimizzata per la CPU per la transcodifica iniziale, quindi eseguire \
+ * Utile per l'esecuzione iniziale su un'istanza ottimizzata per la CPU per la transcodifica iniziale, quindi eseguire \
     on a much cheaper instance for 24/7/365 service.
  * Supporta l'archiviazione completamente crittografata (crittografia lato app, solo tu hai la chiave)
  * Sempre di sola lettura dalla fonte, non modificare mai il contenuto della fonte
  * Scansione automatica e manuale per nuovi file multimediali
- * Quanto privato o pubblico vuoi le cose? Yuebing supporta:
- * Totalmente privato: nessun supporto mostrato agli utenti anonimi, solo gli indirizzi e-mail approvati possono creare account
- * Semi-privato: nessun supporto mostrato agli utenti anonimi, ma chiunque può creare un account utente
+ * Quanto vuoi che siano private o pubbliche le cose? Yuebing supporta:
+ * Totalmente privato: nessun media mostrato agli utenti anonimi, solo gli indirizzi email approvati possono creare account
+ * Semi-privato: nessun media mostrato agli utenti anonimi, ma chiunque può creare un account utente
  * Pubblico con registrazione limitata: i media vengono mostrati a tutti, ma solo gli indirizzi email approvati possono creare account
  * Totalmente pubblico: i media vengono mostrati a tutti e chiunque può creare un account utente
- * Completamente internazionalizzato! Tutto il testo visibile dall'utente (e altri elementi specifici della locale) proviene da risorse localizzate
+ * Completamente internazionalizzato! Tutto il testo visibile all'utente (e altre cose specifiche della locale) proviene da risorse localizzate
  * [Aiuta la comunità, traduci Yuebing in nuove lingue!](https://github.com/cobbzilla/yuebing/blob/master/docs/localize.md)
  * Console di amministrazione completa
  * Cerca video per parole chiave o da tag cloud
@@ -114,7 +114,7 @@ Yuebing 🥮
  * Guarda i media!
  * Crea account (se il sito è stato configurato per consentire la registrazione dell'account)
 
- ## Funzionalità dell'utente che ha effettuato l'accesso
+ ## Funzionalità utente connesso
  * Sfoglia i media
  * Guarda i media!
  * Aggiungi un commento, modifica il tuo commento, elimina il tuo commento!
@@ -122,29 +122,29 @@ Yuebing 🥮
  * Modifica le informazioni sull'account
  * Elimina account, elimina tutto ciò che è tuo inclusi tutti i tuoi commenti
 
- ## Funzionalità dell'utente amministratore
- * Modifica i metadati multimediali, visualizza le miniature, cambia la miniatura selezionata
- * Visualizza la coda di trasformazione dei supporti e lo stato del lavoro
- * Avvia nuove scansioni e indici dei media di origine
+ ## Funzionalità utente amministratore
+ * Modifica i metadati multimediali, visualizza le miniature, modifica la miniatura selezionata
+ * Visualizza la coda di trasformazione dei media e lo stato del lavoro
+ * Avvia nuove scansioni e indici dei supporti di origine
 
  ## Funzionalità server/backend
- * I dati transitori/importanti ZERO persistenti vengono archiviati all'interno del contenitore.
- * Tutti i dati durevoli vengono mantenuti nel bucket di destinazione; essenzialmente, utilizziamo S3 come nostro database
+ * All'interno del contenitore vengono archiviati ZERO dati persistenti/importanti compatibili con i transitori.
+ * Tutti i dati durevoli vengono mantenuti nel bucket di destinazione; essenzialmente, usiamo S3 come nostro database
  * Scansione periodica automatica del bucket di origine per nuovi media
- * Aggiungi e modifica i metadati multimediali; le modifiche vengono archiviate nel bucket di destinazione, il supporto di origine non viene mai modificato
+ * Aggiungere e modificare i metadati multimediali; le modifiche vengono archiviate nel bucket di destinazione, il supporto di origine non viene mai modificato
  * Profili di output configurabili. L'impostazione predefinita è DASH-mp4 con più sottoprofili
- * Anche le informazioni sull'account utente vengono archiviate nel bucket di destinazione, opzionalmente crittografate
+ * Le informazioni sull'account utente vengono archiviate anche nel bucket di destinazione, facoltativamente crittografate
  * Se la chiave di crittografia viene modificata, l'amministratore può migrare gli utenti alla nuova chiave con la console di amministrazione web
 
  ## Installazione
  Puoi installare ed eseguire `yuebing` tramite docker, npm o direttamente dal sorgente.
 
  ### Docker
- Se hai la finestra mobile, puoi iniziare rapidamente con Yuebing:
+ Se hai docker, puoi iniziare rapidamente con Yuebing:
 
     docker run -it cobbzilla/yuebing
 
- Pacchetto ### npm
+ ### pacchetto npm
     # install globally with npm
     npm i -g yuebing
 
@@ -172,33 +172,33 @@ Yuebing 🥮
     yarn build # Build yuebing locally for production mode
     yarn start # Start yuebing locally in production mode
 
- Vedere i [documenti per sviluppatori](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) per maggiori informazioni
+ Consulta la [documentazione per gli sviluppatori](https://github.com/cobbzilla/yuebing/blob/master/docs/developer.md) per maggiori informazioni
 
  ## Configurazione
  Per giocare con Yuebing, va bene avviarlo senza configurare nulla.
  Esegui `yuebing` e ti verrà chiesto di inserire la configurazione minima all'avvio.
 
- Se prevedi di eseguire Yuebing per un po', consulta i [documenti di configurazione](https://github.com/cobbzilla/yuebing/blob/master/docs/config.md) per
+ Se prevedi di eseguire Yuebing per un po', consulta la [documentazione di configurazione](https://github.com/cobbzilla/yuebing/blob/master/docs/config.md) per
  maggiori informazioni su come impostare le cose.
 
- ### configurazione di nginx
- Yuebing è un'app Nuxt e si aspetta che metti nginx (o qualche altro server web) in
- di fronte ad esso per gestire SSL, limitazione della velocità se necessario, ecc.
+ ### configurazione nginx
+ Yuebing è un'app Nuxt e si aspetta che tu inserisca nginx (o qualche altro server web)
+ davanti per gestire SSL, limitare la velocità se necessario, ecc.
 
  Se stai usando nginx, ecco una [configurazione di esempio](https://github.com/cobbzilla/yuebing/blob/master/docs/sample-yuebing-nginx.conf) che puoi usare.
 
  ## Perché il nome yuebing?
- [Oolong il coniglio](https://en.wikipedia.org/wiki/Oolong_(coniglio)) era un adorabile e famoso
- [meme Internet iniziale](https://duckduckgo.com/?q=oolong+rabbit&ia=images&iax=images). Oolong è morto nel 2003,
+ [Oolong il coniglio](https://en.wikipedia.org/wiki/Oolong_(rabbit)) era un adorabile e famoso
+ [primo meme di Internet](https://duckduckgo.com/?q=oolong+rabbit&ia=images&iax=images). Oolong è morto nel 2003,
  due anni prima che esistesse un certo servizio video estremamente popolare!
 
  Il successore di Oolong si chiamava Yuebing. Yuebing non era famoso quanto Oolong, ma aveva importanza?
- Yuebing ci riuscì comunque.
+ Yuebing è riuscito comunque.
 
  Forse più interessante, yuebing significa [mooncake](https://en.wikipedia.org/wiki/Mooncake)
  (Cinese: [月饼](https://zh.wikipedia.org/wiki/%E6%9C%88%E9%A5%BC),
- Giapponese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); i mooncake sono molto gustosi e si possono trovare
- un'ampia varietà di gusti e stili. Goditi uno stile regionale antico o prova una torta esotica dal gusto contemporaneo
+ Giapponese: [月餅](https://ja.wikipedia.org/wiki/%E6%9C%88%E9%A4%85)); i mooncakes sono molto gustosi e si possono trovare in
+ un'ampia varietà di sapori e stili. Goditi uno stile regionale consacrato dal tempo o prova una torta esotica dal contemporaneo
  fornai che stanno esplorando un territorio deliziosamente inesplorato! C'è davvero uno yuebing per tutti!
 
 </pre>
