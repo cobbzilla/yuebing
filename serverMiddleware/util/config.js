@@ -28,7 +28,13 @@ const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 
 const SUPPORTED_DEST_TYPES = ['local', 's3', 'b2']
 
-const DEST_TYPE = process.env.YB_DEST_TYPE ? process.env.YB_DEST_TYPE.toLowerCase() : 'local'
+const DEST_TYPE = process.env.YB_DEST_TYPE
+  ? process.env.YB_DEST_TYPE.toLowerCase()
+  : process.env.YB_DEST_KEY && process.env.YB_DEST_BUCKET && process.env.YB_DEST_KEY.startsWith('AKIA')
+    ? 's3'
+    : process.env.YB_DEST_KEY && process.env.YB_DEST_BUCKET
+      ? 'b2'
+      : 'local'
 
 const opts = DEST_TYPE === 's3'
   ? {
