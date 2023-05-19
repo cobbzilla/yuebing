@@ -72,7 +72,7 @@ import ContentComments from '../../components/ContentComments'
 import VideoPlayer from '../../components/media/VideoPlayer.vue'
 import 'video.js/dist/video-js.min.css'
 import { proxyMediaUrl, addQualityParam, getExtension, okl, chopFileExt } from '@/shared'
-import { FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, objectDecodePath } from '@/shared/media'
+import { MEDIA, FILE_TYPE, VIDEO_MEDIA_TYPE, mediaProfileByName, objectDecodePath } from '@/shared/media'
 import { hasAssets, findThumbnail } from '@/shared/mediainfo'
 import { localeMessagesForUser } from '@/shared/locale'
 
@@ -94,7 +94,8 @@ export default {
         width: Math.min(this.mediaInfo?.width || 640, window.screen.width - 50),
         height: null, // always auto-set height based on width, maintains aspect ratio
         poster: null,
-        sources: []
+        sources: [],
+        tracks: []
       },
       qualitySettings: [],
       prevQuality: null,
@@ -171,6 +172,7 @@ export default {
     refreshMeta () {
       if (hasAssets(this.object) && this.defaultVideoOptions.sources.length === 0) {
         this.qualitySettings = []
+        const videoConfig = MEDIA[VIDEO_MEDIA_TYPE]
         for (const assetProfileName in this.object.meta.assets) {
           const mediaProfile = mediaProfileByName(VIDEO_MEDIA_TYPE, assetProfileName)
           if (mediaProfile.primary && mediaProfile.noop !== true) {
@@ -186,11 +188,32 @@ export default {
           }
           const assets = this.object.meta.assets[assetProfileName]
           assets.forEach((asset) => {
-            if (mediaProfile.enabled && mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
-              this.defaultVideoOptions.sources.push({
-                src: proxyMediaUrl(asset, this.user, this.userStatus),
-                type: mediaProfile.contentType
-              })
+            if (mediaProfile.enabled) {
+              if (mediaProfile.primary && getExtension(asset) === mediaProfile.ext) {
+                this.defaultVideoOptions.sources.push({
+                  src: proxyMediaUrl(asset, this.user, this.userStatus),
+                  type: mediaProfile.contentType
+                })
+              } else if (mediaProfile.ext === 'vtt') {
+                // Detect language (and SDH) from the video text track (vtt) asset
+                const ttMatch = basename(asset).match(videoConfig.textTrackRegex)
+                if (ttMatch) {
+                  const lang = ttMatch[3]
+                  const sdh = ttMatch[4] != null
+                  if (lang != null) {
+                    const langMessageKey = 'locale_' + lang
+                    const langLabel = langMessageKey in this.messages ? this.messages[langMessageKey] : lang
+                    const textTrack = {
+                      kind: sdh ? 'captions' : 'subtitles',
+                      src: proxyMediaUrl(asset, this.user, this.userStatus),
+                      srclang: lang,
+                      label: langLabel
+                    }
+                    textTrack.default = (this.defaultVideoOptions.tracks.length === 0)
+                    this.defaultVideoOptions.tracks.push(textTrack)
+                  }
+                }
+              }
             }
           })
         }

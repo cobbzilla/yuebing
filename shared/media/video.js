@@ -1,7 +1,9 @@
+const { ASSET_PREFIX, VIDEO_MEDIA_TYPE, STANDARD_MEDIA_TYPE, assetSuffix } = require('../media')
+
 export default {
 
-  name: 'video',
-  from: 'standard', // inherit mediainfo operation and profiles
+  name: VIDEO_MEDIA_TYPE,
+  from: STANDARD_MEDIA_TYPE, // inherit mediainfo operation and profiles
 
   // Source assets with these extensions will be filtered onto the destination
   ext: ['mp4', 'm4v', 'avi', 'mpg', 'mpeg', 'mov', 'webm', 'mkv', 'flv', '3gp', 'mpd', 'm4s', 'ts', 'm3u8'],
@@ -24,15 +26,15 @@ export default {
       minFileSize: 64 // 64 bytes min valid size
     },
     copyTextTracks: {
-      func: true,    // don't execute an external command, instead call the 'copyTextTracks_command' function
-      minFileSize: 0 // no minimum size, there may be no subtitle files
+      func: true, // don't execute an external command, instead call the 'copyTextTracks_command' function
+      minFileSize: 7 // minimum size of webvtt file is 7 bytes (and any srt < 7 bytes is also almost certainly invalid)
     },
     extractTextTracks: {
-      minFileSize: 64 // a subtitle file for even a very short video should be at least 64 bytes
+      minFileSize: 7 // minimum size of webvtt file is 7 bytes (and any srt < 7 bytes is also almost certainly invalid)
     },
     srt2vttTracks: {
-      func: true,    // don't execute an external command, instead call the 'srt2vttTracks_command' function
-      minFileSize: 0 // no minimum size, there may be no subtitle files
+      func: true, // don't execute an external command, instead call the 'srt2vttTracks_command' function
+      minFileSize: 7 // minimum size of webvtt file is 7 bytes
     }
   },
 
@@ -46,16 +48,21 @@ export default {
     dash_mp4: {
       operation: 'dash',
       // At startup, each element of this array is transformed into the corresponding profile object
-      subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
+      // subProfiles: ['transcode_high_mp4', 'transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
       // subProfiles: ['transcode_mid_mp4', 'transcode_low_mp4', 'transcode_min_mp4'],
-      // subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
+      subProfiles: ['transcode_min_mp4'], // when debugging, limiting to 'min' makes for quick transcoding
       contentType: 'application/dash+xml',
       ext: 'mpd',
       primary: true,
       multiFile: true,
       hlsProfile: 'hls_m3u8',
-      manifestAssets: ['asset_dash_mp4@video@001.mpd'],
-      additionalAssets: [/^media_\d+\.m3u8$/, /^asset_hls_m3u8@video@master\.m3u8$/]
+      manifestAssets: [`${ASSET_PREFIX}dash_mp4${assetSuffix(VIDEO_MEDIA_TYPE)}001.mpd`],
+      additionalAssets: [
+        new RegExp(`^${ASSET_PREFIX}dash_mp4${assetSuffix(VIDEO_MEDIA_TYPE)}init-stream\\d+.m4s$`),
+        new RegExp(`^${ASSET_PREFIX}dash_mp4${assetSuffix(VIDEO_MEDIA_TYPE)}chunk-stream\\d+-\\d+.m4s$`),
+        /^media_\d+\.m3u8$/,
+        new RegExp(`^${ASSET_PREFIX}hls_m3u8${assetSuffix(VIDEO_MEDIA_TYPE)}master\.m3u8$`)
+      ]
     },
 
     // This is a stub profile, referenced above by `dash_mp4.hlsProfile`
@@ -66,7 +73,7 @@ export default {
       noop: true,
       primary: true,
       ext: 'm3u8',
-      manifestAssets: ['asset_hls_m3u8@video@master.m3u8'],
+      manifestAssets: [`${ASSET_PREFIX}hls_m3u8${assetSuffix(VIDEO_MEDIA_TYPE)}master.m3u8`],
       contentType: 'application/vnd.apple.mpegurl'
     },
 
@@ -179,6 +186,22 @@ export default {
       multiFile: true // per-language subtitle files
     }
   },
+
+  // assets with these content-types will be treated as text-tracks
+  // by the web video player
+  textTrackTypes: ['text/vtt', 'application/x-subrip'],
+
+  // Text track output filenames must match this regex for the web player to recognize them.
+  // The regex (matching groups), from left to right, are:
+  // 1. (\\w+)     : the video profile name (for example vttTracks_extract)
+  // 2. (\\w+)     : the multifile index/differentiating hash to avoid collisions when a single profile
+  //                 produces multiple outputs with the same language
+  // 3. (\\w{2,3}) : the 2 (or 3) letter ISO language code
+  // 4. (\.sdh)?   : optional, if present, it means the track includes captions for non-verbal audio
+  // 5. (vtt|srt)  : vtt and srt are the only file extensions supported by yuebing; the web player only
+  //                 supports vtt
+  textTrackRegex: new RegExp(`^${ASSET_PREFIX}(\\w+)${assetSuffix(VIDEO_MEDIA_TYPE)}(\\w+)\.(\\w{2,3})(\.sdh)?\.(vtt|srt)$`),
+
   // from https://ffmpeg.org/ffmpeg-utils.html#Video-size
   ffmpeg_sizes: {
     ntsc: '720x480',

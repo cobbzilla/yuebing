@@ -404,6 +404,31 @@ async function mediaTransform (job, file, profile, outfile) {
   q.recordJobEvent(job, `${logPrefix}_DONE`)
 }
 
+function alreadyProcessed(profile, mediaType, existingAssets) {
+  if (existingAssets == null || existingAssets.length === 0) return false
+
+  if (profile.manifestAssets) {
+    for (const manifest of profile.manifestAssets) {
+      if (!existingAssets.some(a => basename(a.name) === manifest)) {
+        return false
+      }
+    }
+
+  } else if (profile.multiFile) {
+    const outfilePrefix = m.ASSET_PREFIX + profile.name
+    if (!existingAssets.some(a => basename(a.name).startsWith(outfilePrefix))) {
+      return false
+    }
+
+  } else {
+    const outfile = m.ASSET_PREFIX + profile.name + m.assetSuffix(mediaType) + '.' + profile.ext
+    if (!existingAssets.some(a => basename(a.name) === outfile)) {
+      return false
+    }
+  }
+  return true
+}
+
 async function createArtifacts (job, localSourceFile) {
   const sourcePath = job.data.sourcePath
 
@@ -417,6 +442,9 @@ async function createArtifacts (job, localSourceFile) {
     q.recordJobEvent(job, 'artifacts_ERROR_no_profiles')
     return
   }
+
+  q.recordJobEvent(job, `createArtifacts_LIST_EXISTING_ASSETS`)
+  const existingAssets = await system.api.safeList(system.assetsDir(sourcePath))
 
   for (const name in profiles) {
     const artifactPrefix = `artifact_${name}`
@@ -432,19 +460,6 @@ async function createArtifacts (job, localSourceFile) {
       continue
     }
 
-    let completedAssetKey
-    let outfile
-
-    // determine which destPath we will check to determine if the transform has completed
-    if (profile.multiFile) {
-      const outfilePrefix = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
-      outfile = outfilePrefix + m.assetSuffix(mediaType) + c.MULTIFILE_PLACEHOLDER + '.' + profile.ext
-      completedAssetKey = system.assetsDir(sourcePath) + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + c.MULTIFILE_FIRST + '.' + profile.ext
-    } else {
-      outfile = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
-      completedAssetKey = system.assetsDir(sourcePath) + basename(outfile)
-    }
-
     const reprocessProfiles = job.data.opts.reprocess && job.data.opts.reprocess.length > 0 ? job.data.opts.reprocess : null
     if (reprocessProfiles) {
       if (reprocessProfiles.includes(name) || reprocessProfiles.find(p => p.profile === name)) {
@@ -453,14 +468,10 @@ async function createArtifacts (job, localSourceFile) {
         q.recordJobEvent(job, `${artifactPrefix}_REPROCESSING_NOT_THIS_PROFILE`)
         continue
       }
-    } else {
-      q.recordJobEvent(job, `${artifactPrefix}_HEAD_dest`)
-      const destHead = await system.api.safeMetadata(completedAssetKey)
-      if (destHead && destHead.size && destHead.size > 0) {
-        logger.debug(`createArtifacts: artifact ${basename(completedAssetKey)} exists for profile ${name} (skipping) for source ${sourcePath}`)
-        q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'all dest files exist, already processed')
-        continue
-      }
+    } else if (alreadyProcessed(profile, mediaType, existingAssets)) {
+      logger.debug(`createArtifacts: artifact(s) found for profile ${name} (skipping) for source ${sourcePath}`)
+      q.recordJobEvent(job, `${artifactPrefix}_SUCCESS_HEAD_dest`, 'dest file(s) found, already processed')
+      continue
     }
     const errCount = await system.countErrors(sourcePath, name)
     if (errCount >= MAX_XFORM_ERRORS) {
@@ -472,6 +483,14 @@ async function createArtifacts (job, localSourceFile) {
         q.recordJobEvent(job, `${artifactPrefix}_ERROR_err_count_exceeded`, `${errCount} >= ${MAX_XFORM_ERRORS} errors, not retrying`)
         continue
       }
+    }
+
+    let outfile
+    if (profile.multiFile) {
+      const outfilePrefix = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name
+      outfile = outfilePrefix + m.assetSuffix(mediaType) + c.MULTIFILE_PLACEHOLDER + '.' + profile.ext
+    } else {
+      outfile = dirname(localSourceFile) + '/' + m.ASSET_PREFIX + name + m.assetSuffix(mediaType) + '.' + profile.ext
     }
 
     q.recordJobEvent(job, `${artifactPrefix}_starting_xform_${mediaType}`)

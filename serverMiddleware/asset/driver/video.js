@@ -1,5 +1,6 @@
 const { deriveMediaInfo, deriveMetadata } = require('../manifest')
 
+const shasum = require('shasum')
 const { basename, dirname } = require('path')
 const { existsSync, writeFileSync } = require('fs')
 const { ALL_LANGS } = require('hokeylization/util/constants')
@@ -57,11 +58,11 @@ async function dash (sourcePath, sourceFile, profile, outfile) {
   const args = []
   args.push('-i')
   args.push(sourceFile)
+
   for (let i = 0; i < profile.subProfiles.length; i++) {
+    // map audio tracks
     args.push('-map')
-    args.push('0')
-  }
-  for (let i = 0; i < profile.subProfiles.length; i++) {
+    args.push('0:a')
     args.push(`-c:a:${i}`)
     args.push(profile.subProfiles[i].audioCodec)
     args.push(`-b:a:${i}`)
@@ -70,6 +71,15 @@ async function dash (sourcePath, sourceFile, profile, outfile) {
     args.push(profile.subProfiles[i].audioRate)
     args.push(`-ac:${i}`)
     args.push(profile.subProfiles[i].audioChannels)
+
+    // skip subtitle tracks, they're handled separately
+    // The "negative mapping" is described here: https://trac.ffmpeg.org/wiki/Map
+    args.push('-map')
+    args.push('-0:s?')
+
+    // map video tracks
+    args.push('-map')
+    args.push('0:v')
     args.push(`-c:v:${i}`)
     args.push(profile.subProfiles[i].videoCodec)
     args.push(`-b:v:${i}`)
@@ -123,8 +133,11 @@ async function dash (sourcePath, sourceFile, profile, outfile) {
     args.push(`${m.ASSET_PREFIX}${profile.hlsProfile}${VIDEO_ASSET_SUFFIX}master.m3u8`)
   }
 
+  // use DASH format
   args.push('-f')
   args.push('dash')
+
+  // overwrite output file
   args.push('-y')
   args.push(dashOutfile)
   return args
@@ -183,7 +196,7 @@ function getLangMap () {
         }
       }
     }
-    for (const langCode of ISO_639) {
+    for (const langCode of Object.keys(ISO_639)) {
       LANG_MAP[langCode] = ISO_639[langCode]
     }
   } catch (e) {
@@ -221,14 +234,22 @@ async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
 
   const dirFiles = await source.safeList(sourceDir, {recursive: true})
   const filesCopied = []
-  for (const f of dirFiles) {
+  for (let i=0; i<dirFiles.length; i++) {
+    const f = dirFiles[i]
     const filename = basename(f.name)
     const m = f.type && f.type === 'file' && f.name ? filename.match(TRACK_REGEX) : false
     if (m && m[0] === filename) {
       const sdh = typeof m[5] !== 'undefined' && m[5] === 'sdh' ? '.sdh' : ''
       const lang = typeof m[3] !== 'undefined' ? toLang(m[3]) : 'default'
-      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + '.' + profile.ext
-      const assetsFile = system.assetsDir(f.name) + basename(destOutfile)
+      const index = String(i).padStart(3, '0')
+      const destOutfile = outfile.substring(0, placeholder) + index + '.' + lang + sdh + '.' + profile.ext
+      const destOutfileBase = basename(destOutfile)
+      // sanity check
+      if (!destOutfileBase.match(VIDEO.textTrackRegex)) {
+        logger.error(`copyTextTracks: invalid destOutfileBase (${destOutfileBase}) did not match textTrackRegex=${VIDEO.textTrackRegex}`)
+        continue
+      }
+      const assetsFile = system.assetsDir(f.name) + destOutfileBase
       if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
         logger.debug(`copyTextTracks: copying src=${f.name} -> destOutfile=${destOutfile}`)
         writeFileSync(destOutfile, await source.readFile(f.name))
@@ -263,14 +284,22 @@ async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
 
   const dirFiles = await source.safeList(sourceDir, {recursive: true})
   const srtFilesConverted = []
-  for (const f of dirFiles) {
+  for (let i=0; i<dirFiles.length; i++) {
+    const f = dirFiles[i]
     const filename = basename(f.name)
     const srtMatch = f.type && f.type === 'file' && f.name ? filename.match(SRT_TRACK_REGEX) : false
     if (srtMatch && srtMatch[0] === filename) {
-      const sdh = typeof m[5] !== 'undefined' && m[5] === 'sdh' ? '.sdh' : ''
-      const lang = typeof m[3] !== 'undefined' ? toLang(m[3]) : 'default'
-      const destOutfile = outfile.substring(0, placeholder) + lang + sdh + '.vtt'
-      const assetsFile = system.assetsDir(f.name) + basename(destOutfile)
+      const sdh = typeof srtMatch[5] !== 'undefined' && srtMatch[5] === 'sdh' ? '.sdh' : ''
+      const lang = typeof srtMatch[3] !== 'undefined' ? toLang(srtMatch[3]) : 'default'
+      const vttHash = shasum(profile.name + i + ' ' + lang + sdh) + '.'
+      const destOutfile = outfile.substring(0, placeholder) + vttHash + lang + sdh + '.vtt'
+      const destOutfileBase = basename(destOutfile)
+      // sanity check
+      if (!destOutfileBase.match(VIDEO.textTrackRegex)) {
+        logger.error(`srt2vttTracks: invalid destOutfileBase (${destOutfileBase}) did not match textTrackRegex=${VIDEO.textTrackRegex}`)
+        continue
+      }
+      const assetsFile = system.assetsDir(f.name) + destOutfileBase
       if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
         logger.debug(`srt2vttTracks: translating src=${f.name} -> destOutfile=${destOutfile}`)
         try {
@@ -333,7 +362,7 @@ async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
       logger.warn(`${logPrefix} skipping text track (no Format): ${JSON.stringify(track)}`)
       continue
     }
-    if (!('Language' in track && ALL_LANGS_ARRAY.indexOf(track.Language) !== -1)) {
+    if (!('Language' in track && ALL_LANGS_ARRAY.includes(track.Language))) {
       logger.warn(`${logPrefix} skipping unsupported text track (expected valid Language): ${JSON.stringify(track)}`)
       continue
     }
@@ -347,7 +376,7 @@ async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
 
   const placeholder = outfile.indexOf(c.MULTIFILE_PLACEHOLDER)
   if (placeholder === -1) {
-    throw new TypeError(`extractTextTracks: expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
+    throw new TypeError(`${logPrefix} expected outfile to contain multifile placeholder (${c.MULTIFILE_PLACEHOLDER}): ${outfile}`)
   }
   const outfilePrefix = outfile.substring(0, placeholder)
 
@@ -355,13 +384,20 @@ async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
   args.push('-i')
   args.push(sourceFile)
   for (let i=0; i<textTracks.length; i++) {
-    // const track = textTracks[i]
+    const track = textTracks[i]
     args.push('-c')
     args.push(codec)
     args.push('-map')
     args.push(`0:s:${i}`)
-    // fixme: use proper left-zero-padding
-    args.push(`${outfilePrefix}00${i+1}.${profile.ext}`)
+    const index = String(i).padStart(3, '0')
+    const langOutputFile = `${outfilePrefix}${index}.${track.Language}.${profile.ext}`
+    const destOutfileBase = basename(langOutputFile)
+    // sanity check
+    if (!destOutfileBase.match(VIDEO.textTrackRegex)) {
+      logger.error(`${logPrefix} invalid destOutfileBase (${destOutfileBase}) did not match textTrackRegex=${VIDEO.textTrackRegex}`)
+      continue
+    }
+    args.push(langOutputFile)
   }
   args.push("-y")
   return args

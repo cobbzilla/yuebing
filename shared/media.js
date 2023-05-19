@@ -3,20 +3,18 @@ const c = require('../shared')
 const FILE_TYPE = 'file'
 const DIRECTORY_TYPE = 'dir'
 
+const STANDARD_MEDIA_TYPE = 'standard'
 const VIDEO_MEDIA_TYPE = 'video'
 const AUDIO_MEDIA_TYPE = 'audio'
+const PHOTO_MEDIA_TYPE = 'photo'
 const UNKNOWN_MEDIA_TYPE = 'binary'
 
 const ASSET_PREFIX = 'asset_'
-
-function assetSuffix (mediaType) {
-  return `@${mediaType}@`
-}
+const assetSuffix = mediaType => `@${mediaType}@`
 
 const EXT_MAP = {}
 
-const MEDIA_TYPE_STANDARD = 'standard'
-const MEDIA_TYPES = [MEDIA_TYPE_STANDARD, VIDEO_MEDIA_TYPE]
+const MEDIA_TYPES = [STANDARD_MEDIA_TYPE, VIDEO_MEDIA_TYPE]
 
 const MEDIA = {}
 for (const mtype of MEDIA_TYPES) {
@@ -254,7 +252,7 @@ const PROFILE_ADDITIONAL_REGEXES = [...new Set(
     .flat())]
 
 const ALL_MEDIA_PROFILES = Object.keys(MEDIA)
-  .map(t => t === MEDIA_TYPE_STANDARD || !MEDIA[t].profiles
+  .map(t => t === STANDARD_MEDIA_TYPE || !MEDIA[t].profiles
     ? []
     : Object.keys(MEDIA[t].profiles)
       .map((p) => { return { mediaType: t, profile: p, mediaTypeAndProfile: `${t} / ${p}` } }))
@@ -282,7 +280,7 @@ export {
   bitrateInt,
   PROFILE_ADDITIONAL_REGEXES, ALL_MEDIA_PROFILES,
   MEDIA, FILE_TYPE, DIRECTORY_TYPE,
-  VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
+  STANDARD_MEDIA_TYPE, VIDEO_MEDIA_TYPE, AUDIO_MEDIA_TYPE, PHOTO_MEDIA_TYPE, UNKNOWN_MEDIA_TYPE,
   ASSET_PREFIX, assetSuffix,
   OP_THUMBNAILS, OP_FIRST_THUMBNAIL, OP_MEDIAINFO,
   OP_DASH, OP_TRANSCODE
