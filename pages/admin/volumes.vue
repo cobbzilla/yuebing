@@ -175,25 +175,23 @@
           <thead>
             <tr>
               <th>{{ messages.admin_label_volume_name }}</th>
-              <th>{{ messages.admin_label_volume_readOnly }}</th>
+              <th>{{ messages.admin_label_volume_mount_header }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
-              <th>{{ messages.admin_button_browse_volume }}</th>
-              <th>{{ messages.admin_button_scan_volume }}</th>
-              <th>{{ messages.admin_button_reindex_volume }}</th>
+              <th colspan="3">{{ messages.admin_label_volume_actions }}</th>
               <th>{{ messages.admin_button_delete_volume }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(vol, volIndex) in volumeList" :key="volIndex">
               <td>{{ volumeName(vol) }}</td>
-              <td align="center">
-                <v-icon v-if="vol.readOnly">
-                  mdi-check-bold
-                </v-icon>
-                <v-icon v-else>
-                  mdi-close
-                </v-icon>
+              <td>
+                <div v-if="vol.readOnly">
+                  {{ messages.admin_label_volume_mount_source }}
+                </div>
+                <div v-else>
+                  {{ messages.admin_label_volume_mount_destination }}
+                </div>
               </td>
               <td>{{ messages.label_date_and_time.parseDateMessage(vol.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(vol.mtime, messages) }}</td>
@@ -299,12 +297,12 @@
                     :error-messages="addVolumeSubmitted ? fieldError('name', errors) : null"
                   />
                 </ValidationProvider>
-                <v-checkbox
-                  v-model="newVolume.readOnly"
-                  :label="messages.admin_label_volume_readOnly"
-                  :hint="messages.admin_label_volume_readOnly_hint"
-                  persistent-hint
-                  name="readOnly"
+                <v-select
+                  v-model="newVolume.mount"
+                  :label="messages.admin_label_volume_mount"
+                  :items="volumeMounts"
+                  item-text="message"
+                  item-value="name"
                   class="form-control"
                 />
                 <div v-for="(fieldConfig, fieldName) in volumeTypeConfiguration" :key="fieldName">
@@ -454,6 +452,7 @@ export default {
         key: null,
         secret: null,
         readOnly: true,
+        mount: null,
         cacheSize: 100,
         opts: {},
         encryption: { enabled: false, algo: DEFAULT_ENCRYPTION_ALGO }
@@ -496,6 +495,12 @@ export default {
     },
     volumeTypes () { return localizedVolumeTypes(this.messages) },
     volumeTypeConfiguration () { return volumeTypeConfig(this.newVolume.type) },
+    volumeMounts () {
+      return [
+        { name: 'source', message: this.messages.admin_label_volume_mount_source },
+        { name: 'destination', message: this.messages.admin_label_volume_mount_destination }
+      ]
+    },
     encryptionAlgos () { return this.publicConfig && this.publicConfig.crypto ? this.publicConfig.crypto : null },
     selectedAlgoDetails () {
       if (this.newVolume.encryption.algo && this.encryptionAlgos) {
@@ -593,6 +598,7 @@ export default {
     },
     async addNewVolume () {
       this.addVolumeSubmitted = true
+      this.newVolume.readOnly = this.newVolume.mount !== 'destination'
       await this.$refs.addVolumeForm.validate().then((success) => {
         if (success) {
           this.addVolume({ volume: this.newVolume })
