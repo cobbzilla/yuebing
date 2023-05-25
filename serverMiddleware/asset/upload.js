@@ -45,7 +45,7 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
     const outfileSize = outfileStat.size
     const destPath = system.assetsDir(sourcePath) + basename(outfile)
     if (!overwrite) {
-      const preHead = await system.api.safeMetadata(destPath)
+      const preHead = await system.storage.safeMetadata(destPath)
       if (preHead) {
         // file exists -- is it roughly the same size?
         if (Math.abs(preHead.size - outfileSize) <= Math.floor(MAX_SIZE_DIFF_PCT * outfileSize)) {
@@ -57,10 +57,10 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
     const fileUp = fs.createReadStream(outfile)
     logger.debug(`uploadAsset(${destPath}): uploading asset ${outfile} to destPath=${destPath}`)
 
-    if (await system.api.write(destPath, fileUp) !== outfileSize) {
+    if (await system.storage.write(destPath, fileUp) !== outfileSize) {
       logger.error(`uploadAsset(${destPath}): error uploading asset (upload failed)`)
       if (deleteIncompleteUploads()) {
-        await system.api.remove(destPath)
+        await system.storage.remove(destPath)
       } else {
         logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
       }
@@ -70,7 +70,7 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
         setTimeout(async () => {
           try {
             // ensure it was uploaded
-            const head = await system.api.safeMetadata(destPath)
+            const head = await system.storage.safeMetadata(destPath)
             if (head && head.size && head.size === outfileSize) {
               // upload success!
               logger.info(`uploadAsset(${destPath}): uploaded ${outfile} to destPath=${destPath}`)
@@ -94,7 +94,7 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
             } else {
               logger.error(`${jobPrefix} uploadAsset(${destPath}): error uploading asset (size mismatch): ${outfile} = ${outfileSize}, head=${JSON.stringify(head)}`)
               if (deleteIncompleteUploads()) {
-                await system.api.remove(destPath)
+                await system.storage.remove(destPath)
               } else {
                 logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
               }
@@ -104,7 +104,7 @@ const UPLOAD_PROCESS_FUNCTION = async (uploadJob) => {
             const message = `uploadAsset(${destPath}): unexpected error: ${e}`
             logger.error(message)
             if (deleteIncompleteUploads()) {
-              await system.api.remove(destPath)
+              await system.storage.remove(destPath)
             } else {
               logger.warn(`${jobPrefix} deleteIncompleteUploads disabled, retaining ${destPath}`)
             }

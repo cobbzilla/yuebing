@@ -40,7 +40,7 @@ async function deriveMetadataFromSourceAndPath (sourceAndPath, opts = null) {
   // find all assets
   const prefix = system.assetsDir(sourceAndPath)
   const start = Date.now()
-  const assets = await system.api.find(prefix, m.ASSET_PREFIX)
+  const assets = await system.storage.find(prefix, m.ASSET_PREFIX)
   const end = Date.now()
   debug(`(find assets took ${''+((end - start)/1000)+' seconds'}), now examining ${assets.length} assets over profiles ${Object.keys(profiles).toString()}`)
   assets.forEach((asset) => {

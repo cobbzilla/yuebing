@@ -444,7 +444,7 @@ async function createArtifacts (job, localSourceFile) {
   }
 
   q.recordJobEvent(job, `createArtifacts_LIST_EXISTING_ASSETS`)
-  const existingAssets = await system.api.safeList(system.assetsDir(sourcePath))
+  const existingAssets = await system.storage.safeList(system.assetsDir(sourcePath))
 
   for (const name in profiles) {
     const artifactPrefix = `artifact_${name}`

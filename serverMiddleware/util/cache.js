@@ -26,7 +26,7 @@ const getCachedMetadata = async (sourceAndPath) => {
   if (!cachedMeta) {
     const metaPath = cachedMetaPath(sourceAndPath)
     debug(`no cachedMeta in redis, looking for metaPath=${metaPath}`)
-    const metaPathData = await system.api.safeReadFile(metaPath)
+    const metaPathData = await system.storage.safeReadFile(metaPath)
     if (metaPathData) {
       cachedMeta = JSON.parse(metaPathData)
       debug(`found metaPath=${metaPath} --> ${metaPathData}`)
@@ -77,7 +77,7 @@ const getCachedMetadata = async (sourceAndPath) => {
 }
 
 const writeMetadataFile = async (sourceAndPath, meta) =>
-  await system.api.writeFile(cachedMetaPath(sourceAndPath), JSON.stringify(meta))
+  await system.storage.writeFile(cachedMetaPath(sourceAndPath), JSON.stringify(meta))
 
 const getCachedSelectedThumbnail = async (sourceAndPath) => await redis.getJson(redisSelectedThumbnailCacheKey(sourceAndPath))
 
@@ -89,7 +89,7 @@ const flushSelectedThumbnail = async sourceAndPath => await redis.del(redisSelec
 
 const hardFlushCachedMetadata = async (sourceAndPath) => {
   await flushMetadata(sourceAndPath)
-  await system.api.remove(cachedMetaPath(sourceAndPath))
+  await system.storage.remove(cachedMetaPath(sourceAndPath))
 }
 
 const hardSetCachedMetadata = async (sourceAndPath, meta) => {
@@ -106,7 +106,7 @@ const findSelectedThumbnail = async (sourceAndPath) => {
   const logPrefix = `findSelectedThumbnail(${sourceAndPath}):`
   let thumb = await getCachedSelectedThumbnail(sourceAndPath)
   if (!thumb) {
-    const thumbJson = await system.api.safeReadFile(thumbFile(sourceAndPath))
+    const thumbJson = await system.storage.safeReadFile(thumbFile(sourceAndPath))
     if (thumbJson) {
       thumb = JSON.parse(thumbJson)
       await setCachedSelectedThumbnail(sourceAndPath, thumb)
@@ -119,7 +119,7 @@ const findSelectedThumbnail = async (sourceAndPath) => {
 }
 
 const setSelectedThumbnail = async (sourceAndPath, thumb) => {
-  const bytesWritten = await system.api.writeFile(thumbFile(sourceAndPath), JSON.stringify(thumb))
+  const bytesWritten = await system.storage.writeFile(thumbFile(sourceAndPath), JSON.stringify(thumb))
   if (bytesWritten) {
     await setCachedSelectedThumbnail(sourceAndPath, thumb)
   }

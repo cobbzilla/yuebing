@@ -33,8 +33,8 @@ const addComment = async (user, path, comment) => {
   }
   const commentJson = JSON.stringify(commentObject)
   await redis.sadd(commentCacheKeyForPath(path), commentJson)
-  await system.api.writeFile(pathToSingleComment(path, newId), commentJson)
-  await system.api.writeFile(userCommentReferencePath(user, newId), '~')
+  await system.storage.writeFile(pathToSingleComment(path, newId), commentJson)
+  await system.storage.writeFile(userCommentReferencePath(user, newId), '~')
   logger.info(`addComment(${path}): added comment: ${commentJson}`)
   return commentObject
 }
@@ -52,7 +52,7 @@ const isEditor = user => user && user.editor === true
 
 const editComment = async (user, path, commentId, comment) => {
   const updatePath = pathToSingleComment(path, commentId)
-  const existingCommentJson = await system.api.safeReadFile(updatePath)
+  const existingCommentJson = await system.storage.safeReadFile(updatePath)
   if (!existingCommentJson) {
     logger.warn(`editComment(${path}, ${commentId}): comment not found`)
     return null
@@ -76,14 +76,14 @@ const editComment = async (user, path, commentId, comment) => {
   updatedComment.versions.push(existingVersion)
   const updatedCommentJson = JSON.stringify(updatedComment)
   await redis.sadd(commentCacheKeyForPath(path), updatedCommentJson)
-  await system.api.writeFile(updatePath, updatedCommentJson)
+  await system.storage.writeFile(updatePath, updatedCommentJson)
   logger.info(`editComment(${path}): updated comment: ${updatedCommentJson}`)
   return updatedComment
 }
 
 const removeComment = async (user, path, commentId) => {
   const updatePath = pathToSingleComment(path, commentId)
-  const existingCommentJson = await system.api.safeReadFile(updatePath)
+  const existingCommentJson = await system.storage.safeReadFile(updatePath)
   if (!existingCommentJson) {
     logger.warn(`removeComment(${path}, ${commentId}): comment not found`)
     return null
@@ -98,13 +98,13 @@ const removeComment = async (user, path, commentId) => {
     return null
   }
   await redis.srem(commentCacheKeyForPath(path), existingCommentJson)
-  const commentRemoved = await system.api.remove(updatePath, { quiet: true })
+  const commentRemoved = await system.storage.remove(updatePath, { quiet: true })
   if (commentRemoved) {
     logger.info(`removeComment(${path}): removed comment for user ${user}: ${commentId}`)
   } else {
     logger.warn(`removeComment(${path}): comment NOT removed for user ${user}: ${commentId}`)
   }
-  const refRemoved = await system.api.remove(userCommentReferencePath(user, commentId), { quiet: true })
+  const refRemoved = await system.storage.remove(userCommentReferencePath(user, commentId), { quiet: true })
   if (refRemoved) {
     logger.info(`removeComment(${path}): removed comment ref for user ${user}: ${commentId}`)
   } else {
@@ -127,12 +127,12 @@ const findCommentsForPath = async (user, path) => {
     return cached.map(c => JSON.parse(c))
       .sort((c1, c2) => c1.ctime - c2.ctime)
   }
-  const commentFiles = await system.api.safeList(commentsForPath(path), { recursive: true })
+  const commentFiles = await system.storage.safeList(commentsForPath(path), { recursive: true })
   const comments = []
   const promises = []
   for (const commentFile of commentFiles) {
     promises.push(new Promise((resolve) => {
-      system.api.safeReadFile(commentFile.name).then(
+      system.storage.safeReadFile(commentFile.name).then(
         async (data) => {
           if (data) {
             await redis.sadd(cacheKey, data)
@@ -147,17 +147,17 @@ const findCommentsForPath = async (user, path) => {
 }
 
 const deleteAllUserComments = async (username) => {
-  const commentFiles = await system.api.list(commentsForUser(username), { recursive: true })
+  const commentFiles = await system.storage.list(commentsForUser(username), { recursive: true })
   const promises = []
   for (const commentFile of commentFiles) {
     promises.push(new Promise(async (resolve) => {
-      const realCommentPath = system.api.safeReadFile(commentFile.name)
+      const realCommentPath = system.storage.safeReadFile(commentFile.name)
       if (realCommentPath) {
-        if (!await system.api.remove(realCommentPath.trim())) {
+        if (!await system.storage.remove(realCommentPath.trim())) {
           logger.warn(`deleteAllUserComments(${username}): error removing: ${realCommentPath}`)
         }
       }
-      if (!await system.api.remove(commentFile.name)) {
+      if (!await system.storage.remove(commentFile.name)) {
         logger.warn(`deleteAllUserComments(${username}): error removing: ${commentFile.name}`)
       }
       resolve()
@@ -167,24 +167,24 @@ const deleteAllUserComments = async (username) => {
 }
 
 const deleteAllPathComments = async (path) => {
-  const commentFiles = await system.api.list(commentsForPath(path), { recursive: true })
+  const commentFiles = await system.storage.list(commentsForPath(path), { recursive: true })
   const promises = []
   for (const commentFile of commentFiles) {
     promises.push(new Promise(async (resolve) => {
-      const commentJson = system.api.safeReadFile(commentFile.name)
+      const commentJson = system.storage.safeReadFile(commentFile.name)
       if (!commentJson) {
         logger.warn(`Error reading comment file: ${commentFile.name}`)
         return
       }
       const comment = JSON.parse(commentJson)
       const userRefComment = userCommentReferencePath(comment.author, comment.id)
-      const refMeta = await system.api.safeMetadata(userRefComment)
+      const refMeta = await system.storage.safeMetadata(userRefComment)
       if (refMeta) {
-        if (!await system.api.remove(userRefComment)) {
+        if (!await system.storage.remove(userRefComment)) {
           logger.warn(`deleteAllPathComments(${path}): error removing userRefComment: ${userRefComment}`)
         }
       }
-      if (!await system.api.remove(commentFile.name)) {
+      if (!await system.storage.remove(commentFile.name)) {
         logger.warn(`deleteAllPathComments(${path}): error removing: ${commentFile.name}`)
       }
       resolve()

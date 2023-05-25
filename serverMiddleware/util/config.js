@@ -73,10 +73,11 @@ const CONFIGS = ['public', 'private']
 const USER_MEDIAINFO_JSON = 'userMediaInfo.json'
 
 function defaultLocalStorageDir () {
-  const path = '/tmp/yuebing-local-storage'
+  const path = '/tmp/yuebing_storage'
   if (!existsSync(path)) {
     mkdirSync(path)
   }
+  logger.warn(`YB_DEST_TYPE was 'local' but YB_DEST_KEY was undefined, using default directory: ${path}`)
   return path
 }
 
@@ -85,7 +86,7 @@ const secret = process.env.YB_DEST_SECRET
 
 const SYSTEM = {
   logger,
-  api: null,
+  storage: null,
   libraries: {},
   volume: { name: c.SELF_VOLUME_NAME, self: true },
   publicConfig: {},
@@ -107,14 +108,14 @@ const SYSTEM = {
       .find(p => profilesForSource[p] && isMediaInfoJsonProfile(profilesForSource[p]))
     if (mediaInfoProfile && mediaInfoProfile.length > 0) {
       const mediaInfoPath = meta.assets[mediaInfoProfile][0]
-      const mediaInfoJson = await SYSTEM.api.safeReadFile(mediaInfoPath)
+      const mediaInfoJson = await SYSTEM.storage.safeReadFile(mediaInfoPath)
       return mediaInfoJson ? JSON.parse(mediaInfoJson) : null
     }
   },
   userMediaInfo: async (meta, sourceName, pth) => {
     try {
       const mediaInfo = SYSTEM.rawMediaInfo(meta, sourceName, pth)
-      const userMediaInfoJson = await SYSTEM.api.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
+      const userMediaInfoJson = await SYSTEM.storage.safeReadFile(SYSTEM.userMediaInfoPath(sourceName, pth))
       const userMediaInfo = userMediaInfoJson ? JSON.parse(userMediaInfoJson) : null
       if (mediaInfo !== null) {
         const result = {}
@@ -133,42 +134,40 @@ const SYSTEM = {
     }
   },
   isPublic: () => SYSTEM.publicConfig.public,
-  allowLocalAdmin: () => DEST_TYPE === 'local'
-    && SYSTEM.privateConfig.admin?.user?.email === null
-    && SYSTEM.privateConfig.admin?.user?.password === null,
+  allowLocalAdmin: () => process.env.YB_DEST_TYPE || process.env.YB_ADMIN_EMAIL ? false : SYSTEM.privateConfig.admin?.user?.email === null && SYSTEM.privateConfig.admin?.user?.password === null,
   connect: async () => {
-    if (!SYSTEM.api) {
+    if (!SYSTEM.storage) {
       if (!SUPPORTED_DEST_TYPES.includes(DEST_TYPE)) {
         throw new TypeError(`config: YB_DEST_TYPE (${process.env.YB_DEST_TYPE}) is not a supported type. Should be one of: ${SUPPORTED_DEST_TYPES.toString()}`)
       }
 
       const enc = !encryption.key ? null : encryption
-      SYSTEM.api = await storage.connect(DEST_TYPE, key, secret, opts, enc)
+      SYSTEM.storage = await storage.connect(DEST_TYPE, key, secret, opts, enc)
       for (const config of CONFIGS) {
         // read config, merge into nuxt config, write back to storage
         const configFile = `${config}Config.json`
         let storedConfig
         try {
-          storedConfig = JSON.parse(await SYSTEM.api.readFile(configFile))
+          storedConfig = JSON.parse(await SYSTEM.storage.readFile(configFile))
         } catch (e) {
           logger.info(`config: error reading stored config (${configFile}): ${JSON.stringify(e)}`)
           storedConfig = {}
         }
         const merged = SYSTEM[`${config}Config`] = Object.assign({}, nuxt[`${config}RuntimeConfig`], storedConfig)
-        SYSTEM.api.writeFile(configFile, JSON.stringify(merged))
-        SYSTEM.api.find = async (dir, prefix) => {
+        SYSTEM.storage.writeFile(configFile, JSON.stringify(merged))
+        SYSTEM.storage.find = async (dir, prefix) => {
           const pth = dir.endsWith('/') ? dir : dir + '/'
           try {
-            const meta = await SYSTEM.api.safeMetadata(pth)
+            const meta = await SYSTEM.storage.safeMetadata(pth)
             if (meta && meta.mtime) {
-              const listing = await SYSTEM.api.list(pth)
+              const listing = await SYSTEM.storage.list(pth)
               return listing.filter(obj => basename(obj.name).startsWith(prefix))
             } else {
-              logger.warn(`system.api.find(${dir}, ${prefix}) path not found, returning empty array`)
+              logger.warn(`system.storage.find(${dir}, ${prefix}) path not found, returning empty array`)
               return []
             }
           } catch (e) {
-            logger.error(`system.api.find(${dir}, ${prefix}) error: ${e}`)
+            logger.error(`system.storage.find(${dir}, ${prefix}) error: ${e}`)
             throw e
           }
         }
@@ -251,7 +250,7 @@ const SYSTEM = {
         if (JSON.stringify(SYSTEM[topLevel]) === JSON.stringify(updatedConfig[topLevel])) {
           logger.info(`updateConfig(${topLevel}): not changed, not writing to storage`)
         } else {
-          await SYSTEM.api.writeFile(`${topLevel}.json`, JSON.stringify(updatedConfig[topLevel]))
+          await SYSTEM.storage.writeFile(`${topLevel}.json`, JSON.stringify(updatedConfig[topLevel]))
           SYSTEM[topLevel] = updatedConfig[topLevel]
           for (const handler of updateHandlers) {
             handler()
@@ -274,34 +273,34 @@ const SYSTEM = {
   },
   recordError: async (sourcePath, profile, error) => {
     const path = SYSTEM.assetsDir(sourcePath) + c.ERROR_FILE_PREFIX + profile + '_' + Date.now()
-    await SYSTEM.api.writeFile(path, `${error}`)
+    await SYSTEM.storage.writeFile(path, `${error}`)
     logger.info(`recordError: recorded: ${path} = ${error}`)
   },
   clearErrors: async (path, profile) => {
     const prefix = SYSTEM.assetsDir(path)
     logger.info(`clearErrors(${path}, ${profile}): looking for files with prefix: ${prefix}`)
-    const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
+    const files = await SYSTEM.storage.find(prefix, c.ERROR_FILE_PREFIX + profile)
     if (files && files.length ? files.length : 0) {
       files.forEach((file) => {
         logger.info(`clearErrors(${path}, ${profile}): deleting: ${file.name}`)
-        SYSTEM.api.remove(file.name)
+        SYSTEM.storage.remove(file.name)
       })
     }
   },
   countErrors: async (sourcePath, profile) => {
     const prefix = SYSTEM.assetsDir(sourcePath)
-    const files = await SYSTEM.api.find(prefix, c.ERROR_FILE_PREFIX + profile)
+    const files = await SYSTEM.storage.find(prefix, c.ERROR_FILE_PREFIX + profile)
     const count = files && files.length ? files.length : 0
     logger.info(`countErrors(${sourcePath}, ${profile}) returning: ${count}`)
     return count
   },
   touchLastModified: async (sourcePath) => {
     const path = SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE
-    await SYSTEM.api.writeFile(path, '' + Date.now())
+    await SYSTEM.storage.writeFile(path, '' + Date.now())
     logger.info(`touchLastModified: touched: ${path}`)
   },
   lastModified: async (sourcePath) => {
-    const lastModified = await SYSTEM.api.safeMetadata(SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE)
+    const lastModified = await SYSTEM.storage.safeMetadata(SYSTEM.assetsDir(sourcePath) + c.LAST_MODIFIED_FILE)
     return lastModified && lastModified.mtime ? lastModified.mtime : null
   },
   deleteUserHandlers: {},

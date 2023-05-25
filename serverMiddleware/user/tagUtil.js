@@ -26,7 +26,7 @@ const getPathIndex = (sourceAndPath) => {
 
 const pathRegistrationAge = async (sourceAndPath) => {
   const pathIndex = getPathIndex(sourceAndPath)
-  const fileMeta = await system.api.safeMetadata(pathIndex)
+  const fileMeta = await system.storage.safeMetadata(pathIndex)
   return fileMeta && fileMeta.mtime ? (Date.now() - fileMeta.mtime) : null
 }
 
@@ -84,7 +84,7 @@ const registerPath = async (sourceAndPath, meta) => {
   const pathIndex = getPathIndex(sourceAndPath)
   logger.debug(`${logPrefix} writing pathIndex ${pathIndex}`)
   try {
-    await system.api.writeFile(pathIndex, JSON.stringify(meta))
+    await system.storage.writeFile(pathIndex, JSON.stringify(meta))
   } catch (e) {
     logger.error(`${logPrefix} error writing pathIndex: ${pathIndex}: ${e}`)
     throw e
@@ -110,7 +110,7 @@ const registerPath = async (sourceAndPath, meta) => {
  */
 const unregisterPath = async (sourceAndPath) => {
   const pathIndex = getPathIndex(sourceAndPath)
-  await system.api.remove(pathIndex)
+  await system.storage.remove(pathIndex)
   await removeAllTagsForPath(sourceAndPath)
 }
 
@@ -157,19 +157,19 @@ const addTag = async (sourceAndPath, tag) => {
   const encodedPath = objectEncodePath(sourceAndPath)
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
-  const tagToContentMeta = await system.api.safeMetadata(tagToContentPath)
+  const tagToContentMeta = await system.storage.safeMetadata(tagToContentPath)
   if (!tagToContentMeta) {
     logger.info(`${logPrefix} writing tagToContentPath=${tagToContentPath}`)
-    await system.api.writeFile(tagToContentPath, '~')
+    await system.storage.writeFile(tagToContentPath, '~')
   } else {
     logger.info(`${logPrefix} tagToContentPath already exists: ${tagToContentPath}`)
   }
 
   const contentToTagPath = `${tagsForPathDir(sourceAndPath)}${normTag}`
-  const contentToTagMeta = await system.api.safeMetadata(contentToTagPath)
+  const contentToTagMeta = await system.storage.safeMetadata(contentToTagPath)
   if (!contentToTagMeta) {
     logger.info(`${logPrefix} writing contentToTagPath=${contentToTagPath}`)
-    await system.api.writeFile(contentToTagPath, '~')
+    await system.storage.writeFile(contentToTagPath, '~')
   } else {
     logger.info(`${logPrefix} contentToTagPath already exists: ${contentToTagPath}`)
   }
@@ -188,13 +188,13 @@ const removeTag = async (sourceAndPath, tag) => {
 
   const tagToContentPath = `${tagDir(tag)}${encodedPath}`
   logger.info(`${logPrefix} removing tagToContentPath=${tagToContentPath}`)
-  if (!(await system.api.remove(tagToContentPath, { quiet: true }))) {
+  if (!(await system.storage.remove(tagToContentPath, { quiet: true }))) {
     logger.warn(`${logPrefix} error removing tagToContentPath=${tagToContentPath}`)
   }
 
   const contentToTagPath = `${tagsForPathDir(sourceAndPath)}${normalizeTag(tag)}`
   logger.info(`${logPrefix} removing contentToTagPath=${contentToTagPath}`)
-  if (!(await system.api.remove(contentToTagPath, { quiet: true }))) {
+  if (!(await system.storage.remove(contentToTagPath, { quiet: true }))) {
     logger.warn(`${logPrefix} error removing contentToTagPath=${contentToTagPath}`)
   }
   await flushTagsForPathCache(sourceAndPath)
@@ -204,18 +204,18 @@ const removeAllTagsForPath = async (sourceAndPath) => {
   const logPrefix = `removeAllTagsForPath(${sourceAndPath})`
   const encodedPath = objectEncodePath(sourceAndPath)
   const tagsDir = tagsForPathDir(sourceAndPath)
-  const tags = await system.api.list(tagsDir, { recursive: true, quiet: true })
+  const tags = await system.storage.list(tagsDir, { recursive: true, quiet: true })
   if (tags && tags.length > 0) {
     const tagNames = tags.map(obj => basename(obj.name))
     for (const tag of tagNames) {
       const tagToContentPath = `${tagDir(tag)}${encodedPath}`
       logger.info(`${logPrefix} removing tagToContentPath=${tagToContentPath}`)
-      if (!(await system.api.remove(tagToContentPath, { quiet: true }))) {
+      if (!(await system.storage.remove(tagToContentPath, { quiet: true }))) {
         logger.warn(`${logPrefix} error removing tagToContentPath=${tagToContentPath}`)
       }
     }
     logger.info(`${logPrefix} recursively removing tagsDir=${tagsDir}`)
-    if (!(await system.api.remove(tagsDir, { recursive: true, quiet: true }))) {
+    if (!(await system.storage.remove(tagsDir, { recursive: true, quiet: true }))) {
       logger.warn(`${logPrefix} error removing tagsDir=${tagsDir}`)
     }
   }
@@ -233,7 +233,7 @@ const getTagsForPath = async (sourceAndPath) => {
     return JSON.parse(cached)
   }
   const contentToTagPath = tagsForPathDir(sourceAndPath)
-  const tagObjs = await system.api.list(contentToTagPath)
+  const tagObjs = await system.storage.list(contentToTagPath)
   const tags = tagObjs.map(o => denormalizeTag(basename(o.name)))
   await redis.set(cacheKey, JSON.stringify(tags))
   return tags
@@ -263,7 +263,7 @@ const PATHS_WITH_TAG_PROCESS_FUNCTION = async (job) => {
   try {
     const dir = tagDir(normTag)
     logger.info(`${logPrefix} recursively listing tagDir: ${dir}`)
-    const encodedPathObjs = await system.api.list(dir, { recursive: true })
+    const encodedPathObjs = await system.storage.list(dir, { recursive: true })
     logger.info(`${logPrefix} found ${encodedPathObjs ? encodedPathObjs.length : 'undefined?'} paths in: ${dir}`)
     const paths = encodedPathObjs.map(o => objectDecodePath(basename(o.name)))
     await redis.set(cacheKey, JSON.stringify(paths))
@@ -339,7 +339,7 @@ const forAllTags = async (func) => {
       logger.debug(`forAllTags: skipping non-object: ${typeof obj === 'undefined' ? 'undefined' : JSON.stringify(obj)}`)
     }
   }
-  const listing = await system.api.safeList(TAG_TO_CONTENT_INDEX, { recursive: true, visitor })
+  const listing = await system.storage.safeList(TAG_TO_CONTENT_INDEX, { recursive: true, visitor })
   logger.debug(`forAllTags: safeList returned ${listing.length} objects`)
   return [...tags]
 }

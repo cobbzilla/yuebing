@@ -81,10 +81,10 @@ export default {
     // only HEAD and GET are allowed, return 404 for anything else
     switch (req.method) {
       case 'HEAD':
-        await head(req, res, system.api, p)
+        await head(req, res, system.storage, p)
         break
       case 'GET':
-        await get(req, res, system.api, p, queryParamValue(req, shared.QUALITY_PARAM))
+        await get(req, res, system.storage, p, queryParamValue(req, shared.QUALITY_PARAM))
         break
       default:
         api.notFound(res)

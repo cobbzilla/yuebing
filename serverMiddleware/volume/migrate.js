@@ -6,7 +6,7 @@ const vol = require('./volumeUtil')
 
 async function connectVolumeOrSelf (name) {
   if (name === c.SELF_VOLUME_NAME) {
-    return system.api
+    return system.storage
   }
   return await vol.connect(name)
 }

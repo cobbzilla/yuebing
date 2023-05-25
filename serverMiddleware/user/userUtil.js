@@ -37,7 +37,7 @@ function initLimitRegistration () {
     }
   } else if (typeof LIMIT_REG === 'string') {
     // todo: rewrite using proper Promise/resolve/reject
-    return system.api.readFile(LIMIT_REG).then((data) => {
+    return system.storage.readFile(LIMIT_REG).then((data) => {
       const text = data.toString()
       if (text.toString().trim().startsWith('[')) {
         const list = JSON.parse(text.toString())
@@ -213,22 +213,22 @@ const makeCacheable = async (cachePrefix, key, expiration, func) => {
 }
 
 const emailExists = async (email) => await makeCacheable(CACHE_PREFIX_EMAIL_EXISTS, email, CACHE_EXPIRATION_NAME_EXISTS,
-    async e => await system.api.safeMetadata(emailKey(e)))
+    async e => await system.storage.safeMetadata(emailKey(e)))
 
 const recordRegisteredEmail = async email => await redis.set(CACHE_PREFIX_EMAIL_EXISTS+email, email, CACHE_EXPIRATION_NAME_EXISTS)
 
 const usernameExists = async (name) => await makeCacheable(CACHE_PREFIX_USERNAME_EXISTS, name, CACHE_EXPIRATION_NAME_EXISTS,
-    async n => await system.api.safeMetadata(userKey(n)))
+    async n => await system.storage.safeMetadata(userKey(n)))
 
 const recordRegisterUsername = async name => redis.set(CACHE_PREFIX_USERNAME_EXISTS+name, name, CACHE_EXPIRATION_NAME_EXISTS)
 
 async function findUser (nameOrEmail, email = null) {
-  const user = await system.api.safeReadFile(userKey(nameOrEmail))
+  const user = await system.storage.safeReadFile(userKey(nameOrEmail))
   if (user) {
     return JSON.parse(user)
   }
-  const userByEmail = await system.api.safeReadFile(emailKey(email ? email : nameOrEmail))
-  return userByEmail ? JSON.parse(await system.api.safeReadFile(userKey(JSON.parse(userByEmail)))) : null
+  const userByEmail = await system.storage.safeReadFile(emailKey(email ? email : nameOrEmail))
+  return userByEmail ? JSON.parse(await system.storage.safeReadFile(userKey(JSON.parse(userByEmail)))) : null
 }
 
 async function registerInitialAdminUser (regRequest) {
@@ -369,8 +369,8 @@ async function createUserRecord (user, successHandler) {
   try {
     const userJson = JSON.stringify(newUser)
     const nameJson = JSON.stringify(newUser.username)
-    const count = (await system.api.writeFile(userKey(newUser.username), userJson))
-    if (count && await system.api.writeFile(emailKey(newUser.email), nameJson)) {
+    const count = (await system.storage.writeFile(userKey(newUser.username), userJson))
+    if (count && await system.storage.writeFile(emailKey(newUser.email), nameJson)) {
       successHandler(count, newUser)
       success = true
       return newUser
@@ -413,11 +413,11 @@ async function updateUserRecord (proposed, successHandler) {
     update.username = user.username // don't allow any username changes for now
     logger.info(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
     try {
-      const count = await system.api.writeFile(userKey(user.username), JSON.stringify(update))
+      const count = await system.storage.writeFile(userKey(user.username), JSON.stringify(update))
       if (emailKey(update.email) !== emailKey(user.email)) {
         // update email index if address changed
-        await system.api.remove(emailKey(user.email))
-        await system.api.writeFile(emailKey(user.email), JSON.stringify(user.username))
+        await system.storage.remove(emailKey(user.email))
+        await system.storage.writeFile(emailKey(user.email), JSON.stringify(user.username))
       }
       await successHandler(count, update)
     } catch (e) {

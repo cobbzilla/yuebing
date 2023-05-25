@@ -37,7 +37,7 @@ export default {
           values.mtime = Date.now()
           const info = JSON.stringify(values)
           const infoPath = system.userMediaInfoPath(source.name, pth)
-          system.api.writeFile(infoPath, info)
+          system.storage.writeFile(infoPath, info)
             .then(() => {
               flushMediaInfoCache(sourceAndPath)
               reindexPath(sourceAndPath)

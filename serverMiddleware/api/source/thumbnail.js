@@ -25,7 +25,7 @@ export default {
         const thumbJson = data.toString()
         const thumbnailAsset = JSON.parse(thumbJson)
         // ensure the asset exists before setting it
-        system.api.metadata(thumbnailAsset).then(async (head) => {
+        system.storage.metadata(thumbnailAsset).then(async (head) => {
           if (head && head.size && head.size > 0) {
             await cache.setSelectedThumbnail(pth, thumbnailAsset)
             return api.okJson(res, thumbJson)

@@ -12,8 +12,8 @@ const DELETE_PROCESS_FUNCTION = async (job) => {
   const asset = job.data.asset
   try {
     const removed = job.data.recursive
-      ? await system.api.remove(asset, { recursive: true })
-      : await system.api.remove(asset)
+      ? await system.storage.remove(asset, { recursive: true })
+      : await system.storage.remove(asset)
     if (!removed) {
       logger.warn(`DELETE_PROCESS_FUNCTION: error removing asset ${asset}: removed returned falsy`)
     }

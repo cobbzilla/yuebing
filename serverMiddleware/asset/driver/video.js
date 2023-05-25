@@ -250,7 +250,7 @@ async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
         continue
       }
       const assetsFile = system.assetsDir(f.name) + destOutfileBase
-      if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
+      if (!existsSync(destOutfile) && (await system.storage.safeMetadata(assetsFile)) === null) {
         logger.debug(`copyTextTracks: copying src=${f.name} -> destOutfile=${destOutfile}`)
         writeFileSync(destOutfile, await source.readFile(f.name))
         filesCopied.push({ source: f.name, dest: destOutfile })
@@ -300,7 +300,7 @@ async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
         continue
       }
       const assetsFile = system.assetsDir(f.name) + destOutfileBase
-      if (!existsSync(destOutfile) && (await system.api.safeMetadata(assetsFile)) === null) {
+      if (!existsSync(destOutfile) && (await system.storage.safeMetadata(assetsFile)) === null) {
         logger.debug(`srt2vttTracks: translating src=${f.name} -> destOutfile=${destOutfile}`)
         try {
           const srtData = await source.readFile(f.name)

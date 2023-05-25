@@ -136,7 +136,7 @@ const getTagWeights = async () => {
     return weights
   }
   // check filesystem
-  const fsCache = await system.api.safeReadFile(TAG_WEIGHTS_CACHE_KEY)
+  const fsCache = await system.storage.safeReadFile(TAG_WEIGHTS_CACHE_KEY)
   if (fsCache !== null) {
     await redis.set(TAG_WEIGHTS_CACHE_KEY, fsCache.toString())
     return JSON.parse(fsCache.toString())
@@ -173,7 +173,7 @@ const BUILD_SEARCH_PROCESS_FUNCTION = async (job) => {
       .slice(0, MAX_TAG_WEIGHTS)
     const json = JSON.stringify(weights)
     await redis.set(TAG_WEIGHTS_CACHE_KEY, json)
-    await system.api.writeFile(TAG_WEIGHTS_CACHE_KEY, json)
+    await system.storage.writeFile(TAG_WEIGHTS_CACHE_KEY, json)
     return tags
   } catch (e) {
     logger.error(`initSearchIndex: error ${e}`)

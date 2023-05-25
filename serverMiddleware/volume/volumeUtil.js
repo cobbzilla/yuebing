@@ -56,7 +56,7 @@ function volumeSearchMatches (volume, searchTerms) {
 }
 
 async function volumeExists (name) {
-  const meta = await system.api.safeMetadata(volumeKey(name))
+  const meta = await system.storage.safeMetadata(volumeKey(name))
   return meta ? meta.name : false
 }
 
@@ -65,7 +65,7 @@ async function findVolume (name) {
     return system.volume
   }
   try {
-    return JSON.parse((await system.api.readFile(volumeKey(name))).toString())
+    return JSON.parse((await system.storage.readFile(volumeKey(name))).toString())
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
       throw new VolumeNotFoundError(name)
@@ -89,11 +89,11 @@ async function _listVolumes (query) {
   const cacheKey = shasum(query ? JSON.stringify(query) : '~')
   let results = listVolumeCache.get(cacheKey)
   if (!results) {
-    const objectList = await system.api.safeList(VOLUME_PREFIX)
+    const objectList = await system.storage.safeList(VOLUME_PREFIX)
     const allVolumes = []
     for (const object of objectList) {
       if (object.type === m.FILE_TYPE) {
-        allVolumes.push(JSON.parse(await system.api.readFile(object.name)))
+        allVolumes.push(JSON.parse(await system.storage.readFile(object.name)))
       }
     }
     if (query.includeSelf) {
@@ -147,7 +147,7 @@ async function createVolume (volume) {
   const now = Date.now()
   const volumeRecord = Object.assign({}, volume, { ctime: now, mtime: now })
   try {
-    const bytesWritten = await system.api.writeFile(volumeKey(volume.name), JSON.stringify(volumeRecord))
+    const bytesWritten = await system.storage.writeFile(volumeKey(volume.name), JSON.stringify(volumeRecord))
     if (bytesWritten > 0) {
       listVolumeCache.clear()
     }
@@ -165,7 +165,7 @@ async function deleteVolume (name) {
     throw new VolumeNotFoundError(name)
   }
   try {
-    const bytesWritten = await system.api.remove(volumeKey(name))
+    const bytesWritten = await system.storage.remove(volumeKey(name))
     if (bytesWritten > 0) {
       listVolumeCache.clear()
     }
@@ -219,13 +219,13 @@ const librarySearchMatches = (library, searchTerms) =>
   (library.destination && (library.destination.includes(searchTerms) || library.destination === c.SELF_VOLUME_NAME))
 
 async function libraryExists (name) {
-  const meta = await system.api.safeMetadata(libraryKey(name))
+  const meta = await system.storage.safeMetadata(libraryKey(name))
   return meta ? meta.name : false
 }
 
 async function findLibrary (hash) {
   try {
-    return JSON.parse((await system.api.readFile(libraryKey(hash))).toString())
+    return JSON.parse((await system.storage.readFile(libraryKey(hash))).toString())
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
       throw new LibraryNotFoundError(hash)
@@ -238,11 +238,11 @@ async function _listLibraries (query) {
   const cacheKey = shasum(query ? JSON.stringify(query) : '~')
   let results = listLibrariesCache.get(cacheKey)
   if (!results) {
-    const objectList = await system.api.safeList(LIBRARY_PREFIX)
+    const objectList = await system.storage.safeList(LIBRARY_PREFIX)
     const allLibraries = []
     for (const object of objectList) {
       if (object.type === m.FILE_TYPE) {
-        allLibraries.push(JSON.parse(await system.api.readFile(object.name)))
+        allLibraries.push(JSON.parse(await system.storage.readFile(object.name)))
       }
     }
     results = q.search(allLibraries, query, librarySearchMatches, vol.sortLibrariesByField)
@@ -264,7 +264,7 @@ async function createLibrary (library) {
   const now = Date.now()
   const libraryRecord = Object.assign({}, library, { ctime: now, mtime: now })
   try {
-    const bytesWritten = await system.api.writeFile(libraryKey(library.hash), JSON.stringify(libraryRecord))
+    const bytesWritten = await system.storage.writeFile(libraryKey(library.hash), JSON.stringify(libraryRecord))
     if (bytesWritten > 0) {
       listLibrariesCache.clear()
     }
@@ -279,7 +279,7 @@ async function deleteLibrary (hash) {
     throw new LibraryNotFoundError(hash)
   }
   try {
-    const bytesWritten = await system.api.remove(libraryKey(hash))
+    const bytesWritten = await system.storage.remove(libraryKey(hash))
     if (bytesWritten > 0) {
       listLibrariesCache.clear()
     }
