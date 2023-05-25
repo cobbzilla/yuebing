@@ -12,15 +12,22 @@
     </div>
     <div>
       <h3>
-        <NuxtLink to="/admin/sources">
-          {{ messages.admin_title_source_administration }}
+        <NuxtLink to="/admin/volumes">
+          {{ messages.admin_title_volume_administration }}
+        </NuxtLink>
+      </h3>
+    </div>
+    <div v-if="destinationVolumeCount > 1">
+      <h3>
+        <NuxtLink to="/admin/links">
+          {{ messages.admin_title_link_administration }}
         </NuxtLink>
       </h3>
     </div>
     <div>
       <h3>
         <NuxtLink to="/admin/browse">
-          {{ messages.admin_title_source_browser }}
+          {{ messages.admin_title_volume_browser }}
         </NuxtLink>
       </h3>
     </div>
@@ -57,17 +64,26 @@
 
 <script>
 // noinspection NpmUsedModulesInstalled
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
+import { filterDestinations } from '@/shared/volume'
 
 export default {
   name: 'AdminIndex',
   computed: {
     ...mapState('user', ['user', 'userStatus']),
+    ...mapState('admin', ['volumeList']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
-    title () { return publicConfigField(this, 'title') }
+    title () { return publicConfigField(this, 'title') },
+    destinationVolumeCount () { return filterDestinations(this.volumeList).length }
+  },
+  created () {
+    this.findVolumes({ query: { includeSelf: true } })
+  },
+  methods: {
+    ...mapActions('admin', ['findVolumes'])
   }
 }
 </script>

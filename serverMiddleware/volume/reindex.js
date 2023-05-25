@@ -1,8 +1,8 @@
 const Queue = require('bull')
 
-const { extractSourceAndPath } = require('../../shared/source')
+const { extractVolumeAndPath } = require('../../shared/volume')
 const { hasProfiles } = require('../../shared/media')
-const { connect } = require('./sourceUtil')
+const { connect } = require('./volumeUtil')
 const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
@@ -105,8 +105,8 @@ const reindex = async (source) => {
 }
 
 const reindexPath = async (sourceAndPath) => {
-  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
-  enqueue(sourceName, pth)
+  const { volume, pth } = extractVolumeAndPath(sourceAndPath)
+  enqueue(volume, pth)
 }
 
 const reindexInfo = async source => (await redis.smembers(REINDEX_INFO_SET_KEY + source))

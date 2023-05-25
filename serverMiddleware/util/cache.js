@@ -1,7 +1,7 @@
 const shasum = require('shasum')
 const redis = require('./redis')
 const c = require('../../shared')
-const { extractSourceAndPathAndConnect } = require('../source/sourceUtil')
+const { extractVolumeAndPathAndConnect } = require('../volume/volumeUtil')
 const system = require('./config').SYSTEM
 const logger = system.logger
 

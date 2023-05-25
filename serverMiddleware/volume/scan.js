@@ -3,11 +3,10 @@ const { M_FILE } = require('mobiletto-lite')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
-const src = require('../source/sourceUtil')
+const vol = require('./volumeUtil')
 const m = require('../../shared/media')
 const xform = require('../asset/xform')
 const { uploadPendingAssets } = require('../asset/upload')
-const { extractSourceAndPathAndConnect } = require('../source/sourceUtil')
 
 const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
 const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
@@ -49,13 +48,13 @@ async function autoscan () {
     if (CURRENT_AUTOSCAN_START) {
       logger.warn(`${logPrefix} another scan is still running (started at ${CURRENT_AUTOSCAN_START}, not running`)
     } else {
-      const sources = src.connectedSources()
+      const sources = vol.connectedSources()
       if (sources.length === 0) {
         logger.warn(`${logPrefix} no sources, nothing to scan`)
         return
       }
       for (const sourceName of sources) {
-        const source = await src.connect(sourceName)
+        const source = await vol.connect(sourceName)
         const scanPrefix = `${logPrefix} (source ${sourceName}) `
         try {
           CURRENT_AUTOSCAN_START = new Date()
@@ -134,7 +133,7 @@ const scanPath = async (scanConfig) => {
   const logPrefix = `scanPath(${sourceAndPath})`
   try {
     logger.info(`${logPrefix} extracting source and path`)
-    const { source, pth } = await extractSourceAndPathAndConnect(sourceAndPath)
+    const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
     scanConfig.path = pth
     logger.info(`${logPrefix} scanning with autoscan=false, force=true`)
     const scanResult = await scan(source, scanConfig)

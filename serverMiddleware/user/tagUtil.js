@@ -2,7 +2,7 @@ const shasum = require('shasum')
 const { dirname, basename } = require('path')
 const { chopFileExt, isAllDigitsOrNonWordChars, INDEX_STILL_BUILDING_TOKEN } = require('../../shared')
 const { okl } = require('../../shared')
-const { extractSourceAndPath } = require('../../shared/source')
+const { extractVolumeAndPath } = require('../../shared/volume')
 const { mediaType, objectEncodePath, objectDecodePath } = require('../../shared/media')
 const { MEDIAINFO_FIELDS, mediaInfoFields } = require('../../shared/mediainfo')
 const { stopWords } = require('../../shared/locale')
@@ -19,7 +19,7 @@ const CONTENT_TO_TAG_INDEX = TAGS_INDEX + 'contentToTags/'
 const MIN_TAG_LENGTH = 3
 
 const getPathIndex = (sourceAndPath) => {
-  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
+  const { volume, pth } = extractVolumeAndPath(sourceAndPath)
   const dirHash = shasum(dirname(pth))
   return `${PATH_INDEX}${dirHash.substring(0, 2)}/${dirHash.substring(2, 4)}/${dirHash.substring(4, 6)}/${shasum(sourceAndPath)}`
 }

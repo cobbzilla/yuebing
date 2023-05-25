@@ -2,7 +2,7 @@ const { getTagWeights } = require('../../asset/search')
 
 const { dirname, basename } = require('path')
 
-const { extractSourceAndPath } = require('../../../shared/source')
+const { extractVolumeAndPath } = require('../../../shared/volume')
 const { isAdminOrVerified } = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
@@ -49,8 +49,8 @@ export default {
       if (req.method === 'GET' && req.url === '/') {
         return api.okJson(res, await getTagWeights())
       }
-      const { sourceName, pth } = extractSourceAndPath(req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url)
-      const sourceAndPath = `${sourceName}/${pth}`
+      const { volume, pth } = extractVolumeAndPath(req.url.includes('?') ? req.url.substring(0, req.url.indexOf('?')) : req.url)
+      const sourceAndPath = `${volume}/${pth}`
       switch (req.method) {
         case 'GET':
           return await listTagsHandler(req, res, user, sourceAndPath)

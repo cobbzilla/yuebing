@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs'
-
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM

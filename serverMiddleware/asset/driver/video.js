@@ -7,9 +7,9 @@ const { ALL_LANGS } = require('hokeylization/util/constants')
 const ISO_639 = require('hokeylization/util/iso639')
 
 const c = require('../../../shared')
-const s = require('../../../shared/source')
+const s = require('../../../shared/volume')
 const m = require('../../../shared/media')
-const src = require('../../source/sourceUtil')
+const src = require('../../volume/volumeUtil')
 const VIDEO = require('../../../shared/media/video').default
 const { srt2webvtt } = require('../../../shared/media/video_srt2vtt')
 const system = require('../../util/config').SYSTEM
@@ -228,9 +228,9 @@ async function copyTextTracks (sourcePath, sourceFile, profile, outfile) {
   }
 
   const TRACK_REGEX = new RegExp('(.+?)(\\.(\\w{2}(\\.(sdh))?))?\\.'+profile.ext+'$', 'ui')
-  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
+  const { volume, pth } = s.extractVolumeAndPath(sourcePath)
   const sourceDir = dirname(pth)
-  const source = await src.connect(sourceName)
+  const source = await src.connect(volume)
 
   const dirFiles = await source.safeList(sourceDir, {recursive: true})
   const filesCopied = []
@@ -278,9 +278,9 @@ async function srt2vttTracks (sourcePath, sourceFile, profile, outfile) {
     throw new TypeError(`srt2vttTracks: expected profile.ext === 'vtt' but was '${profile.ext}'`)
   }
   const SRT_TRACK_REGEX = new RegExp('(.+?)(\\.(\\w{2}(\\.(sdh))?))?\\.srt$', 'ui')
-  const { sourceName, pth } = s.extractSourceAndPath(sourcePath)
+  const { volume, pth } = s.extractVolumeAndPath(sourcePath)
   const sourceDir = dirname(pth)
-  const source = await src.connect(sourceName)
+  const source = await src.connect(volume)
 
   const dirFiles = await source.safeList(sourceDir, {recursive: true})
   const srtFilesConverted = []
@@ -340,7 +340,7 @@ async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
     return null
   }
 
-  const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
+  const { source, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
   const meta = await deriveMetadata(source, pth)
   const textTracks = []
   if (!meta) {

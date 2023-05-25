@@ -5,7 +5,7 @@ const api = require('../../util/api')
 const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 const cache = require('../../util/cache')
-const src = require('../../source/sourceUtil')
+const vol = require('../../volume/volumeUtil')
 
 export default {
   path: '/api/source/meta',
@@ -15,7 +15,7 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const { source, pth } = await src.extractSourceAndPathAndConnect(req.url)
+      const { source, pth } = await vol.extractVolumeAndPathAndConnect(req.url)
       if (!source || !pth) { return api.notFound() }
       const meta = await manifest.deriveMetadata(source, pth)
       if (meta.finished) {

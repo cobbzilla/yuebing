@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Usage:   nuxt_cfg <prop>
 #
@@ -10,7 +10,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-FIELD=${1:?no config field provided}
+FIELD="${1:?no config field provided}"
 
 node -e '
 const config = require("fs").readFileSync("'"${BASE_DIR}"'/nuxt.config.js").toString("utf8")

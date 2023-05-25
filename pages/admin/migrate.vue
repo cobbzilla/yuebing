@@ -53,34 +53,34 @@
         </div>
       </v-col>
     </v-row>
-    <v-row v-if="sourcesLoaded && !hasSources">
+    <v-row v-if="volumesLoaded && !hasVolumes">
       <v-col>
         <h3>
-          {{ messages.admin_label_migration_noSources }}
+          {{ messages.admin_label_migration_noVolumes }}
         </h3>
         <h4>
-          <NuxtLink to="/admin/sources">
-            {{ messages.admin_title_source_administration }}
+          <NuxtLink to="/admin/volumes">
+            {{ messages.admin_title_volume_administration }}
           </NuxtLink>
         </h4>
       </v-col>
     </v-row>
-    <v-row v-else-if="sourcesLoaded">
+    <v-row v-else-if="volumesLoaded">
       <v-col>
         <ValidationObserver ref="form">
-          <v-form v-if="filteredSourceList" id="form" @submit.prevent="handleSubmit">
+          <v-form v-if="filteredVolumeList" id="form" @submit.prevent="handleSubmit">
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="readSource" rules="required" immediate>
+              <ValidationProvider v-slot="{ errors }" name="readVolume" rules="required" immediate>
                 <v-select
-                  v-model="readSource"
-                  name="readSource"
-                  :label="messages.admin_label_migration_readSource"
-                  :items="filteredSourceList"
+                  v-model="readVolume"
+                  name="readVolume"
+                  :label="messages.admin_label_migration_readVolume"
+                  :items="filteredVolumeList"
                   item-text="name"
                   item-value="name"
                   class="form-control"
                   :error="submitted && errors.length>0"
-                  :error-messages="submitted ? fieldError('readSource', errors) : null"
+                  :error-messages="submitted ? fieldError('readVolume', errors) : null"
                 />
               </ValidationProvider>
             </div>
@@ -98,16 +98,16 @@
               </ValidationProvider>
             </div>
             <div class="form-group">
-              <ValidationProvider v-slot="{ errors }" name="writeSource" rules="required" immediate>
+              <ValidationProvider v-slot="{ errors }" name="writeVolume" rules="required" immediate>
                 <v-select
-                  v-model="writeSource"
-                  :label="messages.admin_label_migration_writeSource"
-                  :items="filteredSourceList"
+                  v-model="writeVolume"
+                  :label="messages.admin_label_migration_writeVolume"
+                  :items="filteredVolumeList"
                   item-text="name"
                   item-value="name"
                   class="form-control"
                   :error="submitted && errors.length>0"
-                  :error-messages="submitted ? fieldError('writeSource', errors) : null"
+                  :error-messages="submitted ? fieldError('writeVolume', errors) : null"
                 />
               </ValidationProvider>
             </div>
@@ -142,7 +142,7 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { publicConfigField, empty, SELF_SOURCE_NAME } from '@/shared'
+import { publicConfigField, empty, SELF_VOLUME_NAME } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import { UI_CONFIG } from '@/services/util'
@@ -153,12 +153,12 @@ export default {
   components: { VueJsonPretty },
   data () {
     return {
-      sourcesLoaded: false,
+      volumesLoaded: false,
       submitted: false,
 
-      readSource: null,
+      readVolume: null,
       readPath: '',
-      writeSource: null,
+      writeVolume: null,
       writePath: '',
 
       showSuccessSnackbar: false,
@@ -169,22 +169,22 @@ export default {
     }
   },
   computed: {
-    ...mapState('admin', ['sourceList', 'dataMigrationResults', 'dataMigrationError']),
+    ...mapState('admin', ['volumeList', 'dataMigrationResults', 'dataMigrationError']),
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     formRules () { return condensedRules() },
-    selfName () { return this.messages.admin_label_self_source.parseMessage({ title: publicConfigField(this, 'title') }) },
-    filteredSourceList () {
-      return this.sourceList
-        ? this.sourceList.map((s) => {
-          return s.name && s.name === SELF_SOURCE_NAME
-            ? Object.assign({}, s, { name: this.selfName })
-            : s
+    selfName () { return this.messages.admin_label_self_volume.parseMessage({ title: publicConfigField(this, 'title') }) },
+    filteredVolumeList () {
+      return this.volumeList
+        ? this.volumeList.map(vol => {
+          return vol.name && vol.name === SELF_VOLUME_NAME
+            ? Object.assign({}, vol, { name: this.selfName })
+            : vol
         })
         : null
     },
-    hasSources () { return this.sourceList && !empty(this.sourceList) },
+    hasVolumes () { return this.volumeList && !empty(this.volumeList) },
     migrationError () {
       return this.dataMigrationError
         ? typeof this.dataMigrationError === 'object' || typeof this.dataMigrationError === 'string'
@@ -201,7 +201,7 @@ export default {
         this.errorSnackTimeout = 2 * UI_CONFIG.snackbarErrorTimeout
         this.showErrorSnackbar = true
         this.showSuccessSnackbar = false
-        if (Object.keys(newError).filter(k => ['readSource', 'readPath', 'writeSource', 'writePath'].includes(k)).length > 0) {
+        if (Object.keys(newError).filter(k => ['readVolume', 'readPath', 'writeVolume', 'writePath'].includes(k)).length > 0) {
           this.$refs.form.setErrors(newError)
           this.errorRawDisplay = false
         } else {
@@ -212,27 +212,27 @@ export default {
         this.showErrorSnackbar = false
       }
     },
-    sourceList () { this.sourcesLoaded = true }
+    volumeList () { this.volumesLoaded = true }
   },
   created () {
-    this.findSources({ pageSize: 100 })
+    this.findVolumes({ pageSize: 100 })
   },
   methods: {
-    ...mapActions('admin', ['findSources', 'migrate']),
+    ...mapActions('admin', ['findVolumes', 'migrate']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages, 'admin_label_') : '(no message)'
     },
-    adjustForSelf (source) {
-      return source === this.selfName ? SELF_SOURCE_NAME : source
+    adjustForSelf (volume) {
+      return volume === this.selfName ? SELF_VOLUME_NAME : volume
     },
     async handleSubmit () {
       this.submitted = true
       await this.$refs.form.validate().then((success) => {
         if (success) {
           const migration = {
-            readSource: this.adjustForSelf(this.readSource),
+            readVolume: this.adjustForSelf(this.readVolume),
             readPath: this.readPath,
-            writeSource: this.adjustForSelf(this.writeSource),
+            writeVolume: this.adjustForSelf(this.writeVolume),
             writePath: this.writePath
           }
           this.migrate({ migration })

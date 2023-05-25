@@ -15,12 +15,13 @@ Now that you've got node and yarn, you can install all the project dependencies:
     yarn install
 
 # Environment variables
-To run Yuebing, it requires some "bootstrap" environment variables.
+To run Yuebing, some bootstrap environment variables are helpful, otherwise it only writes to `/tmp`.
 
 Copy the `env.example` to `.env` and edit it.
 
-You will at least need to set the email/password for the admin user, and the cloud bucket configuration for
-where configuration and assets will be stored. The rest can be configured from Yuebing at runtime.
+If you want Yuebing to be accessible to others, you will at least need to set the email/password for
+the admin user, and the cloud bucket configuration for where configuration and assets will be stored.
+The rest can be configured from Yuebing at runtime.
 
 # Run Yuebing locally
 ## Production 

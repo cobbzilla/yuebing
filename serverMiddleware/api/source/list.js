@@ -2,7 +2,7 @@ const { hasProfiles } = require('../../../shared/media')
 const api = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const cache = require('../../util/cache')
-const src = require('../../source/sourceUtil')
+const vol = require('../../volume/volumeUtil')
 const { currentUser, requireAdmin, isAdminOrVerified } = require('../../user/userUtil')
 const { search } = require('../../asset/search')
 const logger = system.logger
@@ -12,7 +12,7 @@ const listObjects = async (req, res) => {
   if (!user) { return api.forbidden(res) }
   try {
     const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
-    const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
+    const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
     const listing = await source.list(pth || '')
     const promises = listing.map(async file => new Promise(async (resolve) => {
       file.sourcePath = source.name + '/' + file.name

@@ -7,8 +7,8 @@ const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
-const { reindexPath } = require('../../source/reindex')
-const { scanPath } = require('../../source/scan')
+const { reindexPath } = require('../../volume/reindex')
+const { scanPath } = require('../../volume/scan')
 
 const doIndex = async (req, res, sourceAndPath) => {
   await reindexPath(sourceAndPath)

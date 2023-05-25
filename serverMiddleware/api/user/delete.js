@@ -27,7 +27,7 @@ export default {
 
         return api.okJson(res, {})
       } catch (e) {
-        return api.handleValidationError(res, e)
+        return api.handleValidationError(res, typeof e.errors !== 'undefined' ? e.errors : e)
       }
     })
   }

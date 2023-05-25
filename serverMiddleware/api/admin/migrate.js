@@ -1,9 +1,9 @@
 const api = require('../../util/api')
 const c = require('../../../shared')
 const u = require('../../user/userUtil')
-const s = require('../../source/sourceUtil')
+const s = require('../../volume/volumeUtil')
 const v = require('../../../shared/validation')
-const migrate = require('../../source/migrate')
+const migrate = require('../../volume/migrate')
 
 async function validate (migration) {
   const errors = {}
@@ -14,9 +14,9 @@ async function validate (migration) {
     errors.readSource = ['required']
   } else {
     try {
-      readStorage = await s.findSource(readSource)
+      readStorage = await s.findVolume(readSource)
     } catch (e) {
-      if (e instanceof s.SourceNotFoundError) {
+      if (e instanceof s.VolumeNotFoundError) {
         errors.readSource = ['notFound']
       }
     }
@@ -27,12 +27,12 @@ async function validate (migration) {
     errors.writeSource = ['required']
   } else {
     try {
-      writeStorage = await s.findSource(writeSource)
+      writeStorage = await s.findVolume(writeSource)
       if (writeStorage.readOnly) {
         errors.writeSource = ['readOnly']
       }
     } catch (e) {
-      if (e instanceof s.SourceNotFoundError) {
+      if (e instanceof s.VolumeNotFoundError) {
         errors.writeSource = ['notFound']
       }
     }
@@ -50,7 +50,7 @@ async function validate (migration) {
     return { readStorage, writeStorage, errors }
   } else {
     // run regular validator, return any errors
-    const validationErrors = v.validate(migration)
+    const validationErrors = await v.validate(migration)
     return { readStorage, writeStorage, errors: validationErrors }
   }
 }
@@ -72,13 +72,13 @@ export default {
 
       const { readStorage, writeStorage, errors } = await validate(migration)
       if (!c.empty(errors)) {
-        return api.handleValidationError(res, { errors })
+        return api.handleValidationError(res, errors)
       }
       migrate.migrateData(readStorage, migration.readPath, writeStorage, migration.writePath).then((results) => {
         return api.okJson(res, results)
       },
       (err) => {
-        return err instanceof s.SourceNotFoundError
+        return err instanceof s.VolumeNotFoundError
           ? api.notFound(err.message)
           : api.serverError(res, `migrateUsers ERROR: ${err}`)
       })

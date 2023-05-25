@@ -9,3 +9,6 @@ tmp
 *.log
 dump.rdb
 node_modules/
+build/
+*.sqlite
+*.db

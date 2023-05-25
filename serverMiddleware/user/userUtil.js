@@ -264,7 +264,7 @@ async function _registerUser (regRequest, successHandler, admin) {
     } else if (!LIMIT_REGISTRATION && !ALLOW_REGISTRATION) {
       throw regNotAllowed()
     }
-    errors = valid.validate(regRequest)
+    errors = await valid.validate(regRequest)
     if (!c.empty(errors)) {
       throw new UserValidationError(errors)
     }
@@ -389,8 +389,8 @@ async function createUserRecord (user, successHandler) {
   throw new UserValidationError(`Failed to write one or more user files, but no error occurred; username=${newUser.username}`)
 }
 
-function updateUserRecord (proposed, successHandler) {
-  const errors = valid.validate(proposed, true)
+async function updateUserRecord (proposed, successHandler) {
+  const errors = await valid.validate(proposed, true)
   if (!c.empty(errors)) {
     throw new UserValidationError(errors)
   }

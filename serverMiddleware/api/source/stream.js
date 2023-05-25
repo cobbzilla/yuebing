@@ -54,6 +54,7 @@ async function get (req, res, storage, path, quality = null) {
   res.end()
 }
 
+// todo: update to specify destination to stream from, there might be more than one
 export default {
   path: shared.STREAM_API,
   async handler (req, res) {

@@ -1,6 +1,6 @@
 const shasum = require('shasum')
 const { basename } = require('path')
-const { extractSourceAndPath } = require('../../shared/source')
+const { extractVolumeAndPath } = require('../../shared/volume')
 const m = require('../../shared/media')
 const cache = require('../util/cache')
 const redis = require('../util/redis')
@@ -120,8 +120,8 @@ const deriveMediaInfo = async (meta, sourceAndPath, opts = null) => {
   if (cached) {
     return cached === NO_MEDIAINFO_VALUE ? null : JSON.parse(cached)
   }
-  const { sourceName, pth } = extractSourceAndPath(sourceAndPath)
-  const info = await system.userMediaInfo(meta, sourceName, pth)
+  const { volume, pth } = extractVolumeAndPath(sourceAndPath)
+  const info = await system.userMediaInfo(meta, volume, pth)
   await redis.set(cacheKey, info ? JSON.stringify(info) : NO_MEDIAINFO_VALUE, MEDIAINFO_CACHE_EXPIRATION)
   return info
 }

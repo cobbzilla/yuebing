@@ -1,5 +1,5 @@
 import { currentUser } from '@/services/util'
-import { sourceService } from '@/services/sourceService'
+import { volumeService } from '@/services/volumeService'
 import { newMediaObject } from '@/shared/media'
 
 export const state = () => ({
@@ -32,7 +32,7 @@ export const state = () => ({
 export const actions = {
   fetchObjects ({ commit }, { prefix, noCache = null }) {
     commit('fetchObjectsRequest', { prefix })
-    sourceService
+    volumeService
       .listObjects(prefix, noCache)
       .then(
         objects => commit('fetchObjectsSuccess', objects),
@@ -42,7 +42,7 @@ export const actions = {
 
   fetchMetadata ({ commit }, { path }) {
     commit('fetchMetaRequest', { path })
-    sourceService
+    volumeService
       .metadata(path)
       .then(
         (meta) => {
@@ -55,7 +55,7 @@ export const actions = {
 
   fetchAsset ({ commit }, { path }) {
     commit('fetchAssetRequest')
-    sourceService
+    volumeService
       .jsonAsset(path)
       .then(
         (assetContents) => {
@@ -76,7 +76,7 @@ export const actions = {
 
   fetchUserMediaInfo ({ dispatch, commit }, { path }) {
     commit('fetchUserMediaInfoRequest', { path })
-    sourceService
+    volumeService
       .fetchUserMediaInfo(path)
       .then(
         (values) => { commit('fetchUserMediaInfoSuccess', { path, values }) },
@@ -90,7 +90,7 @@ export const actions = {
       console.log('updateUserMediaInfo: No user logged in and not a public instance, not calling API')
       commit('updateUserMediaInfoSuccess', { path, values })
     } else {
-      sourceService
+      volumeService
         .updateUserMediaInfo(path, values)
         .then(
           () => { commit('updateUserMediaInfoSuccess', { path, values }) },
@@ -105,7 +105,7 @@ export const actions = {
       console.log('updateSelectedThumbnail: No user logged in and not a public instance, not calling API')
       commit('updateSelectedThumbnailSuccess', { path, thumbnailAsset })
     } else {
-      sourceService
+      volumeService
         .updateSelectedThumbnail(path, thumbnailAsset)
         .then(
           () => {

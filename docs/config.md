@@ -2,19 +2,21 @@ Yuebing Configuration
 =====================
 
 ## Guiding principles
-* Minimize config required to start
+* Zero config required to start
 * Maximize config that can be set at runtime
 
 ## Environment
-The [`env.example`](../env.example) file describes every available configuration option.
+The [`env.example`](https://github.com/cobbzilla/yuebing/blob/master/env.example) file describes
+every available configuration option.
 
 Copy this file to `.env` and edit it to match how you want to run Yuebing.
 
-There are very few required settings, most have sensible defaults. The only required settings are
-the ones that are not commented-out in the example env file.
-
 ### Admin account
-Define an initial admin account with the `YB_ADMIN_EMAIL` and `YB_ADMIN_PASSWORD` vars.
+Although there are no required settings, you will probably want to define
+an initial admin account with the `YB_ADMIN_EMAIL` and `YB_ADMIN_PASSWORD` vars.
+
+If these vars are undefined, then Yuebing will ask if you want to define them first, or
+to start yuebing in local-admin mode without support for user accounts.
 
 ### Storage
 Define a connection to storage with the various `YB_DEST_` vars.

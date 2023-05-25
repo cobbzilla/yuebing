@@ -19,7 +19,7 @@
         <v-row>
           <v-col>
             <h4>
-              {{ messages.admin_label_scan_config.parseMessage({ source: scanConfigOverlayObject.name }) }}
+              {{ messages.admin_label_scan_config.parseMessage({ volume: scanConfigOverlayObject.name }) }}
             </h4>
           </v-col>
         </v-row>
@@ -68,7 +68,7 @@
         <v-row>
           <v-col>
             <v-btn @click.stop="doRescan(scanConfigOverlayObject)">
-              {{ messages.admin_button_scan_source }}
+              {{ messages.admin_button_scan_volume }}
             </v-btn>
           </v-col>
         </v-row>
@@ -180,13 +180,13 @@
     <v-row>
       <v-col>
         <v-select
-          v-model="source"
-          :label="messages.admin_label_source_name"
+          v-model="volume"
+          :label="messages.admin_label_volume_name"
           :items="sourceList"
           item-text="name"
           item-value="name"
           class="form-control"
-          @change="setSource"
+          @change="setVolume"
         />
         <v-text-field
           v-model="path"
@@ -286,7 +286,7 @@
       </v-col>
       <v-col>
         <v-btn v-if="isMedia(obj) && !isPathBusy(obj)" @click.stop="doReindex(obj)">
-          {{ messages.admin_button_reindex_source }}
+          {{ messages.admin_button_reindex_volume }}
         </v-btn>
         <span v-if="indexPathError && indexPathError[obj.sourcePath]" class="error">
           {{ indexPathError[obj.sourcePath] }}
@@ -297,7 +297,7 @@
       </v-col>
       <v-col>
         <v-btn v-if="isMedia(obj) && !isPathBusy(obj)" @click.stop="setScanConfigOverlay(obj)">
-          {{ messages.admin_button_scan_source }}
+          {{ messages.admin_button_scan_volume }}
         </v-btn>
         <span v-if="scanPathError && scanPathError[obj.sourcePath]" class="error">
           {{ scanPathError[obj.sourcePath] }}
@@ -328,13 +328,14 @@ import { basename, dirname } from 'path'
 // noinspection NpmUsedModulesInstalled
 import { mapActions, mapState } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
+import { filterSources } from '@/shared/volume'
 import { DIRECTORY_TYPE, mediaType, hasProfiles, objectEncodePath, mediaProfilesForSource } from '@/shared/media'
 
 export default {
   name: 'BrowseSources',
   data () {
     return {
-      source: null,
+      volume: null,
       path: '',
       selectedObjects: {},
       viewMediaOnly: true,
@@ -350,7 +351,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('admin', ['sourceList',
+    ...mapState('admin', ['volumeList',
       'scanningPaths', 'scanPathSuccess', 'scanPathError',
       'indexingPaths', 'indexPathSuccess', 'indexPathError',
       'deletingPaths', 'deletePathSuccess', 'deletePathError'
@@ -366,6 +367,7 @@ export default {
     ...mapState('user', ['user', 'userStatus']),
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
+    sourceList () { return filterSources(this.volumeList) },
     viewingAllObjects () { return this.viewMediaOnly === false },
     allProfilesSelected () {
       return this.scanConfig.reprocess.length === this.mediaProfilesFor(this.scanConfigOverlayObject).length
@@ -383,8 +385,8 @@ export default {
   },
   watch: {
     sourceList (newList) {
-      if (this.source === null && newList && newList.length > 0) {
-        this.source = newList[0].name
+      if (this.volume === null && newList && newList.length > 0) {
+        this.volume = newList[0].name
       }
       this.reloadObjects()
     },
@@ -409,15 +411,15 @@ export default {
     }
   },
   created () {
-    this.source = this.$route.query.source || null
+    this.volume = this.$route.query.volume || null
     const query = { includeSelf: false }
-    this.findSources({ query })
+    this.findVolumes({ query })
   },
   methods: {
-    ...mapActions('admin', ['findSources', 'indexPath', 'scanPath', 'deletePath']),
+    ...mapActions('admin', ['findVolumes', 'indexPath', 'scanPath', 'deletePath']),
     ...mapActions('source', ['fetchObjects', 'fetchMetadata', 'fetchUserMediaInfo']),
     ...mapActions('tags', ['fetchTags', 'addTags', 'removeTags']),
-    setSource (src) { this.source = src },
+    setVolume (vol) { this.volume = vol },
     mType (path) { return mediaType(path) },
     toggleMediaView () { this.viewMediaOnly = !this.viewMediaOnly },
     setMetaOverlay (obj) { this.metaOverlayObject = obj || null },
@@ -430,12 +432,12 @@ export default {
       this._reload(true)
     },
     _reload (noCache) {
-      if (this.source) {
-        const prefix = `${this.source}/${this.path || ''}`
+      if (this.volume) {
+        const prefix = `${this.volume}/${this.path || ''}`
         console.log(`reloadObjects: reloading with prefix=${prefix} with noCache=${noCache}`)
         this.fetchObjects({ prefix, noCache })
       } else {
-        console.log(`reloadObjects: not reloading, source=${this.source}, path=${this.path}`)
+        console.log(`reloadObjects: not reloading, volume=${this.volume}, path=${this.path}`)
       }
     },
     updatePath (name) {

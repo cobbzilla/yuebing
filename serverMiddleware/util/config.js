@@ -24,6 +24,14 @@ const logger = winston.createLogger({
     : [new winston.transports.Console({ stderrLevels: Object.keys(winston.config.npm.levels) })]
 })
 
+storage.setLogLevel(
+  process.env.MOBILETTO_LOG_LEVEL
+    ? process.env.MOBILETTO_LOG_LEVEL
+    : process.env.YB_LOG_LEVEL
+      ? process.env.YB_LOG_LEVEL
+      : 'info'
+)
+
 const DEST_PREFIX = process.env.YB_DEST_PREFIX || ''
 
 const SUPPORTED_DEST_TYPES = ['local', 's3', 'b2']
@@ -78,7 +86,8 @@ const secret = process.env.YB_DEST_SECRET
 const SYSTEM = {
   logger,
   api: null,
-  source: { name: c.SELF_SOURCE_NAME },
+  libraries: {},
+  volume: { name: c.SELF_VOLUME_NAME, self: true },
   publicConfig: {},
   privateConfig: {},
   workbenchDir: process.env.YB_WORK_DIR

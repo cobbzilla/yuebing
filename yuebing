@@ -6,4 +6,4 @@ if [[ -n "${TARGET_SCRIPT}" ]] ; then
 else
   cd "${SCRIPT_DIR}" || exit 1
 fi
-exec ./"${BASE_DIR}"/scripts/prod_start.sh
+exec ./"${BASE_DIR}"/scripts/prod_start.sh "${@}"

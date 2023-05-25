@@ -1,5 +1,5 @@
 import { userService } from '@/services/userService'
-import { sourceService } from '@/services/sourceService'
+import { volumeService } from '@/services/volumeService'
 
 const langParser = require('accept-language-parser')
 const { SUPPORTED_LOCALES, DEFAULT_LOCALE } = require('@/shared/locale')
@@ -44,7 +44,7 @@ export const actions = {
 
   searchContent ({ commit }, { query }) {
     commit('searchContentRequest', { query })
-    sourceService.searchContent(query)
+    volumeService.searchContent(query)
       .then(
         (results) => { commit('searchContentSuccess', { results }) },
         (error) => { commit('searchContentFailure', { error }) }

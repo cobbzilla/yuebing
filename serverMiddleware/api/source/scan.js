@@ -1,7 +1,7 @@
 const api = require('../../util/api')
 const { requireLoggedInUser } = require('../../user/userUtil')
-const src = require('../../source/sourceUtil')
-const scan = require('../../source/scan')
+const vol = require('../../volume/volumeUtil')
+const scan = require('../../volume/scan')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
@@ -14,7 +14,7 @@ export default {
     if (!user || !user.admin) {
       return api.forbidden(res)
     }
-    const { source, pth } = await src.extractSourceAndPathAndConnect(req.url.replaceAll('//', '/'))
+    const { source, pth } = await vol.extractVolumeAndPathAndConnect(req.url.replaceAll('//', '/'))
     if (!source || !pth) { return api.notFound() }
     logger.info(`>>>>> API: Scanning ${req.url}, source=${source.name}, prefix = ${pth}`)
     const transforms = await scan.scan(source, pth)

@@ -3,8 +3,8 @@ const logger = system.logger
 
 const api = require('../../util/api')
 const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
-const { reindexPath } = require('../../source/reindex')
-const src = require('../../source/sourceUtil')
+const { reindexPath } = require('../../volume/reindex')
+const vol = require('../../volume/volumeUtil')
 const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
 const { MobilettoNotFoundError } = require('mobiletto-lite')
 
@@ -20,7 +20,7 @@ export default {
     }
     try {
       const sourceAndPath = req.url.replaceAll('//', '/')
-      const { source, pth } = await src.extractSourceAndPathAndConnect(sourceAndPath)
+      const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
       if (!source || !pth) { return api.notFound() }
       if (req.method === 'GET') {
         const meta = await deriveMetadata(source, pth)

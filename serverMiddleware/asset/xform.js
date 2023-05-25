@@ -7,11 +7,11 @@ const shellescape = require('shell-escape')
 const randomstring = require('randomstring')
 const c = require('../../shared')
 const m = require('../../shared/media')
-const { extractSourceAndPath } = require('../../shared/source')
+const { extractVolumeAndPath } = require('../../shared/volume')
 const util = require('../util/file')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
-const src = require('../source/sourceUtil')
+const src = require('../volume/volumeUtil')
 const manifest = require('./manifest')
 const q = require('./job')
 const { pathRegistrationAge } = require('../user/tagUtil')
@@ -501,7 +501,7 @@ async function createArtifacts (job, localSourceFile) {
 
 async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
-  const { source, pth } = await src.extractSourceAndPathAndConnect(sourcePath)
+  const { source, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
   const mediaType = m.mediaType(pth)
   const jobPrefix = `ensureSourceDownload_${mediaType}_${basename(pth)}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)
@@ -604,8 +604,8 @@ async function transform (sourcePath, opts) {
   }
 
   logger.info(`${logPrefix} extracting source and path...`)
-  const { sourceName, pth } = extractSourceAndPath(sourcePath)
-  const source = await src.connect(sourceName)
+  const { volume, pth } = extractVolumeAndPath(sourcePath)
+  const source = await src.connect(volume)
 
   logger.debug(`${logPrefix}) fetching metadata...`)
   const derivedMeta = await manifest.deriveMetadata(source, pth)

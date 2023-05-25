@@ -22,24 +22,24 @@ export const state = () => ({
   updateEditorFlagSuccess: null,
   updateEditorFlagError: null,
 
-  findingSources: false,
-  sourceList: null,
-  totalSourceCount: null,
-  sourceListError: null,
+  findingVolumes: false,
+  volumeList: null,
+  totalVolumeCount: null,
+  volumeListError: null,
 
-  addingSource: false,
-  addSourceSuccess: null,
-  addSourceError: null,
+  addingVolume: false,
+  addVolumeSuccess: null,
+  addVolumeError: null,
 
-  scanningSources: {},
-  scanSourceSuccess: {},
-  scanSourceError: {},
+  scanningVolumes: {},
+  scanVolumeSuccess: {},
+  scanVolumeError: {},
 
   scanningPaths: {},
   scanPathSuccess: {},
   scanPathError: {},
 
-  indexingSources: {},
+  indexingVolumes: {},
   indexingStartSuccess: {},
   indexingStartError: {},
 
@@ -55,9 +55,22 @@ export const state = () => ({
   indexingInfoSuccess: {},
   indexingInfoError: {},
 
-  deletingSource: false,
-  deleteSourceSuccess: null,
-  deleteSourceError: null,
+  deletingVolume: false,
+  deleteVolumeSuccess: null,
+  deleteVolumeError: null,
+
+  findingLibraries: false,
+  libraryList: null,
+  totalLibraryCount: null,
+  libraryListError: null,
+
+  addingLibrary: false,
+  addLibrarySuccess: null,
+  addLibraryError: null,
+
+  deletingLibrary: false,
+  deleteLibrarySuccess: null,
+  deleteLibraryError: null,
 
   loadingSiteConfig: false,
   siteConfig: null,
@@ -120,39 +133,39 @@ export const actions = {
       )
   },
 
-  findSources ({ commit }, { query }) {
-    commit('findSourcesRequest', { query })
-    adminService.findSources(query)
+  findVolumes ({ commit }, { query }) {
+    commit('findVolumesRequest', { query })
+    adminService.findVolumes(query)
       .then(
-        (results) => { commit('findSourcesSuccess', { results }) },
-        (error) => { commit('findSourcesFailure', { error }) }
+        (results) => { commit('findVolumesSuccess', { results }) },
+        (error) => { commit('findVolumesFailure', { error }) }
       )
   },
 
-  addSource ({ commit }, { src }) {
-    commit('addSourceRequest', { src })
-    adminService.addSource(src)
+  addVolume ({ commit }, { volume }) {
+    commit('addVolumeRequest', { volume })
+    adminService.addVolume(volume)
       .then(
-        (ok) => { commit('addSourceSuccess', { ok, src }) },
-        (error) => { commit('addSourceFailure', { error }) }
+        (ok) => { commit('addVolumeSuccess', { ok, volume }) },
+        (error) => { commit('addVolumeFailure', { error }) }
       )
   },
 
-  scanSource ({ commit }, { scanConfig }) {
-    commit('scanSourceRequest', { scanConfig })
-    adminService.scanSource(scanConfig)
+  scanVolume ({ commit }, { scanConfig }) {
+    commit('scanVolumeRequest', { scanConfig })
+    adminService.scanVolume(scanConfig)
       .then(
-        (ok) => { commit('scanSourceSuccess', { ok, scanConfig }) },
-        (error) => { commit('scanSourceFailure', { scanConfig, error }) }
+        (ok) => { commit('scanVolumeSuccess', { ok, scanConfig }) },
+        (error) => { commit('scanVolumeFailure', { scanConfig, error }) }
       )
   },
 
-  indexSource ({ commit }, { src }) {
-    commit('indexSourceRequest', { src })
-    adminService.indexSource(src)
+  indexVolume ({ commit }, { volume }) {
+    commit('indexVolumeRequest', { volume })
+    adminService.indexVolume(volume)
       .then(
-        (ok) => { commit('indexSourceSuccess', { ok, src }) },
-        (error) => { commit('indexSourceFailure', { src, error }) }
+        (ok) => { commit('indexVolumeSuccess', { ok, volume }) },
+        (error) => { commit('indexVolumeFailure', { volume, error }) }
       )
   },
 
@@ -165,39 +178,66 @@ export const actions = {
       )
   },
 
-  indexPath ({ commit }, { sourceAndPath }) {
-    commit('indexPathRequest', { sourceAndPath })
-    adminService.indexPath(sourceAndPath)
+  indexPath ({ commit }, { volumeAndPath }) {
+    commit('indexPathRequest', { volumeAndPath })
+    adminService.indexPath(volumeAndPath)
       .then(
-        (ok) => { commit('indexPathSuccess', { ok, sourceAndPath }) },
-        (error) => { commit('indexPathFailure', { sourceAndPath, error }) }
+        (ok) => { commit('indexPathSuccess', { ok, volumeAndPath }) },
+        (error) => { commit('indexPathFailure', { volumeAndPath, error }) }
       )
   },
 
-  deletePath ({ commit }, { sourceAndPath }) {
-    commit('deletePathRequest', { sourceAndPath })
-    adminService.deletePath(sourceAndPath)
+  deletePath ({ commit }, { volumeAndPath }) {
+    commit('deletePathRequest', { volumeAndPath })
+    adminService.deletePath(volumeAndPath)
       .then(
-        (ok) => { commit('deletePathSuccess', { ok, sourceAndPath }) },
-        (error) => { commit('deletePathFailure', { sourceAndPath, error }) }
+        (ok) => { commit('deletePathSuccess', { ok, volumeAndPath }) },
+        (error) => { commit('deletePathFailure', { volumeAndPath, error }) }
       )
   },
 
-  indexInfo ({ commit }, { src }) {
-    commit('indexInfoRequest', { src })
-    adminService.indexInfo(src)
+  indexInfo ({ commit }, { volume }) {
+    commit('indexInfoRequest', { volume })
+    adminService.indexInfo(volume)
       .then(
-        (info) => { commit('indexInfoSuccess', { info, src }) },
-        (error) => { commit('indexInfoFailure', { src, error }) }
+        (info) => { commit('indexInfoSuccess', { info, volume }) },
+        (error) => { commit('indexInfoFailure', { volume, error }) }
       )
   },
 
-  deleteSource ({ commit }, { src }) {
-    commit('deleteSourceRequest', { src })
-    adminService.deleteSource(src)
+  deleteVolume ({ commit }, { volume }) {
+    commit('deleteVolumeRequest', { volume })
+    adminService.deleteVolume(volume)
       .then(
-        (ok) => { commit('deleteSourceSuccess', { ok, src }) },
-        (error) => { commit('deleteSourceFailure', { error }) }
+        (ok) => { commit('deleteVolumeSuccess', { ok, volume }) },
+        (error) => { commit('deleteVolumeFailure', { error }) }
+      )
+  },
+
+  findLibraries ({ commit }, { query }) {
+    commit('findLibrariesRequest', { query })
+    adminService.findLibraries(query)
+      .then(
+        (results) => { commit('findLibrariesSuccess', { results }) },
+        (error) => { commit('findLibrariesFailure', { error }) }
+      )
+  },
+
+  addLibrary ({ commit }, { library }) {
+    commit('addLibraryRequest', { library })
+    adminService.addLibrary(library)
+      .then(
+        (ok) => { commit('addLibrarySuccess', { ok, library }) },
+        (error) => { commit('addLibraryFailure', { error }) }
+      )
+  },
+
+  deleteLibrary ({ commit }, { library }) {
+    commit('deleteLibraryRequest', { library })
+    adminService.deleteLibrary(library)
+      .then(
+        (ok) => { commit('deleteLibrarySuccess', { ok, library }) },
+        (error) => { commit('deleteLibraryFailure', { error }) }
       )
   },
 
@@ -253,7 +293,6 @@ export const mutations = {
     state.migratingData = false
   },
   migrateFailure (state, error) {
-    console.log(`migrateFailure: got error: ${JSON.stringify(error)}`)
     state.migratingData = false
     state.dataMigrationError = error
   },
@@ -304,194 +343,238 @@ export const mutations = {
     state.updateEditorFlagError = error
   },
 
-  findSourcesRequest (state, { query }) {
-    state.findingSources = true
+  findVolumesRequest (state, { query }) {
+    state.findingVolumes = true
   },
-  findSourcesSuccess (state, { results }) {
-    state.sourceList = results.list
-    state.totalSourceCount = results.total
-    state.findingSources = false
-    state.findSourcesError = null
+  findVolumesSuccess (state, { results }) {
+    state.volumeList = results.list
+    state.totalVolumeCount = results.total
+    state.findingVolumes = false
+    state.findVolumesError = null
   },
-  findSourcesFailure (state, { error }) {
-    state.findingSources = false
-    state.findSourcesError = error
-  },
-
-  addSourceRequest (state, { src }) {
-    state.addingSource = true
-  },
-  addSourceSuccess (state, { ok, src }) {
-    state.addingSource = false
-    state.addSourceSuccess = ok || true
-    state.addSourceError = null
-    state.sourceList.push(src)
-  },
-  addSourceFailure (state, { error }) {
-    state.addingSource = false
-    state.addSourceError = error
+  findVolumesFailure (state, { error }) {
+    state.findingVolumes = false
+    state.findVolumesError = error
   },
 
-  scanSourceRequest (state, { scanConfig }) {
-    const src = scanConfig.source
-    const update = {}
-    update[src] = true
-    state.scanningSources = Object.assign({}, state.scanningSources, update)
+  addVolumeRequest (state, { volume }) {
+    state.addingVolume = true
   },
-  scanSourceSuccess (state, { ok, scanConfig }) {
-    const src = scanConfig.source
-    const update = {}
-    update[src] = false
-    state.scanningSources = Object.assign({}, state.scanningSources, update)
-    update[src] = ok || true
-    state.scanSourceSuccess = Object.assign({}, state.scanSourceSuccess, update)
-    update[src] = null
-    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+  addVolumeSuccess (state, { ok, volume }) {
+    state.addingVolume = false
+    state.addVolumeSuccess = ok || true
+    state.addVolumeError = null
+    state.volumeList.push(volume)
   },
-  scanSourceFailure (state, { scanConfig, error }) {
-    const src = scanConfig.source
+  addVolumeFailure (state, { error }) {
+    state.addingVolume = false
+    state.addVolumeError = error
+  },
+
+  scanVolumeRequest (state, { scanConfig }) {
+    const volume = scanConfig.volume
     const update = {}
-    update[src] = false
-    state.scanningSources = Object.assign({}, state.scanningSources, update)
-    update[src] = false
-    state.scanSourceSuccess = Object.assign({}, state.scanSourceSuccess, update)
-    update[src] = error
-    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+    update[volume] = true
+    state.scanningVolumes = Object.assign({}, state.scanningVolumes, update)
+  },
+  scanVolumeSuccess (state, { ok, scanConfig }) {
+    const volume = scanConfig.volume
+    const update = {}
+    update[volume] = false
+    state.scanningVolumes = Object.assign({}, state.scanningVolumes, update)
+    update[volume] = ok || true
+    state.scanVolumeSuccess = Object.assign({}, state.scanVolumeSuccess, update)
+    update[volume] = null
+    state.scanVolumeError = Object.assign({}, state.scanVolumeError, update)
+  },
+  scanVolumeFailure (state, { scanConfig, error }) {
+    const volume = scanConfig.volume
+    const update = {}
+    update[volume] = false
+    state.scanningVolumes = Object.assign({}, state.scanningVolumes, update)
+    update[volume] = false
+    state.scanVolumeSuccess = Object.assign({}, state.scanVolumeSuccess, update)
+    update[volume] = error
+    state.scanVolumeError = Object.assign({}, state.scanVolumeError, update)
   },
 
   scanPathRequest (state, { scanConfig }) {
-    const sourceAndPath = scanConfig.sourceAndPath
+    const volumeAndPath = scanConfig.volumeAndPath
     const update = {}
-    update[sourceAndPath] = true
+    update[volumeAndPath] = true
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)
   },
   scanPathSuccess (state, { ok, scanConfig }) {
-    const sourceAndPath = scanConfig.sourceAndPath
+    const volumeAndPath = scanConfig.volumeAndPath
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)
-    update[sourceAndPath] = ok || true
+    update[volumeAndPath] = ok || true
     state.scanPathSuccess = Object.assign({}, state.scanPathSuccess, update)
-    update[sourceAndPath] = null
+    update[volumeAndPath] = null
     state.scanPathError = Object.assign({}, state.scanPathError, update)
   },
   scanPathFailure (state, { scanConfig, error }) {
-    const sourceAndPath = scanConfig.sourceAndPath
+    const volumeAndPath = scanConfig.volumeAndPath
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.scanningPaths = Object.assign({}, state.scanningPaths, update)
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.scanPathSuccess = Object.assign({}, state.scanPathSuccess, update)
-    update[sourceAndPath] = error
+    update[volumeAndPath] = error
     state.scanPathError = Object.assign({}, state.scanPathError, update)
   },
 
-  indexSourceRequest (state, { src }) {
+  indexVolumeRequest (state, { volume }) {
     const update = {}
-    update[src] = true
-    state.indexingSources = Object.assign({}, state.indexingSources, update)
+    update[volume] = true
+    state.indexingVolumes = Object.assign({}, state.indexingVolumes, update)
   },
-  indexSourceSuccess (state, { ok, src }) {
+  indexVolumeSuccess (state, { ok, volume }) {
     const update = {}
-    update[src] = false
-    state.indexingSources = Object.assign({}, state.indexingSources, update)
-    update[src] = ok || true
+    update[volume] = false
+    state.indexingVolumes = Object.assign({}, state.indexingVolumes, update)
+    update[volume] = ok || true
     state.indexingStartSuccess = Object.assign({}, state.indexingStartSuccess, update)
-    update[src] = null
+    update[volume] = null
     state.indexingStartError = Object.assign({}, state.indexingStartError, update)
   },
-  indexSourceFailure (state, { src, error }) {
+  indexVolumeFailure (state, { volume, error }) {
     const update = {}
-    update[src] = false
-    state.indexingSources = Object.assign({}, state.indexingSources, update)
-    update[src] = null
+    update[volume] = false
+    state.indexingVolumes = Object.assign({}, state.indexingVolumes, update)
+    update[volume] = null
     state.indexingStartSuccess = Object.assign({}, state.indexingStartSuccess, update)
-    update[src] = error
-    state.scanSourceError = Object.assign({}, state.scanSourceError, update)
+    update[volume] = error
+    state.scanVolumeError = Object.assign({}, state.scanVolumeError, update)
   },
 
-  indexPathRequest (state, { sourceAndPath }) {
+  indexPathRequest (state, { volumeAndPath }) {
     const update = {}
-    update[sourceAndPath] = true
+    update[volumeAndPath] = true
     state.indexingPaths = Object.assign({}, state.indexingPaths, update)
   },
-  indexPathSuccess (state, { ok, sourceAndPath }) {
+  indexPathSuccess (state, { ok, volumeAndPath }) {
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.indexingPaths = Object.assign({}, state.indexingPaths, update)
-    update[sourceAndPath] = ok || true
+    update[volumeAndPath] = ok || true
     state.indexPathSuccess = Object.assign({}, state.indexPathSuccess, update)
-    update[sourceAndPath] = null
+    update[volumeAndPath] = null
     state.indexPathError = Object.assign({}, state.indexPathError, update)
   },
-  indexPathFailure (state, { sourceAndPath, error }) {
+  indexPathFailure (state, { volumeAndPath, error }) {
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.indexingPaths = Object.assign({}, state.indexingPaths, update)
-    update[sourceAndPath] = null
+    update[volumeAndPath] = null
     state.indexPathSuccess = Object.assign({}, state.indexPathSuccess, update)
-    update[sourceAndPath] = error
+    update[volumeAndPath] = error
     state.indexPathError = Object.assign({}, state.indexPathError, update)
   },
 
-  deletePathRequest (state, { sourceAndPath }) {
+  deletePathRequest (state, { volumeAndPath }) {
     const update = {}
-    update[sourceAndPath] = true
+    update[volumeAndPath] = true
     state.deletingPaths = Object.assign({}, state.deletingPaths, update)
   },
-  deletePathSuccess (state, { ok, sourceAndPath }) {
+  deletePathSuccess (state, { ok, volumeAndPath }) {
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.deletingPaths = Object.assign({}, state.deletingPaths, update)
-    update[sourceAndPath] = ok || true
+    update[volumeAndPath] = ok || true
     state.deletePathSuccess = Object.assign({}, state.deletePathSuccess, update)
-    update[sourceAndPath] = null
+    update[volumeAndPath] = null
     state.deletePathError = Object.assign({}, state.deletePathError, update)
   },
-  deletePathFailure (state, { sourceAndPath, error }) {
+  deletePathFailure (state, { volumeAndPath, error }) {
     const update = {}
-    update[sourceAndPath] = false
+    update[volumeAndPath] = false
     state.deletingPaths = Object.assign({}, state.deletingPaths, update)
-    update[sourceAndPath] = null
+    update[volumeAndPath] = null
     state.deletePathSuccess = Object.assign({}, state.deletePathSuccess, update)
-    update[sourceAndPath] = error
+    update[volumeAndPath] = error
     state.deletePathError = Object.assign({}, state.deletePathError, update)
   },
 
-  indexInfoRequest (state, { src }) {},
-  indexInfoSuccess (state, { info, src }) {
+  indexInfoRequest (state, { volume }) {},
+  indexInfoSuccess (state, { info, volume }) {
     const update = {}
-    update[src] = info
+    update[volume] = info
     state.indexingInfo = Object.assign({}, state.indexingInfo, update)
-    update[src] = true
+    update[volume] = true
     state.indexingInfoSuccess = Object.assign({}, state.indexingInfoSuccess, update)
-    update[src] = null
+    update[volume] = null
     state.indexingInfoError = Object.assign({}, state.indexingInfoError, update)
   },
-  indexInfoFailure (state, { src, error }) {
+  indexInfoFailure (state, { volume, error }) {
     const update = {}
-    update[src] = null
+    update[volume] = null
     state.indexingInfo = Object.assign({}, state.indexingInfo, update)
-    update[src] = null
+    update[volume] = null
     state.indexingInfoSuccess = Object.assign({}, state.indexingInfoSuccess, update)
-    update[src] = error
+    update[volume] = error
     state.indexingInfoError = Object.assign({}, state.indexingInfoError, update)
   },
 
-  deleteSourceRequest (state, { src }) {
-    state.deletingSource = true
+  deleteVolumeRequest (state, { volume }) {
+    state.deletingVolume = true
   },
-  deleteSourceSuccess (state, { ok, src }) {
-    state.deletingSource = false
-    state.deleteSourceSuccess = ok || true
-    state.deleteSourceError = null
-    const newList = state.sourceList.filter(s => s.name !== src)
-    state.sourceList.splice(0, state.sourceList.length)
-    state.sourceList.push(...newList)
+  deleteVolumeSuccess (state, { ok, volume }) {
+    state.deletingVolume = false
+    state.deleteVolumeSuccess = ok || true
+    state.deleteVolumeError = null
+    const newList = state.volumeList.filter(s => s.name !== volume)
+    state.volumeList.splice(0, state.volumeList.length)
+    state.volumeList.push(...newList)
   },
-  deleteSourceFailure (state, { error }) {
-    state.deletingSource = false
-    state.deleteSourceError = error
+  deleteVolumeFailure (state, { error }) {
+    state.deletingVolume = false
+    state.deleteVolumeError = error
+  },
+
+  findLibrariesRequest (state, { query }) {
+    state.findingLibraries = true
+  },
+  findLibrariesSuccess (state, { results }) {
+    state.libraryList = results.list
+    state.totalLibraryCount = results.total
+    state.findingLibraries = false
+    state.findLibrariesError = null
+  },
+  findLibrariesFailure (state, { error }) {
+    state.findingLibraries = false
+    state.findLibrariesError = error
+  },
+
+  addLibraryRequest (state, { library }) {
+    state.addingLibrary = true
+  },
+  addLibrarySuccess (state, { ok, library }) {
+    state.addingLibrary = false
+    state.addLibrarySuccess = ok || true
+    state.addLibraryError = null
+    state.libraryList.push(library)
+  },
+  addLibraryFailure (state, { error }) {
+    state.addingLibrary = false
+    state.addLibraryError = error
+  },
+
+  deleteLibraryRequest (state, { library }) {
+    state.deletingLibrary = true
+  },
+  deleteLibrarySuccess (state, { ok, library }) {
+    state.deletingLibrary = false
+    state.deleteLibrarySuccess = ok || true
+    state.deleteLibraryError = null
+    const newList = state.libraryList.filter(s => s.name !== library)
+    state.libraryList.splice(0, state.libraryList.length)
+    state.libraryList.push(...newList)
+  },
+  deleteLibraryFailure (state, { error }) {
+    state.deletingLibrary = false
+    state.deleteLibraryError = error
   },
 
   loadSiteConfigRequest (state) {

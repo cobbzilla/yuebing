@@ -50,7 +50,7 @@ export default {
           if (resetPasswordHash) {
             // set password so we can validate it
             user.password = password
-            const errors = valid.validate(user)
+            const errors = await valid.validate(user)
             if (!c.empty(errors)) {
               return api.validationFailed(res, errors)
             }

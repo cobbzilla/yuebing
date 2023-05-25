@@ -13,7 +13,7 @@ RUN mkdir -p /usr/src/scratch
 WORKDIR /usr/src/yuebing
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache curl redis ffmpeg mediainfo
+    apk add --no-cache curl redis ffmpeg mediainfo sqlite3
 
 COPY . /usr/src/yuebing/
 

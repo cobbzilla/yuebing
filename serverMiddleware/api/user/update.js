@@ -25,7 +25,7 @@ export default {
       try {
         await u.updateUserRecord(update, u.newSessionResponse(res))
       } catch (e) {
-        return api.handleValidationError(res, e)
+        return api.handleValidationError(res, typeof e.errors !== 'undefined' ? e.errors : e)
       }
     })
   }

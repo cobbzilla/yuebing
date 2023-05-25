@@ -19,7 +19,7 @@
         <v-row>
           <v-col>
             <h4>
-              {{ messages.admin_label_scan_config.parseMessage({ source: scanConfigOverlayObject.name }) }}
+              {{ messages.admin_label_scan_config.parseMessage({ volume: scanConfigOverlayObject.name }) }}
             </h4>
           </v-col>
         </v-row>
@@ -102,7 +102,7 @@
         <v-row>
           <v-col>
             <v-btn @click.stop="scanSrc(scanConfigOverlayObject)">
-              {{ messages.admin_button_scan_source }}
+              {{ messages.admin_button_scan_volume }}
             </v-btn>
           </v-col>
         </v-row>
@@ -111,27 +111,27 @@
 
     <v-row>
       <v-col>
-        <h2>{{ messages.admin_title_source_administration }}</h2>
+        <h2>{{ messages.admin_title_volume_administration }}</h2>
       </v-col>
     </v-row>
-    <v-row v-if="showSuccessSnackbar && addSourceSuccess">
+    <v-row v-if="showSuccessSnackbar && addVolumeSuccess">
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
-            {{ messages.admin_info_source_added.parseMessage({ source: newSource.name }) }}
+            {{ messages.admin_info_volume_added.parseMessage({ volume: newVolume.name }) }}
           </h4>
         </v-snackbar>
       </v-col>
     </v-row>
-    <v-row v-if="showErrorSnackbar && addSourceError">
+    <v-row v-if="showErrorSnackbar && addVolumeError">
       <v-col>
         <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
           <h4>
-            {{ messages.admin_info_source_add_error.parseMessage({ source: newSource.name }) }}
+            {{ messages.admin_info_volume_add_error.parseMessage({ volume: newVolume.name }) }}
           </h4>
           <small>
             <vue-json-pretty
-              :data="addSourceError"
+              :data="addVolumeError"
               :show-line="false"
               :show-double-quotes="false"
               :select-on-click-node="false"
@@ -142,11 +142,11 @@
         </v-snackbar>
       </v-col>
     </v-row>
-    <v-row v-if="totalSourceCount > 0">
+    <v-row v-if="totalVolumeCount > 0">
       <v-col>
         <div>
           <ValidationObserver ref="form">
-            <v-form @submit.prevent="searchSources">
+            <v-form @submit.prevent="searchVolumes">
               <ValidationProvider v-slot="{ errors }" name="searchTerms" rules="max:200" immediate>
                 <div class="form-group">
                   <v-text-field
@@ -155,11 +155,11 @@
                     type="text"
                     name="searchTerms"
                     class="form-control"
-                    :error="addSourceSubmitted && errors.length>0"
-                    :error-messages="addSourceSubmitted ? fieldError('searchTerms', errors) : null"
-                    @keyup.enter="searchSources"
+                    :error="addVolumeSubmitted && errors.length>0"
+                    :error-messages="addVolumeSubmitted ? fieldError('searchTerms', errors) : null"
+                    @keyup.enter="searchVolumes"
                   />
-                  <v-btn class="btn btn-primary" :disabled="findingSources" @click.stop="searchSources">
+                  <v-btn class="btn btn-primary" :disabled="findingVolumes" @click.stop="searchVolumes">
                     {{ messages.button_search }}
                   </v-btn>
                 </div>
@@ -171,83 +171,96 @@
     </v-row>
     <v-row>
       <v-col>
-        <table v-if="sourceList && sourceList.length > 0">
+        <table v-if="volumeList && volumeList.length > 0">
           <thead>
             <tr>
-              <th>{{ messages.admin_label_source_name }}</th>
+              <th>{{ messages.admin_label_volume_name }}</th>
+              <th>{{ messages.admin_label_volume_readOnly }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
-              <th>{{ messages.admin_button_browse_source }}</th>
-              <th>{{ messages.admin_button_scan_source }}</th>
-              <th>{{ messages.admin_button_reindex_source }}</th>
-              <th>{{ messages.admin_button_delete_source }}</th>
+              <th>{{ messages.admin_button_browse_volume }}</th>
+              <th>{{ messages.admin_button_scan_volume }}</th>
+              <th>{{ messages.admin_button_reindex_volume }}</th>
+              <th>{{ messages.admin_button_delete_volume }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(src, srcIndex) in sourceList" :key="srcIndex">
-              <td>{{ sourceName(src) }}</td>
-              <td>{{ messages.label_date_and_time.parseDateMessage(src.ctime, messages) }}</td>
-              <td>{{ messages.label_date_and_time.parseDateMessage(src.mtime, messages) }}</td>
+            <tr v-for="(vol, volIndex) in volumeList" :key="volIndex">
+              <td>{{ volumeName(vol) }}</td>
+              <td align="center">
+                <v-icon v-if="vol.readOnly">
+                  mdi-check-bold
+                </v-icon>
+                <v-icon v-else>
+                  mdi-close
+                </v-icon>
+              </td>
+              <td>{{ messages.label_date_and_time.parseDateMessage(vol.ctime, messages) }}</td>
+              <td>{{ messages.label_date_and_time.parseDateMessage(vol.mtime, messages) }}</td>
               <td>
-                <NuxtLink v-if="!isSelfSource(src)" :to="{ path: '/admin/browse', query: { source: src.name } }">
+                <NuxtLink v-if="vol.readOnly" :to="{ path: '/admin/browse', query: { volume: vol.name } }">
                   <v-btn>
-                    {{ messages.admin_button_browse_source }}
+                    {{ messages.admin_button_browse_volume }}
                   </v-btn>
                 </NuxtLink>
               </td>
               <td>
-                <div>
-                  <v-btn v-if="!isSelfSource(src) && !scanningSources[src.name]" @click.stop="setScanConfigOverlay(src)">
-                    {{ messages.admin_button_scan_source }}
-                  </v-btn>
-                </div>
-                <div v-if="scanningSources[src.name]">
-                  <small>
-                    {{ messages.admin_info_scan_scanning }}
-                  </small>
-                </div>
-                <div v-if="scanSourceError[src.name]">
-                  <small>
-                    {{ messages.admin_info_scan_error.parseMessage({ e: scanSourceError[src.name] }) }}
-                  </small>
-                </div>
-                <div v-else-if="scanSourceSuccess[src.name]">
-                  <small>
-                    {{ messages.admin_info_scan_successful }}
-                    <NuxtLink to="/admin/queue">
-                      {{ messages.admin_title_transform_queue }}
-                    </NuxtLink>
-                  </small>
-                </div>
-              </td>
-              <td>
-                <div>
-                  <v-btn v-if="!isSelfSource(src) && !indexingSources[src.name]" @click.stop="indexSrc(src.name)">
-                    {{ messages.admin_button_reindex_source }}
-                  </v-btn>
-                </div>
-                <div v-if="indexingSources[src.name]">
-                  <small>
-                    {{ messages.admin_info_reindex_indexing }}
-                  </small>
-                </div>
-                <div v-if="indexingStartError[src.name]">
-                  <small>
-                    {{ messages.admin_info_reindex_error.parseMessage({ e: indexingStartError[src.name] }) }}
-                  </small>
-                </div>
-                <div v-else-if="indexingStartSuccess[src.name]">
-                  <small>
-                    {{ messages.admin_info_reindex_successful }}
-                    <NuxtLink :to="`/admin/indexes?source=${src.name}`">
-                      {{ messages.admin_title_reindex_status }}
-                    </NuxtLink>
-                  </small>
+                <div v-if="vol.readOnly">
+                  <div>
+                    <v-btn v-if="!isSelfVolume(vol) && !scanningVolumes[vol.name]" @click.stop="setScanConfigOverlay(vol)">
+                      {{ messages.admin_button_scan_volume }}
+                    </v-btn>
+                  </div>
+                  <div v-if="scanningVolumes[vol.name]">
+                    <small>
+                      {{ messages.admin_info_scan_scanning }}
+                    </small>
+                  </div>
+                  <div v-if="scanVolumeError[vol.name]">
+                    <small>
+                      {{ messages.admin_info_scan_error.parseMessage({ e: scanVolumeError[vol.name] }) }}
+                    </small>
+                  </div>
+                  <div v-else-if="scanVolumeSuccess[vol.name]">
+                    <small>
+                      {{ messages.admin_info_scan_successful }}
+                      <NuxtLink to="/admin/queue">
+                        {{ messages.admin_title_transform_queue }}
+                      </NuxtLink>
+                    </small>
+                  </div>
                 </div>
               </td>
               <td>
-                <v-btn v-if="!isSelfSource(src)" :disabled="scanningSources[src.name]" @click.stop="delSource(src.name)">
-                  {{ messages.admin_button_delete_source }}
+                <div v-if="vol.readOnly">
+                  <div>
+                    <v-btn v-if="!isSelfVolume(vol) && !indexingVolumes[vol.name]" @click.stop="indexSrc(vol.name)">
+                      {{ messages.admin_button_reindex_volume }}
+                    </v-btn>
+                  </div>
+                  <div v-if="indexingVolumes[vol.name]">
+                    <small>
+                      {{ messages.admin_info_reindex_indexing }}
+                    </small>
+                  </div>
+                  <div v-if="indexingStartError[vol.name]">
+                    <small>
+                      {{ messages.admin_info_reindex_error.parseMessage({ e: indexingStartError[vol.name] }) }}
+                    </small>
+                  </div>
+                  <div v-else-if="indexingStartSuccess[vol.name]">
+                    <small>
+                      {{ messages.admin_info_reindex_successful }}
+                      <NuxtLink :to="`/admin/indexes?volume=${vol.name}`">
+                        {{ messages.admin_title_reindex_status }}
+                      </NuxtLink>
+                    </small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <v-btn v-if="!isSelfVolume(vol)" :disabled="scanningVolumes[vol.name]" @click.stop="delVolume(vol.name)">
+                  {{ messages.admin_button_delete_volume }}
                 </v-btn>
               </td>
             </tr>
@@ -260,109 +273,111 @@
         <v-container>
           <v-row>
             <v-col>
-              <h4>{{ messages.admin_title_add_source }}</h4>
+              <h4>{{ messages.admin_title_add_volume }}</h4>
             </v-col>
           </v-row>
           <v-row>
-            <ValidationObserver ref="addSrcForm">
-              <v-form id="addSrcForm" @submit.prevent="addSrc">
+            <ValidationObserver ref="addVolumeForm">
+              <v-form id="addVolumeForm" @submit.prevent="addNewVolume">
                 <v-select
-                  v-model="newSource.type"
-                  :label="messages.admin_label_source_type"
-                  :items="sourceTypes"
+                  v-model="newVolume.type"
+                  :label="messages.admin_label_volume_type"
+                  :items="volumeTypes"
                   item-text="message"
                   item-value="name"
                   class="form-control"
-                  @change="setSourceTypeDefaults"
+                  @change="setVolumeTypeDefaults"
                 />
-                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.source" immediate>
+                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.name" immediate>
                   <v-text-field
-                    v-model="newSource.name"
-                    :label="messages.admin_label_source_name"
+                    v-model="newVolume.name"
+                    :label="messages.admin_label_volume_name"
                     type="text"
                     name="name"
                     class="form-control"
-                    :error="addSourceSubmitted && errors.length>0"
-                    :error-messages="addSourceSubmitted ? fieldError('name', errors) : null"
+                    :error="addVolumeSubmitted && errors.length>0"
+                    :error-messages="addVolumeSubmitted ? fieldError('name', errors) : null"
                   />
                 </ValidationProvider>
                 <v-checkbox
-                  v-model="newSource.readOnly"
-                  :label="messages.admin_label_source_readOnly"
+                  v-model="newVolume.readOnly"
+                  :label="messages.admin_label_volume_readOnly"
+                  :hint="messages.admin_label_volume_readOnly_hint"
+                  persistent-hint
                   name="readOnly"
                   class="form-control"
                 />
-                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.cacheSize" immediate>
-                  <v-text-field
-                    v-model="newSource.cacheSize"
-                    :label="messages.admin_label_source_cacheSize"
-                    type="text"
-                    name="cacheSize"
-                    class="form-control"
-                    :error="addSourceSubmitted && errors.length>0"
-                    :error-messages="addSourceSubmitted ? fieldError('cacheSize', errors) : null"
-                  />
-                </ValidationProvider>
-                <div v-for="(fieldConfig, fieldName) in sourceTypeConfiguration" :key="fieldName">
+                <div v-for="(fieldConfig, fieldName) in volumeTypeConfiguration" :key="fieldName">
                   <ValidationProvider v-slot="{ errors }" :name="fieldName" :rules="fieldConfig.rules || ''" immediate>
                     <v-text-field
                       v-if="isOpt(fieldName)"
-                      v-model="newSource.opts[fieldName]"
+                      v-model="newVolume.opts[fieldName]"
                       :label="messages[configFieldLabel(fieldName)]"
                       type="text"
                       :name="fieldName"
                       :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
-                      :error="addSourceSubmitted && errors.length>0"
-                      :error-messages="addSourceSubmitted ? srcConfigFieldError(fieldName, errors) : null"
+                      :error="addVolumeSubmitted && errors.length>0"
+                      :error-messages="addVolumeSubmitted ? volumeConfigFieldError(fieldName, errors) : null"
                     />
                     <v-text-field
                       v-else
-                      v-model="newSource[fieldName]"
+                      v-model="newVolume[fieldName]"
                       :label="messages[configFieldLabel(fieldName)]"
                       type="text"
                       :name="fieldName"
                       :value="fieldConfig.default ? fieldConfig.default : ''"
                       class="form-control"
-                      :error="addSourceSubmitted && errors.length>0"
-                      :error-messages="addSourceSubmitted ? srcConfigFieldError(fieldName, errors) : null"
+                      :error="addVolumeSubmitted && errors.length>0"
+                      :error-messages="addVolumeSubmitted ? volumeConfigFieldError(fieldName, errors) : null"
                     />
                   </ValidationProvider>
                 </div>
+                <ValidationProvider v-slot="{ errors }" name="cacheSize" :rules="formRules.cacheSize" immediate>
+                  <v-text-field
+                    v-model="newVolume.cacheSize"
+                    :label="messages.admin_label_volume_cacheSize"
+                    type="text"
+                    name="cacheSize"
+                    class="form-control"
+                    :error="addVolumeSubmitted && errors.length>0"
+                    :error-messages="addVolumeSubmitted ? fieldError('cacheSize', errors, 'admin_label_volume_') : null"
+                  />
+                </ValidationProvider>
                 <div>
                   <v-checkbox
-                    v-model="newSource.encryption.enabled"
-                    :label="messages.admin_label_source_encryption_enable"
+                    v-model="newVolume.encryption.enabled"
+                    :label="messages.admin_label_volume_encryption_enable"
                     name="encryptionEnabled"
                     class="form-control"
                   />
-                  <div v-if="newSource.encryption.enabled">
+                  <div v-if="newVolume.encryption.enabled">
                     <ValidationProvider v-slot="{ errors }" name="encryptionKey" :rules="formRules.encryptionKey" immediate>
                       <v-text-field
-                        v-model="newSource.encryption.key"
-                        :label="messages.admin_label_source_encryption_key"
+                        v-model="newVolume.encryption.key"
+                        :label="messages.admin_label_volume_encryption_key"
                         type="text"
                         name="encryptionKey"
                         class="form-control"
-                        :error="addSourceSubmitted && errors.length>0"
-                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionKey', errors) : null"
+                        :error="addVolumeSubmitted && errors.length>0"
+                        :error-messages="addVolumeSubmitted ? volumeConfigFieldError('encryptionKey', errors) : null"
                       />
                     </ValidationProvider>
                     <ValidationProvider v-slot="{ errors }" name="encryptionIV" :rules="formRules.encryptionIV" immediate>
                       <v-text-field
-                        v-model="newSource.encryption.iv"
-                        :label="messages.admin_label_source_encryption_iv"
+                        v-model="newVolume.encryption.iv"
+                        :label="messages.admin_label_volume_encryption_iv"
                         type="text"
                         name="encryptionIV"
                         class="form-control"
-                        :error="addSourceSubmitted && errors.length>0"
-                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionIV', errors) : null"
+                        :error="addVolumeSubmitted && errors.length>0"
+                        :error-messages="addVolumeSubmitted ? volumeConfigFieldError('encryptionIV', errors) : null"
                       />
                     </ValidationProvider>
                     <ValidationProvider v-slot="{ errors }" name="encryptionAlgo" rules="min:32" immediate>
                       <v-select
-                        v-model="newSource.encryption.algo"
-                        :label="messages.admin_label_source_encryption_algo"
+                        v-model="newVolume.encryption.algo"
+                        :label="messages.admin_label_volume_encryption_algo"
                         name="encryptionAlgo"
                         :items="encryptionAlgos"
                         item-text="name"
@@ -371,7 +386,7 @@
                         :error="addSourceSubmitted && errors.length>0"
                         :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionAlgo', errors) : null"
                       />
-                      <small v-if="newSource.encryption.algo">
+                      <small v-if="newVolume.encryption.algo">
                         <vue-json-pretty
                           :data="selectedAlgoDetails"
                           :show-line="false"
@@ -385,8 +400,8 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <v-btn class="btn btn-primary" @click.stop="addSrc">
-                    {{ messages.admin_button_add_source }}
+                  <v-btn class="btn btn-primary" @click.stop="addNewVolume">
+                    {{ messages.admin_button_add_volume }}
                   </v-btn>
                 </div>
               </v-form>
@@ -404,12 +419,13 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { DEFAULT_ENCRYPTION_ALGO, SELF_SOURCE_NAME, publicConfigField, isoDate, isoTime } from '@/shared'
+import { DEFAULT_ENCRYPTION_ALGO, SELF_VOLUME_NAME, publicConfigField, isoDate, isoTime } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import {
-  localizedSourceConfigLabelPrefix, localizedSourceConfigLabel, localizedSourceTypes, sourceTypeConfig
-} from '@/shared/source'
+  localizedVolumeConfigLabelPrefix, localizedVolumeConfigLabel, localizedVolumeTypes,
+  volumeTypeConfig, VOLUME_VALIDATIONS
+} from '@/shared/volume'
 import { ALL_MEDIA_PROFILES } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
 
@@ -418,7 +434,7 @@ const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
 const NOW = new Date()
 
 export default {
-  name: 'ManageSources',
+  name: 'ManageVolumes',
   components: { VueJsonPretty },
   data () {
     return {
@@ -432,7 +448,7 @@ export default {
       showErrorSnackbar: false,
       errorSnackTimeout: -1,
 
-      newSource: {
+      newVolume: {
         type: 's3',
         name: null,
         key: null,
@@ -442,7 +458,7 @@ export default {
         opts: {},
         encryption: { enabled: false, algo: DEFAULT_ENCRYPTION_ALGO }
       },
-      addSourceSubmitted: false,
+      addVolumeSubmitted: false,
 
       scanConfigOverlayObject: null,
       scanConfig: {
@@ -463,14 +479,14 @@ export default {
     ...mapState(['publicConfig']),
     ...mapState('user', ['user']),
     ...mapState('admin', [
-      'sourceList', 'totalSourceCount', 'findingSources',
-      'addSourceSuccess', 'addSourceError', 'deleteSourceError',
-      'scanningSources', 'scanSourceSuccess', 'scanSourceError',
-      'indexingSources', 'indexingStartSuccess', 'indexingStartError'
+      'volumeList', 'totalVolumeCount', 'findingVolumes',
+      'addVolumeSuccess', 'addVolumeError', 'deleteVolumeError',
+      'scanningVolumes', 'scanVolumeSuccess', 'scanVolumeError',
+      'indexingVolumes', 'indexingStartSuccess', 'indexingStartError'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return publicConfigField(this, 'title') },
-    formRules () { return condensedRules() },
+    formRules () { return condensedRules(VOLUME_VALIDATIONS) },
     searchQuery () {
       return {
         pageNumber: this.pageNumber,
@@ -478,12 +494,12 @@ export default {
         searchTerms: this.searchTerms
       }
     },
-    sourceTypes () { return localizedSourceTypes(this.messages) },
-    sourceTypeConfiguration () { return sourceTypeConfig(this.newSource.type) },
+    volumeTypes () { return localizedVolumeTypes(this.messages) },
+    volumeTypeConfiguration () { return volumeTypeConfig(this.newVolume.type) },
     encryptionAlgos () { return this.publicConfig && this.publicConfig.crypto ? this.publicConfig.crypto : null },
     selectedAlgoDetails () {
-      if (this.newSource.encryption.algo && this.encryptionAlgos) {
-        const algo = this.encryptionAlgos.find(enc => enc.name === this.newSource.encryption.algo)
+      if (this.newVolume.encryption.algo && this.encryptionAlgos) {
+        const algo = this.encryptionAlgos.find(enc => enc.name === this.newVolume.encryption.algo)
         return algo ? algo.info : null
       }
       return null
@@ -504,24 +520,30 @@ export default {
     }
   },
   watch: {
-    addSourceError (newError) {
+    addVolumeError (newError) {
       if (newError) {
-        // longer timeout for these kinds of things, more time to see the error
-        this.errorSnackTimeout = 2 * UI_CONFIG.snackbarErrorTimeout
-        this.showErrorSnackbar = true
-        this.showSuccessSnackbar = false
+        if (newError.errors) {
+          this.errorSnackTimeout = null
+          this.showErrorSnackbar = false
+          this.$refs.addVolumeForm.setErrors(newError.errors)
+        } else {
+          // longer timeout for these kinds of things, more time to see the error
+          this.errorSnackTimeout = 2 * UI_CONFIG.snackbarErrorTimeout
+          this.showErrorSnackbar = true
+          this.showSuccessSnackbar = false
+        }
       } else {
         this.errorSnackTimeout = null
         this.showErrorSnackbar = false
       }
     },
-    addSourceSuccess (ok) {
+    addVolumeSuccess (ok) {
       if (ok) {
         // longer timeout for these kinds of things, more time to see the error
         this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
         this.showSuccessSnackbar = true
         this.showErrorSnackbar = false
-        this.findSources({ query: this.searchQuery })
+        this.findVolumes({ query: this.searchQuery })
       } else {
         this.showSuccessSnackbar = false
         this.successSnackTimeout = null
@@ -530,58 +552,58 @@ export default {
   },
   created () {
     const query = this.searchQuery
-    this.findSources({ query })
-    this.setSourceTypeDefaults()
+    this.findVolumes({ query })
+    this.setVolumeTypeDefaults()
   },
   methods: {
-    ...mapActions('admin', ['findSources', 'addSource', 'deleteSource', 'scanSource', 'indexSource']),
-    fieldError (field, error) {
-      return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
+    ...mapActions('admin', ['findVolumes', 'addVolume', 'deleteVolume', 'scanVolume', 'indexVolume']),
+    fieldError (field, error, labelPrefix = 'label_') {
+      return field && error ? fieldErrorMessage(field, error, this.messages, labelPrefix) : '(no message)'
     },
-    isSelfSource (source) { return source.name === SELF_SOURCE_NAME },
-    sourceName (source) {
-      return this.isSelfSource(source)
-        ? this.messages.admin_label_self_source.parseMessage({ title: this.title })
-        : source.name
+    isSelfVolume (volume) { return volume.name === SELF_VOLUME_NAME },
+    volumeName (volume) {
+      return this.isSelfVolume(volume)
+        ? this.messages.admin_label_self_volume.parseMessage({ title: this.title })
+        : volume.name
     },
     isOpt (field) { return field !== 'key' && field !== 'secret' },
-    srcConfigFieldError (field, error) {
-      return field && error ? fieldErrorMessage(field, error, this.messages, localizedSourceConfigLabelPrefix(this.newSource.type)) : '(no message)'
+    volumeConfigFieldError (field, error) {
+      return field && error ? fieldErrorMessage(field, error, this.messages, localizedVolumeConfigLabelPrefix(this.newVolume.type)) : '(no message)'
     },
-    searchSources () {
+    searchVolumes () {
       const query = this.searchQuery
-      this.findSources({ query })
+      this.findVolumes({ query })
     },
     configFieldLabel (field) {
-      return localizedSourceConfigLabel(this.newSource.type, field)
+      return localizedVolumeConfigLabel(this.newVolume.type, field)
     },
-    setSourceTypeDefaults () {
-      this.newSource.opts = {}
-      const config = this.sourceTypeConfiguration
+    setVolumeTypeDefaults () {
+      this.newVolume.opts = {}
+      const config = this.volumeTypeConfiguration
       for (const field of Object.keys(config)) {
         const fieldConfig = config[field]
         if (fieldConfig.default) {
           if (this.isOpt(field)) {
-            this.newSource.opts[field] = fieldConfig.default
+            this.newVolume.opts[field] = fieldConfig.default
           } else {
-            this.newSource[field] = fieldConfig.default
+            this.newVolume[field] = fieldConfig.default
           }
         }
       }
     },
-    async addSrc () {
-      this.addSourceSubmitted = true
-      await this.$refs.addSrcForm.validate().then((success) => {
+    async addNewVolume () {
+      this.addVolumeSubmitted = true
+      await this.$refs.addVolumeForm.validate().then((success) => {
         if (success) {
-          this.addSource({ src: this.newSource })
+          this.addVolume({ volume: this.newVolume })
         }
       })
     },
-    delSource (src) {
+    delVolume (volume) {
       if (this.deleteConfirmCount > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
-        confirm(this.messages.admin_label_confirm_source_delete.parseMessage({ source: src }))) {
+        confirm(this.messages.admin_label_confirm_volume_delete.parseMessage({ volume }))) {
         this.deleteConfirmCount++
-        this.deleteSource({ src })
+        this.deleteVolume({ volume })
       } else {
         this.deleteConfirmCount = 0
       }
@@ -593,11 +615,11 @@ export default {
       } else {
         this.scanConfig.olderThan = null
       }
-      const scanConfig = Object.assign({}, this.scanConfig, { source: obj.name })
-      this.scanSource({ scanConfig })
+      const scanConfig = Object.assign({}, this.scanConfig, { volume: obj.name })
+      this.scanVolume({ scanConfig })
       this.setScanConfigOverlay(null)
     },
-    indexSrc (src) { this.indexSource({ src }) },
+    indexSrc (src) { this.indexVolume({ src }) },
     toggleAllProfiles () {
       this.$nextTick(() => {
         if (this.allProfilesSelected) {

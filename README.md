@@ -104,7 +104,7 @@ I hope you enjoy it too!
 * Search videos by keywords, or from tag cloud
 * <a href="https://www.patreon.com/cobbzilla">**Coming soon with your support**</a>:
   * Support for more media types (audio, images, etc)
-  * User-uploaded media
+  * MediaItem-uploaded media
   * Likes, shares, and push notifications
   * New "source type": Another Yuebing instance!
     * Federation between friendly instances: unified search, user accounts, etc
@@ -133,7 +133,7 @@ I hope you enjoy it too!
 * Automatic periodic scanning of source bucket for new media
 * Add and change media metadata; edits are stored on the destination bucket, source media is never modified
 * Configurable output profiles. Default is DASH-mp4 with multiple sub-profiles
-* User account info is also stored on the destination bucket, optionally encrypted
+* MediaItem account info is also stored on the destination bucket, optionally encrypted
   * If encryption key is changed, admin can migrate users to the new key with web admin console
 
 ## Installation

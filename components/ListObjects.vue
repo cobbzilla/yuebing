@@ -5,7 +5,7 @@
         <SearchBar />
       </v-col>
     </v-row>
-    <v-row v-if="!searching && searchResults && searchResults.objectList.length > 0 && typeof searchResults.start === 'number' && typeof searchResults.end === 'number' && typeof searchResults.total === 'number'">
+    <v-row v-if="!searching && !noSearchResults && typeof searchResults.start === 'number' && typeof searchResults.end === 'number' && typeof searchResults.total === 'number'">
       <v-col>
         <span style="font-size: x-small">
           {{ messages.label_results_info.parseMessage({ start: searchResults.start + 1, end: searchResults.end, total: searchResults.total }) }}
@@ -27,7 +27,7 @@
               </h2>
             </v-col>
           </v-row>
-          <v-row v-else-if="!searching && (!searchResults || searchResults.objectList.length === 0 || noQuery)">
+          <v-row v-else-if="!searching && (noSearchResults || noQuery)">
             <v-col>
               <div v-if="unverifiedUserAndNotPublic">
                 <h2>
@@ -154,6 +154,9 @@ export default {
     },
     noQuery () {
       return typeof this.$route.query.s === 'undefined' || this.$route.query.s.length === 0
+    },
+    noSearchResults () {
+      return !this.searchResults || !this.searchResults.objectList || this.searchResults.objectList.length === 0
     },
     hasPrev () { return this.searchResults && this.searchResults.start && this.searchResults.start > 0 },
     hasNext () { return this.searchResults && this.searchResults.more },

@@ -129,7 +129,7 @@ const isoTime = (millis, showSeconds = false) => {
   return [hour, minute, second].join(':')
 }
 
-const SELF_SOURCE_NAME = ' ~ this ~ '
+const SELF_VOLUME_NAME = ' ~ this ~ '
 
 module.exports = {
   USER_SESSION_HEADER,
@@ -145,7 +145,7 @@ module.exports = {
   MULTIFILE_PLACEHOLDER,
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
-  SELF_SOURCE_NAME,
+  SELF_VOLUME_NAME,
   INDEX_STILL_BUILDING_TOKEN,
   publicConfigField,
   okl,

@@ -10,7 +10,7 @@ BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 COMMAND="${1}"
 
 DOCKER_REPO="cobbzilla/yuebing"
-DOCKER_TAG="latest"
+DOCKER_TAG="${YUEBING_DOCKER_TAG:-'latest'}"
 DOCKER_NAME="${DOCKER_REPO}:${DOCKER_TAG}"
 
 function die () {
@@ -21,7 +21,7 @@ function die () {
 if [[ -z "$(docker image ls | grep "${DOCKER_REPO}" | grep "${DOCKER_TAG}")" ]] ; then
   cd "${BASE_DIR}" || die "Error trying to change directories to ${BASE_DIR}"
   if [[ -n "${YUEBING_DEV}" ]] ; then
-    docker build -t "${DOCKER_REPO}":"${DOCKER_TAG}" . || die "Error building docker production image"
+    docker build -t "${DOCKER_REPO}":"${DOCKER_TAG}" . || die "Error building docker production image: ${DOCKER_REPO}:${DOCKER_TAG}"
   else
     docker pull "${DOCKER_REPO}":"${DOCKER_TAG}" || die "Error pulling docker repo: ${DOCKER_REPO}:${DOCKER_TAG}"
   fi

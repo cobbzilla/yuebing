@@ -2,7 +2,7 @@ const shared = require('../shared')
 const { NO_CACHE_HEADER } = require('../shared')
 const a = require('./util')
 
-export const sourceService = {
+export const volumeService = {
   listObjects,
   searchContent,
   metadata,
@@ -22,7 +22,7 @@ function listObjects (path, noCache = null) {
 }
 
 function searchContent (query) {
-  return fetch(`/api/source/list`, a.authPostJson(query)).then(a.handleJsonResponse)
+  return fetch('/api/source/list', a.authPostJson(query)).then(a.handleJsonResponse)
 }
 
 function metadata (path) {

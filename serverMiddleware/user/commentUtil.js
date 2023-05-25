@@ -127,7 +127,7 @@ const findCommentsForPath = async (user, path) => {
     return cached.map(c => JSON.parse(c))
       .sort((c1, c2) => c1.ctime - c2.ctime)
   }
-  const commentFiles = await system.api.list(commentsForPath(path), { recursive: true })
+  const commentFiles = await system.api.safeList(commentsForPath(path), { recursive: true })
   const comments = []
   const promises = []
   for (const commentFile of commentFiles) {

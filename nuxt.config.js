@@ -1,7 +1,10 @@
 // Don't change this variable. If you want to enable/disable email, set the YB_EMAIL_HOST environment
 // variable (and others, see below in privateRuntimeConfig for email settings)
+
 const EMAIL_ENABLED = typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0
 const EMAIL_REQUIRED = EMAIL_ENABLED ? 'required|' : ''
+
+const { EntitySchema } = require('typeorm')
 
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
@@ -424,8 +427,12 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    // this module loads the serverMiddleware when nuxt runs, but does not load it during 'nuxt build'
-    '~/modules/api'
+
+    // Load the serverMiddleware only when nuxt runs, and not during 'nuxt build'
+    '~/modules/api',
+
+    // TypeORM for Nuxt
+    '~/modules/nuxt-typeorm'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios

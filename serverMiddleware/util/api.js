@@ -1,6 +1,6 @@
 const cookie = require('cookie')
 const { MobilettoNotFoundError } = require('mobiletto-lite')
-const src = require('../source/sourceUtil')
+const src = require('../volume/volumeUtil')
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
@@ -51,20 +51,21 @@ function badRequest (res, message) {
 function validationFailed (res, errors) {
   res.statusCode = 422
   logger.info(`422 validationFailed: ${errors ? JSON.stringify(errors) : 'no errors (?)'}`)
-  res.end(JSON.stringify(errors))
+  res.end(JSON.stringify('errors' in errors ? errors : { errors }))
   return null
 }
 
-function handleValidationError (res, e) {
-  if (e.errors) {
-    validationFailed(res, e.errors)
+function handleValidationError (res, errors) {
+  if (errors) {
+    validationFailed(res, errors)
   } else {
-    serverError(res, `Error: ${e}`)
+    logger.warn('handleValidationError: no errors, returning serverError')
+    serverError(res)
   }
 }
 
 function handleSourceError (res, e) {
-  return (e instanceof src.SourceNotFoundError) || (e instanceof MobilettoNotFoundError)
+  return (e instanceof src.VolumeNotFoundError) || (e instanceof MobilettoNotFoundError)
     ? notFound(res, e.message)
     : serverError(res, 'error listing')
 }

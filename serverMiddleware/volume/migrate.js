@@ -2,13 +2,13 @@ const { MobilettoNotFoundError } = require('mobiletto-lite')
 
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM
-const s = require('./sourceUtil')
+const vol = require('./volumeUtil')
 
-async function connectSourceOrSelf (name) {
-  if (name === c.SELF_SOURCE_NAME) {
+async function connectVolumeOrSelf (name) {
+  if (name === c.SELF_VOLUME_NAME) {
     return system.api
   }
-  return await s.connect(name)
+  return await vol.connect(name)
 }
 
 // path should NOT start with / but must end with
@@ -29,15 +29,15 @@ function adjustPath (path) {
 
 async function migrateData (readStorage, readPath, writeStorage, writePath) {
   if (readStorage.name === writeStorage.name) {
-    throw new TypeError('migrateData: readSource and writeSource are the same')
+    throw new TypeError('migrateData: readStorage.name and writeStorage.name are the same')
   }
-  const readApi = await connectSourceOrSelf(readStorage.name)
-  const writeApi = await connectSourceOrSelf(writeStorage.name)
+  const readApi = await connectVolumeOrSelf(readStorage.name)
+  const writeApi = await connectVolumeOrSelf(writeStorage.name)
   try {
     await writeApi.mirror(readApi, adjustPath(writePath), adjustPath(readPath))
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
-      throw new s.SourceNotFoundError(e.message)
+      throw new vol.VolumeNotFoundError(e.message)
     }
     throw new TypeError(`migrateData: error: ${e}`)
   }
