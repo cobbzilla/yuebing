@@ -55,6 +55,10 @@ export const state = () => ({
   indexingInfoSuccess: {},
   indexingInfoError: {},
 
+  volumeSyncInProgress: {},
+  volumeSyncSuccess: {},
+  volumeSyncError: {},
+
   deletingVolume: false,
   deleteVolumeSuccess: null,
   deleteVolumeError: null,
@@ -67,6 +71,11 @@ export const state = () => ({
   addingLibrary: false,
   addLibrarySuccess: null,
   addLibraryError: null,
+
+  updatingLibrary: false,
+  updateLibrarySuccess: null,
+  updateLibraryError: null,
+  recentlySavedLibrary: null,
 
   deletingLibrary: false,
   deleteLibrarySuccess: null,
@@ -187,6 +196,15 @@ export const actions = {
       )
   },
 
+  setVolumeSync ({ commit }, { volume, sync }) {
+    commit('setVolumeSyncRequest', { volume, sync })
+    adminService.setVolumeSync(volume, sync)
+      .then(
+        (ok) => { commit('setVolumeSyncSuccess', { ok, volume, sync }) },
+        (error) => { commit('setVolumeSyncFailure', { volume, sync, error }) }
+      )
+  },
+
   deletePath ({ commit }, { volumeAndPath }) {
     commit('deletePathRequest', { volumeAndPath })
     adminService.deletePath(volumeAndPath)
@@ -229,6 +247,15 @@ export const actions = {
       .then(
         (ok) => { commit('addLibrarySuccess', { ok, library }) },
         (error) => { commit('addLibraryFailure', { error }) }
+      )
+  },
+
+  updateLibrary ({ commit }, { library }) {
+    commit('updateLibraryRequest', { library })
+    adminService.updateLibrary(library)
+      .then(
+        (ok) => { commit('updateLibrarySuccess', { ok, library }) },
+        (error) => { commit('updateLibraryFailure', { error }) }
       )
   },
 
@@ -449,6 +476,36 @@ export const mutations = {
     state.scanVolumeError = Object.assign({}, state.scanVolumeError, update)
   },
 
+  setVolumeSyncRequest (state, { volume, sync }) {
+    const update = {}
+    update[volume] = { active: true, sync }
+    state.volumeSyncInProgress = Object.assign({}, state.volumeSyncInProgress, update)
+  },
+  setVolumeSyncSuccess (state, { ok, volume, sync }) {
+    const update = {}
+    update[volume] = false
+    state.volumeSyncInProgress = Object.assign({}, state.volumeSyncInProgress, update)
+    update[volume] = ok || true
+    state.setVolumeSyncSuccess = Object.assign({}, state.setVolumeSyncSuccess, update)
+    update[volume] = null
+    state.setVolumeSyncError = Object.assign({}, state.setVolumeSyncError, update)
+    if (state.volumeList) {
+      const vol = state.volumeList.find(vol => vol.name === volume)
+      if (vol) {
+        vol.sync = sync
+      }
+    }
+  },
+  setVolumeSyncFailure (state, { volume, sync, error }) {
+    const update = {}
+    update[volume] = false
+    state.volumeSyncInProgress = Object.assign({}, state.volumeSyncInProgress, update)
+    update[volume] = null
+    state.setVolumeSyncSuccess = Object.assign({}, state.setVolumeSyncSuccess, update)
+    update[volume] = error
+    state.setVolumeSyncError = Object.assign({}, state.setVolumeSyncError, update)
+  },
+
   indexPathRequest (state, { volumeAndPath }) {
     const update = {}
     update[volumeAndPath] = true
@@ -549,16 +606,50 @@ export const mutations = {
 
   addLibraryRequest (state, { library }) {
     state.addingLibrary = true
+    state.addLibrarySuccess = null
+    state.addLibraryError = null
+    state.recentlySavedLibrary = null
   },
   addLibrarySuccess (state, { ok, library }) {
     state.addingLibrary = false
     state.addLibrarySuccess = ok || true
     state.addLibraryError = null
+    if (!state.libraryList) {
+      state.libraryList = []
+    }
     state.libraryList.push(library)
+    state.recentlySavedLibrary = library
   },
   addLibraryFailure (state, { error }) {
     state.addingLibrary = false
     state.addLibraryError = error
+    state.recentlySavedLibrary = null
+  },
+
+  updateLibraryRequest (state, { library }) {
+    state.updatingLibrary = true
+    state.updateLibrarySuccess = null
+    state.updateLibraryError = null
+    state.recentlySavedLibrary = null
+  },
+  updateLibrarySuccess (state, { ok, library }) {
+    state.updatingLibrary = false
+    state.updateLibrarySuccess = ok || true
+    state.updateLibraryError = null
+    if (!state.libraryList) {
+      state.libraryList = []
+    }
+    for (let i = 0; i < state.libraryList.length; i++) {
+      if (state.libraryList[i].name === library.name) {
+        state.libraryList[i] = Object.assign({}, library)
+      }
+    }
+    state.recentlySavedLibrary = library
+  },
+  updateLibraryFailure (state, { error }) {
+    state.updatingLibrary = false
+    state.updateLibraryError = error
+    state.recentlySavedLibrary = null
   },
 
   deleteLibraryRequest (state, { library }) {

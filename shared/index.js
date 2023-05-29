@@ -131,6 +131,11 @@ const isoTime = (millis, showSeconds = false) => {
 
 const SELF_VOLUME_NAME = ' ~ this ~ '
 
+const isSelfVolume = volume => volume && (
+  (typeof(volume) === 'string' && volume === SELF_VOLUME_NAME) ||
+  (volume.name && volume.name === SELF_VOLUME_NAME)
+)
+
 module.exports = {
   USER_SESSION_HEADER,
   USER_SESSION_QUERY_PARAM,
@@ -145,7 +150,7 @@ module.exports = {
   MULTIFILE_PLACEHOLDER,
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
-  SELF_VOLUME_NAME,
+  SELF_VOLUME_NAME, isSelfVolume,
   INDEX_STILL_BUILDING_TOKEN,
   publicConfigField,
   okl,

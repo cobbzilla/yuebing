@@ -15,12 +15,12 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const { source, pth } = await vol.extractVolumeAndPathAndConnect(req.url)
-      if (!source || !pth) { return api.notFound() }
-      const meta = await manifest.deriveMetadata(source, pth)
+      const { volume, pth } = await vol.extractVolumeAndPathAndConnect(req.url)
+      if (!volume || !pth) { return api.notFound() }
+      const meta = await manifest.deriveMetadata(volume, pth)
       if (meta.finished) {
-        const sourceAndPath = `${source}/${pth}`
-        meta.selectedThumbnail = await cache.findSelectedThumbnail(sourceAndPath)
+        const volumeAndPath = `${volume}/${pth}`
+        meta.selectedThumbnail = await cache.findSelectedThumbnail(volumeAndPath)
       }
       return api.okJson(res, meta)
     } catch (e) {

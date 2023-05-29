@@ -1,10 +1,14 @@
 // Don't change this variable. If you want to enable/disable email, set the YB_EMAIL_HOST environment
 // variable (and others, see below in privateRuntimeConfig for email settings)
-
 const EMAIL_ENABLED = typeof process.env.YB_EMAIL_HOST === 'string' && process.env.YB_EMAIL_HOST.length > 0
 const EMAIL_REQUIRED = EMAIL_ENABLED ? 'required|' : ''
 
-const { EntitySchema } = require('typeorm')
+const AUTOSCAN_INTERVAL_FIELD = {
+  rules: 'integer|min_value:60000|max_value:3153600000000',
+  when: 'enabled',
+  format: 'duration',
+  default: 1000 * 60 * 60 * 24 // default 24 hours
+}
 
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
@@ -62,6 +66,9 @@ export default {
         }
       }
     },
+
+    // Allow the frontend to use DurationField to render these
+    autoscanIntervalField: AUTOSCAN_INTERVAL_FIELD,
 
     // When enabled, logged-in users will see an "invite friends" feature in page footer
     inviteFriendsEnabled: process.env.YB_INVITE_FRIENDS_ENABLED || true,
@@ -268,17 +275,17 @@ export default {
       }
     },
 
-    // The server scans the source media for new content to transform
+    // Some autoscan settings can be overridden at the library-level:
+    //  * enabled (autoscan can be turned on or off for a library)
+    //  * interval (how often to scan)
     autoscan: {
-      // When autoscan is disabled, you can still manually scan sources from the web admin console
+      // When autoscan is disabled, you can still start a scan from the web admin console
       enabled: process.env.YB_AUTOSCAN_ENABLED || false,
 
       // How frequently to auto-scan the source for new content
-      // Otherwise, scan at this interval.
-      // Minimum interval is 1 minute. Lower settings are ignored.
+      // Minimum interval is 1 hour. Lower settings are ignored.
       // Only one scan runs at a time. If an active scan is already running when a new
       // interval is triggered, a concurrent scan will NOT be started.
-      // If enabled, an initial scan will being shortly after startup
       interval: process.env.YB_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
 
       // How long to wait before the initial startup scan
@@ -305,12 +312,7 @@ export default {
           format: 'flag',
           default: true
         },
-        interval: {
-          rules: 'integer|min_value:60000|max_value:3153600000000',
-          when: 'enabled',
-          format: 'duration',
-          default: 1000 * 60 * 60 * 24 // default 24 hours
-        },
+        interval: AUTOSCAN_INTERVAL_FIELD,
         initialDelay: {
           rules: 'integer|min_value:60000|max_value:3153600000000',
           when: 'enabled',

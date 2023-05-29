@@ -509,12 +509,12 @@ if (ADMIN_USER) {
     (user) => { logger.info(`registered admin user: ${user.username}`)},
     (err) => {
       if (err instanceof UserValidationError) {
-        const errs = err.errors
-        if (Object.keys(errs)
+        const errs = err.errors ? err.errors : null
+        if (errs && Object.keys(errs)
           .find(f => (f === 'email' || f === 'username') && errs[f].find(e => e === ERR_ALREADY_REGISTERED))) {
           logger.info(`registerInitialAdminUser: admin user already registered: ${JSON.stringify(err.errors)}`)
         } else {
-          logger.error(`registerInitialAdminUser: ${JSON.stringify(err.errors)}`)
+          logger.error(`registerInitialAdminUser: ${JSON.stringify(err)}`)
         }
       } else {
         throw err

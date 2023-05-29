@@ -19,28 +19,28 @@ export default {
       return api.forbidden(res)
     }
     try {
-      const sourceAndPath = req.url.replaceAll('//', '/')
-      const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
-      if (!source || !pth) { return api.notFound() }
+      const volumeAndPath = req.url.replaceAll('//', '/')
+      const { volume, pth } = await vol.extractVolumeAndPathAndConnect(volumeAndPath)
+      if (!volume || !pth) { return api.notFound() }
       if (req.method === 'GET') {
-        const meta = await deriveMetadata(source, pth)
+        const meta = await deriveMetadata(volume, pth)
         if (meta) {
-          const mediainfo = await deriveMediaInfo(meta, sourceAndPath)
+          const mediainfo = await deriveMediaInfo(meta, volumeAndPath)
           if (mediainfo) {
             return api.okJson(res, mediainfo)
           }
         }
-        return api.notFound(res, sourceAndPath)
+        return api.notFound(res, volumeAndPath)
       } else if (req.method === 'POST') {
         req.on('data', (data) => {
           const values = JSON.parse(data.toString())
           values.mtime = Date.now()
           const info = JSON.stringify(values)
-          const infoPath = system.userMediaInfoPath(source.name, pth)
+          const infoPath = system.userMediaInfoPath(volume.name, pth)
           system.storage.writeFile(infoPath, info)
             .then(() => {
-              flushMediaInfoCache(sourceAndPath)
-              reindexPath(sourceAndPath)
+              flushMediaInfoCache(volumeAndPath)
+              reindexPath(volumeAndPath)
               api.okJson(res, info)
             })
             .catch((err) => {

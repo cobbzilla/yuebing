@@ -501,7 +501,8 @@ async function createArtifacts (job, localSourceFile) {
 
 async function ensureSourceDownloaded (job) {
   const sourcePath = job.data.sourcePath
-  const { source, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
+  const { volume, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
+  const source = volume
   const mediaType = m.mediaType(pth)
   const jobPrefix = `ensureSourceDownload_${mediaType}_${basename(pth)}`
   q.recordJobEvent(job, `${jobPrefix}_download_start`)

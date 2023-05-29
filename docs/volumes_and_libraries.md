@@ -21,6 +21,11 @@ A destination volume contains yuebing system configuration and processed media.
 
 By default, there is always a local system destination data volume available.
 
+#### Synchronized Destinations
+A synchronized destination is a destination where the current system will keep a copy
+of its important configuration files. These files will be kept in sync and the system can
+be booted from either destination.
+
 ## Introduction to Libraries
 A library consists of:
  * A set of source data volumes where media will be scanned

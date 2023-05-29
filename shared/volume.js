@@ -1,4 +1,4 @@
-const { SELF_VOLUME_NAME } = require('./index')
+const { isSelfVolume } = require('./index')
 
 const VOLUME_TYPES = {
   local: {
@@ -64,11 +64,6 @@ const VOLUME_NAME_VALIDATION = {
   checkOnUpdate: false
 }
 
-const LIBRARY_VALIDATIONS = {
-  source: VOLUME_NAME_VALIDATION,
-  destination: VOLUME_NAME_VALIDATION
-}
-
 const VOLUME_VALIDATIONS = {
   type: {
     required: true,
@@ -96,8 +91,7 @@ const VOLUME_MOUNT_SOURCE = 'source'
 const VOLUME_MOUNT_DESTINATION = 'destination'
 
 const filterSources = volumes => volumes ? volumes.filter(v => v.mount === VOLUME_MOUNT_SOURCE) : []
-const isSelfDestinationVolume = v => v.name === SELF_VOLUME_NAME
-const isDestinationVolume = v => v.mount === VOLUME_MOUNT_DESTINATION || isSelfDestinationVolume(v)
+const isDestinationVolume = v => v.mount === VOLUME_MOUNT_DESTINATION || isSelfVolume(v)
 const filterDestinations = volumes => volumes ? volumes.filter(isDestinationVolume) : []
 
 function volumeTypeConfig (volumeType) {
@@ -149,7 +143,6 @@ export {
   localizedVolumeConfigLabelPrefix, localizedVolumeConfigLabel,
   sortVolumesByField, sortLibrariesByField,
   extractVolumeAndPath,
-  VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION,
-  VOLUME_VALIDATIONS, LIBRARY_VALIDATIONS,
-  filterSources, filterDestinations, isSelfDestinationVolume
+  VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION, VOLUME_VALIDATIONS,
+  filterSources, filterDestinations
 }

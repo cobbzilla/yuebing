@@ -11,6 +11,7 @@ export const adminService = {
   addVolume,
   scanVolume,
   scanPath,
+  setVolumeSync,
   indexVolume,
   indexPath,
   indexInfo,
@@ -18,6 +19,7 @@ export const adminService = {
   deletePath,
   findLibraries,
   addLibrary,
+  updateLibrary,
   deleteLibrary,
   loadSiteConfig,
   updateSiteConfig,
@@ -80,6 +82,10 @@ function indexInfo (name) {
   return fetch(`/api/admin/volumes/${name}?reindex=true`, a.authGet()).then(a.handleJsonResponse)
 }
 
+function setVolumeSync (volume, sync) {
+  return fetch(`/api/admin/volumes/${volume}?sync=${!!sync}`, a.authPatchJson(volume)).then(a.handleJsonResponse)
+}
+
 function deleteVolume (volume) {
   return fetch(`/api/admin/volumes/${volume}`, a.authDelete()).then(a.handleJsonResponse)
 }
@@ -90,6 +96,10 @@ function findLibraries (query) {
 
 function addLibrary (library) {
   return fetch('/api/admin/libraries', a.authPutJson(library)).then(a.handleJsonResponse)
+}
+
+function updateLibrary (library) {
+  return fetch('/api/admin/libraries', a.authPatchJson(library)).then(a.handleJsonResponse)
 }
 
 function deleteLibrary (libraryName) {

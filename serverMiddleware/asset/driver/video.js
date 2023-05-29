@@ -340,7 +340,8 @@ async function extractTextTracks (sourcePath, sourceFile, profile, outfile) {
     return null
   }
 
-  const { source, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
+  const { volume, pth } = await src.extractVolumeAndPathAndConnect(sourcePath)
+  const source = volume
   const meta = await deriveMetadata(source, pth)
   const textTracks = []
   if (!meta) {

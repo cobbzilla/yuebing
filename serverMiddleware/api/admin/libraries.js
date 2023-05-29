@@ -2,49 +2,48 @@ const c = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const vol = require('../../volume/volumeUtil')
-const v = require('../../../shared/validation')
-const { queryParamValue } = require('../../util/api')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
-
-const REINDEX_PARAM = 'reindex'
 
 function handleLibraryError (res, e, libraryName) {
   if (e instanceof vol.LibraryNotFoundError) {
     return api.notFound(res, libraryName)
   }
+  if (e instanceof vol.LibraryValidationError) {
+    return api.handleValidationError(res, e.errors)
+  }
   return api.serverError(res, e)
 }
 
 async function handleAdd (res, library) {
-  if (await vol.libraryExists(library.name)) {
-    return api.handleValidationError(res, { name: 'alreadyExists' })
-  }
-  const errors = await v.validate(library)
-  if (!c.empty(errors)) {
-    return api.handleValidationError(res, errors)
-  }
   try {
     return api.okJson(res, await vol.createLibrary(library))
   } catch (e) {
-    return api.serverError(res, `Error creating library: ${JSON.stringify(e)}`)
+    return handleLibraryError(res, e, library.name)
+  }
+}
+
+async function handleUpdate (res, library) {
+  try {
+    return api.okJson(res, await vol.updateLibrary(library))
+  } catch (e) {
+    return handleLibraryError(res, e, library.name)
   }
 }
 
 async function handleDelete (res, name) {
-  return await vol.libraryExists(name).then(
-    (libraryName) => {
-      if (libraryName) {
-        vol.deleteLibrary(libraryName).then(
-          () => api.okJson(res, { deleted: true }),
-          (err) => {
-            const message = `handleDelete: error calling deleteLibrary: ${err}`
-            logger.error(message)
-            return api.serverError(res, message)
-          })
-      } else {
-        return api.notFound(res, name)
+  return await vol.findLibrary(name).then(
+    (library) => {
+      if (library.name !== name) {
+        return api.serverError(res, `handleDelete: found library with name ${library.name} but expected name ${name}`)
       }
+      vol.deleteLibrary(name).then(
+        () => api.okJson(res, { deleted: true }),
+        (err) => {
+          const message = `handleDelete: error calling deleteLibrary: ${err}`
+          logger.error(message)
+          return api.serverError(res, message)
+        })
     },
     err => handleLibraryError(res, err, name)
   )
@@ -55,7 +54,7 @@ async function handleQuery (res, query) {
 }
 
 export default {
-  path: '/api/admin/librarys',
+  path: '/api/admin/libraries',
   async handler (req, res) {
     const user = await u.requireAdmin(req, res)
     if (!user) {
@@ -72,6 +71,9 @@ export default {
           return await handleDelete(res, libraryId)
         case 'PUT':
           handler = handleAdd
+          break
+        case 'PATCH':
+          handler = handleUpdate
           break
         case 'POST':
           handler = handleQuery

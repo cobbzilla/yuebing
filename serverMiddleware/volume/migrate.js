@@ -5,7 +5,7 @@ const system = require('../util/config').SYSTEM
 const vol = require('./volumeUtil')
 
 async function connectVolumeOrSelf (name) {
-  if (name === c.SELF_VOLUME_NAME) {
+  if (c.isSelfVolume(name)) {
     return system.storage
   }
   return await vol.connect(name)

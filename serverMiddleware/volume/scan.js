@@ -8,7 +8,7 @@ const m = require('../../shared/media')
 const xform = require('../asset/xform')
 const { uploadPendingAssets } = require('../asset/upload')
 
-const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60
+const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60 * 60
 const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
 
 let CURRENT_AUTOSCAN_START = null
@@ -133,7 +133,8 @@ const scanPath = async (scanConfig) => {
   const logPrefix = `scanPath(${sourceAndPath})`
   try {
     logger.info(`${logPrefix} extracting source and path`)
-    const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
+    const { volume, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
+    const source = volume
     scanConfig.path = pth
     logger.info(`${logPrefix} scanning with autoscan=false, force=true`)
     const scanResult = await scan(source, scanConfig)

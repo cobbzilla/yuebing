@@ -1,8 +1,10 @@
 const LRU = require('lru-cache')
 const shasum = require('shasum')
+const { dirname, basename } = require('fs')
 const {
   mobiletto, MobilettoError, MobilettoNotFoundError
 } = require('mobiletto-lite')
+const { AUTOSCAN_MINIMUM_INTERVAL } = require('./scan')
 const c = require('../../shared')
 const m = require('../../shared/media')
 const vol = require('../../shared/volume')
@@ -11,10 +13,18 @@ const system = require('../util/config').SYSTEM
 const logger = system.logger
 
 const VOLUME_PREFIX = 'volumes/'
-const volumeKey = name => name.startsWith(VOLUME_PREFIX) ? name : VOLUME_PREFIX + name + '.json'
+const SYNC_PREFIX = 'sync/'
 
-function VolumeError (volume) {
-  this.message = volume
+const volumeKey = name => name.startsWith(VOLUME_PREFIX)
+    ? dirname(name) + basename(name) + '.json'
+    : VOLUME_PREFIX + name + '.json'
+
+const syncKey = name => name.startsWith(SYNC_PREFIX)
+    ? dirname(name) + basename(name) + '.json'
+    : SYNC_PREFIX + name + '.json'
+
+function VolumeError (message) {
+  this.message = message
   if ('captureStackTrace' in Error) {
     Error.captureStackTrace(this, TypeError)
   } else {
@@ -42,6 +52,17 @@ function LibraryError (library) {
   LibraryError.prototype.toString = () => JSON.stringify(this)
 }
 
+function LibraryValidationError (errors) {
+  this.message = JSON.stringify(errors)
+  this.errors = errors
+  if ('captureStackTrace' in Error) {
+    Error.captureStackTrace(this, TypeError)
+  } else {
+    this.stack = (new Error(this.message)).stack
+  }
+  LibraryValidationError.prototype.toString = () => JSON.stringify(this)
+}
+
 function LibraryNotFoundError (volume) {
   this.message = volume
   if ('captureStackTrace' in Error) {
@@ -52,20 +73,24 @@ function LibraryNotFoundError (volume) {
 }
 
 function volumeSearchMatches (volume, searchTerms) {
-  return (volume.name && (volume.name.includes(searchTerms) || volume.name === c.SELF_VOLUME_NAME))
+  return (volume.name && (volume.name.includes(searchTerms) || c.isSelfVolume(volume)))
 }
 
 async function volumeExists (name) {
-  const meta = await system.storage.safeMetadata(volumeKey(name))
-  return meta ? meta.name : false
+  try {
+    return await findVolume(name) != null
+  } catch (e) {
+    return false
+  }
 }
 
-async function findVolume (name) {
-  if (name === c.SELF_VOLUME_NAME) {
+async function findVolume (name, findDeleted = false) {
+  if (c.isSelfVolume(name)) {
     return system.volume
   }
   try {
-    return JSON.parse((await system.storage.readFile(volumeKey(name))).toString())
+    const volume = JSON.parse((await system.storage.readFile(volumeKey(name))).toString())
+    return volume.deleted ? findDeleted ? volume : null : volume
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
       throw new VolumeNotFoundError(name)
@@ -93,7 +118,17 @@ async function _listVolumes (query) {
     const allVolumes = []
     for (const object of objectList) {
       if (object.type === m.FILE_TYPE) {
-        allVolumes.push(JSON.parse(await system.storage.readFile(object.name)))
+        try {
+          const volume = JSON.parse(await system.storage.readFile(object.name))
+          if (volume.deleted && !query.includeDeleted) {
+            continue
+          } else if (!volume.deleted) {
+            volume.sync = await isSync(volume.name)
+          }
+          allVolumes.push(volume)
+        } catch (e) {
+          logger.warn(`_listVolumes: error reading volume ${object.name}: ${JSON.stringify(e)}`)
+        }
       }
     }
     if (query.includeSelf) {
@@ -127,20 +162,15 @@ async function createVolume (volume) {
     throw new VolumeError(`createVolume: volume exists: ${volume.name}`)
   }
 
-  // set mount type
-  const readOnly = typeof volume.readOnly === 'boolean' ? volume.readOnly : true
-  volume.mount = readOnly ? vol.VOLUME_MOUNT_SOURCE : vol.VOLUME_MOUNT_DESTINATION
+  // set readOnly based on mount type, only destinations are read/write
+  const isDestination = volume.mount === vol.VOLUME_MOUNT_DESTINATION
+  volume.readOnly = !isDestination
 
   // test connection
   try {
     await connectVolume(volume)
   } catch (e) {
-    if (e instanceof MobilettoError) {
-      throw new VolumeError(`${e}`)
-    } else {
-      logger.error(`createVolume: connectVolume error: ${e}`)
-      throw e
-    }
+    throw new VolumeError(`${e}`)
   }
 
   // save volume
@@ -157,20 +187,59 @@ async function createVolume (volume) {
   }
 }
 
-async function deleteVolume (name) {
-  if (name === c.SELF_VOLUME_NAME) {
-    throw new VolumeError(`deleteVolume: cannot delete self: ${name}`)
-  }
-  if (!(await volumeExists(name))) {
-    throw new VolumeNotFoundError(name)
+async function isSync (name) {
+  if (c.isSelfVolume(name)) {
+    return true
   }
   try {
-    const bytesWritten = await system.storage.remove(volumeKey(name))
+    const syncJson = await system.storage.safeReadFile(syncKey(name))
+    if (syncJson == null) return false
+    const syncObj = JSON.parse(syncJson)
+    return !syncObj.deleted && syncObj.sync === true
+  } catch (e) {
+    logger.warn(`isSync(${name}): error (returning false): ${e}`)
+    return false
+  }
+}
+
+async function setSync (name, sync, deleteSync  = false) {
+  if (c.isSelfVolume(name)) {
+    throw new VolumeError(`setSync: cannot setSync on self: ${name}`)
+  }
+  const volume = await findVolume(name)
+  const syncFile = syncKey(name)
+  if (!deleteSync || system.storage.safeReadFile(syncFile)) {
+    const syncObj = deleteSync
+      ? { name, deleted: Date.now() }
+      : { name, sync, ctime: Date.now() }
+    const syncJson = JSON.stringify(syncObj)
+    const bytesWritten = await system.storage.writeFile(syncFile, syncJson)
+    if (bytesWritten !== syncJson.length) {
+      throw new VolumeError(`setSync(${name}, ${sync}): expected to write ${syncJson.length} bytes to ${syncFile} but wrote ${bytesWritten}`)
+    }
+  }
+  return Object.assign({}, volume, { sync })
+}
+
+async function deleteVolume (name) {
+  if (c.isSelfVolume(name)) {
+    throw new VolumeError(`deleteVolume: cannot delete self: ${name}`)
+  }
+  const volume = await findVolume(name)
+  const tombstone = { name: volume.name, deleted: Date.now() }
+  try {
+    const bytesWritten = await system.storage.writeFile(volumeKey(name), JSON.stringify(tombstone))
     if (bytesWritten > 0) {
       listVolumeCache.clear()
     }
   } catch (e) {
-    logger.warn(`deleteVolume: error removing volume file: ${e}`)
+    logger.warn(`deleteVolume: error writing volume tombstone: ${e}`)
+    throw e
+  }
+  try {
+    await setSync(name, null, true)
+  } catch (e) {
+    logger.warn(`deleteVolume: error writing sync tombstone: ${e}`)
     throw e
   }
 }
@@ -195,17 +264,17 @@ const connectedSources = () => vol.filterSources(connectedVolumes())
 const connectedDestinations = () => vol.filterDestinations(connectedVolumes())
 
 async function extractVolumeAndPathAndConnect (from) {
-  const { volumeName, pth } = vol.extractVolumeAndPath(from)
-  const volume = await connect(volumeName)
-  if (!volume) {
+  const { volume, pth } = vol.extractVolumeAndPath(from)
+  const volumeObj = await connect(volume)
+  if (!volumeObj) {
     throw new VolumeError(`extractVolumeAndPathAndConnect(${from}): error connecting to volume`)
   }
-  volume.name = volumeName
-  return { volume, pth: decodeURI(pth) }
+  volumeObj.name = volume
+  return { volume: volumeObj, pth: decodeURI(pth) }
 }
 
 const LIBRARY_PREFIX = 'libraries/'
-const libraryKey = libraryId => libraryId.startsWith(LIBRARY_PREFIX) ? libraryId : VOLUME_PREFIX + libraryId + '.json'
+const libraryKey = name => name.startsWith(LIBRARY_PREFIX) ? name : LIBRARY_PREFIX + name + '.json'
 
 const listLibraries = async (query) => {
   return await _listLibraries(query)
@@ -216,19 +285,24 @@ const listLibrariesCache = new LRU({ max: 1000 })
 const librarySearchMatches = (library, searchTerms) =>
   (library.hash && (library.hash.includes(searchTerms))) ||
   (library.source && (library.source.includes(searchTerms))) ||
-  (library.destination && (library.destination.includes(searchTerms) || library.destination === c.SELF_VOLUME_NAME))
+  (library.destination && (library.destination.includes(searchTerms) || c.isSelfVolume(library.destination)))
 
 async function libraryExists (name) {
-  const meta = await system.storage.safeMetadata(libraryKey(name))
-  return meta ? meta.name : false
+  try {
+    const library = await findLibrary(name)
+    return library != null
+  } catch (e) {
+    return false
+  }
 }
 
-async function findLibrary (hash) {
+async function findLibrary (name, findDeleted = false) {
   try {
-    return JSON.parse((await system.storage.readFile(libraryKey(hash))).toString())
+    const library = JSON.parse((await system.storage.readFile(libraryKey(name))).toString())
+    return library.deleted ? findDeleted ? library : null : library
   } catch (e) {
     if (e instanceof MobilettoNotFoundError) {
-      throw new LibraryNotFoundError(hash)
+      throw new LibraryNotFoundError(name)
     }
     throw e
   }
@@ -242,7 +316,14 @@ async function _listLibraries (query) {
     const allLibraries = []
     for (const object of objectList) {
       if (object.type === m.FILE_TYPE) {
-        allLibraries.push(JSON.parse(await system.storage.readFile(object.name)))
+        try {
+          const library = JSON.parse(await system.storage.readFile(object.name))
+          if (!library.deleted || query.includeDeleted) {
+            allLibraries.push(library)
+          }
+        } catch (e) {
+          logger.warn(`_listLibraries: error reading volume ${object.name}: ${JSON.stringify(e)}`)
+        }
       }
     }
     results = q.search(allLibraries, query, librarySearchMatches, vol.sortLibrariesByField)
@@ -251,40 +332,85 @@ async function _listLibraries (query) {
   return results
 }
 
-async function createLibrary (library) {
-  if (!library || !library.source || !library.destination) {
-    throw new LibraryError(`createLibrary: no source or destination for library: ${JSON.stringify(library)}`)
+const validateLibrary = async (library, forCreate = true) => {
+  if (!library || typeof(library.name) !== 'string' || library.name.length === 0) {
+    throw new LibraryValidationError({ 'name': [ 'required' ] })
   }
-  library.hash = shasum( LIBRARY_PREFIX + '\n' + library.source + '\n' + library.destination)
-  if (await libraryExists(library.hash)) {
-    throw new LibraryError(`createLibrary: library exists: ${library.hash}`)
+  if (forCreate && await libraryExists(library.name)) {
+    throw new LibraryValidationError({ 'name': [ 'alreadyExists' ] })
   }
+  if (c.empty(library.sources)) {
+    throw new LibraryValidationError({ 'sources': [ 'required' ] })
+  }
+  if (c.empty(library.destinations)) {
+    throw new LibraryValidationError({ 'destinations': [ 'required' ] })
+  }
+  if (library.autoscan) {
+    library.autoscan.enabled = typeof(library.autoscan.enabled) === 'boolean' ? library.autoscan.enabled : false
+    if (typeof(library.autoscan.interval) !== 'number') {
+      throw new LibraryValidationError({ 'autoscan.interval': [ 'invalid' ] })
+    }
+    if (library.autoscan.interval < AUTOSCAN_MINIMUM_INTERVAL) {
+      logger.warn(`For library ${library}, autoscan.interval was too small (${library.autoscan.interval}), setting to minimum of ${AUTOSCAN_MINIMUM_INTERVAL}`)
+      library.autoscan.interval = AUTOSCAN_MINIMUM_INTERVAL
+    }
+  }
+  for (const src of library.sources) {
+    const volume = await findVolume(src)
+    if (volume.mount !== vol.VOLUME_MOUNT_SOURCE) {
+      throw new LibraryValidationError({ 'sources': [ 'invalid' ] })
+    }
+  }
+  for (const dest of library.destinations) {
+    if (c.isSelfVolume(dest)) continue
+    const volume = await findVolume(dest)
+    if (volume.mount !== vol.VOLUME_MOUNT_DESTINATION) {
+      throw new LibraryValidationError({ 'destinations': [ 'invalid' ] })
+    }
+  }
+  return library
+}
 
-  // save library
+const saveLibrary = async (library, forCreate) => {
   const now = Date.now()
-  const libraryRecord = Object.assign({}, library, { ctime: now, mtime: now })
+  if (forCreate) {
+    library.ctime = now
+  }
+  library.mtime = now
+  const libFile = libraryKey(library.name)
   try {
-    const bytesWritten = await system.storage.writeFile(libraryKey(library.hash), JSON.stringify(libraryRecord))
+    const bytesWritten = await system.storage.writeFile(libFile, JSON.stringify(library))
     if (bytesWritten > 0) {
       listLibrariesCache.clear()
     }
   } catch (e) {
-    logger.warn(`createLibrary: error writing library file: ${e}`)
+    logger.warn(`saveLibrary: error writing library file (${libFile}): ${e}`)
     throw e
   }
 }
 
-async function deleteLibrary (hash) {
-  if (!(await libraryExists(hash))) {
-    throw new LibraryNotFoundError(hash)
+async function createLibrary (lib) {
+  const library = await validateLibrary(lib, true)
+  return saveLibrary(library, true)
+}
+
+async function updateLibrary (lib) {
+  const library = await validateLibrary(lib, false)
+  return saveLibrary(library, false)
+}
+
+async function deleteLibrary (name) {
+  if (!await libraryExists(name)) {
+    return
   }
   try {
-    const bytesWritten = await system.storage.remove(libraryKey(hash))
+    const tombstone = { name, deleted: Date.now() }
+    const bytesWritten = await system.storage.writeFile(libraryKey(name), JSON.stringify(tombstone))
     if (bytesWritten > 0) {
       listLibrariesCache.clear()
     }
   } catch (e) {
-    logger.warn(`deleteLibrary: error removing library file: ${e}`)
+    logger.warn(`deleteLibrary: error writing library tombstone: ${e}`)
     throw e
   }
 }
@@ -295,8 +421,9 @@ export {
   extractVolumeAndPathAndConnect,
   volumeExists, findVolume,
   listVolumes, listVolumesWithoutSelf,
-  createVolume, deleteVolume,
+  createVolume, setSync, deleteVolume,
   libraryExists, findLibrary,
-  listLibraries, createLibrary, deleteLibrary,
-  VolumeError, VolumeNotFoundError, LibraryError, LibraryNotFoundError
+  listLibraries, createLibrary, updateLibrary, deleteLibrary,
+  VolumeError, VolumeNotFoundError,
+  LibraryError, LibraryNotFoundError, LibraryValidationError
 }

@@ -1,5 +1,91 @@
 <template>
   <v-container>
+    <v-overlay
+      v-if="libraryOverlay && libraryOverlay.unsaved"
+      :value="libraryOverlay"
+    >
+      <v-container id="libraryOverlayContainer" fluid>
+        <v-row>
+          <v-col>
+            <h4 v-if="libraryOverlay.create">
+              {{ messages.admin_title_add_library }}
+            </h4>
+            <h4 v-else>
+              {{ messages.admin_title_update_library }}
+            </h4>
+          </v-col>
+        </v-row>
+        <v-row>
+          <ValidationObserver ref="libraryForm">
+            <v-form id="libraryForm" @submit.prevent="doSaveLibrary">
+              <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.name" immediate>
+                <v-text-field
+                  v-model="libraryOverlay.name"
+                  :label="messages.admin_label_library_name"
+                  type="text"
+                  name="name"
+                  class="form-control"
+                  :error="saveLibrarySubmitted && errors.length>0"
+                  :error-messages="saveLibrarySubmitted ? fieldError('name', errors) : null"
+                />
+              </ValidationProvider>
+              <ValidationProvider v-slot="{ errors }" name="sources" immediate>
+                <v-select
+                  v-model="libraryOverlay.sources"
+                  :label="messages.admin_label_library_sources"
+                  :items="sourceList"
+                  item-text="name"
+                  item-value="name"
+                  class="form-control"
+                  multiple
+                  :error="saveLibrarySubmitted && errors.length>0"
+                  :error-messages="saveLibrarySubmitted ? fieldError('sources', errors) : null"
+                />
+              </ValidationProvider>
+              <ValidationProvider v-slot="{ errors }" name="destinations" immediate>
+                <v-select
+                  v-model="libraryOverlay.destinations"
+                  :label="messages.admin_label_library_destinations"
+                  :items="destinationList"
+                  item-text="name"
+                  item-value="name"
+                  class="form-control"
+                  multiple
+                  :error="saveLibrarySubmitted && errors.length>0"
+                  :error-messages="saveLibrarySubmitted ? fieldError('destinations', errors) : null"
+                />
+              </ValidationProvider>
+
+              <v-checkbox v-model="libraryOverlay.autoscan.enabled" :label="messages.admin_label_privateConfig_autoscan_enabled" />
+
+              <DurationField
+                v-if="libraryOverlay.autoscan.enabled"
+                :field="'autoscanIntervalField'"
+                :field-value="libraryOverlay.autoscan.interval"
+                :field-rules="publicConfig.autoscanIntervalField.rules"
+                :field-label="'admin_label_privateConfig_autoscan_interval'"
+                @update="onSetAutoscanInterval"
+              />
+
+              <div class="form-group">
+                <v-btn v-if="libraryOverlay.create" class="btn btn-primary" @click.stop="doSaveLibrary">
+                  {{ messages.admin_button_add_library }}
+                </v-btn>
+                <v-btn v-else class="btn btn-primary" @click.stop="doSaveLibrary">
+                  {{ messages.admin_button_update_library }}
+                </v-btn>
+                <v-btn class="btn btn-primary" @click.stop="libraryOverlay = null">
+                  <v-icon>
+                    mdi-close
+                  </v-icon>
+                </v-btn>
+              </div>
+            </v-form>
+          </ValidationObserver>
+        </v-row>
+      </v-container>
+    </v-overlay>
+
     <v-row>
       <v-col>
         <h2>{{ messages.admin_title_library_administration }}</h2>
@@ -9,7 +95,16 @@
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
-            {{ messages.admin_info_library_added.parseMessage({ library: newLibrary.name }) }}
+            {{ messages.admin_info_library_added.parseMessage({ library: recentlySavedLibrary.name }) }}
+          </h4>
+        </v-snackbar>
+      </v-col>
+    </v-row>
+    <v-row v-if="showSuccessSnackbar && updateLibrarySuccess">
+      <v-col>
+        <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
+          <h4>
+            {{ messages.admin_info_library_updated.parseMessage({ library: recentlySavedLibrary.name }) }}
           </h4>
         </v-snackbar>
       </v-col>
@@ -33,11 +128,30 @@
         </v-snackbar>
       </v-col>
     </v-row>
+    <v-row v-if="showErrorSnackbar && updateLibraryError">
+      <v-col>
+        <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
+          <h4>
+            {{ messages.admin_info_library_update_error }}
+          </h4>
+          <small>
+            <vue-json-pretty
+              :data="updateLibraryError"
+              :show-line="false"
+              :show-double-quotes="false"
+              :select-on-click-node="false"
+              :highlight-selected-node="false"
+              :collapsed-on-click-brackets="false"
+            />
+          </small>
+        </v-snackbar>
+      </v-col>
+    </v-row>
     <v-row v-if="totalLibraryCount > 0">
       <v-col>
         <div>
           <ValidationObserver ref="form">
-            <v-form @submit.prevent="searchLibrarys">
+            <v-form @submit.prevent="searchLibraries">
               <ValidationProvider v-slot="{ errors }" name="searchTerms" rules="max:200" immediate>
                 <div class="form-group">
                   <v-text-field
@@ -46,11 +160,11 @@
                     type="text"
                     name="searchTerms"
                     class="form-control"
-                    :error="addLibrarySubmitted && errors.length>0"
-                    :error-messages="addLibrarySubmitted ? fieldError('searchTerms', errors) : null"
-                    @keyup.enter="searchLibrarys"
+                    :error="errors.length>0"
+                    :error-messages="fieldError('searchTerms', errors)"
+                    @keyup.enter="searchLibraries"
                   />
-                  <v-btn class="btn btn-primary" :disabled="findingLibrarys" @click.stop="searchLibrarys">
+                  <v-btn class="btn btn-primary" :disabled="findingLibraries" @click.stop="searchLibraries">
                     {{ messages.button_search }}
                   </v-btn>
                 </div>
@@ -65,23 +179,48 @@
         <table v-if="libraryList && libraryList.length > 0">
           <thead>
             <tr>
-              <th>{{ messages.admin_label_library_source }}</th>
+              <th>{{ messages.admin_label_library_name }}</th>
+              <th>{{ messages.admin_label_library_sources }}</th>
               <th />
-              <th>{{ messages.admin_label_library_destination }}</th>
+              <th>{{ messages.admin_label_library_destinations }}</th>
               <th>{{ messages.label_ctime }}</th>
               <th>{{ messages.label_mtime }}</th>
+              <th>{{ messages.admin_title_update_library }}</th>
               <th>{{ messages.admin_button_delete_library }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(library, libraryIndex) in libraryList" :key="libraryIndex">
-              <td>{{ library.source }}</td>
+              <td>
+                <strong>{{ library.name }}</strong>
+              </td>
+              <td>
+                <table border="1">
+                  <tr  v-for="(srcName, srcIndex) in library.sources" :key="srcIndex">
+                    <td>{{ srcName }}</td>
+                  </tr>
+                </table>
+              </td>
               <td><h4>→</h4></td>
-              <td>{{ library.destination }}</td>
+              <td>
+                <table border="1">
+                  <tr v-for="(destName, destIndex) in library.destinations" :key="destIndex">
+                    <td>{{ normalizeDestName(destName) }}</td>
+                  </tr>
+                </table>
+              </td>
               <td>{{ messages.label_date_and_time.parseDateMessage(library.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(library.mtime, messages) }}</td>
               <td>
-                <v-btn @click.stop="delLibrary(library.hash)">
+                <v-btn
+                  :disabled="libraryOverlay && libraryOverlay.unsaved"
+                  @click.stop="setupLibraryEditor(library.name)"
+                >
+                  {{ messages.admin_button_update_library }}
+                </v-btn>
+              </td>
+              <td>
+                <v-btn @click.stop="delLibrary(library.name)">
                   {{ messages.admin_button_delete_library }}
                 </v-btn>
               </td>
@@ -92,67 +231,27 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-container>
-          <v-row>
-            <v-col>
-              <h4>{{ messages.admin_title_add_library }}</h4>
-            </v-col>
-          </v-row>
-          <v-row>
-            <ValidationObserver ref="addLibraryForm">
-              <v-form id="addLibraryForm" @submit.prevent="addLibrary">
-                <ValidationProvider v-slot="{ errors }" name="name" :rules="formRules.name" immediate>
-                  <v-text-field
-                    v-model="newLibrary.name"
-                    :label="messages.admin_label_library_name"
-                    type="text"
-                    name="name"
-                    class="form-control"
-                    :error="addVolumeSubmitted && errors.length>0"
-                    :error-messages="addVolumeSubmitted ? fieldError('name', errors) : null"
-                  />
-                </ValidationProvider>
-                <v-select
-                  v-model="newLibrary.source"
-                  :label="messages.admin_label_library_sources"
-                  :items="sourceList"
-                  item-text="name"
-                  item-value="name"
-                  class="form-control"
-                />
-                <v-select
-                  v-model="newLibrary.destination"
-                  :label="messages.admin_label_library_destination"
-                  :items="destinationList"
-                  item-text="name"
-                  item-value="name"
-                  class="form-control"
-                />
-                <div class="form-group">
-                  <v-btn class="btn btn-primary" @click.stop="addLibrary">
-                    {{ messages.admin_button_add_library }}
-                  </v-btn>
-                </div>
-              </v-form>
-            </ValidationObserver>
-          </v-row>
-        </v-container>
+        <v-btn @click.stop="setupLibraryEditor(null)">
+          {{ messages.admin_button_add_library }}
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
-
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { publicConfigField, SELF_VOLUME_NAME } from '@/shared'
+
+import VueJsonPretty from 'vue-json-pretty'
+import DurationField from '@/components/DurationField'
+import 'vue-json-pretty/lib/styles.css'
+
+import { publicConfigField, SELF_VOLUME_NAME, isSelfVolume } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import { UI_CONFIG } from '@/services/util'
-import { filterSources, filterDestinations, isSelfDestinationVolume, LIBRARY_VALIDATIONS } from '@/shared/volume'
+import { filterSources, filterDestinations } from '@/shared/volume'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
 
@@ -160,7 +259,7 @@ const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
 
 export default {
   name: 'ManageLibraries',
-  components: { VueJsonPretty },
+  components: { VueJsonPretty, DurationField },
   data () {
     return {
       pageNumber: 1,
@@ -173,19 +272,28 @@ export default {
       showErrorSnackbar: false,
       errorSnackTimeout: -1,
 
+      libraryOverlay: null,
+
       newLibrary: {
         sources: [],
-        destinations: SELF_VOLUME_NAME
+        destinations: [],
+        autoscan: {
+          enabled: true,
+          // default 24 hours
+          interval: 1000 * 60 * 60 * 24
+        }
       },
-      addLibrarySubmitted: false
+      saveLibrarySubmitted: false
     }
   },
   computed: {
     ...mapState(['publicConfig']),
     ...mapState('user', ['user']),
     ...mapState('admin', [
-      'volumeList', 'libraryList', 'totalLibraryCount', 'findingLibraries',
-      'addLibrarySuccess', 'addLibraryError', 'deleteLibrarySuccess', 'deleteLibraryError'
+      'volumeList', 'libraryList', 'totalLibraryCount', 'findingLibraries', 'recentlySavedLibrary',
+      'addLibrarySuccess', 'addLibraryError',
+      'updateLibrarySuccess', 'updateLibraryError',
+      'deleteLibrarySuccess', 'deleteLibraryError'
     ]),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     selfName () { return this.messages.admin_label_self_volume.parseMessage({ title: publicConfigField(this, 'title') }) },
@@ -195,8 +303,8 @@ export default {
       const adjusted = []
       for (let i = 0; i < destinations.length; i++) {
         const v = destinations[i]
-        if (isSelfDestinationVolume(v)) {
-          adjusted.push(Object.assign({}, v, { name: this.selfName }))
+        if (isSelfVolume(v)) {
+          adjusted.push(Object.assign({}, v, { name: this.selfName, selfName: SELF_VOLUME_NAME }))
         } else {
           adjusted.push(v)
         }
@@ -204,7 +312,7 @@ export default {
       return adjusted
     },
     title () { return publicConfigField(this, 'title') },
-    formRules () { return condensedRules(LIBRARY_VALIDATIONS) },
+    formRules () { return condensedRules() },
     searchQuery () {
       return {
         pageNumber: this.pageNumber,
@@ -226,53 +334,94 @@ export default {
       }
     },
     addLibrarySuccess (ok) {
-      if (ok) {
-        // longer timeout for these kinds of things, more time to see the error
-        this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
-        this.showSuccessSnackbar = true
-        this.showErrorSnackbar = false
-        this.findLibrarys({ query: this.searchQuery })
-      } else {
-        this.showSuccessSnackbar = false
-        this.successSnackTimeout = null
-      }
+      this.refreshLibrariesAfterSave(ok)
+    },
+    updateLibrarySuccess (ok) {
+      this.refreshLibrariesAfterSave(ok)
     }
   },
   created () {
     const query = this.searchQuery
     this.findVolumes({ query: { includeSelf: true } })
-    this.findLibrarys({ query })
+    this.findLibraries({ query })
   },
   methods: {
-    ...mapActions('admin', ['findLibrarys', 'findVolumes', 'addLibrary', 'deleteLibrary']),
+    ...mapActions('admin', ['findLibraries', 'findVolumes', 'addLibrary', 'updateLibrary', 'deleteLibrary']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
-    adjustForSelf (volume) { return volume === this.selfName ? SELF_VOLUME_NAME : volume },
-    searchLibrarys () {
-      const query = this.searchQuery
-      this.findLibrarys({ query })
+    adjustForSelf (volume) { return isSelfVolume(volume) ? SELF_VOLUME_NAME : volume },
+    refreshLibrariesAfterSave (ok) {
+      if (ok) {
+        // longer timeout for these kinds of things, more time to see the error
+        this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
+        this.showSuccessSnackbar = true
+        this.showErrorSnackbar = false
+        this.findLibraries({ query: this.searchQuery })
+        this.libraryOverlay = null
+      } else {
+        this.showSuccessSnackbar = false
+        this.successSnackTimeout = null
+      }
     },
-    async addLibrary () {
-      this.addLibrarySubmitted = true
-      await this.$refs.addLibraryForm.validate().then((success) => {
+    searchLibraries () {
+      const query = this.searchQuery
+      this.findLibraries({ query })
+    },
+    setupLibraryEditor (name) {
+      const libs = this.libraryList
+      if (name === null) {
+        this.libraryOverlay = Object.assign({}, this.newLibrary)
+      } else {
+        const maybeLibrary = Array.isArray(libs) && libs.length > 0 ? libs.find(lib => lib.name === name) : null
+        this.libraryOverlay = maybeLibrary ? Object.assign({}, maybeLibrary) : null
+      }
+      if (this.libraryOverlay) {
+        this.libraryOverlay.unsaved = true
+        this.libraryOverlay.create = (name == null)
+        if (this.libraryOverlay.destinations) {
+          const adjustedForSelf = this.libraryOverlay.destinations.map(destName => destName === SELF_VOLUME_NAME ? this.selfName : destName)
+          this.libraryOverlay.destinations = adjustedForSelf
+        }
+      }
+    },
+    async doSaveLibrary () {
+      if (!this.libraryOverlay) {
+        return
+      }
+      const toSave = this.libraryOverlay
+      this.saveLibrarySubmitted = true
+      const adjustedForSelf = toSave.destinations.map((destName) => {
+        const dest = this.destinationList.find(d => d.name === destName)
+        return dest && dest.selfName === SELF_VOLUME_NAME ? SELF_VOLUME_NAME : destName
+      })
+      this.libraryOverlay.destinations = toSave.destinations = adjustedForSelf
+      await this.$refs.libraryForm.validate().then((success) => {
         if (success) {
-          this.addLibrary({ src: this.newLibrary })
+          if (this.libraryOverlay.create) {
+            this.addLibrary({ library: toSave })
+          } else {
+            this.updateLibrary({ library: toSave })
+          }
         }
       })
     },
     delLibrary (library) {
       if (this.deleteConfirmCount > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
         confirm(this.messages.admin_label_confirm_library_delete.parseMessage({
-          source: library.source,
-          destination: this.adjustForSelf(library.destination)
+          library: this.adjustForSelf(library)
         }))) {
         this.deleteConfirmCount++
         this.deleteLibrary({ library })
       } else {
         this.deleteConfirmCount = 0
       }
-    }
+    },
+    onSetAutoscanInterval (update) {
+      // console.log(`onSetAutoscanInterval received update: ${JSON.stringify(update)}`)
+      this.libraryOverlay.autoscan.interval = update.value
+    },
+    normalizeDestName (destName) { return isSelfVolume(destName) ? this.selfName : destName }
   }
 }
 </script>

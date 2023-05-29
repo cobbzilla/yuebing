@@ -17,10 +17,10 @@
         </NuxtLink>
       </h3>
     </div>
-    <div v-if="destinationVolumeCount > 1">
+    <div v-if="sourceVolumeCount > 0 && destinationVolumeCount > 1">
       <h3>
-        <NuxtLink to="/admin/links">
-          {{ messages.admin_title_link_administration }}
+        <NuxtLink to="/admin/libraries">
+          {{ messages.admin_title_library_administration }}
         </NuxtLink>
       </h3>
     </div>
@@ -67,7 +67,7 @@
 import { mapActions, mapState } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
-import { filterDestinations } from '@/shared/volume'
+import { filterSources, filterDestinations } from '@/shared/volume'
 
 export default {
   name: 'AdminIndex',
@@ -77,6 +77,7 @@ export default {
     ...mapState(['browserLocale', 'publicConfig']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return publicConfigField(this, 'title') },
+    sourceVolumeCount () { return filterSources(this.volumeList).length },
     destinationVolumeCount () { return filterDestinations(this.volumeList).length }
   },
   created () {

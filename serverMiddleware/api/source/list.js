@@ -12,14 +12,14 @@ const listObjects = async (req, res) => {
   if (!user) { return api.forbidden(res) }
   try {
     const sourceAndPath = req.url.startsWith('/') ? req.url.substring(1) : req.url
-    const { source, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
-    const listing = await source.list(pth || '')
+    const { volume, pth } = await vol.extractVolumeAndPathAndConnect(sourceAndPath)
+    const listing = await volume.list(pth || '')
     const promises = listing.map(async file => new Promise(async (resolve) => {
-      file.sourcePath = source.name + '/' + file.name
+      file.sourcePath = volume.name + '/' + file.name
       if (!hasProfiles(file.name)) {
         resolve()
       }
-      cache.getCachedMetadata(source.name + '/' + file.name)
+      cache.getCachedMetadata(volume.name + '/' + file.name)
         .then((meta) => {
           if (meta) {
             logger.debug(`list(${sourceAndPath}) found cached meta, assigning meta for file ${file.name}=${JSON.stringify(meta)}`)

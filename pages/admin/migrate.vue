@@ -142,7 +142,7 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { publicConfigField, empty, SELF_VOLUME_NAME } from '@/shared'
+import { publicConfigField, empty, SELF_VOLUME_NAME, isSelfVolume } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import { UI_CONFIG } from '@/services/util'
@@ -177,9 +177,9 @@ export default {
     selfName () { return this.messages.admin_label_self_volume.parseMessage({ title: publicConfigField(this, 'title') }) },
     filteredVolumeList () {
       return this.volumeList
-        ? this.volumeList.map(vol => {
-          return vol.name && vol.name === SELF_VOLUME_NAME
-            ? Object.assign({}, vol, { name: this.selfName })
+        ? this.volumeList.map((vol) => {
+          return vol.name && isSelfVolume(vol.name)
+            ? Object.assign({}, vol, { name: this.selfName, self: true })
             : vol
         })
         : null
@@ -196,7 +196,6 @@ export default {
   watch: {
     dataMigrationError (newError) {
       if (newError) {
-        console.log(`received newError: ${newError}`)
         // longer timeout for these kinds of things, more time to see the error
         this.errorSnackTimeout = 2 * UI_CONFIG.snackbarErrorTimeout
         this.showErrorSnackbar = true
@@ -223,7 +222,7 @@ export default {
       return field && error ? fieldErrorMessage(field, error, this.messages, 'admin_label_') : '(no message)'
     },
     adjustForSelf (volume) {
-      return volume === this.selfName ? SELF_VOLUME_NAME : volume
+      return isSelfVolume(volume) ? SELF_VOLUME_NAME : volume
     },
     async handleSubmit () {
       this.submitted = true

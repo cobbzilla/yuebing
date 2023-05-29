@@ -11,6 +11,7 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const REINDEX_PARAM = 'reindex'
+const SYNC_PARAM = 'sync'
 
 function handleVolumeError (res, e, volumeName) {
   if (e instanceof vol.VolumeNotFoundError) {
@@ -21,7 +22,7 @@ function handleVolumeError (res, e, volumeName) {
 
 async function handleAdd (res, volume) {
   if (await vol.volumeExists(volume.name)) {
-    return api.handleValidationError(res, { name: 'alreadyExists' })
+    return api.handleValidationError(res, { name: [ 'alreadyExists' ] })
   }
   const errors = await v.validate(volume, false, shared_vol.VOLUME_VALIDATIONS)
   if (!c.empty(errors)) {
@@ -44,22 +45,17 @@ async function handleAdd (res, volume) {
 }
 
 async function handleDelete (res, name) {
-  return await vol.volumeExists(name).then(
-    (volumeName) => {
-      if (volumeName) {
-        vol.deleteVolume(volumeName).then(
-          () => api.okJson(res, { deleted: true }),
-          (err) => {
-            const message = `handleDelete: error calling deleteVolume: ${err}`
-            logger.error(message)
-            return api.serverError(res, message)
-          })
-      } else {
-        return api.notFound(res, name)
-      }
-    },
-    err => handleVolumeError(res, err, name)
-  )
+  const volume = await vol.findVolume(name)
+  if (!volume || c.isSelfVolume(volume)) {
+    return api.notFound(res, name)
+  }
+  vol.deleteVolume(volume.name).then(
+    () => api.okJson(res, { deleted: true }),
+    (err) => {
+      const message = `handleDelete: error calling deleteVolume: ${err}`
+      logger.error(message)
+      return handleVolumeError(res, err, name)
+    })
 }
 
 async function handleQuery (res, query) {
@@ -73,6 +69,17 @@ const handleReindex = volumeName => async (res, name) => {
   try {
     await reindex(volumeName)
     return api.okJson(res, { reindexing: true })
+  } catch (e) {
+    return api.serverError(res, e)
+  }
+}
+
+const handleSync = (volumeName, sync) => async (res, name) => {
+  if (volumeName !== name) {
+    throw new TypeError(`handleSync: Expected destination named ${volumeName} but received ${name}`)
+  }
+  try {
+    return api.okJson(res, await vol.setSync(name, sync))
   } catch (e) {
     return api.serverError(res, e)
   }
@@ -102,17 +109,19 @@ export default {
       return api.forbidden(res)
     }
     const path = req.url.startsWith('/') ? req.url.substring(1) : req.url
-    const sourceName = path.includes('?') ? path.substring(0, path.indexOf('?')) : path
+    const volName = path.includes('?') ? path.substring(0, path.indexOf('?')) : path
     const reindex = !!queryParamValue(req, REINDEX_PARAM)
+    const rawSync = queryParamValue(req, SYNC_PARAM)
+    const sync = rawSync != null ? rawSync === 'true' : null
     let handler
     try {
       switch (req.method) {
         case 'GET':
           return reindex
-            ? api.okJson(res, await reindexInfo(sourceName))
-            : api.okJson(res, await vol.findVolume(sourceName))
+            ? api.okJson(res, await reindexInfo(volName))
+            : api.okJson(res, await vol.findVolume(volName))
         case 'DELETE':
-          return await handleDelete(res, sourceName)
+          return await handleDelete(res, volName)
         case 'PUT':
           handler = handleAdd
           break
@@ -120,13 +129,17 @@ export default {
           handler = handleQuery
           break
         case 'PATCH':
-          handler = reindex ? handleReindex(sourceName) : handleScan(sourceName)
+          if (sync != null) {
+            handler = handleSync(volName, sync)
+          } else {
+            handler = reindex ? handleReindex(volName) : handleScan(volName)
+          }
           break
         default:
           return api.serverError(res, c.HTTP_INVALID_REQUEST_MESSAGE)
       }
     } catch (e) {
-      return handleVolumeError(res, e, sourceName)
+      return handleVolumeError(res, e, volName)
     }
     req.on('data', async data => await handler(res, JSON.parse(data)))
   }

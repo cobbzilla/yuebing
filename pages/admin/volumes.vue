@@ -195,17 +195,25 @@
               </td>
               <td>{{ messages.label_date_and_time.parseDateMessage(vol.ctime, messages) }}</td>
               <td>{{ messages.label_date_and_time.parseDateMessage(vol.mtime, messages) }}</td>
-              <td>
-                <NuxtLink v-if="vol.readOnly" :to="{ path: '/admin/browse', query: { volume: vol.name } }">
+              <td v-if="vol.readOnly">
+                <NuxtLink :to="{ path: '/admin/browse', query: { volume: vol.name } }">
                   <v-btn>
                     {{ messages.admin_button_browse_volume }}
                   </v-btn>
                 </NuxtLink>
               </td>
+              <td v-else>
+                <v-btn v-if="isSyncVolume(vol)" @click.stop="setSyncVolume(vol.name, false)">
+                  {{ messages.admin_button_unsync_system_volume }}
+                </v-btn>
+                <v-btn v-else @click.stop="setSyncVolume(vol.name, true)">
+                  {{ messages.admin_button_sync_system_volume }}
+                </v-btn>
+              </td>
               <td>
                 <div v-if="vol.readOnly">
                   <div>
-                    <v-btn v-if="!isSelfVolume(vol) && !scanningVolumes[vol.name]" @click.stop="setScanConfigOverlay(vol)">
+                    <v-btn v-if="!selfVolume(vol) && !scanningVolumes[vol.name]" @click.stop="setScanConfigOverlay(vol)">
                       {{ messages.admin_button_scan_volume }}
                     </v-btn>
                   </div>
@@ -232,7 +240,7 @@
               <td>
                 <div v-if="vol.readOnly">
                   <div>
-                    <v-btn v-if="!isSelfVolume(vol) && !indexingVolumes[vol.name]" @click.stop="indexSrc(vol.name)">
+                    <v-btn v-if="!selfVolume(vol) && !indexingVolumes[vol.name]" @click.stop="indexSrc(vol.name)">
                       {{ messages.admin_button_reindex_volume }}
                     </v-btn>
                   </div>
@@ -257,7 +265,7 @@
                 </div>
               </td>
               <td>
-                <v-btn v-if="!isSelfVolume(vol)" :disabled="scanningVolumes[vol.name]" @click.stop="delVolume(vol.name)">
+                <v-btn v-if="!selfVolume(vol)" :disabled="scanningVolumes[vol.name]" @click.stop="delVolume(vol.name)">
                   {{ messages.admin_button_delete_volume }}
                 </v-btn>
               </td>
@@ -417,12 +425,12 @@ import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import { DEFAULT_ENCRYPTION_ALGO, SELF_VOLUME_NAME, publicConfigField, isoDate, isoTime } from '@/shared'
+import { DEFAULT_ENCRYPTION_ALGO, isSelfVolume, publicConfigField, isoDate, isoTime } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 import { condensedRules } from '@/shared/validation'
 import {
   localizedVolumeConfigLabelPrefix, localizedVolumeConfigLabel, localizedVolumeTypes,
-  volumeTypeConfig, VOLUME_VALIDATIONS
+  volumeTypeConfig, VOLUME_VALIDATIONS, VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION
 } from '@/shared/volume'
 import { ALL_MEDIA_PROFILES } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
@@ -497,8 +505,8 @@ export default {
     volumeTypeConfiguration () { return volumeTypeConfig(this.newVolume.type) },
     volumeMounts () {
       return [
-        { name: 'source', message: this.messages.admin_label_volume_mount_source },
-        { name: 'destination', message: this.messages.admin_label_volume_mount_destination }
+        { name: VOLUME_MOUNT_SOURCE, message: this.messages.admin_label_volume_mount_source },
+        { name: VOLUME_MOUNT_DESTINATION, message: this.messages.admin_label_volume_mount_destination }
       ]
     },
     encryptionAlgos () { return this.publicConfig && this.publicConfig.crypto ? this.publicConfig.crypto : null },
@@ -561,13 +569,15 @@ export default {
     this.setVolumeTypeDefaults()
   },
   methods: {
-    ...mapActions('admin', ['findVolumes', 'addVolume', 'deleteVolume', 'scanVolume', 'indexVolume']),
+    ...mapActions('admin', ['findVolumes', 'addVolume', 'deleteVolume', 'scanVolume', 'indexVolume', 'setVolumeSync']),
     fieldError (field, error, labelPrefix = 'label_') {
       return field && error ? fieldErrorMessage(field, error, this.messages, labelPrefix) : '(no message)'
     },
-    isSelfVolume (volume) { return volume.name === SELF_VOLUME_NAME },
+    selfVolume (volume) { return isSelfVolume(volume) },
+    isSyncVolume (volume) { return typeof volume.sync === 'boolean' && volume.sync === true },
+    async setSyncVolume (volume, sync) { await this.setVolumeSync({ volume, sync }) },
     volumeName (volume) {
-      return this.isSelfVolume(volume)
+      return isSelfVolume(volume)
         ? this.messages.admin_label_self_volume.parseMessage({ title: this.title })
         : volume.name
     },
@@ -598,7 +608,7 @@ export default {
     },
     async addNewVolume () {
       this.addVolumeSubmitted = true
-      this.newVolume.readOnly = this.newVolume.mount !== 'destination'
+      this.newVolume.readOnly = this.newVolume.mount !== VOLUME_MOUNT_DESTINATION
       await this.$refs.addVolumeForm.validate().then((success) => {
         if (success) {
           this.addVolume({ volume: this.newVolume })
