@@ -196,7 +196,7 @@
               </td>
               <td>
                 <table border="1">
-                  <tr  v-for="(srcName, srcIndex) in library.sources" :key="srcIndex">
+                  <tr v-for="(srcName, srcIndex) in library.sources" :key="srcIndex">
                     <td>{{ srcName }}</td>
                   </tr>
                 </table>
