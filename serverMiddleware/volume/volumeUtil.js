@@ -80,6 +80,7 @@ async function syncedStorage () {
     if (mostRecentSyncedStorageArray && mostRecentSyncedStorageArray.length > 0) {
       logger.warn(`syncedStorage error (returning mostRecentSyncedStorageArray): ${e}`)
       return mostRecentSyncedStorageArray
+    } else {
       logger.error(`syncedStorage error (returning system.storage only): ${e}`)
       return [system.storage]
     }
