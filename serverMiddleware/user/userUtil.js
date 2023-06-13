@@ -6,6 +6,7 @@ const shasum = require('shasum')
 const redis = require('../util/redis')
 const c = require('../../shared')
 const auth = require('../../shared/auth')
+const u = require('../../shared/user')
 const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
@@ -23,47 +24,7 @@ const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
 
 const SESSION_EXPIRATION = system.privateConfig.session.expiration
 
-const USER_TYPEDEF = {
-  typeName: 'account',
-  fields: {
-    username: {
-      required: true,
-      min: 2,
-      max: 100,
-      regex: valid.REGEX_VALIDATORS.username,
-      updatable: false
-    },
-    email: {
-      required: true,
-      min: 2,
-      max: 100,
-      regex: valid.REGEX_VALIDATORS.email,
-      updatable: false
-    },
-    password: {
-      required: true,
-      min: 8,
-      max: 100
-    },
-    firstName: {
-      required: false,
-      min: 2,
-      max: 100
-    },
-    lastName: {
-      required: false,
-      min: 2,
-      max: 100
-    },
-    locale: {
-      required: true,
-      min: 2
-    },
-    verified: {}
-  }
-}
-
-const userRepository = vol.ormRepo(USER_TYPEDEF)
+const userRepository = vol.ormRepo(u.USER_TYPEDEF)
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
@@ -552,6 +513,7 @@ if (ADMIN_USER) {
 
 module.exports = {
   LOCAL_ADMIN_USER,
+  userRepository,
   startSession,
   newSessionResponse,
   cancelSessions,

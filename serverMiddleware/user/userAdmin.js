@@ -11,19 +11,15 @@ function searchMatches (user, searchTerms) {
 }
 
 async function findUsers (query) {
-  const objectList = await system.storage.list(u.USERS_PREFIX)
-  const allUsers = []
-  for (const object of objectList) {
-    if (object.type === m.FILE_TYPE) {
-      allUsers.push(JSON.parse(await system.storage.readFile(object.name)))
-    }
-  }
+  const allUsers = await u.userRepository.findAll()
   return q.search(allUsers, query, searchMatches, sharedUser.sortByField)
 }
 
 async function deleteUser (user) {
-  await system.storage.remove(u.emailKey(user.email))
-  await system.storage.remove(u.userKey(user.username))
+  const found = await u.userRepository.findById(user.username)
+  if (found) {
+    await u.userRepository.remove(user.username, found.version)
+  }
   if (system.deleteUserHandlers) {
     for (const handlerName of Object.keys(system.deleteUserHandlers)) {
       await system.deleteUserHandlers[handlerName](user)

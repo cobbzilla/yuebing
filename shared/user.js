@@ -1,4 +1,47 @@
 const md5 = require('md5')
+const valid = require('./validation')
+
+const USER_TYPEDEF = {
+  typeName: 'account',
+  fields: {
+    username: {
+      required: true,
+      min: 2,
+      max: 100,
+      regex: valid.REGEX_VALIDATORS.username,
+      updatable: false
+    },
+    email: {
+      required: true,
+      min: 2,
+      max: 100,
+      regex: valid.REGEX_VALIDATORS.email,
+      updatable: false
+    },
+    password: {
+      required: true,
+      min: 8,
+      max: 100
+    },
+    firstName: {
+      required: false,
+      min: 2,
+      max: 100
+    },
+    lastName: {
+      required: false,
+      min: 2,
+      max: 100
+    },
+    locale: {
+      required: true,
+      min: 2
+    },
+    verified: {
+      editable: false
+    }
+  }
+}
 
 const USER_SORT = {
   email: (u1, u2) => u1.email && u2.email && u1.email < u2.email,
@@ -24,5 +67,5 @@ const gravatarEmailHash = email => email ? md5(email.trim().toLowerCase()) : nul
 const gravatarEmailUrl = email => email ? `https://www.gravatar.com/avatar/${gravatarEmailHash(email)}?d=${encodeURIComponent(GRAVATAR_DEFAULT_IMAGE)}&r=${GRAVATAR_RATING_LEVEL}` : null
 
 export {
-  userSortFields, localizedUserSortFields, sortByField, gravatarEmailHash, gravatarEmailUrl
+  USER_TYPEDEF, userSortFields, localizedUserSortFields, sortByField, gravatarEmailHash, gravatarEmailUrl
 }

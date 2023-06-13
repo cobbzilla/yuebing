@@ -1,5 +1,46 @@
 const { isSelfVolume } = require('./index')
 
+const VOLUME_TYPEDEF = {
+  typeName: 'volume',
+  fields: {
+    name: {
+      required: true
+    },
+    type: {
+      required: true
+    },
+    key: {
+      required: true
+    },
+    mount: {},
+    secret: {},
+    readOnly: {},
+    cacheSize: { minValue: 0, default: 100 },
+    encryption: {}
+  }
+}
+
+const SYNC_TYPEDEF = {
+  typeName: 'sync',
+  fields: {
+    sync: { required: true, default: true }
+  }
+}
+
+const SCAN_TYPEDEF = {
+  typeName: 'scan',
+  fields: {}
+}
+
+const LIBRARY_TYPEDEF = {
+  typeName: 'library',
+  fields: {
+    sources: {},
+    destinations: {},
+    autoscan: {}
+  }
+}
+
 const VOLUME_TYPES = {
   local: {
     key: {
@@ -145,5 +186,6 @@ export {
   sortVolumesByField, sortLibrariesByField,
   extractVolumeAndPath,
   VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION, VOLUME_VALIDATIONS,
+  VOLUME_TYPEDEF, SYNC_TYPEDEF, SCAN_TYPEDEF, LIBRARY_TYPEDEF,
   filterSources, filterDestinations, filterSyncDestinations
 }

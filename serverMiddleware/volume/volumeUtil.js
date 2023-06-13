@@ -11,47 +11,6 @@ const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
-const VOLUME_TYPEDEF = {
-  typeName: 'volume',
-  fields: {
-    name: {
-      required: true
-    },
-    type: {
-      required: true
-    },
-    key: {
-      required: true
-    },
-    mount: {},
-    secret: {},
-    readOnly: {},
-    cacheSize: { minValue: 0, default: 100 },
-    encryption: {}
-  }
-}
-
-const SYNC_TYPEDEF = {
-  typeName: 'sync',
-  fields: {
-    sync: { required: true, default: true }
-  }
-}
-
-const SCAN_TYPEDEF = {
-  typeName: 'scan',
-  fields: {}
-}
-
-const LIBRARY_TYPEDEF = {
-  typeName: 'library',
-  fields: {
-    sources: {},
-    destinations: {},
-    autoscan: {}
-  }
-}
-
 const mostRecentSyncedStorageArray = null
 
 async function syncedStorage () {
@@ -87,8 +46,8 @@ async function syncedStorage () {
   }
 }
 
-const systemVolumeRepo = () => repositoryFactory([system.storage]).repository(VOLUME_TYPEDEF)
-const systemSyncRepo = () => repositoryFactory([system.storage]).repository(SYNC_TYPEDEF)
+const systemVolumeRepo = () => repositoryFactory([system.storage]).repository(vol.VOLUME_TYPEDEF)
+const systemSyncRepo = () => repositoryFactory([system.storage]).repository(vol.SYNC_TYPEDEF)
 const REPO_FACTORY = repositoryFactory(syncedStorage)
 
 const ORM_REPOSITORIES = {}
@@ -103,10 +62,10 @@ function ormRepo (typeDef) {
   return ORM_REPOSITORIES[typeDef.typeName]
 }
 
-const volumeRepository = ormRepo(VOLUME_TYPEDEF)
-const syncRepository = ormRepo(SYNC_TYPEDEF)
-const scanRepository = ormRepo(SCAN_TYPEDEF)
-const libraryRepository = ormRepo(LIBRARY_TYPEDEF)
+const volumeRepository = ormRepo(vol.VOLUME_TYPEDEF)
+const syncRepository = ormRepo(vol.SYNC_TYPEDEF)
+const scanRepository = ormRepo(vol.SCAN_TYPEDEF)
+const libraryRepository = ormRepo(vol.LIBRARY_TYPEDEF)
 
 function VolumeError (message) {
   this.message = message

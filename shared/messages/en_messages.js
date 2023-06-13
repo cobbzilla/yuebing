@@ -427,6 +427,7 @@ export default {
 
   // User Administration
   admin_label_total_user_count: '{{ totalUserCount }} total users',
+  admin_button_add_user: 'Add New User',
   admin_button_delete_user: 'Delete User',
   admin_label_confirm_user_delete: 'Please confirm deletion of the user: {{ email }}',
 

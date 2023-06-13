@@ -389,8 +389,8 @@
                         item-text="name"
                         item-value="name"
                         class="form-control"
-                        :error="addSourceSubmitted && errors.length>0"
-                        :error-messages="addSourceSubmitted ? srcConfigFieldError('encryptionAlgo', errors) : null"
+                        :error="addVolumeSubmitted && errors.length>0"
+                        :error-messages="addVolumeSubmitted ? volumeConfigFieldError('encryptionAlgo', errors) : null"
                       />
                       <small v-if="newVolume.encryption.algo">
                         <vue-json-pretty

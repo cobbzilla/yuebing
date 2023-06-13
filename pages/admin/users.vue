@@ -96,19 +96,45 @@
         </table>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+        <ValidationObserver ref="userForm">
+          <v-form id="userForm" @submit.prevent="doSaveUser">
+            <v-container>
+              <v-row>
+                <v-col>
+                  <h3>{{ messages.admin_button_add_user }}</h3>
+                </v-col>
+              </v-row>
+              <v-row v-for="(userField, userFieldIndex) in userFields" :key="userFieldIndex">
+                <v-col v-if="typeof(userField.editable) === 'undefined' || userField.editable === true">
+                  <OrmField
+                    :field="userField"
+                    :submitted="newUserSubmitted"
+                    @update="onOrmUpdate"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </ValidationObserver>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
+import OrmField from '../../components/OrmField.vue'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { userSortFields, localizedUserSortFields } from '@/shared/user'
+import { USER_TYPEDEF, userSortFields, localizedUserSortFields } from '@/shared/user'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
 export default {
   name: 'ManageUsers',
+  components: { OrmField },
   data () {
     return {
       pageNumber: 1,
@@ -118,7 +144,9 @@ export default {
       searchTerms: '',
       deleteConfirmCount: 0,
       sortOrders: null,
-      editorFlags: {}
+      editorFlags: {},
+      newUser: {},
+      newUserSubmitted: false
     }
   },
   computed: {
@@ -128,6 +156,14 @@ export default {
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     sortFields () { return userSortFields() },
     localizedSortFields () { return localizedUserSortFields(this.messages) },
+    userFields () {
+      return Object.keys(USER_TYPEDEF.fields).map((f) => {
+        return {
+          name: f,
+          ...USER_TYPEDEF.fields[f]
+        }
+      })
+    },
     searchQuery () {
       return {
         pageNumber: this.pageNumber,
@@ -190,6 +226,16 @@ export default {
     },
     editorCheckbox (u) {
       this.setEditor({ email: u.email, editor: this.editorFlags[u.email] })
+    },
+    onOrmUpdate (update) {
+      console.log(`onOrmUpdate received: ${JSON.stringify(update)}`)
+      if (update.field && update.value) {
+        this.newUser[update.field] = update.value
+      }
+    },
+    async doSaveUser () {
+      console.log('doSaveUser!')
+      await new Promise(() => true)
     }
   }
 }
