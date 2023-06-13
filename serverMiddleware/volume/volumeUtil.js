@@ -1,9 +1,8 @@
+import { repositoryFactory, MobilettoOrmError, MobilettoOrmNotFoundError } from 'mobiletto-orm'
+
 const LRU = require('lru-cache')
 const shasum = require('shasum')
-const { dirname, basename } = require('fs')
-const {
-  mobiletto, MobilettoError, MobilettoNotFoundError
-} = require('mobiletto-lite')
+const { mobiletto } = require('mobiletto-lite')
 const { AUTOSCAN_MINIMUM_INTERVAL } = require('./scan')
 const c = require('../../shared')
 const m = require('../../shared/media')
@@ -12,16 +11,101 @@ const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
-const VOLUME_PREFIX = 'volumes/'
-const SYNC_PREFIX = 'sync/'
+const VOLUME_TYPEDEF = {
+  typeName: 'volume',
+  fields: {
+    name: {
+      required: true
+    },
+    type: {
+      required: true
+    },
+    key: {
+      required: true
+    },
+    mount: {},
+    secret: {},
+    readOnly: {},
+    cacheSize: { minValue: 0, default: 100 },
+    encryption: {}
+  }
+}
 
-const volumeKey = name => name.startsWith(VOLUME_PREFIX)
-    ? dirname(name) + basename(name) + '.json'
-    : VOLUME_PREFIX + name + '.json'
+const SYNC_TYPEDEF = {
+  typeName: 'sync',
+  fields: {
+    sync: { required: true, default: true }
+  }
+}
 
-const syncKey = name => name.startsWith(SYNC_PREFIX)
-    ? dirname(name) + basename(name) + '.json'
-    : SYNC_PREFIX + name + '.json'
+const SCAN_TYPEDEF = {
+  typeName: 'scan',
+  fields: {}
+}
+
+const LIBRARY_TYPEDEF = {
+  typeName: 'library',
+  fields: {
+    sources: {},
+    destinations: {},
+    autoscan: {}
+  }
+}
+
+const mostRecentSyncedStorageArray = null
+
+async function syncedStorage () {
+  try {
+    const repo = systemVolumeRepo()
+    const volumes = await repo.findAll()
+    const destinations = volumes
+      .filter(dest => dest.mount === vol.VOLUME_MOUNT_DESTINATION)
+    const syncRepo = systemSyncRepo()
+    const syncDestinations = destinations
+      .filter(async dest => {
+        try {
+          return (await syncRepo.findById(dest.name)).sync === true
+        } catch (e) {
+          logger.warn(`syncedStorage: error checking sync for dest=${dest.name}: ${e}`)
+        }
+        return false
+      })
+
+    const connects = []
+    syncDestinations.map(async dest => connects.push(_connectVolume(dest)))
+    const destConns = await Promise.all(connects)
+    return [system.storage, ...destConns]
+
+  } catch (e) {
+    if (mostRecentSyncedStorageArray && mostRecentSyncedStorageArray.length > 0) {
+      logger.warn(`syncedStorage error (returning mostRecentSyncedStorageArray): ${e}`)
+      return mostRecentSyncedStorageArray
+      logger.error(`syncedStorage error (returning system.storage only): ${e}`)
+      return [system.storage]
+    }
+  }
+}
+
+const systemVolumeRepo = () => repositoryFactory([system.storage]).repository(VOLUME_TYPEDEF)
+const systemSyncRepo = () => repositoryFactory([system.storage]).repository(SYNC_TYPEDEF)
+const REPO_FACTORY = repositoryFactory(syncedStorage)
+
+const ORM_REPOSITORIES = {}
+
+function ormRepo (typeDef) {
+  if (typeof(typeDef.typeName) !== 'string' || typeDef.typeName.length === 0) {
+    throw new MobilettoOrmError('ormRepo: typeDef.typeName is required')
+  }
+  if (!ORM_REPOSITORIES[typeDef.typeName]) {
+    ORM_REPOSITORIES[typeDef.typeName] = REPO_FACTORY.repository(typeDef)
+  }
+  return ORM_REPOSITORIES[typeDef.typeName]
+}
+
+const volumeRepository = ormRepo(VOLUME_TYPEDEF)
+const syncRepository = ormRepo(SYNC_TYPEDEF)
+const scanRepository = ormRepo(SCAN_TYPEDEF)
+const libraryRepository = ormRepo(LIBRARY_TYPEDEF)
 
 function VolumeError (message) {
   this.message = message
@@ -89,10 +173,9 @@ async function findVolume (name, findDeleted = false) {
     return system.volume
   }
   try {
-    const volume = JSON.parse((await system.storage.readFile(volumeKey(name))).toString())
-    return volume.deleted ? findDeleted ? volume : null : volume
+    return await volumeRepository.findById(name, { removed: findDeleted })
   } catch (e) {
-    if (e instanceof MobilettoNotFoundError) {
+    if (e instanceof MobilettoOrmNotFoundError) {
       throw new VolumeNotFoundError(name)
     }
     throw e
@@ -112,25 +195,19 @@ const listVolumeCache = new LRU({ max: 1000 })
 
 async function _listVolumes (query) {
   const cacheKey = shasum(query ? JSON.stringify(query) : '~')
-  let results = listVolumeCache.get(cacheKey)
+  let results = query.noCache ? null : listVolumeCache.get(cacheKey)
   if (!results) {
-    const objectList = await system.storage.safeList(VOLUME_PREFIX)
-    const allVolumes = []
-    for (const object of objectList) {
-      if (object.type === m.FILE_TYPE) {
-        try {
-          const volume = JSON.parse(await system.storage.readFile(object.name))
-          if (volume.deleted && !query.includeDeleted) {
-            continue
-          } else if (!volume.deleted) {
-            volume.sync = await isSync(volume.name)
-          }
-          allVolumes.push(volume)
-        } catch (e) {
-          logger.warn(`_listVolumes: error reading volume ${object.name}: ${JSON.stringify(e)}`)
-        }
+    const syncPromises = []
+    const allVolumes = await volumeRepository.findAll({ removed: query.includeDeleted })
+    allVolumes.forEach(v => syncPromises.push(new Promise(async (resolve, reject) => {
+      try {
+        v.sync = await isSync(v.name)
+        resolve(v.sync)
+      } catch (e) {
+        reject(e)
       }
-    }
+    })))
+    await Promise.all(syncPromises)
     if (query.includeSelf) {
       // push special volume: self (dest)
       allVolumes.push(system.volume)
@@ -174,17 +251,34 @@ async function createVolume (volume) {
   }
 
   // save volume
-  const now = Date.now()
-  const volumeRecord = Object.assign({}, volume, { ctime: now, mtime: now })
   try {
-    const bytesWritten = await system.storage.writeFile(volumeKey(volume.name), JSON.stringify(volumeRecord))
-    if (bytesWritten > 0) {
+    const created = await volumeRepository.create(volume)
+    if (created) {
       listVolumeCache.clear()
     }
   } catch (e) {
-    logger.warn(`createVolume: error writing volume file: ${e}`)
+    logger.error(`createVolume: error: ${e}`)
     throw e
   }
+}
+
+const NULL_SCAN = { scanning: false, lastScanStart: 0, lastScanEnd: 0 }
+const nullScanResult = (forLibraries) => Object.assign({}, { libraries: forLibraries }, NULL_SCAN)
+
+async function scanInfo (name, forLibraries = []) {
+  try {
+    return await scanRepository.findById(name)
+  } catch (e) {
+    logger.warn(`scanInfo(${name}): error (returning NULL_SCAN): ${e}`)
+    return nullScanResult(forLibraries)
+  }
+}
+
+async function recordScanStart (name, forLibraries = []) {
+  // let scanJson = await system.storage.safeReadFile(scanKey(name))
+  // if (scanJson == null) {
+  //   scanJson = {}
+  // }
 }
 
 async function isSync (name) {
@@ -192,10 +286,8 @@ async function isSync (name) {
     return true
   }
   try {
-    const syncJson = await system.storage.safeReadFile(syncKey(name))
-    if (syncJson == null) return false
-    const syncObj = JSON.parse(syncJson)
-    return !syncObj.deleted && syncObj.sync === true
+    const found = await syncRepository.findById(name)
+    return found.sync === true
   } catch (e) {
     logger.warn(`isSync(${name}): error (returning false): ${e}`)
     return false
@@ -207,15 +299,19 @@ async function setSync (name, sync, deleteSync  = false) {
     throw new VolumeError(`setSync: cannot setSync on self: ${name}`)
   }
   const volume = await findVolume(name)
-  const syncFile = syncKey(name)
-  if (!deleteSync || system.storage.safeReadFile(syncFile)) {
-    const syncObj = deleteSync
-      ? { name, deleted: Date.now() }
-      : { name, sync, ctime: Date.now() }
-    const syncJson = JSON.stringify(syncObj)
-    const bytesWritten = await system.storage.writeFile(syncFile, syncJson)
-    if (bytesWritten !== syncJson.length) {
-      throw new VolumeError(`setSync(${name}, ${sync}): expected to write ${syncJson.length} bytes to ${syncFile} but wrote ${bytesWritten}`)
+  let found
+  try {
+    found = await syncRepository.findById(name)
+    if (deleteSync) {
+      syncRepository.remove(name, found.version)
+    } else {
+      syncRepository.update({ id: name, sync }, found.version)
+    }
+  } catch (e) {
+    if (e instanceof MobilettoOrmNotFoundError) {
+      await syncRepository.create({ id: name, sync })
+    } else {
+      throw e
     }
   }
   return Object.assign({}, volume, { sync })
@@ -226,12 +322,8 @@ async function deleteVolume (name) {
     throw new VolumeError(`deleteVolume: cannot delete self: ${name}`)
   }
   const volume = await findVolume(name)
-  const tombstone = { name: volume.name, deleted: Date.now() }
   try {
-    const bytesWritten = await system.storage.writeFile(volumeKey(name), JSON.stringify(tombstone))
-    if (bytesWritten > 0) {
-      listVolumeCache.clear()
-    }
+    await volumeRepository.remove(name, volume.version)
   } catch (e) {
     logger.warn(`deleteVolume: error writing volume tombstone: ${e}`)
     throw e
@@ -246,6 +338,15 @@ async function deleteVolume (name) {
 
 const VOLUME_APIS = {}
 
+async function _connectVolume (volume) {
+  if (VOLUME_APIS[volume.name]) {
+    return VOLUME_APIS[volume.name]
+  }
+  VOLUME_APIS[volume.name] = await connectVolume(volume)
+  VOLUME_APIS[volume.name].name = volume.name
+  return VOLUME_APIS[volume.name]
+}
+
 async function connect (name) {
   if (!name) {
     throw new TypeError('no volume name')
@@ -254,9 +355,7 @@ async function connect (name) {
     return VOLUME_APIS[name]
   }
   const volume = await findVolume(name)
-  VOLUME_APIS[name] = await connectVolume(volume)
-  VOLUME_APIS[name].name = name
-  return VOLUME_APIS[name]
+  return _connectVolume(volume)
 }
 
 const connectedVolumes = () => Object.keys(VOLUME_APIS)
@@ -272,9 +371,6 @@ async function extractVolumeAndPathAndConnect (from) {
   volumeObj.name = volume
   return { volume: volumeObj, pth: decodeURI(pth) }
 }
-
-const LIBRARY_PREFIX = 'libraries/'
-const libraryKey = name => name.startsWith(LIBRARY_PREFIX) ? name : LIBRARY_PREFIX + name + '.json'
 
 const listLibraries = async (query) => {
   return await _listLibraries(query)
@@ -298,10 +394,9 @@ async function libraryExists (name) {
 
 async function findLibrary (name, findDeleted = false) {
   try {
-    const library = JSON.parse((await system.storage.readFile(libraryKey(name))).toString())
-    return library.deleted ? findDeleted ? library : null : library
+    return await libraryRepository.findById(name, { removed: findDeleted })
   } catch (e) {
-    if (e instanceof MobilettoNotFoundError) {
+    if (e instanceof MobilettoOrmNotFoundError) {
       throw new LibraryNotFoundError(name)
     }
     throw e
@@ -312,15 +407,13 @@ async function _listLibraries (query) {
   const cacheKey = shasum(query ? JSON.stringify(query) : '~')
   let results = listLibrariesCache.get(cacheKey)
   if (!results) {
-    const objectList = await system.storage.safeList(LIBRARY_PREFIX)
+    const objectList = await libraryRepository.findAll({ removed: query.includeDeleted })
     const allLibraries = []
     for (const object of objectList) {
       if (object.type === m.FILE_TYPE) {
         try {
-          const library = JSON.parse(await system.storage.readFile(object.name))
-          if (!library.deleted || query.includeDeleted) {
-            allLibraries.push(library)
-          }
+          const library = object.object
+          allLibraries.push(library)
         } catch (e) {
           logger.warn(`_listLibraries: error reading volume ${object.name}: ${JSON.stringify(e)}`)
         }
@@ -372,19 +465,18 @@ const validateLibrary = async (library, forCreate = true) => {
 }
 
 const saveLibrary = async (library, forCreate) => {
-  const now = Date.now()
-  if (forCreate) {
-    library.ctime = now
-  }
-  library.mtime = now
-  const libFile = libraryKey(library.name)
   try {
-    const bytesWritten = await system.storage.writeFile(libFile, JSON.stringify(library))
-    if (bytesWritten > 0) {
-      listLibrariesCache.clear()
+    let saved
+    if (forCreate) {
+      saved = await libraryRepository.create(library)
+    } else {
+      const found = await libraryRepository.findById(library.name)
+      saved = await libraryRepository.update(library, found.version)
     }
+    listLibrariesCache.clear()
+    return saved
   } catch (e) {
-    logger.warn(`saveLibrary: error writing library file (${libFile}): ${e}`)
+    logger.warn(`saveLibrary: error saving library ${library.id}: ${e}`)
     throw e
   }
 }
@@ -404,13 +496,11 @@ async function deleteLibrary (name) {
     return
   }
   try {
-    const tombstone = { name, deleted: Date.now() }
-    const bytesWritten = await system.storage.writeFile(libraryKey(name), JSON.stringify(tombstone))
-    if (bytesWritten > 0) {
-      listLibrariesCache.clear()
-    }
+    const found = await libraryRepository.findById(name)
+    libraryRepository.remove(name, found.version)
+    listLibrariesCache.clear()
   } catch (e) {
-    logger.warn(`deleteLibrary: error writing library tombstone: ${e}`)
+    logger.warn(`deleteLibrary: error removing library: ${e}`)
     throw e
   }
 }
@@ -421,9 +511,10 @@ export {
   extractVolumeAndPathAndConnect,
   volumeExists, findVolume,
   listVolumes, listVolumesWithoutSelf,
-  createVolume, setSync, deleteVolume,
+  createVolume, scanInfo, setSync, deleteVolume,
   libraryExists, findLibrary,
   listLibraries, createLibrary, updateLibrary, deleteLibrary,
   VolumeError, VolumeNotFoundError,
-  LibraryError, LibraryNotFoundError, LibraryValidationError
+  LibraryError, LibraryNotFoundError, LibraryValidationError,
+  ormRepo
 }

@@ -374,7 +374,12 @@ export default {
         this.libraryOverlay = Object.assign({}, this.newLibrary)
       } else {
         const maybeLibrary = Array.isArray(libs) && libs.length > 0 ? libs.find(lib => lib.name === name) : null
-        this.libraryOverlay = maybeLibrary ? Object.assign({}, maybeLibrary) : null
+        if (maybeLibrary) {
+          this.libraryOverlay = Object.assign({}, maybeLibrary)
+          this.libraryOverlay.autoscan = Object.assign({}, maybeLibrary.autoscan)
+        } else {
+          this.libraryOverlay = null
+        }
       }
       if (this.libraryOverlay) {
         this.libraryOverlay.unsaved = true

@@ -5,7 +5,7 @@ const scan = require('../../volume/scan')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
-scan.initAutoscan(system.privateConfig.autoscan)
+scan.initAutoscan()
 
 export default {
   path: '/api/source/scan',

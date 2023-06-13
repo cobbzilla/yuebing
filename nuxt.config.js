@@ -282,10 +282,13 @@ export default {
       // When autoscan is disabled, you can still start a scan from the web admin console
       enabled: process.env.YB_AUTOSCAN_ENABLED || false,
 
-      // How frequently to auto-scan the source for new content
+      // How frequently to scan sources for autoscan configurations
+      // If you change the autoscan configuration for a source, the most recent scan time
+      // for that source will be cleared, and the next time the autoscanner runs, it will
+      // rescan the source.
       // Minimum interval is 1 hour. Lower settings are ignored.
       // Only one scan runs at a time. If an active scan is already running when a new
-      // interval is triggered, a concurrent scan will NOT be started.
+      // interval is triggered, the next scan will be queued.
       interval: process.env.YB_AUTOSCAN_INTERVAL || 1000 * 60 * 60 * 24, // default 24 hours
 
       // How long to wait before the initial startup scan

@@ -498,7 +498,8 @@ export default {
       return {
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
-        searchTerms: this.searchTerms
+        searchTerms: this.searchTerms,
+        includeSelf: false
       }
     },
     volumeTypes () { return localizedVolumeTypes(this.messages) },

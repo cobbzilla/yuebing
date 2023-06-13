@@ -13,6 +13,7 @@ const PATH_REGEX = /[A-Z\d-._()+=:@/]*/i
 const REGEX_VALIDATORS = {
   locale: /^[a-z]{2,3}(_[A-Z]{2,3})?$/,
   username: /^[A-Z][A-Z\d-._]+$/i,
+  email: EMAIL_REGEX,
   host: /^([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d])(.([A-Z\d]{1,63}|[A-Z\d][A-Z\d-]{0,61}[A-Z\d]))*$/i,
   url: /^https?:\/\/[A-Z\d]+(\.[-A-Z\d]+)+(:\d{2,5})?(\/[A-Z\d.+&@#/%=~_|]*)?$/i,
   raw_hex: /^[\dA-F]+$/i,

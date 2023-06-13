@@ -9,6 +9,7 @@ const auth = require('../../shared/auth')
 const valid = require('../../shared/validation')
 const api = require('../util/api')
 const email = require('../util/email')
+const vol = require('../volume/volumeUtil')
 const { queryParamValue } = require('../util/api')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
@@ -21,6 +22,48 @@ const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
 
 const SESSION_EXPIRATION = system.privateConfig.session.expiration
+
+const USER_TYPEDEF = {
+  typeName: 'account',
+  fields: {
+    username: {
+      required: true,
+      min: 2,
+      max: 100,
+      regex: valid.REGEX_VALIDATORS.username,
+      updatable: false
+    },
+    email: {
+      required: true,
+      min: 2,
+      max: 100,
+      regex: valid.REGEX_VALIDATORS.email,
+      updatable: false
+    },
+    password: {
+      required: true,
+      min: 8,
+      max: 100
+    },
+    firstName: {
+      required: false,
+      min: 2,
+      max: 100
+    },
+    lastName: {
+      required: false,
+      min: 2,
+      max: 100
+    },
+    locale: {
+      required: true,
+      min: 2
+    },
+    verified: {}
+  }
+}
+
+const userRepository = vol.ormRepo(USER_TYPEDEF)
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
@@ -190,12 +233,6 @@ function UserValidationError (errors) {
   UserValidationError.prototype.toString = () => JSON.stringify(this)
 }
 
-const USERS_PREFIX = 'users/'
-const userKey = username => username ? USERS_PREFIX + shasum(USERS_PREFIX + username.toLowerCase().trim()) : null
-
-const EMAILS_PREFIX = 'emails/'
-const emailKey = email => email ? EMAILS_PREFIX + shasum(EMAILS_PREFIX + email.toLowerCase().trim()) : null
-
 const CACHE_PREFIX_EMAIL_EXISTS = 'emailExists_'
 const CACHE_PREFIX_USERNAME_EXISTS = 'emailExists_'
 const CACHE_EXPIRATION_NAME_EXISTS = 1000 * 60 * 60 * 24
@@ -213,22 +250,22 @@ const makeCacheable = async (cachePrefix, key, expiration, func) => {
 }
 
 const emailExists = async (email) => await makeCacheable(CACHE_PREFIX_EMAIL_EXISTS, email, CACHE_EXPIRATION_NAME_EXISTS,
-    async e => await system.storage.safeMetadata(emailKey(e)))
+    async e => await userRepository.findBy('email', e))
 
 const recordRegisteredEmail = async email => await redis.set(CACHE_PREFIX_EMAIL_EXISTS+email, email, CACHE_EXPIRATION_NAME_EXISTS)
 
 const usernameExists = async (name) => await makeCacheable(CACHE_PREFIX_USERNAME_EXISTS, name, CACHE_EXPIRATION_NAME_EXISTS,
-    async n => await system.storage.safeMetadata(userKey(n)))
+    async n => await userRepository.findById(n))
 
 const recordRegisterUsername = async name => redis.set(CACHE_PREFIX_USERNAME_EXISTS+name, name, CACHE_EXPIRATION_NAME_EXISTS)
 
 async function findUser (nameOrEmail, email = null) {
-  const user = await system.storage.safeReadFile(userKey(nameOrEmail))
+  const user = await userRepository.findById(nameOrEmail)
   if (user) {
     return JSON.parse(user)
   }
-  const userByEmail = await system.storage.safeReadFile(emailKey(email ? email : nameOrEmail))
-  return userByEmail ? JSON.parse(await system.storage.safeReadFile(userKey(JSON.parse(userByEmail)))) : null
+  const userByEmail = await userRepository.findBy('email', email ? email : nameOrEmail)
+  return userByEmail && userByEmail.length && userByEmail.length === 1 ? userByEmail[0] : null
 }
 
 async function registerInitialAdminUser (regRequest) {
@@ -367,14 +404,7 @@ async function createUserRecord (user, successHandler) {
   }
   let success = false
   try {
-    const userJson = JSON.stringify(newUser)
-    const nameJson = JSON.stringify(newUser.username)
-    const count = (await system.storage.writeFile(userKey(newUser.username), userJson))
-    if (count && await system.storage.writeFile(emailKey(newUser.email), nameJson)) {
-      successHandler(count, newUser)
-      success = true
-      return newUser
-    }
+    return await userRepository.create(newUser)
   } catch (e) {
     logger.error(`createUserRecord: Error writing user files: ${e}`)
     throw e
@@ -413,13 +443,8 @@ async function updateUserRecord (proposed, successHandler) {
     update.username = user.username // don't allow any username changes for now
     logger.info(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
     try {
-      const count = await system.storage.writeFile(userKey(user.username), JSON.stringify(update))
-      if (emailKey(update.email) !== emailKey(user.email)) {
-        // update email index if address changed
-        await system.storage.remove(emailKey(user.email))
-        await system.storage.writeFile(emailKey(user.email), JSON.stringify(user.username))
-      }
-      await successHandler(count, update)
+      const updated = await userRepository.update(update, user.version)
+      await successHandler(updated, update)
     } catch (e) {
       logger.error(`updateUserRecord: findUser error: ${err}`)
       throw e
@@ -526,10 +551,7 @@ if (ADMIN_USER) {
 }
 
 module.exports = {
-  USERS_PREFIX,
   LOCAL_ADMIN_USER,
-  userKey,
-  emailKey,
   startSession,
   newSessionResponse,
   cancelSessions,

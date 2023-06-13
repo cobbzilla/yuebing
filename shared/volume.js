@@ -93,6 +93,7 @@ const VOLUME_MOUNT_DESTINATION = 'destination'
 const filterSources = volumes => volumes ? volumes.filter(v => v.mount === VOLUME_MOUNT_SOURCE) : []
 const isDestinationVolume = v => v.mount === VOLUME_MOUNT_DESTINATION || isSelfVolume(v)
 const filterDestinations = volumes => volumes ? volumes.filter(isDestinationVolume) : []
+const filterSyncDestinations = volumes => volumes ? volumes.filter(isDestinationVolume).filter(v => !!v.sync) : []
 
 function volumeTypeConfig (volumeType) {
   return volumeType in VOLUME_TYPES ? VOLUME_TYPES[volumeType] : null
@@ -144,5 +145,5 @@ export {
   sortVolumesByField, sortLibrariesByField,
   extractVolumeAndPath,
   VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION, VOLUME_VALIDATIONS,
-  filterSources, filterDestinations
+  filterSources, filterDestinations, filterSyncDestinations
 }
