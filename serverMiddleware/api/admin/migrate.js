@@ -2,7 +2,7 @@ const api = require('../../util/api')
 const c = require('../../../shared')
 const u = require('../../user/userUtil')
 const s = require('../../volume/volumeUtil')
-const v = require('../../../shared/validation')
+const v = require('../../../shared/model/validation')
 const migrate = require('../../volume/migrate')
 
 async function validate (migration) {

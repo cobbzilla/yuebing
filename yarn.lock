@@ -8296,12 +8296,20 @@ mobiletto-lite@^1.1.36:
     shasum "^1.0.2"
     winston "^3.8.1"
 
-mobiletto-orm@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/mobiletto-orm/-/mobiletto-orm-1.0.6.tgz#8256337f475e93853800386f4b3786a05a6963c2"
-  integrity sha512-uofkhuQdpCKjZqmoYGO4A9GTV40gqys7yy7YvCwvGR5LC7ThEWuxw3D/e0wtGQI75VBfRGKF8WILN1O3YiWaUg==
+mobiletto-orm-typedef@^1.0.25:
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/mobiletto-orm-typedef/-/mobiletto-orm-typedef-1.0.25.tgz#677ea67732bf9941625cfa6a95891295946f0759"
+  integrity sha512-Lwb6Z3+d/TWVYgseGQ2ubIO8GmVelLV4cn6vaj+Hb+Que/jhEy+qQMW7H4aK+LYnX83WvmqblcRcpcjDEJe2TQ==
+  dependencies:
+    randomstring "^1.2.2"
+
+mobiletto-orm@^1.2.24:
+  version "1.2.24"
+  resolved "https://registry.yarnpkg.com/mobiletto-orm/-/mobiletto-orm-1.2.24.tgz#6aa40b140121b857c1dcc41f857004a3a8b79af0"
+  integrity sha512-bGbWbMbiiLH7t7H3wYU77yY9TdzkOdQLVfm+mXQ0/cGbVmDEBqgJk4i7h0i64qprtqrkX7ahpaZaD90BtnP4Sg==
   dependencies:
     mobiletto-lite "^1.1.36"
+    mobiletto-orm-typedef "^1.0.25"
     winston "^3.8.2"
 
 move-concurrently@^1.0.1:

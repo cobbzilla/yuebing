@@ -1,6 +1,6 @@
 const shasum = require('shasum')
 const { basename } = require('path')
-const { extractVolumeAndPath } = require('../../shared/volume')
+const { extractVolumeAndPath } = require('../../shared/model/volume')
 const m = require('../../shared/media')
 const cache = require('../util/cache')
 const redis = require('../util/redis')

@@ -31,6 +31,7 @@ export default {
   label_newPassword: 'New password',
   label_locale: 'Language',
   label_token: 'Verification token',
+  label_verified: 'Verified',
   label_ctime: 'Created',
   label_mtime: 'Modified',
   label_editor: 'Editor?',
@@ -546,5 +547,13 @@ export default {
   shell_ensure_admin_password: '\nThe YB_ADMIN_PASSWORD environment variable is not defined or is empty.\nPlease enter a password for the admin user',
   shell_admin_password_undefined: '\nThe YB_ADMIN_PASSWORD environment variable must be defined',
   shell_default_storage_used: '\nNo YB_DEST_TYPE environment variable was defined, so the local directory {{ YB_DEST_KEY }} will be used for writing files.\nYou can configure cloud-storage destinations from the web administration console.',
-  shell_default_storage_error: '\nNo YB_DEST_TYPE environment variable was defined, and neither the default local directory ({{ YB_DEFAULT_DEST }}) nor the fallback directory ({{ YB_FALLBACK_DEST }}) could be created and/or written to'
+  shell_default_storage_error: '\nNo YB_DEST_TYPE environment variable was defined, and neither the default local directory ({{ YB_DEFAULT_DEST }}) nor the fallback directory ({{ YB_FALLBACK_DEST }}) could be created and/or written to',
+
+  // Feature flags
+  label_flags: 'Feature flags',
+  flag_welcome_email: 'Send a welcome email with a verification link',
+  flag_can_comment: 'Enable commenting',
+  flag_can_tag: 'Enable tagging',
+  flag_can_edit_metadata: 'Enable editing metadata',
+  flag_can_set_thumbnail: 'Enable setting thumbnail image'
 }

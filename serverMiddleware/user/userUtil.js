@@ -1,13 +1,14 @@
 const cookie = require('cookie')
 const { MobilettoNotFoundError } = require('mobiletto-lite')
+const { MobilettoOrmValidationError } = require('mobiletto-orm-typedef')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid')
 const shasum = require('shasum')
 const redis = require('../util/redis')
 const c = require('../../shared')
 const auth = require('../../shared/auth')
-const u = require('../../shared/user')
-const valid = require('../../shared/validation')
+const u = require('../../shared/model/user')
+const valid = require('../../shared/model/validation')
 const api = require('../util/api')
 const email = require('../util/email')
 const vol = require('../volume/volumeUtil')
@@ -24,7 +25,15 @@ const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
 
 const SESSION_EXPIRATION = system.privateConfig.session.expiration
 
-const userRepository = vol.ormRepo(u.USER_TYPEDEF)
+const USER_SERVER_TYPEDEF = u.USER_TYPEDEF.extend({
+  fields: {
+    password: {
+      normalize: val => bcrypt.hashSync(val, bcrypt.genSaltSync(BCRYPT_ROUNDS))
+    }
+  }
+})
+
+const userRepository = vol.ormRepo(USER_SERVER_TYPEDEF)
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
@@ -94,19 +103,13 @@ async function startSession (user) {
   return user
 }
 
-function newSessionResponse (res) {
-  return (data, newUser) => {
-    if (data) {
-      startSession(newUser).then(
-        (user) => {
-          api.setSessionCookie(res, user.session)
-          return api.okJson(res, user)
-        },
-        error => api.serverError(res, `Error: ${error}`))
-    } else {
-      return api.serverError(res, 'Error')
-    }
-  }
+function newSessionResponse (res, newUser) {
+  startSession(newUser).then(
+    (user) => {
+      api.setSessionCookie(res, user.session)
+      return api.okJson(res, user)
+    },
+    error => api.serverError(res, `Error: ${error}`))
 }
 
 function cancelSessions (user) {
@@ -205,27 +208,36 @@ const makeCacheable = async (cachePrefix, key, expiration, func) => {
   if (val) {
     return val.toString() === NAME_NOT_FOUND ? null : val
   }
-  val = func(key)
+  val = await func(key)
   await redis.set(fullKey, JSON.stringify(val ? val : NAME_NOT_FOUND), expiration)
   return val ? val : null
 }
 
 const emailExists = async (email) => await makeCacheable(CACHE_PREFIX_EMAIL_EXISTS, email, CACHE_EXPIRATION_NAME_EXISTS,
-    async e => await userRepository.findBy('email', e))
+    async e => await userRepository.safeFindBy('email', e, { first: true }))
 
 const recordRegisteredEmail = async email => await redis.set(CACHE_PREFIX_EMAIL_EXISTS+email, email, CACHE_EXPIRATION_NAME_EXISTS)
 
 const usernameExists = async (name) => await makeCacheable(CACHE_PREFIX_USERNAME_EXISTS, name, CACHE_EXPIRATION_NAME_EXISTS,
-    async n => await userRepository.findById(n))
+    async n => await userRepository.safeFindById(n))
 
 const recordRegisterUsername = async name => redis.set(CACHE_PREFIX_USERNAME_EXISTS+name, name, CACHE_EXPIRATION_NAME_EXISTS)
 
+async function findUserForLogin (nameOrEmail, email = null) {
+  return _findUser(nameOrEmail, email, true)
+}
+
 async function findUser (nameOrEmail, email = null) {
-  const user = await userRepository.findById(nameOrEmail)
+  return _findUser(nameOrEmail, email)
+}
+
+async function _findUser (nameOrEmail, email = null, forLogin = false) {
+  const noRedact = forLogin
+  const user = await userRepository.findById(nameOrEmail, {noRedact})
   if (user) {
     return JSON.parse(user)
   }
-  const userByEmail = await userRepository.findBy('email', email ? email : nameOrEmail)
+  const userByEmail = await userRepository.findBy('email', email ? email : nameOrEmail, {noRedact})
   return userByEmail && userByEmail.length && userByEmail.length === 1 ? userByEmail[0] : null
 }
 
@@ -239,13 +251,7 @@ async function registerInitialAdminUser (regRequest) {
   if (!regRequest.username) {
     regRequest.username = ADMIN_USERNAME
   }
-  return await _registerUser(regRequest, () => {
-    logger.info(`registerInitialAdminUser: successfully registered new admin user: ${regRequest.email}`)
-  }, true)
-}
-
-async function registerUser (regRequest, successHandler) {
-  return await _registerUser(regRequest, successHandler, false)
+  return await registerUser({admin:true}, regRequest)
 }
 
 function regNotAllowed () {
@@ -254,35 +260,43 @@ function regNotAllowed () {
 
 const ERR_ALREADY_REGISTERED = 'alreadyRegistered'
 
-async function _registerUser (regRequest, successHandler, admin) {
+async function registerUser (caller, regRequest) {
   let errors = {}
+  const admin = typeof(caller.admin) === 'boolean' && caller.admin === true
+  let user = regRequest
   if (!admin) {
-    if (LIMIT_REGISTRATION && !LIMIT_REGISTRATION.includes(regRequest.email)) {
+    if (LIMIT_REGISTRATION && !LIMIT_REGISTRATION.includes(user.email)) {
       throw regNotAllowed()
     } else if (!LIMIT_REGISTRATION && !ALLOW_REGISTRATION) {
       throw regNotAllowed()
     }
-    errors = await valid.validate(regRequest)
-    if (!c.empty(errors)) {
-      throw new UserValidationError(errors)
+    try {
+      user = userRepository.validate(user)
+    } catch (e) {
+      if (e instanceof MobilettoOrmValidationError) {
+        throw new UserValidationError(e.errors)
+      }
+      throw e
     }
   } else if (admin && ADMIN.overwrite) {
     // allow over-write of initial admin when nuxt config flag is set
-    return await createUserRecord(regRequest, successHandler)
+    return await createUserRecord(caller, regRequest)
   }
   // check for duplicate user
-  if (await usernameExists(regRequest.username)) {
+  const userFound = await usernameExists(user.username)
+  if (userFound) {
     if (typeof errors.username === 'undefined') { errors.username = [] }
     errors.username.push(ERR_ALREADY_REGISTERED)
   }
-  if (await emailExists(regRequest.email)) {
+  const emailFound = await emailExists(user.email)
+  if (emailFound) {
     if (typeof errors.email === 'undefined') { errors.email = [] }
     errors.email.push(ERR_ALREADY_REGISTERED)
   }
   if (c.okl(errors) > 0) {
     throw new UserValidationError(errors)
   }
-  return await createUserRecord(regRequest, successHandler)
+  return await createUserRecord(caller, user)
 }
 
 const USER_VERIFY_PREFIX = 'verify_token_'
@@ -327,45 +341,41 @@ function checkPassword (user, password, successCallback, errorCallback) {
   )
 }
 
-async function createUserRecord (user, successHandler) {
+async function createUserRecord (caller, user) {
   // bcrypt the password, create new user object
-  const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS)
-  const newUser = {
-    ctime: Date.now(),
-    mtime: Date.now(),
-    username: user.username,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    locale: user.locale,
-    hashedPassword: bcrypt.hashSync(user.password, salt),
-    verified: isAdmin(user) ? Date.now() : null
-  }
-  if (!newUser.verified) {
+  user.verified = isAdmin(user) || (isAdmin(caller) && user.verified) ? Date.now() : null
+  if (!user.verified) {
     const token = '' + Math.floor(Math.random() * 1000000)
     const key = verificationKey(user.email)
     redis.set(key, token, USER_VERIFY_EXPIRATION).then(() => {
       logger.info(`createUserRecord: created verification token for user: ${user.email}: ${key}`)
     })
     const ctx = {
-      user: newUser,
+      user,
       token,
       verifyUrl: c.normalizeUrl(system.publicConfig.siteUrl, auth.VERIFY_ENDPOINT) +
-        '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(newUser.email) +
+        '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
-    email.sendEmail(newUser.email, newUser.locale || c.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
-      () => {
-        logger.info(`createUserRecord: verification request sent to user: ${newUser.email}`)
-      },
-      (err) => {
-        logger.error(`createUserRecord: ERROR sending verification request to user: ${newUser.email}: ${err}`)
-      }
-    )
+    if (flags.flag_welcome_email) {
+      email.sendEmail(user.email, user.locale || c.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
+        () => {
+          logger.info(`createUserRecord: verification request sent to user: ${user.email}`)
+        },
+        (err) => {
+          logger.error(`createUserRecord: ERROR sending verification request to user: ${user.email}: ${err}`)
+        }
+      )
+    }
   }
   let success = false
   try {
-    return await userRepository.create(newUser)
+    // errors are: {"password":["required"],"flags":["type"]}
+    // todo: add hashedPassword as the "real" field, make "password" a ui field (?)
+    // todo: fix type detection on multi fields
+    const createdUser = await userRepository.create(user)
+    logger.info(`createUserRecord: created user with id=${user.id}`)
+    return createdUser
   } catch (e) {
     logger.error(`createUserRecord: Error writing user files: ${e}`)
     throw e

@@ -67,7 +67,7 @@
 import { mapActions, mapState } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
-import { filterSources, filterDestinations } from '@/shared/volume'
+import { filterSources, filterDestinations } from '@/shared/model/volume'
 
 export default {
   name: 'AdminIndex',

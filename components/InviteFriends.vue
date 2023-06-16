@@ -93,7 +93,7 @@
 import { mapState, mapActions } from 'vuex'
 import { okl, publicConfigField } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { findValidEmails } from '@/shared/validation'
+import { findValidEmails } from '@/shared/model/validation'
 
 export default {
   name: 'InviteFriends',

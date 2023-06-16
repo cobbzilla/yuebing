@@ -1,45 +1,8 @@
-const { isSelfVolume } = require('./index')
+const { isSelfVolume } = require('../index')
+const { MobilettoOrmTypeDef } = require('mobiletto-orm-typedef')
 
-const VOLUME_TYPEDEF = {
-  typeName: 'volume',
-  fields: {
-    name: {
-      required: true
-    },
-    type: {
-      required: true
-    },
-    key: {
-      required: true
-    },
-    mount: {},
-    secret: {},
-    readOnly: {},
-    cacheSize: { minValue: 0, default: 100 },
-    encryption: {}
-  }
-}
-
-const SYNC_TYPEDEF = {
-  typeName: 'sync',
-  fields: {
-    sync: { required: true, default: true }
-  }
-}
-
-const SCAN_TYPEDEF = {
-  typeName: 'scan',
-  fields: {}
-}
-
-const LIBRARY_TYPEDEF = {
-  typeName: 'library',
-  fields: {
-    sources: {},
-    destinations: {},
-    autoscan: {}
-  }
-}
+const VOLUME_MOUNT_SOURCE = 'source'
+const VOLUME_MOUNT_DESTINATION = 'destination'
 
 const VOLUME_TYPES = {
   local: {
@@ -97,6 +60,60 @@ const VOLUME_TYPES = {
   }
 }
 
+const VOLUME_TYPEDEF = new MobilettoOrmTypeDef({
+  typeName: 'volume',
+  fields: {
+    name: {
+      required: true
+    },
+    type: {
+      values: [ ...Object.keys(VOLUME_TYPES) ],
+      required: true
+    },
+    key: {
+      control: 'password',
+      required: true
+    },
+    mount: {
+      values: [ VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION ],
+      updatable: false
+    },
+    secret: {
+      control: 'password'
+    },
+    readOnly: {
+      type: 'boolean',
+      control: 'label',
+      updatable: false
+    },
+    cacheSize: { minValue: 0, default: 100 },
+    encryption: {
+      type: 'object'
+    }
+  }
+})
+
+const SYNC_TYPEDEF = new MobilettoOrmTypeDef({
+  typeName: 'sync',
+  fields: {
+    sync: { required: true, default: true }
+  }
+})
+
+const SCAN_TYPEDEF = new MobilettoOrmTypeDef({
+  typeName: 'scan',
+  fields: {}
+})
+
+const LIBRARY_TYPEDEF = new MobilettoOrmTypeDef({
+  typeName: 'library',
+  fields: {
+    sources: {},
+    destinations: {},
+    autoscan: {}
+  }
+})
+
 const VOLUME_NAME_VALIDATION = {
   required: true,
   volume: true,
@@ -127,9 +144,6 @@ const VOLUME_VALIDATIONS = {
     max: 1024
   }
 }
-
-const VOLUME_MOUNT_SOURCE = 'source'
-const VOLUME_MOUNT_DESTINATION = 'destination'
 
 const filterSources = volumes => volumes ? volumes.filter(v => v.mount === VOLUME_MOUNT_SOURCE) : []
 const isDestinationVolume = v => v.mount === VOLUME_MOUNT_DESTINATION || isSelfVolume(v)

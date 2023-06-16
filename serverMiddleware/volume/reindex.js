@@ -1,6 +1,6 @@
 const Queue = require('bull')
 
-const { extractVolumeAndPath } = require('../../shared/volume')
+const { extractVolumeAndPath } = require('../../shared/model/volume')
 const { hasProfiles } = require('../../shared/media')
 const { connect } = require('./volumeUtil')
 const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')

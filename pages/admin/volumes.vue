@@ -427,11 +427,11 @@ import 'vue-json-pretty/lib/styles.css'
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_ENCRYPTION_ALGO, isSelfVolume, publicConfigField, isoDate, isoTime } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { condensedRules } from '@/shared/validation'
+import { condensedRules } from '@/shared/model/validation'
 import {
   localizedVolumeConfigLabelPrefix, localizedVolumeConfigLabel, localizedVolumeTypes,
   volumeTypeConfig, VOLUME_VALIDATIONS, VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION
-} from '@/shared/volume'
+} from '@/shared/model/volume'
 import { ALL_MEDIA_PROFILES } from '@/shared/media'
 import { UI_CONFIG } from '@/services/util'
 

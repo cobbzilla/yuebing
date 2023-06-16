@@ -7,14 +7,13 @@ const logger = system.logger
 export default {
   path: '/api/user/delete',
   handler (req, res) {
-    logger.info(`>>>>> API: Delete ${req.url} ....`)
     req.on('data', async () => {
       const caller = await u.requireLoggedInUser(req, res)
       if (!caller || !caller.email) {
         return api.forbidden(res)
       }
       try {
-        userAdmin.deleteUser(caller).then(
+        userAdmin.deleteUser(caller.email).then(
           () => {
             u.cancelSessions(caller)
             api.okJson(res, { deleted: true })

@@ -7,7 +7,7 @@ const { ALL_LANGS } = require('hokeylization/util/constants')
 const ISO_639 = require('hokeylization/util/iso639')
 
 const c = require('../../../shared')
-const s = require('../../../shared/volume')
+const s = require('../../../shared/model/volume')
 const m = require('../../../shared/media')
 const src = require('../../volume/volumeUtil')
 const VIDEO = require('../../../shared/media/video').default

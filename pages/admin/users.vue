@@ -8,7 +8,7 @@
         </h3>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="userList && totalUserCount > 0">
       <v-col>
         <div>
           <ValidationObserver ref="form">
@@ -53,9 +53,9 @@
         </div>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="userList && totalUserCount > 0">
       <v-col>
-        <table v-if="userList">
+        <table>
           <thead>
             <tr>
               <th colspan="6">
@@ -98,26 +98,28 @@
     </v-row>
     <v-row>
       <v-col>
-        <ValidationObserver ref="userForm">
-          <v-form id="userForm" @submit.prevent="doSaveUser">
-            <v-container>
-              <v-row>
-                <v-col>
-                  <h3>{{ messages.admin_button_add_user }}</h3>
-                </v-col>
-              </v-row>
-              <v-row v-for="(userField, userFieldIndex) in userFields" :key="userFieldIndex">
-                <v-col v-if="typeof(userField.editable) === 'undefined' || userField.editable === true">
-                  <OrmField
-                    :field="userField"
-                    :submitted="newUserSubmitted"
-                    @update="onOrmUpdate"
-                  />
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-form>
-        </ValidationObserver>
+        <v-container>
+          <v-row>
+            <v-col>
+              <h3>{{ messages.admin_button_add_user }}</h3>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <OrmForm
+                form-name="userCreateForm"
+                :thing="newUser"
+                save-button-message="admin_button_add_user"
+                :fields="userFields"
+                :create="true"
+                :submitted="newUserSubmitted"
+                :server-errors="createUserError"
+                @update="onOrmUpdate"
+                @submitted="onOrmSubmit"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
   </v-container>
@@ -126,15 +128,15 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import OrmField from '../../components/OrmField.vue'
+import OrmForm from '@/components/OrmForm'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { USER_TYPEDEF, userSortFields, localizedUserSortFields } from '@/shared/user'
+import { USER_TYPEDEF, userSortFields, localizedUserSortFields } from '@/shared/model/user'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
 export default {
   name: 'ManageUsers',
-  components: { OrmField },
+  components: { OrmForm },
   data () {
     return {
       pageNumber: 1,
@@ -151,19 +153,12 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'deleteUserError']),
+    ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'createUserError', 'deleteUserError']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     sortFields () { return userSortFields() },
     localizedSortFields () { return localizedUserSortFields(this.messages) },
-    userFields () {
-      return Object.keys(USER_TYPEDEF.fields).map((f) => {
-        return {
-          name: f,
-          ...USER_TYPEDEF.fields[f]
-        }
-      })
-    },
+    userFields () { return USER_TYPEDEF.tabIndexedFields() },
     searchQuery () {
       return {
         pageNumber: this.pageNumber,
@@ -206,7 +201,7 @@ export default {
     this.findUsers({ query })
   },
   methods: {
-    ...mapActions('admin', ['findUsers', 'deleteUser', 'setEditor']),
+    ...mapActions('admin', ['findUsers', 'createUser', 'deleteUser', 'setEditor']),
     fieldError (field, error) {
       return field && error ? fieldErrorMessage(field, error, this.messages) : '(no message)'
     },
@@ -228,14 +223,18 @@ export default {
       this.setEditor({ email: u.email, editor: this.editorFlags[u.email] })
     },
     onOrmUpdate (update) {
-      console.log(`onOrmUpdate received: ${JSON.stringify(update)}`)
+      // console.log(`onOrmUpdate received: ${JSON.stringify(update)}`)
       if (update.field && update.value) {
         this.newUser[update.field] = update.value
       }
     },
-    async doSaveUser () {
-      console.log('doSaveUser!')
-      await new Promise(() => true)
+    onOrmSubmit (submitted) {
+      this.newUserSubmitted = true
+      if (submitted) {
+        const user = this.newUser
+        console.log(`onOrmSubmit sending user??: ${JSON.stringify(user)}`)
+        this.createUser({ user })
+      }
     }
   }
 }

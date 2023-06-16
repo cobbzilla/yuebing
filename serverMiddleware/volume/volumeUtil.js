@@ -6,7 +6,7 @@ const { mobiletto } = require('mobiletto-lite')
 const { AUTOSCAN_MINIMUM_INTERVAL } = require('./scan')
 const c = require('../../shared')
 const m = require('../../shared/media')
-const vol = require('../../shared/volume')
+const vol = require('../../shared/model/volume')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
@@ -16,7 +16,7 @@ const mostRecentSyncedStorageArray = null
 async function syncedStorage () {
   try {
     const repo = systemVolumeRepo()
-    const volumes = await repo.findAll()
+    const volumes = await repo.findAll({noRedact: true})
     const destinations = volumes
       .filter(dest => dest.mount === vol.VOLUME_MOUNT_DESTINATION)
     const syncRepo = systemSyncRepo()

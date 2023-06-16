@@ -7,6 +7,8 @@
 <script>
 import videojs from 'video.js'
 
+window.HELP_IMPROVE_VIDEOJS = false // just in case video.js is included via CDN
+
 export default {
   name: 'VideoPlayer',
   props: {

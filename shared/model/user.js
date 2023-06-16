@@ -1,7 +1,9 @@
 const md5 = require('md5')
+const { MobilettoOrmTypeDef } = require('mobiletto-orm-typedef')
+const nuxt = require('../../nuxt.config').default
 const valid = require('./validation')
 
-const USER_TYPEDEF = {
+const USER_TYPEDEF = new MobilettoOrmTypeDef({
   typeName: 'account',
   fields: {
     username: {
@@ -9,39 +11,61 @@ const USER_TYPEDEF = {
       min: 2,
       max: 100,
       regex: valid.REGEX_VALIDATORS.username,
-      updatable: false
+      updatable: false,
+      tabIndex: 1
     },
     email: {
       required: true,
       min: 2,
       max: 100,
       regex: valid.REGEX_VALIDATORS.email,
-      updatable: false
+      updatable: false,
+      tabIndex: 2
     },
     password: {
       required: true,
       min: 8,
-      max: 100
+      max: 100,
+      tabIndex: 3
     },
     firstName: {
       required: false,
       min: 2,
-      max: 100
+      max: 100,
+      tabIndex: 4
     },
     lastName: {
       required: false,
       min: 2,
-      max: 100
+      max: 100,
+      tabIndex: 5
     },
     locale: {
+      items: nuxt.publicRuntimeConfig.locales.map((loc) => {
+        return { value: loc, label: `locale_${loc}` }
+      }),
       required: true,
-      min: 2
+      min: 2,
+      max: 10,
+      tabIndex: 6
+    },
+    flags: {
+      values: ['flag_welcome_email', 'flag_can_comment', 'flag_can_tag', 'flag_can_edit_metadata', 'flag_can_set_thumbnail'],
+      default: ['flag_welcome_email', 'flag_can_comment', 'flag_can_tag'],
+      control: 'multi',
+      tabIndex: 7
     },
     verified: {
-      editable: false
+      type: 'number',
+      control: 'label',
+      render: 'datetime',
+      tabIndex: 8
     }
   }
-}
+})
+
+// hide id field in UI (username becomes the id)
+USER_TYPEDEF.fields.id.control = 'hidden'
 
 const USER_SORT = {
   email: (u1, u2) => u1.email && u2.email && u1.email < u2.email,

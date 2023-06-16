@@ -14,6 +14,10 @@ export const state = () => ({
   totalUserCount: null,
   findUsersError: null,
 
+  creatingUser: false,
+  createUserSuccess: null,
+  createUserError: null,
+
   deletingUser: false,
   deleteUserSuccess: null,
   deleteUserError: null,
@@ -121,6 +125,15 @@ export const actions = {
       .then(
         (results) => { commit('findUsersSuccess', { results }) },
         (error) => { commit('findUsersFailure', { error }) }
+      )
+  },
+
+  createUser ({ commit }, { user }) {
+    commit('createUserRequest', { user })
+    adminService.createUser(user)
+      .then(
+        (user) => { commit('createUserSuccess', { user }) },
+        (error) => { commit('createUserFailure', { error }) }
       )
   },
 
@@ -336,6 +349,25 @@ export const mutations = {
   findUsersFailure (state, { error }) {
     state.findingUsers = false
     state.findUsersError = error
+  },
+
+  createUserRequest (state, { user }) {
+    state.creatingUser = true
+    state.createUserSuccess = null
+    state.createUserError = null
+  },
+  createUserSuccess (state, { user }) {
+    const newList = state.userList.filter(u => u.email !== user.email)
+    state.userList.splice(0, state.userList.length)
+    state.userList.push(...newList)
+    state.userList.push(user)
+    state.createUserSuccess = user
+    state.creatingUser = false
+    state.createUserError = null
+  },
+  createUserFailure (state, { error }) {
+    state.creatingUser = false
+    state.createUserError = error
   },
 
   deleteUserRequest (state, { email }) {

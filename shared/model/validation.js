@@ -1,7 +1,7 @@
 const vv = require('vee-validate')
 const rules = require('vee-validate/dist/rules')
 
-const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,6}$/i
+const EMAIL_REGEX = /^[A-Z\d][A-Z\d._%+-]*@[A-Z\d.-]+\.[A-Z]{2,24}$/i
 
 // const URL_PART_REGEX = /[A-Z\d._-]+/i
 
@@ -139,8 +139,8 @@ async function validate (thing, isUpdate = false, rules = VALIDATIONS) {
   return errors
 }
 
-const NUMERIC_RULE_FIELDS = [ 'min', 'max', 'min_value', 'max_value' ]
-const RULE_FIELDS = [ ...NUMERIC_RULE_FIELDS, 'required', 'integer', 'email' ]
+const NUMERIC_RULE_FIELDS = ['min', 'max', 'min_value', 'max_value']
+const RULE_FIELDS = [...NUMERIC_RULE_FIELDS, 'required', 'integer', 'email']
 RULE_FIELDS.push(...Object.keys(REGEX_VALIDATORS))
 
 function condenseFieldRules (fieldValidations) {

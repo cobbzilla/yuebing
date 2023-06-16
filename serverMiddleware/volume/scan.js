@@ -5,7 +5,7 @@ const logger = system.logger
 
 const vol = require('./volumeUtil')
 const m = require('../../shared/media')
-const shared_vol = require('../../shared/volume')
+const shared_vol = require('../../shared/model/volume')
 const xform = require('../asset/xform')
 const { uploadPendingAssets } = require('../asset/upload')
 

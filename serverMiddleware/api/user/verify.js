@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 
 const c = require('../../../shared')
 const auth = require('../../../shared/auth')
-const valid = require('../../../shared/validation')
+const valid = require('../../../shared/model/validation')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM

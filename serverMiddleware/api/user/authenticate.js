@@ -8,7 +8,6 @@ const ACCOUNT_NOT_FOUND = { email: ['accountNotFound'] }
 export default {
   path: '/api/user/authenticate',
   handler (req, res) {
-    logger.info(`>>>>> API: Authenticate ${req.url} ....`)
     req.on('data', (data) => {
       const loginRequest = JSON.parse(data.toString())
       if (system.allowLocalAdmin()) {

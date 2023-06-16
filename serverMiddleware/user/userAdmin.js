@@ -1,5 +1,4 @@
-const sharedUser = require('../../shared/user')
-const m = require('../../shared/media')
+const sharedUser = require('../../shared/model/user')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const u = require('./userUtil')
@@ -15,16 +14,21 @@ async function findUsers (query) {
   return q.search(allUsers, query, searchMatches, sharedUser.sortByField)
 }
 
-async function deleteUser (user) {
-  const found = await u.userRepository.findById(user.username)
-  if (found) {
-    await u.userRepository.remove(user.username, found.version)
+async function deleteUser (usernameOrEmail) {
+  let found = await u.userRepository.safeFindById(usernameOrEmail)
+  if (!found) {
+    found = u.userRepository.safeFindBy('email', usernameOrEmail)
+    if (!found) {
+      return null
+    }
   }
+  await u.userRepository.remove(found.id, found)
   if (system.deleteUserHandlers) {
     for (const handlerName of Object.keys(system.deleteUserHandlers)) {
       await system.deleteUserHandlers[handlerName](user)
     }
   }
+  return found
 }
 
 export { findUsers, deleteUser }
