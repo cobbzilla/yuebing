@@ -1,16 +1,13 @@
 const { M_FILE } = require('mobiletto-lite')
-
+const { AUTOSCAN_MINIMUM_INTERVAL, AUTOSCAN_MINIMUM_INITIAL_DELAY } = require('../../shared/type/scanType')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
 
-const vol = require('./volumeUtil')
+const vol = require('../model/morm/volumeDb')
 const m = require('../../shared/media')
-const shared_vol = require('../../shared/model/volume')
+const shared_vol = require('../../shared/type/volumeType')
 const xform = require('../asset/xform')
 const { uploadPendingAssets } = require('../asset/upload')
-
-const AUTOSCAN_MINIMUM_INTERVAL = 1000 * 60 * 60
-const AUTOSCAN_MINIMUM_INITIAL_DELAY = 1000 * 5
 
 let CURRENT_AUTOSCAN_START = null
 let AUTOSCAN_COUNT = 1

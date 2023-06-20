@@ -1,5 +1,5 @@
 const api = require('../../util/api')
-const valid = require('../../../shared/model/validation')
+const valid = require('../../../shared/type/validation')
 const u = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger

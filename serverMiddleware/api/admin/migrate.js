@@ -1,8 +1,8 @@
 const api = require('../../util/api')
 const c = require('../../../shared')
 const u = require('../../user/userUtil')
-const s = require('../../volume/volumeUtil')
-const v = require('../../../shared/model/validation')
+const s = require('../../model/morm/volumeDb')
+const v = require('../../../shared/type/validation')
 const migrate = require('../../volume/migrate')
 
 async function validate (migration) {

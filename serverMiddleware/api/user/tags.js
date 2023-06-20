@@ -2,7 +2,7 @@ const { getTagWeights } = require('../../asset/search')
 
 const { dirname, basename } = require('path')
 
-const { extractVolumeAndPath } = require('../../../shared/model/volume')
+const { extractVolumeAndPath } = require('../../../shared/type/volumeType')
 const { isAdminOrVerified } = require('../../user/userUtil')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger

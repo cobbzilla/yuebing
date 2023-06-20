@@ -17,7 +17,7 @@
 import { mapState } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
-import InviteFriends from '@/components/InviteFriends.vue'
+import InviteFriends from '@/components/site/InviteFriends.vue'
 
 // noinspection JSUnusedGlobalSymbols
 export default {

@@ -108,7 +108,7 @@ import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
 import { localeMessagesForUser, localesList, localeEmoji, userLocale } from '@/shared/locale'
-import { gravatarEmailUrl } from '@/shared/model/user'
+import { gravatarEmailUrl } from '@/shared/type/userType'
 
 // noinspection JSUnusedGlobalSymbols
 export default {

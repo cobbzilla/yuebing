@@ -22,7 +22,7 @@ export default {
             api.serverError(res, `Error: ${error}`)
           })
       } else if (typeof loginRequest.usernameOrEmail === 'string' && loginRequest.usernameOrEmail.length > 1) {
-        u.findUser(loginRequest.usernameOrEmail).then(
+        u.findUserForLogin(loginRequest.usernameOrEmail).then(
           (user) => {
             if (!user) {
               logger.info(`>>>>> API: Authenticate: user not found: ${loginRequest.usernameOrEmail}`)

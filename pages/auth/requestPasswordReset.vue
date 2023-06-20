@@ -68,7 +68,7 @@
 import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
-import { isValidEmail } from '@/shared/model/validation'
+import { isValidEmail } from '@/shared/type/validation'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { UI_CONFIG } from '@/services/util'
 

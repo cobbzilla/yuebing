@@ -1,7 +1,7 @@
 const { dirname, basename } = require('path')
 const LRU = require('lru-cache')
 
-const { gravatarEmailUrl } = require('../../../shared/model/user')
+const { gravatarEmailUrl } = require('../../../shared/type/userType')
 
 const system = require('../../util/config').SYSTEM
 const logger = system.logger

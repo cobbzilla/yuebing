@@ -10,6 +10,7 @@ export const adminService = {
   findVolumes,
   findVolume,
   addVolume,
+  editVolume,
   scanVolume,
   scanPath,
   setVolumeSync,
@@ -61,6 +62,10 @@ function findVolume (name) {
 
 function addVolume (volume) {
   return fetch('/api/admin/volumes', a.authPutJson(volume)).then(a.handleJsonResponse)
+}
+
+function editVolume (volume) {
+  return fetch('/api/admin/volumes', a.authPatchJson(volume)).then(a.handleJsonResponse)
 }
 
 function scanVolume (scanConfig) {

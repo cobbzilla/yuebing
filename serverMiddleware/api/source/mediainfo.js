@@ -4,7 +4,7 @@ const logger = system.logger
 const api = require('../../util/api')
 const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const { reindexPath } = require('../../volume/reindex')
-const vol = require('../../volume/volumeUtil')
+const vol = require('../../model/morm/volumeDb')
 const { deriveMediaInfo, deriveMetadata, flushMediaInfoCache } = require('../../asset/manifest')
 const { MobilettoNotFoundError } = require('mobiletto-lite')
 

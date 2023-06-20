@@ -7,11 +7,11 @@ const shasum = require('shasum')
 const redis = require('../util/redis')
 const c = require('../../shared')
 const auth = require('../../shared/auth')
-const u = require('../../shared/model/user')
-const valid = require('../../shared/model/validation')
+const u = require('../../shared/type/userType')
+const valid = require('../../shared/type/validation')
 const api = require('../util/api')
 const email = require('../util/email')
-const vol = require('../volume/volumeUtil')
+const { userDb } = require('../model/morm/userDb')
 const { queryParamValue } = require('../util/api')
 const system = require('../util/config').SYSTEM
 const logger = system.logger
@@ -19,21 +19,12 @@ const logger = system.logger
 const ADMIN = system.privateConfig.admin
 const ADMIN_USER = ADMIN.user && ADMIN.user.email && ADMIN.user.password ? ADMIN.user : null
 const ADMIN_USERNAME = ADMIN.user && ADMIN.user.username ? ADMIN.user.username : 'admin'
-const BCRYPT_ROUNDS = system.privateConfig.encryption.bcryptRounds
 
 const ALLOW_REGISTRATION = system.publicConfig.allowRegistration
 
 const SESSION_EXPIRATION = system.privateConfig.session.expiration
 
-const USER_SERVER_TYPEDEF = u.USER_TYPEDEF.extend({
-  fields: {
-    password: {
-      normalize: val => bcrypt.hashSync(val, bcrypt.genSaltSync(BCRYPT_ROUNDS))
-    }
-  }
-})
-
-const userRepository = vol.ormRepo(USER_SERVER_TYPEDEF)
+const userRepository = userDb.repository
 
 // initialize LIMIT_REGISTRATION if needed
 function initLimitRegistration () {
@@ -201,12 +192,13 @@ const CACHE_PREFIX_EMAIL_EXISTS = 'emailExists_'
 const CACHE_PREFIX_USERNAME_EXISTS = 'emailExists_'
 const CACHE_EXPIRATION_NAME_EXISTS = 1000 * 60 * 60 * 24
 const NAME_NOT_FOUND = '~'
+const NAME_NOT_FOUND_JSON = JSON.stringify(NAME_NOT_FOUND)
 
 const makeCacheable = async (cachePrefix, key, expiration, func) => {
   const fullKey = cachePrefix + key
   let val = await redis.get(fullKey)
   if (val) {
-    return val.toString() === NAME_NOT_FOUND ? null : val
+    return val.toString() === NAME_NOT_FOUND_JSON ? null : val
   }
   val = await func(key)
   await redis.set(fullKey, JSON.stringify(val ? val : NAME_NOT_FOUND), expiration)
@@ -271,7 +263,7 @@ async function registerUser (caller, regRequest) {
       throw regNotAllowed()
     }
     try {
-      user = userRepository.validate(user)
+      user = await userRepository.validate(user)
     } catch (e) {
       if (e instanceof MobilettoOrmValidationError) {
         throw new UserValidationError(e.errors)
@@ -370,10 +362,7 @@ async function createUserRecord (caller, user) {
   }
   let success = false
   try {
-    // errors are: {"password":["required"],"flags":["type"]}
-    // todo: add hashedPassword as the "real" field, make "password" a ui field (?)
-    // todo: fix type detection on multi fields
-    const createdUser = await userRepository.create(user)
+    const createdUser = await userDb.create(user)
     logger.info(`createUserRecord: created user with id=${user.id}`)
     return createdUser
   } catch (e) {
@@ -391,36 +380,14 @@ async function createUserRecord (caller, user) {
 }
 
 async function updateUserRecord (proposed, successHandler) {
-  const errors = await valid.validate(proposed, true)
-  if (!c.empty(errors)) {
-    throw new UserValidationError(errors)
+  const user = await findUser(proposed.username, proposed.email)
+  try {
+    const updated = await userDb.update(proposed, user)
+    await successHandler(updated, update)
+  } catch (e) {
+    logger.error(`updateUserRecord: findUser error: ${err}`)
+    throw e
   }
-
-  return findUser(proposed.username, proposed.email).then(async (user) => {
-    // merge proposed changes into user object, using stringify/parse to remove explicitly 'undefined' props, set mtime
-    const update = Object.assign({}, user, JSON.parse(JSON.stringify(proposed)), { mtime: Date.now() })
-    // never store a plaintext password
-    if (update.password) {
-      delete update.password
-    }
-    // never store the 'admin' property -- we always call isAdmin to check if a user is admin
-    if (update.admin) {
-      delete update.admin
-    }
-    if (update.session) {
-      // don't persist session
-      delete update.session
-    }
-    update.username = user.username // don't allow any username changes for now
-    logger.info(`updateUserRecord: updating backend with: ${JSON.stringify(update)}`)
-    try {
-      const updated = await userRepository.update(update, user.version)
-      await successHandler(updated, update)
-    } catch (e) {
-      logger.error(`updateUserRecord: findUser error: ${err}`)
-      throw e
-    }
-  })
 }
 
 function resetShasum (email, token) { return shasum(email + ' ~ ' + token) }
@@ -540,6 +507,7 @@ module.exports = {
   resetShasum,
   sendResetPasswordMessage,
   findUser,
+  findUserForLogin,
   updateUserRecord,
   sendInvitations
 }

@@ -1,4 +1,4 @@
-const sharedUser = require('../../shared/model/user')
+const sharedUser = require('../../shared/type/userType')
 const q = require('../util/query')
 const system = require('../util/config').SYSTEM
 const u = require('./userUtil')

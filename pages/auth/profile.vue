@@ -111,8 +111,8 @@
 import { mapState, mapActions } from 'vuex'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { currentUser, UI_CONFIG } from '@/services/util'
-import { condensedRules } from '@/shared/model/validation'
-import { gravatarEmailUrl } from '@/shared/model/user'
+import { condensedRules } from '@/shared/type/validation'
+import { gravatarEmailUrl } from '@/shared/type/userType'
 
 export default {
   name: 'UserProfile',

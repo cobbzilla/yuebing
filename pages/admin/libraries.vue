@@ -249,9 +249,9 @@ import 'vue-json-pretty/lib/styles.css'
 
 import { publicConfigField, SELF_VOLUME_NAME, isSelfVolume } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { condensedRules } from '@/shared/model/validation'
+import { condensedRules } from '@/shared/type/validation'
 import { UI_CONFIG } from '@/services/util'
-import { filterSources, filterDestinations } from '@/shared/model/volume'
+import { filterSources, filterDestinations } from '@/shared/type/volumeType'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
 

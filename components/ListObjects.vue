@@ -121,7 +121,7 @@
 import { mapState, mapActions } from 'vuex'
 
 import VueWordCloud from 'vuewordcloud'
-import SearchBar from '@/components/SearchBar'
+import SearchBar from '@/components/site/SearchBar'
 
 import { proxyMediaUrl } from '@/shared'
 import { objectEncodePath } from '@/shared/media'

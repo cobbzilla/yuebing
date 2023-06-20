@@ -35,6 +35,10 @@ export const state = () => ({
   addVolumeSuccess: null,
   addVolumeError: null,
 
+  editingVolume: false,
+  editVolumeSuccess: null,
+  editVolumeError: null,
+
   scanningVolumes: {},
   scanVolumeSuccess: {},
   scanVolumeError: {},
@@ -170,6 +174,15 @@ export const actions = {
       .then(
         (ok) => { commit('addVolumeSuccess', { ok, volume }) },
         (error) => { commit('addVolumeFailure', { error }) }
+      )
+  },
+
+  editVolume ({ commit }, { volume }) {
+    commit('editVolumeRequest', { volume })
+    adminService.editVolume(volume)
+      .then(
+        (ok) => { commit('editVolumeSuccess', { ok, volume }) },
+        (error) => { commit('editVolumeFailure', { error }) }
       )
   },
 
@@ -418,16 +431,37 @@ export const mutations = {
 
   addVolumeRequest (state, { volume }) {
     state.addingVolume = true
+    state.addVolumeSuccess = null
+    state.addVolumeError = null
   },
   addVolumeSuccess (state, { ok, volume }) {
     state.addingVolume = false
     state.addVolumeSuccess = ok || true
     state.addVolumeError = null
-    state.volumeList.push(volume)
+    state.volumeList.push(ok)
   },
   addVolumeFailure (state, { error }) {
     state.addingVolume = false
     state.addVolumeError = error
+  },
+
+  editVolumeRequest (state, { volume }) {
+    state.editingVolume = true
+    state.editVolumeSuccess = null
+    state.editVolumeError = null
+  },
+  editVolumeSuccess (state, { ok, volume }) {
+    state.editingVolume = false
+    state.editVolumeSuccess = ok || true
+    state.editVolumeError = null
+    const newList = state.volumeList.filter(v => v.name !== volume.name)
+    state.volumeList.splice(0, state.userList.length)
+    state.volumeList.push(...newList)
+    state.volumeList.push(volume)
+  },
+  editVolumeFailure (state, { error }) {
+    state.editingVolume = false
+    state.editVolumeError = error
   },
 
   scanVolumeRequest (state, { scanConfig }) {

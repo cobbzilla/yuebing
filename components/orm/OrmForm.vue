@@ -5,21 +5,24 @@
         <ValidationObserver :ref="formName">
           <v-form :id="formName" @submit.prevent="handleSave">
             <v-container>
-              <v-row v-for="(field, fieldIndex) in fields" :key="fieldIndex">
-                <v-col v-if="fieldVisible(field)">
-                  <OrmField
-                    :field="field"
-                    :value="values[fieldIndex]"
-                    :submitted="submitted"
-                    :create="create"
-                    @update="onFieldUpdate"
-                  />
-                </v-col>
-              </v-row>
+              <OrmFormFields
+                :fields="fields"
+                :thing="newThing"
+                :root-thing="newThing"
+                :obj-path="''"
+                :field-header="''"
+                :server-errors="serverErrors"
+                :success-event="successEvent"
+                :label-prefixes="labelPrefixes"
+                :submitted="submitted"
+                :saving="saving"
+                :create="create"
+                @update="onFieldUpdate"
+              />
               <v-row>
                 <v-col>
                   <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleSave">
-                    {{ messages[saveButtonMessage] }}
+                    {{ messages[saveButtonMessage].parseMessage({ type: messages[typeNameMessage] }) }}
                   </v-btn>
                 </v-col>
               </v-row>
@@ -34,24 +37,29 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState } from 'vuex'
-import OrmField from '@/components/OrmField'
+import OrmFormFields from '@/components/orm/OrmFormFields'
+import { deepUpdate } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
 
 export default {
   name: 'OrmForm',
-  components: { OrmField },
+  components: { OrmFormFields },
   props: {
+    typeDef: { type: Object, required: true },
+    typeNameMessage: { type: String, required: true },
     formName: { type: String, default: () => 'OrmForm' },
     thing: { type: Object, default: () => { return {} } },
     saveButtonMessage: { type: String, default: () => 'button_update' },
     fields: { type: Array, default: () => { return [] } },
-    values: { type: Array, default: () => [] },
     create: { type: Boolean, default: () => false },
-    submitted: { type: Boolean, default: () => false },
-    serverErrors: { type: Object, default: () => { return {} } }
+    successEvent: { type: Object, required: true },
+    serverErrors: { type: Object, default: () => { return {} } },
+    labelPrefixes: { type: Array, default: () => ['label_'] }
   },
   data () {
     return {
+      submitted: false,
+      newThing: null,
       saving: false
     }
   },
@@ -65,9 +73,17 @@ export default {
       if (newError && newError.errors && Object.keys(newError.errors).length > 0) {
         this.$refs[this.formName].setErrors(newError.errors)
       }
+    },
+    successEvent (newEvent) {
+      if (newEvent && typeof (newEvent) === 'object' && Object.keys(newEvent).length > 0) {
+        Object.assign(this.newThing, JSON.parse(JSON.stringify(this.thing)))
+        this.submitted = false
+      }
     }
   },
-  created () {},
+  created () {
+    this.newThing = JSON.parse(JSON.stringify(this.thing))
+  },
   methods: {
     fieldError (error) {
       return error ? fieldErrorMessage(this.field.name, error, this.messages, '') : '(no message)'
@@ -79,18 +95,25 @@ export default {
       return this.create || typeof (field.editable) === 'undefined' || field.editable === true
     },
     onFieldUpdate (update) {
-      this.$emit('update', update)
+      console.log(`OrmForm.onFieldUpdate: emitting ${JSON.stringify(update)}`)
+      if (update) {
+        deepUpdate(this.newThing, update.field, update.value)
+        this.$emit('update', update)
+      }
     },
     async handleSave () {
       try {
+        this.submitted = true
+        this.saving = true
         await this.$refs[this.formName].validate().then((success) => {
           if (success) {
             console.log('handleSave: emitting submitted')
-            this.$emit('submitted', true)
+            this.$emit('submitted', this.newThing)
           } else {
-            this.$emit('submitted', false)
             console.log(`handleSave: validation failed: ${success}`)
           }
+        }).finally(() => {
+          this.saving = false
         })
       } catch (e) {
         console.error(`handleSave failed: ${e}`)

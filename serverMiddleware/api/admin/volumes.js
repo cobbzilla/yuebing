@@ -1,9 +1,11 @@
+const { MobilettoOrmValidationError, MobilettoOrmNotFoundError } = require('mobiletto-orm-typedef')
+
 const c = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
-const vol = require('../../volume/volumeUtil')
-const shared_vol = require('../../../shared/model/volume')
-const v = require('../../../shared/model/validation')
+const vol = require('../../model/morm/volumeDb')
+const volType = require('../../../shared/type/volumeType')
+const v = require('../../../shared/type/validation')
 const scan = require('../../volume/scan')
 const { reindex, reindexInfo } = require('../../volume/reindex')
 const { queryParamValue } = require('../../util/api')
@@ -11,55 +13,44 @@ const system = require('../../util/config').SYSTEM
 const logger = system.logger
 
 const REINDEX_PARAM = 'reindex'
-const SYNC_PARAM = 'sync'
 
 function handleVolumeError (res, e, volumeName) {
-  if (e instanceof vol.VolumeNotFoundError) {
+  if (e instanceof MobilettoOrmNotFoundError) {
     return api.notFound(res, volumeName)
+  } else if (e instanceof MobilettoOrmValidationError) {
+    return api.validationFailed(res, e.errors)
   }
   return api.serverError(res, e)
 }
 
 async function handleAdd (res, volume) {
-  if (await vol.volumeExists(volume.name)) {
-    return api.handleValidationError(res, { name: [ 'alreadyExists' ] })
-  }
-  const errors = await v.validate(volume, false, shared_vol.VOLUME_VALIDATIONS)
-  if (!c.empty(errors)) {
-    return api.handleValidationError(res, errors)
-  } else {
-    const typeConfig = v.expandedRules(shared_vol.volumeTypeConfig(volume.type))
-    if (!typeConfig) {
-      return api.handleValidationError(res, { type: 'invalid' })
-    }
-    const driverErrors = await v.validate(volume, false, typeConfig)
-    if (!c.empty(driverErrors)) {
-      return api.handleValidationError(res, driverErrors)
-    }
-  }
   try {
-    return api.okJson(res, await vol.createVolume(volume))
+    return api.okJson(res, await vol.volumeDb.create(volume))
   } catch (e) {
+    if (e instanceof MobilettoOrmValidationError) {
+      return api.handleValidationError(res, e.errors)
+    }
     return api.serverError(res, `Error creating volume: ${JSON.stringify(e)}`)
   }
 }
 
 async function handleDelete (res, name) {
-  const volume = await vol.findVolume(name)
+  const volume = await vol.volumeDb.findById(name)
   if (!volume || c.isSelfVolume(volume)) {
     return api.notFound(res, name)
   }
-  vol.deleteVolume(volume.name).then(
-    () => api.okJson(res, { deleted: true }),
-    (err) => {
-      const message = `handleDelete: error calling deleteVolume: ${err}`
-      logger.error(message)
-      return handleVolumeError(res, err, name)
-    })
+  try {
+    await vol.volumeDb.delete(volume.name)
+    return api.okJson(res, { deleted: true })
+  } catch (e) {
+    const message = `handleDelete: error calling deleteVolume: ${err}`
+    logger.error(message)
+    return handleVolumeError(res, e, name)
+  }
 }
 
 async function handleQuery (res, query) {
-  return api.okJson(res, await vol.listVolumes(query))
+  return api.okJson(res, await vol.volumeDb.list(query))
 }
 
 const handleReindex = volumeName => async (res, name) => {
@@ -74,17 +65,6 @@ const handleReindex = volumeName => async (res, name) => {
   }
 }
 
-const handleSync = (volumeName, sync) => async (res, name) => {
-  if (volumeName !== name) {
-    throw new TypeError(`handleSync: Expected destination named ${volumeName} but received ${name}`)
-  }
-  try {
-    return api.okJson(res, await vol.setSync(name, sync))
-  } catch (e) {
-    return api.serverError(res, e)
-  }
-}
-
 const handleScan = volumeName => async (res, scanConfig) => {
   if (!scanConfig || volumeName !== scanConfig.source) {
     throw new TypeError(`handleScan: Expected source named ${volumeName} but received scanConfig.source=${scanConfig.source}`)
@@ -94,7 +74,7 @@ const handleScan = volumeName => async (res, scanConfig) => {
     const transforms = await scan.scan(source, scanConfig)
     return api.okJson(res, transforms)
   } catch (e) {
-    if (e instanceof vol.VolumeNotFoundError) {
+    if (e instanceof MobilettoOrmNotFoundError) {
       return api.notFound(res, e.message)
     }
     return api.serverError(res, `Error scanning ${scanConfig.source}: ${JSON.stringify(e)}`)
@@ -111,15 +91,13 @@ export default {
     const path = req.url.startsWith('/') ? req.url.substring(1) : req.url
     const volName = path.includes('?') ? path.substring(0, path.indexOf('?')) : path
     const reindex = !!queryParamValue(req, REINDEX_PARAM)
-    const rawSync = queryParamValue(req, SYNC_PARAM)
-    const sync = rawSync != null ? rawSync === 'true' : null
     let handler
     try {
       switch (req.method) {
         case 'GET':
           return reindex
             ? api.okJson(res, await reindexInfo(volName))
-            : api.okJson(res, await vol.findVolume(volName))
+            : api.okJson(res, await vol.volumeDb.findById(volName))
         case 'DELETE':
           return await handleDelete(res, volName)
         case 'PUT':
@@ -129,11 +107,7 @@ export default {
           handler = handleQuery
           break
         case 'PATCH':
-          if (sync != null) {
-            handler = handleSync(volName, sync)
-          } else {
-            handler = reindex ? handleReindex(volName) : handleScan(volName)
-          }
+          handler = reindex ? handleReindex(volName) : handleScan(volName)
           break
         default:
           return api.serverError(res, c.HTTP_INVALID_REQUEST_MESSAGE)

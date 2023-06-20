@@ -328,7 +328,7 @@ import { basename, dirname } from 'path'
 // noinspection NpmUsedModulesInstalled
 import { mapActions, mapState } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
-import { filterSources } from '@/shared/model/volume'
+import { filterSources } from '@/shared/type/volumeType'
 import { DIRECTORY_TYPE, mediaType, hasProfiles, objectEncodePath, mediaProfilesForSource } from '@/shared/media'
 
 export default {

@@ -82,7 +82,7 @@ import { mapState, mapActions } from 'vuex'
 import { empty } from '@/shared'
 import { localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
 import { VERIFY_EMAIL_PARAM, VERIFY_TOKEN_PARAM, VERIFY_RESET_PARAM } from '@/shared/auth'
-import { condensedRules } from '@/shared/model/validation'
+import { condensedRules } from '@/shared/type/validation'
 import { UI_CONFIG } from '@/services/util'
 
 export default {

@@ -126,7 +126,7 @@ import { mapState, mapActions } from 'vuex'
 import { publicConfigField } from '@/shared'
 import { LOGIN_ENDPOINT } from '@/shared/auth'
 import { DEFAULT_LOCALE, localesList, localeMessagesForUser, fieldErrorMessage } from '@/shared/locale'
-import { condensedRules } from '@/shared/model/validation'
+import { condensedRules } from '@/shared/type/validation'
 
 export default {
   name: 'UserRegistration',

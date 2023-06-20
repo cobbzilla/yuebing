@@ -132,9 +132,21 @@ const isoTime = (millis, showSeconds = false) => {
 const SELF_VOLUME_NAME = ' ~ this ~ '
 
 const isSelfVolume = volume => volume && (
-  (typeof(volume) === 'string' && volume === SELF_VOLUME_NAME) ||
+  (typeof (volume) === 'string' && volume === SELF_VOLUME_NAME) ||
   (volume.name && volume.name === SELF_VOLUME_NAME)
 )
+
+const deepUpdate = (obj, fieldPath, value) => {
+  let thing = obj
+  const parts = fieldPath.split('.')
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (typeof (thing[parts[i]]) === 'undefined') {
+      thing[parts[i]] = {}
+    }
+    thing = thing[parts[i]]
+  }
+  thing[parts[parts.length - 1]] = value
+}
 
 module.exports = {
   USER_SESSION_HEADER,
@@ -150,7 +162,8 @@ module.exports = {
   MULTIFILE_PLACEHOLDER,
   MULTIFILE_FIRST,
   DEFAULT_ENCRYPTION_ALGO,
-  SELF_VOLUME_NAME, isSelfVolume,
+  SELF_VOLUME_NAME,
+  isSelfVolume,
   INDEX_STILL_BUILDING_TOKEN,
   publicConfigField,
   okl,
@@ -166,5 +179,6 @@ module.exports = {
   normalizeUrl,
   splitSearchTerms,
   proxyMediaUrl,
-  addQualityParam
+  addQualityParam,
+  deepUpdate
 }

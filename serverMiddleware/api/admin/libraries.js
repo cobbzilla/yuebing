@@ -1,7 +1,7 @@
 const c = require('../../../shared')
 const api = require('../../util/api')
 const u = require('../../user/userUtil')
-const vol = require('../../volume/volumeUtil')
+const vol = require('../../model/morm/volumeDb')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 

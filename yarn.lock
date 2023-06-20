@@ -8296,20 +8296,21 @@ mobiletto-lite@^1.1.36:
     shasum "^1.0.2"
     winston "^3.8.1"
 
-mobiletto-orm-typedef@^1.0.25:
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/mobiletto-orm-typedef/-/mobiletto-orm-typedef-1.0.25.tgz#677ea67732bf9941625cfa6a95891295946f0759"
-  integrity sha512-Lwb6Z3+d/TWVYgseGQ2ubIO8GmVelLV4cn6vaj+Hb+Que/jhEy+qQMW7H4aK+LYnX83WvmqblcRcpcjDEJe2TQ==
+mobiletto-orm-typedef@^1.1.13:
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/mobiletto-orm-typedef/-/mobiletto-orm-typedef-1.1.13.tgz#6685e335f0366184e780bac574f33909aa4e96c9"
+  integrity sha512-bQWClkJXcXzpaOLnV5BhZ8pxTZYDEakQ0VYqt53FhhlLFd1HiazbbO07TmQlTj/lP4dSZiZtarGTzExCdl6sCg==
   dependencies:
     randomstring "^1.2.2"
+    shasum "^1.0.2"
 
-mobiletto-orm@^1.2.24:
-  version "1.2.24"
-  resolved "https://registry.yarnpkg.com/mobiletto-orm/-/mobiletto-orm-1.2.24.tgz#6aa40b140121b857c1dcc41f857004a3a8b79af0"
-  integrity sha512-bGbWbMbiiLH7t7H3wYU77yY9TdzkOdQLVfm+mXQ0/cGbVmDEBqgJk4i7h0i64qprtqrkX7ahpaZaD90BtnP4Sg==
+mobiletto-orm@^1.3.14:
+  version "1.3.14"
+  resolved "https://registry.yarnpkg.com/mobiletto-orm/-/mobiletto-orm-1.3.14.tgz#238dbf1a1ce63b82b7eb030bafb2bb8e3938e757"
+  integrity sha512-ZBW+zkVYbhpiv9mHN35dWmKaEo5v4CaEhrL07aayKWi9k+QyiwNk0QN1N+Dc9w24uksyqzyNgc45o7Axa4k+Ow==
   dependencies:
     mobiletto-lite "^1.1.36"
-    mobiletto-orm-typedef "^1.0.25"
+    mobiletto-orm-typedef "^1.1.13"
     winston "^3.8.2"
 
 move-concurrently@^1.0.1:
@@ -11720,7 +11721,7 @@ vue-router@^3.6.5:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.6.5.tgz#95847d52b9a7e3f1361cb605c8e6441f202afad8"
   integrity sha512-VYXZQLtjuvKxxcshuRAwjHnciqZVoXAjTjcqBTz4rKc8qih9g9pI3hbDjmqXaHdgL3v8pV6P8Z335XvHzESxLQ==
 
-vue-server-renderer@^2.6.14, vue-server-renderer@^2.7.14:
+vue-server-renderer@^2.7.14:
   version "2.7.14"
   resolved "https://registry.yarnpkg.com/vue-server-renderer/-/vue-server-renderer-2.7.14.tgz#986f3fdca63fbb38bb6834698f11e0d6a81f182f"
   integrity sha512-NlGFn24tnUrj7Sqb8njhIhWREuCJcM3140aMunLNcx951BHG8j3XOrPP7psSCaFA8z6L4IWEjudztdwTp1CBVw==
@@ -11755,7 +11756,7 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue@^2.6.14, vue@^2.7.10:
+vue@^2.7.10, vue@^2.7.14:
   version "2.7.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.14.tgz#3743dcd248fd3a34d421ae456b864a0246bafb17"
   integrity sha512-b2qkFyOM0kwqWFuQmgd4o+uHGU7T+2z3T+WQp8UBjADfEv2n4FEMffzBmCKNP0IGzOEEfYjvtcC62xaSKeQDrQ==
@@ -11774,7 +11775,7 @@ vuetify-loader@^1.7.3:
     file-loader "^6.2.0"
     loader-utils "^2.0.0"
 
-vuetify@^2.6, vuetify@^2.6.1:
+vuetify@^2.6, vuetify@^2.6.15:
   version "2.6.15"
   resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.15.tgz#058c976f4e6e834076d80ae0c09bd61baa836d26"
   integrity sha512-2a6sBSHzivXgi9pZMyHuzTgMyInCkj/BrVwTnoCa1Y/Dnfwj7lkWzgKQDScbGVK0q4vJ+YHoBBrLOmnhz1R0YA==

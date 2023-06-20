@@ -112,7 +112,6 @@
                 save-button-message="admin_button_add_user"
                 :fields="userFields"
                 :create="true"
-                :submitted="newUserSubmitted"
                 :server-errors="createUserError"
                 @update="onOrmUpdate"
                 @submitted="onOrmSubmit"
@@ -128,9 +127,9 @@
 <script>
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
-import OrmForm from '@/components/OrmForm'
+import OrmForm from '@/components/orm/OrmForm'
 import { fieldErrorMessage, localeMessagesForUser } from '@/shared/locale'
-import { USER_TYPEDEF, userSortFields, localizedUserSortFields } from '@/shared/model/user'
+import { USER_TYPEDEF, userSortFields, localizedUserSortFields } from '@/shared/type/userType'
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 5
 
@@ -147,13 +146,12 @@ export default {
       deleteConfirmCount: 0,
       sortOrders: null,
       editorFlags: {},
-      newUser: {},
-      newUserSubmitted: false
+      newUser: {}
     }
   },
   computed: {
     ...mapState('user', ['user', 'userStatus']),
-    ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'createUserError', 'deleteUserError']),
+    ...mapState('admin', ['userList', 'findingUsers', 'totalUserCount', 'createUserSuccess', 'createUserError', 'deleteUserError']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     sortFields () { return userSortFields() },
@@ -189,6 +187,11 @@ export default {
         for (const u of newUserList) {
           this.editorFlags[u.email] = u.editor
         }
+      }
+    },
+    createUserSuccess (newUser) {
+      if (newUser) {
+        this.handleSubmit()
       }
     }
   },
@@ -229,10 +232,8 @@ export default {
       }
     },
     onOrmSubmit (submitted) {
-      this.newUserSubmitted = true
       if (submitted) {
         const user = this.newUser
-        console.log(`onOrmSubmit sending user??: ${JSON.stringify(user)}`)
         this.createUser({ user })
       }
     }

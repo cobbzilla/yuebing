@@ -5,7 +5,7 @@ const api = require('../../util/api')
 const { currentUser, isAdminOrVerified } = require('../../user/userUtil')
 const manifest = require('../../asset/manifest')
 const cache = require('../../util/cache')
-const vol = require('../../volume/volumeUtil')
+const vol = require('../../model/morm/volumeDb')
 
 export default {
   path: '/api/source/meta',

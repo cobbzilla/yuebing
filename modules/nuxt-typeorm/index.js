@@ -10,7 +10,7 @@ const dbConfig = libraryName => {
     synchronize: true,
     logging: false,
     entities: [
-      new EntitySchema(require('../../serverMiddleware/model/entity/MediaItem'))
+      new EntitySchema(require('../../serverMiddleware/model/typeorm/MediaItem'))
     ],
     migrations: [],
     subscribers: []

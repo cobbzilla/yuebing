@@ -6,7 +6,10 @@ const DEFAULT_LOCALE = nuxt.publicRuntimeConfig.defaultLocale || 'en'
 
 const SUPPORTED_LOCALES = nuxt.publicRuntimeConfig.locales
 
-function unknownMessage (msg) { return '???' + msg }
+const UNKNOWN_MESSAGE_PREFIX = '???'
+
+function unknownMessage (msg) { return UNKNOWN_MESSAGE_PREFIX + msg }
+function isUnknownMessage (msg) { return !msg || msg.startsWith(UNKNOWN_MESSAGE_PREFIX) }
 
 const messageNotFoundHandler = {
   get (target, name) {
@@ -139,7 +142,7 @@ const userLocale = (user, browserLocale, anonLocale) => {
   const match = findFirstLocaleMatch(locales)
   return {
     name: match.id,
-    description: match['locale_'+match.id]
+    description: match['locale_' + match.id]
   }
 }
 
@@ -150,17 +153,46 @@ const localeMessagesForUser = (user, browserLocale, anonLocale) => {
   return match || new Proxy(MESSAGES[DEFAULT_LOCALE], messageNotFoundHandler)
 }
 
-function fieldErrorMessage (field, error, messages, labelPrefix = 'label_') {
+function fieldErrorMessage (field, error, messages, labelPrefixes = ['label_']) {
+  let fieldObject = null
+  if (typeof (field) === 'object') {
+    fieldObject = field
+    field = field.name
+  }
+  if (typeof (labelPrefixes) === 'string') {
+    labelPrefixes = [labelPrefixes]
+  }
+  const fieldMessage = fieldObject && fieldObject.label && !isUnknownMessage(messages[fieldObject.label])
+    ? messages[fieldObject.label]
+    : findMessage(field, messages, labelPrefixes)
   if (Array.isArray(error)) {
     let message = ''
     for (const e of error) {
       if (message.length > 0) { message += ', ' }
-      message += messages['error_field_' + e].parseMessage({ field: messages[labelPrefix + field] })
+      message += messages['error_field_' + e].parseMessage({ field: fieldMessage })
     }
     return message
   } else {
-    return messages['error_field_' + error].parseMessage({ field: messages[labelPrefix + field] })
+    return messages['error_field_' + error].parseMessage({ field: fieldMessage })
   }
+}
+
+function findMessage (key, messages, labelPrefixes = ['label_']) {
+  if (typeof (labelPrefixes) === 'string') {
+    labelPrefixes = [labelPrefixes]
+  }
+  if (!Array.isArray(labelPrefixes)) {
+    throw new TypeError(`findMessage: unexpected type for labelPrefixes param, expected a string or array. typeof(labelPrefixes)=${typeof (labelPrefixes)}, Array.isArray(labelPrefixes)=${Array.isArray(labelPrefixes)}`)
+  }
+  for (const prefix of labelPrefixes) {
+    const msgKey = prefix + key
+    const msg = messages[msgKey]
+    if (!isUnknownMessage(msg)) {
+      return msg
+    }
+  }
+  // It's unknown by all prefixes, punt and return the first message as an unknown message
+  return messages[labelPrefixes[0] + key]
 }
 
 const localeLang = locale => locale.includes('_') ? locale.substring(0, locale.indexOf('_')) : locale
@@ -174,7 +206,7 @@ const stopWords = () => {
   }
   const stops = []
   for (const locale of SUPPORTED_LOCALES) {
-    if (MESSAGES[locale] && MESSAGES[locale].search_stop_words && !MESSAGES[locale].search_stop_words.startsWith('???')) {
+    if (MESSAGES[locale] && MESSAGES[locale].search_stop_words && !MESSAGES[locale].search_stop_words.startsWith(UNKNOWN_MESSAGE_PREFIX)) {
       stops.push(...MESSAGES[locale].search_stop_words.split(','))
     }
   }
@@ -191,6 +223,7 @@ module.exports = {
   localeLang,
   localesList,
   fieldErrorMessage,
+  findMessage,
   localeEmoji,
   stopWords
 }

@@ -1,6 +1,6 @@
 const api = require('../../util/api')
 const { requireLoggedInUser } = require('../../user/userUtil')
-const vol = require('../../volume/volumeUtil')
+const vol = require('../../model/morm/volumeDb')
 const scan = require('../../volume/scan')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger

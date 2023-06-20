@@ -1,8 +1,8 @@
 const Queue = require('bull')
 
-const { extractVolumeAndPath } = require('../../shared/model/volume')
+const { extractVolumeAndPath } = require('../../shared/type/volumeType')
 const { hasProfiles } = require('../../shared/media')
-const { connect } = require('./volumeUtil')
+const { connect } = require('../model/morm/volumeDb')
 const { deriveMetadataFromSourceAndPath } = require('../asset/manifest')
 const system = require('../util/config').SYSTEM
 const logger = system.logger

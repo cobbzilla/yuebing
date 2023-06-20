@@ -2,13 +2,13 @@ const { MobilettoNotFoundError } = require('mobiletto-lite')
 
 const c = require('../../shared')
 const system = require('../util/config').SYSTEM
-const vol = require('./volumeUtil')
+const { volumeDb } = require('../model/morm/volumeDb')
 
 async function connectVolumeOrSelf (name) {
   if (c.isSelfVolume(name)) {
     return system.storage
   }
-  return await vol.connect(name)
+  return await volumeDb.connect(name)
 }
 
 // path should NOT start with / but must end with
