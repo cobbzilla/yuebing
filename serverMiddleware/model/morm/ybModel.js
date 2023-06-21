@@ -191,7 +191,7 @@ class YBModel {
     let results = query.noCache ? null : this.listCache.get(cacheKey)
     if (!results) {
       const allVolumes = await this.repository.findAll({ removed: query.includeDeleted })
-      if (query.includeSelf) {
+      if (query.includeSelf !== false) {
         // push special volume: self (dest)
         allVolumes.push(system.volume)
       }

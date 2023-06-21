@@ -150,7 +150,8 @@ const VOLUME_TYPEDEF = new MobilettoOrmTypeDef({
       type: 'string',
       primary: true,
       min: 3,
-      max: 100
+      max: 100,
+      render: (v, messages, title) => isSelfVolume(v) ? messages.admin_label_self_volume.parseMessage({ title }) : v
     },
     mount: {
       type: 'string',
@@ -168,7 +169,8 @@ const VOLUME_TYPEDEF = new MobilettoOrmTypeDef({
     },
     system: {
       type: 'boolean',
-      default: false
+      default: false,
+      render: (v, messages, title) => isSelfVolume(v) ? true : v
     },
     type: {
       type: 'string',

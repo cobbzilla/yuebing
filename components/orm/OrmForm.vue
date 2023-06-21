@@ -25,6 +25,13 @@
                     {{ messages[saveButtonMessage].parseMessage({ type: messages[typeNameMessage] }) }}
                   </v-btn>
                 </v-col>
+                <v-col>
+                  <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleCancel">
+                    <v-icon>
+                      mdi-close
+                    </v-icon>
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-container>
           </v-form>
@@ -118,6 +125,9 @@ export default {
       } catch (e) {
         console.error(`handleSave failed: ${e}`)
       }
+    },
+    handleCancel () {
+      this.$emit('cancel', true)
     }
   }
 }

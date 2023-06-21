@@ -9,7 +9,7 @@
           {{ messages.label_date_and_time.parseDateMessage(value, messages) }}
         </div>
         <div v-else-if="field.control === 'flag'">
-          <v-icon v-if="value">
+          <v-icon v-if="(typeof (field.render) === 'function' && field.render(value)) || (typeof (field.render) !== 'function' && value)">
             mdi-check
           </v-icon>
           <v-icon v-else>
@@ -17,10 +17,20 @@
           </v-icon>
         </div>
         <div v-else-if="field.control === 'multi' && Array.isArray(value)">
-          {{ value.join(messages['locale_text_list_separator']) }}
+          <div v-if="typeof (field.render) === 'function'">
+            {{ renderField }}
+          </div>
+          <div v-else>
+            {{ value.join(messages['locale_text_list_separator']) }}
+          </div>
         </div>
         <div v-else>
-          {{ value }}
+          <div v-if="typeof (field.render) === 'function'">
+            {{ renderField }}
+          </div>
+          <div v-else>
+            {{ value }}
+          </div>
         </div>
       </v-col>
     </v-row>
@@ -31,6 +41,7 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState } from 'vuex'
 import { localeMessagesForUser } from '@/shared/locale'
+import { publicConfigField } from '@/shared'
 
 export default {
   name: 'OrmFieldDisplay',
@@ -40,8 +51,10 @@ export default {
   },
   computed: {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-    ...mapState(['browserLocale']),
-    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) }
+    ...mapState(['publicConfig', 'browserLocale']),
+    messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+    title () { return publicConfigField(this, 'title') },
+    renderField () { return this.field.render(this.value, this.messages, this.title) }
   }
 }
 </script>
