@@ -178,7 +178,8 @@ const VOLUME_TYPEDEF = new MobilettoOrmTypeDef({
         return { value: type, label: `label_volumeType_${type}` }
       }),
       required: true,
-      updatable: false
+      updatable: false,
+      render: (v, messages, title) => isSelfVolume(v) ? messages.label_volumeType_system.parseMessage({ title }) : v
     },
     local: {
       when: v => v.type === VOL_TYPE_LOCAL,

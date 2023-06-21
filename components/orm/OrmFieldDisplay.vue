@@ -9,12 +9,22 @@
           {{ messages.label_date_and_time.parseDateMessage(value, messages) }}
         </div>
         <div v-else-if="field.control === 'flag'">
-          <v-icon v-if="(typeof (field.render) === 'function' && field.render(value)) || (typeof (field.render) !== 'function' && value)">
-            mdi-check
-          </v-icon>
-          <v-icon v-else>
-            mdi-close
-          </v-icon>
+          <div v-if="typeof (field.render) === 'function'">
+            <v-icon v-if="renderField">
+              mdi-check
+            </v-icon>
+            <v-icon v-else>
+              mdi-close
+            </v-icon>
+          </div>
+          <div v-else>
+            <v-icon v-if="value">
+              mdi-check
+            </v-icon>
+            <v-icon v-else>
+              mdi-close
+            </v-icon>
+          </div>
         </div>
         <div v-else-if="field.control === 'multi' && Array.isArray(value)">
           <div v-if="typeof (field.render) === 'function'">

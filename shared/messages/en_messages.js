@@ -504,6 +504,7 @@ export default {
   admin_label_volume_encryptionKey: 'Encryption key',
   admin_label_volume_encryptionIV: 'Initialization vector (IV)',
   admin_label_volume_encryptionAlgo: 'Algorithm',
+  label_volumeType_system: 'System Storage',
   label_volumeType_local: 'Local filesystem',
   label_volumeType_local_field_key: 'Mount directory',
   label_volumeType_local_field_mode: 'File/directory creation mode',

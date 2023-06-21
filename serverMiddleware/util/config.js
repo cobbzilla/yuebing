@@ -6,6 +6,7 @@ const storage = require('mobiletto-lite')
 const shasum = require('shasum')
 const nuxt = require('../../nuxt.config').default
 const c = require('../../shared')
+const vol = require('../../shared/type/volumeType')
 const {
   isMediaInfoJsonProfile, mediaProfilesForSource
 } = require('../../shared/media')
@@ -88,7 +89,7 @@ const SYSTEM = {
   logger,
   storage: null,
   libraries: {},
-  volume: { name: c.SELF_VOLUME_NAME, self: true, system: true },
+  volume: { name: c.SELF_VOLUME_NAME, type: 'system', self: true, system: true, mount: vol.VOLUME_MOUNT_DESTINATION },
   publicConfig: {},
   privateConfig: {},
   workbenchDir: process.env.YB_WORK_DIR
