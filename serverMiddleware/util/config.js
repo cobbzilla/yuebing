@@ -89,7 +89,7 @@ const SYSTEM = {
   logger,
   storage: null,
   libraries: {},
-  volume: { name: c.SELF_VOLUME_NAME, type: 'system', self: true, system: true, mount: vol.VOLUME_MOUNT_DESTINATION },
+  volume: { name: c.SELF_VOLUME_NAME, type: DEST_TYPE, self: true, system: true, mount: vol.VOLUME_MOUNT_DESTINATION },
   publicConfig: {},
   privateConfig: {},
   workbenchDir: process.env.YB_WORK_DIR
@@ -144,6 +144,9 @@ const SYSTEM = {
 
       const enc = !encryption.key ? null : encryption
       SYSTEM.storage = await storage.connect(DEST_TYPE, key, secret, opts, enc)
+      SYSTEM.volume[DEST_TYPE] = opts
+      SYSTEM.volume[DEST_TYPE].key = key
+      SYSTEM.volume.encryptionEnable = !!enc
       for (const config of CONFIGS) {
         // read config, merge into nuxt config, write back to storage
         const configFile = `${config}Config.json`

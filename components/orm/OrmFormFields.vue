@@ -12,6 +12,7 @@
             :fields="tabIndexed(field)"
             :root-thing="rootThing"
             :thing="thing[field.name]"
+            :read-only-object="readOnlyObject"
             :obj-path="nextPath(field.name)"
             :field-header="''"
             :success-event="successEvent"
@@ -27,8 +28,9 @@
         <div v-else>
           <OrmField
             :field="field"
-            :root-thing="thing"
+            :root-thing="rootThing"
             :thing="thing"
+            :read-only-object="readOnlyObject"
             :obj-path="nextPath(field.name)"
             :value="valueOrDefault(thing, field)"
             :label-prefixes="labelPrefixes"
@@ -57,13 +59,14 @@ export default {
     fieldHeader: { type: String, default: () => '' },
     rootThing: { type: Object, default: () => { return {} } },
     thing: { type: Object, default: () => { return {} } },
+    readOnlyObject: { type: Function, default: () => () => false },
     objPath: { type: String, default: () => '' },
     fields: { type: Array, default: () => { return [] } },
     create: { type: Boolean, default: () => false },
     submitted: { type: Boolean, default: () => false },
     saving: { type: Boolean, default: () => false },
     successEvent: { type: Object, required: true },
-    serverErrors: { type: Object, default: () => { return {} } },
+    serverErrors: { type: [Object, String], default: () => { return {} } },
     labelPrefixes: { type: Array, default: () => ['label_'] },
     formLevel: { type: Number, default: () => 0 }
   },

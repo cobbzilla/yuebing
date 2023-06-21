@@ -3,8 +3,15 @@
     <v-row>
       <v-col>
         <ValidationProvider v-slot="{ errors }" :name="field.name" :rules="fieldRules" immediate>
-          <div v-if="field.control === 'text' || field.control === 'password'">
-            <v-text-field
+          <div v-if="(field.updatable === false && !create) || isReadOnly">
+            <OrmFieldDisplay
+              :field="field"
+              :value="value ? value : field.default ? field.default : null"
+              :label="true"
+            />
+          </div>
+          <div v-else-if="field.control === 'text' || field.control === 'password'">
+            text?<v-text-field
               v-model="localValue"
               :type="field.control"
               :label="labelFor(field)"
@@ -111,13 +118,16 @@
 // noinspection NpmUsedModulesInstalled
 import { mapState } from 'vuex'
 import { fieldErrorMessage, localeMessagesForUser, findMessage } from '@/shared/locale'
+import OrmFieldDisplay from '@/components/orm/OrmFieldDisplay'
 
 export default {
   name: 'OrmField',
+  components: { OrmFieldDisplay },
   props: {
     field: { type: Object, required: true },
     rootThing: { type: Object, required: true },
     thing: { type: Object, required: true },
+    readOnlyObject: { type: Function, default: () => () => false },
     objPath: { type: String, required: true },
     value: { type: [String, Number, Boolean, Object, Array], default: () => null },
     submitted: { type: Boolean, default: () => false },
@@ -135,6 +145,10 @@ export default {
     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
     ...mapState(['browserLocale']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+    isReadOnly () {
+      console.log(`isReadOnly(${this.field.name}) evaluating with this.rootThing=${JSON.stringify(this.rootThing)} and this.readOnlyObject(this.rootThing) == ${this.readOnlyObject(this.rootThing)}`)
+      return (typeof (this.readOnlyObject) === 'function' && this.readOnlyObject(this.rootThing) === true)
+    },
     fieldRules () {
       // transform fieldDef to vee-validate rules
       const rules = {}

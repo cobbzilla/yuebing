@@ -441,6 +441,8 @@ export default {
   admin_info_edited: '{{ type }} successfully edited: {{ id }}',
   admin_info_edit_error: 'Error editing {{ type }} {{ id }}: {{ error }}',
   admin_button_add: 'Add New {{ type }}',
+  admin_button_edit: 'Edit {{ type }}',
+  admin_button_view: 'View {{ type }}',
   admin_button_delete: 'Remove {{ type }}',
 
   // Library Administration

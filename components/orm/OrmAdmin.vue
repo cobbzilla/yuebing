@@ -24,6 +24,23 @@
         />
       </v-col>
     </v-row>
+    <v-row v-else-if="editingObject">
+      <OrmEdit
+        :type-def="typeDef"
+        :type-name-message="typeNameMessage"
+        :label-prefixes="labelPrefixes"
+        :target-object="editingObject"
+        :read-only-object="readOnlyObject"
+        :object-submitted="objectSubmitted"
+        :edit-object-message="editObjectMessage"
+        :edit-object-success="editObjectSuccess"
+        :edit-object-error="editObjectError"
+        :edit-object-error-message="editObjectErrorMessage"
+        :edit-object-success-message="editObjectSuccessMessage"
+        @editObjectSubmit="onEditObjectSubmit"
+        @editObjectCancel="onEditObjectCancel"
+      />
+    </v-row>
     <v-row v-else>
       <v-col>
         <v-container>
@@ -65,7 +82,8 @@
                   <th>
                     {{ messages.admin_label_actions }}
                   </th>
-                  <th>{{ messages[deleteObjectMessage] }}</th>
+                  <th>{{ messages[editObjectMessage].parseMessage({ type: messages[typeNameMessage] }) }}</th>
+                  <th>{{ messages[deleteObjectMessage].parseMessage({ type: messages[typeNameMessage] }) }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -84,6 +102,11 @@
                         </v-btn>
                       </NuxtLink>
                     </div>
+                  </td>
+                  <td>
+                    <v-btn v-if="canEdit(obj)" :disabled="objectOperationInProgress" @click.stop="showEditOrm(obj)">
+                      {{ messages[readOnlyObject(obj) ? viewObjectMessage : editObjectMessage].parseMessage({ type: messages[typeNameMessage] }) }}
+                    </v-btn>
                   </td>
                   <td>
                     <v-btn v-if="canDelete(obj)" :disabled="objectOperationInProgress" @click.stop="delObject(obj)">
@@ -109,12 +132,12 @@
 </template>
 
 <script>
-import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import OrmAdd from '@/components/orm/OrmAdd'
+import OrmEdit from '@/components/orm/OrmEdit'
 import OrmFieldDisplay from '@/components/orm/OrmFieldDisplay'
 import { publicConfigField } from '@/shared'
 import { fieldErrorMessage, localeMessagesForUser, findMessage } from '@/shared/locale'
@@ -123,7 +146,7 @@ const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3
 
 export default {
   name: 'OrmAdmin',
-  components: { VueJsonPretty, OrmAdd, OrmFieldDisplay },
+  components: { OrmAdd, OrmEdit, OrmFieldDisplay },
   props: {
     typeDef: { type: Object, required: true },
     typeNameMessage: { type: String, required: true },
@@ -136,19 +159,23 @@ export default {
     addObjectObject: { type: Object, required: true },
     addObjectMessage: { type: String, default: () => 'admin_button_add' },
     addObjectSuccess: { type: Object, required: true },
-    addObjectError: { type: Object, required: true },
+    addObjectError: { type: [Object, String], required: true },
     addObjectSuccessMessage: { type: String, default: () => 'admin_info_added' },
     addObjectErrorMessage: { type: String, default: () => 'admin_info_add_error' },
 
+    readOnlyObject: { type: Function, default: () => () => false },
+    viewObjectMessage: { type: String, default: () => 'admin_button_view' },
+    editObjectMessage: { type: String, default: () => 'admin_button_edit' },
     editObjectSuccess: { type: Object, required: true },
-    editObjectError: { type: Object, required: true },
+    editObjectError: { type: [Object, String], required: true },
     editObjectSuccessMessage: { type: String, default: () => 'admin_info_edited' },
     editObjectErrorMessage: { type: String, default: () => 'admin_info_edit_error' },
 
+    canEdit: { type: Function, default: () => false },
     canDelete: { type: Function, default: () => false },
     deleteObjectMessage: { type: String, default: () => 'admin_button_delete' },
     deleteObjectSuccess: { type: Object, required: true },
-    deleteObjectError: { type: Object, required: true },
+    deleteObjectError: { type: [Object, String], required: true },
     deleteConfirmationMessage: { type: String, required: true },
 
     objectSubmitted: { type: Boolean, default: () => false },
@@ -206,6 +233,12 @@ export default {
         this.addingObject = false
         this.searchObjects()
       }
+    },
+    editObjectSuccess (success) {
+      if (success && typeof (success) === 'object' && Object.keys(success).length > 0) {
+        this.editingObject = null
+        this.searchObjects()
+      }
     }
   },
   created () {
@@ -244,20 +277,26 @@ export default {
       return true
     },
 
-    showAddOrm () {
-      this.addingObject = true
-    },
-    onNewObjectUpdate (update) {
-      this.$emit('newObjectUpdate', update)
-    },
+    onNewObjectUpdate (update) { this.$emit('newObjectUpdate', update) },
+    onNewObjectSubmit (update) { this.$emit('newObjectSubmit', update) },
+    showAddOrm () { this.addingObject = true },
+    onNewObjectCancel (update) { this.addingObject = false },
 
-    onNewObjectSubmit (update) {
-      this.$emit('newObjectSubmit', update)
+    onEditObjectSubmit (update) { this.$emit('editObjectSubmit', update) },
+    showEditOrm (obj) {
+      if (this.editingObject) {
+        // already editing something else
+        return
+      }
+      if (obj) {
+        const id = this.typeDef.id(obj)
+        if (id && id.length > 0) {
+          this.editingObject = structuredClone(obj)
+          this.$emit('editObjectStart', this.editingObject)
+        }
+      }
     },
-
-    onNewObjectCancel (update) {
-      this.addingObject = false
-    },
+    onEditObjectCancel (update) { this.editingObject = null },
 
     delObject (obj) {
       if (this.deleteConfirmCount > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||

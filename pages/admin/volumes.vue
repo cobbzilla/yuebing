@@ -14,6 +14,8 @@
       :edit-object-error="editVolumeError || {}"
       :object-submitted="newVolumeSubmitted"
       :can-delete="vol => !selfVolume(vol)"
+      :read-only-object="vol => selfVolume(vol)"
+      :can-edit="() => true"
       :delete-object-message="'admin_button_delete_volume'"
       :delete-object-success="deleteVolumeSuccess || {}"
       :delete-object-error="deleteVolumeError || {}"
@@ -29,6 +31,7 @@
       @query="onQuery"
       @newObjectUpdate="onNewObjectUpdate"
       @newObjectSubmit="onNewObjectSubmit"
+      @editObjectSubmit="onEditObjectSubmit"
       @deleteObject="onDeleteObject"
     />
   </v-container>
@@ -81,7 +84,7 @@ export default {
   },
   methods: {
     ...mapActions(['loadPublicConfig']),
-    ...mapActions('admin', ['findVolumes', 'addVolume', 'deleteVolume']),
+    ...mapActions('admin', ['findVolumes', 'addVolume', 'editVolume', 'deleteVolume']),
     onQuery (query) {
       if (query) {
         this.findVolumes({ query })
@@ -97,6 +100,9 @@ export default {
     onNewObjectSubmit () {
       const volume = this.newVolume
       this.addVolume({ volume })
+    },
+    onEditObjectSubmit (volume) {
+      this.editVolume({ volume })
     },
     onDeleteObject (obj) {
       const volume = obj.name

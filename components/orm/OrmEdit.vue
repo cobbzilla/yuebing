@@ -1,12 +1,12 @@
 <template>
   <v-container>
-    <v-row v-if="showSuccessSnackbar && isSuccess(addObjectSuccess)">
+    <v-row v-if="showSuccessSnackbar && isSuccess(editObjectSuccess)">
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
             snackbar: {{
-              messages[addObjectSuccessMessage].parseMessage({
-                id: addObjectSuccess[typeDef.idField(addObjectSuccess)],
+              messages[editObjectSuccessMessage].parseMessage({
+                id: editObjectSuccess[typeDef.idField(editObjectSuccess)],
                 type: messages[typeNameMessage]
               })
             }}
@@ -14,20 +14,20 @@
         </v-snackbar>
       </v-col>
     </v-row>
-    <v-row v-if="showErrorSnackbar && isError(addObjectError)">
+    <v-row v-if="showErrorSnackbar && isError(editObjectError)">
       <v-col>
         <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
           <h4>
             {{
-              messages[addObjectErrorMessage].parseMessage({
+              messages[editObjectErrorMessage].parseMessage({
                 type: messages[typeNameMessage],
-                error: `${addObjectError ?? 'undefined'}`
+                error: `${editObjectError ?? 'undefined'}`
               })
             }}
           </h4>
           <small>
             <vue-json-pretty
-              :data="addObjectError"
+              :data="editObjectError"
               :show-line="false"
               :show-double-quotes="false"
               :select-on-click-node="false"
@@ -40,25 +40,26 @@
     </v-row>
     <v-row>
       <v-col>
-        <h4>{{ messages[addObjectMessage].parseMessage({ type: messages[typeNameMessage] }) }}</h4>
+        <h4>{{ messages[editObjectMessage].parseMessage({ type: messages[typeNameMessage] }) }}</h4>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <OrmForm
-          :form-name="addFormName"
+          :form-name="editFormName"
           :type-def="typeDef"
           :type-name-message="typeNameMessage"
-          :thing="addObjectObject"
-          save-button-message="admin_button_add"
+          :thing="localObject"
+          :read-only-object="readOnlyObject"
+          save-button-message="admin_button_edit"
           :fields="objectFields"
-          :create="true"
+          :create="false"
           :submitted="objectSubmitted"
-          :success-event="addObjectSuccess"
-          :server-errors="addObjectError"
+          :success-event="editObjectSuccess"
+          :server-errors="editObjectError"
           :label-prefixes="labelPrefixes"
-          @update="onAddOrmUpdate"
-          @submitted="onAddOrmSubmit"
+          @update="onEditOrmUpdate"
+          @submitted="onEditOrmSubmit"
           @cancel="onCancelOrmForm"
         />
       </v-col>
@@ -73,32 +74,34 @@ import 'vue-json-pretty/lib/styles.css'
 // noinspection NpmUsedModulesInstalled
 import { mapState, mapActions } from 'vuex'
 import OrmForm from '@/components/orm/OrmForm'
-import { publicConfigField } from '@/shared'
+import { deepUpdate, publicConfigField } from '@/shared'
 import { localeMessagesForUser } from '@/shared/locale'
 import { UI_CONFIG } from '@/services/util'
 
 export default {
-  name: 'OrmAdd',
+  name: 'OrmEdit',
   components: { VueJsonPretty, OrmForm },
   props: {
     typeDef: { type: Object, required: true },
     typeNameMessage: { type: String, required: true },
     labelPrefixes: { type: Array, default: () => ['label_'] },
 
-    addObjectObject: { type: Object, required: true },
+    targetObject: { type: Object, required: true },
+    readOnlyObject: { type: Function, default: () => () => false },
     objectSubmitted: { type: Boolean, default: () => false },
-    addObjectMessage: { type: String, default: () => 'admin_button_add' },
-    addObjectSuccess: { type: Object, required: true },
-    addObjectError: { type: [Object, String], required: true },
-    addObjectSuccessMessage: { type: String, default: () => 'admin_info_added' },
-    addObjectErrorMessage: { type: String, default: () => 'admin_info_add_error' }
+    editObjectMessage: { type: String, default: () => 'admin_button_edit' },
+    editObjectSuccess: { type: Object, required: true },
+    editObjectError: { type: [Object, String], required: true },
+    editObjectSuccessMessage: { type: String, default: () => 'admin_info_edited' },
+    editObjectErrorMessage: { type: String, default: () => 'admin_info_edit_error' }
   },
   data () {
     return {
       showSuccessSnackbar: false,
       successSnackTimeout: -1,
       showErrorSnackbar: false,
-      errorSnackTimeout: -1
+      errorSnackTimeout: -1,
+      localObject: null
     }
   },
   computed: {
@@ -106,11 +109,14 @@ export default {
     ...mapState('user', ['user']),
     messages () { return localeMessagesForUser(this.user, this.browserLocale) },
     title () { return publicConfigField(this, 'title') },
-    addFormName () { return `add${this.typeDef.typeName}Form` },
+    editFormName () { return `edit${this.typeDef.typeName}Form` },
     objectFields () { return this.typeDef.tabIndexedFields() }
   },
+  created () {
+    this.localObject = structuredClone(this.targetObject)
+  },
   watch: {
-    addObjectError (newError) {
+    editObjectError (newError) {
       if (newError) {
         if (newError.errors) {
           this.errorSnackTimeout = null
@@ -126,10 +132,10 @@ export default {
         this.showErrorSnackbar = false
       }
     },
-    addObjectSuccess (ok) {
+    editObjectSuccess (ok) {
       if (ok) {
         // longer timeout for these kinds of things, more time to see the message
-        console.log(`OrmAdd.addObjectSuccess received: ${JSON.stringify(ok)}`)
+        console.log(`OrmEdit.editObjectSuccess received: ${JSON.stringify(ok)}`)
         this.successSnackTimeout = UI_CONFIG.snackbarSuccessTimeout
         this.showSuccessSnackbar = true
         this.showErrorSnackbar = false
@@ -145,22 +151,23 @@ export default {
     isSuccess (obj) { this.isValidSuccessOrError(obj) },
     isError (obj) { this.isValidSuccessOrError(obj) },
 
-    onAddOrmUpdate (update) {
+    onEditOrmUpdate (update) {
       if (update) {
-        console.log(`OrmAdd.onAddOrmUpdate emitting newObjectUpdate: ${JSON.stringify(update)}`)
-        this.$emit('newObjectUpdate', update)
+        console.log(`OrmEdit.onEditOrmUpdate deep updating: ${JSON.stringify(update)}`)
+        deepUpdate(this.localObject, update.field, update.value)
       }
     },
-    onAddOrmSubmit (submitted) {
+    onEditOrmSubmit (submitted) {
       if (submitted) {
-        console.log(`OrmAdd.onAddOrmSubmit emitting newObjectSubmit: ${JSON.stringify(submitted)}`)
-        this.$emit('newObjectSubmit', submitted)
+        console.log(`OrmEdit.onEditOrmSubmit emitting editObjectSubmit: submitted=${JSON.stringify(submitted)}, emitting=this.localObject=${JSON.stringify(this.localObject)}`)
+        this.$emit('editObjectSubmit', this.localObject)
       }
     },
     onCancelOrmForm (cancel) {
       if (cancel) {
-        console.log(`OrmAdd.onCancelOrmForm emitting newObjectCancel: ${JSON.stringify(cancel)}`)
-        this.$emit('newObjectCancel', cancel)
+        console.log(`OrmEdit.onCancelOrmForm emitting editObjectCancel: ${JSON.stringify(cancel)}`)
+        this.localObject = null
+        this.$emit('editObjectCancel', cancel)
       }
     }
   }

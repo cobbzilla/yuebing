@@ -8,6 +8,7 @@
               <OrmFormFields
                 :fields="fields"
                 :thing="newThing"
+                :read-only-object="readOnlyObject"
                 :root-thing="newThing"
                 :obj-path="''"
                 :field-header="''"
@@ -56,11 +57,12 @@ export default {
     typeNameMessage: { type: String, required: true },
     formName: { type: String, default: () => 'OrmForm' },
     thing: { type: Object, default: () => { return {} } },
+    readOnlyObject: { type: Function, default: () => () => false },
     saveButtonMessage: { type: String, default: () => 'button_update' },
     fields: { type: Array, default: () => { return [] } },
     create: { type: Boolean, default: () => false },
     successEvent: { type: Object, required: true },
-    serverErrors: { type: Object, default: () => { return {} } },
+    serverErrors: { type: [Object, String], default: () => { return {} } },
     labelPrefixes: { type: Array, default: () => ['label_'] }
   },
   data () {

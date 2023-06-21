@@ -455,7 +455,7 @@ export const mutations = {
     state.editVolumeSuccess = ok || true
     state.editVolumeError = null
     const newList = state.volumeList.filter(v => v.name !== volume.name)
-    state.volumeList.splice(0, state.userList.length)
+    state.volumeList.splice(0, state.volumeList.length)
     state.volumeList.push(...newList)
     state.volumeList.push(volume)
   },
