@@ -256,24 +256,6 @@ const filterSources = volumes => volumes ? volumes.filter(v => v.mount === VOLUM
 const isDestinationVolume = v => v.mount === VOLUME_MOUNT_DESTINATION || isSelfVolume(v)
 const filterDestinations = volumes => volumes ? volumes.filter(isDestinationVolume) : []
 
-function volumeTypeConfig (volumeType) {
-  return volumeType in VOLUME_TYPES ? VOLUME_TYPES[volumeType] : VOLUME_TYPES[VOL_TYPE_LOCAL]
-}
-
-const VOLUME_TYPE_LABEL_PREFIX = 'label_volumeType_'
-
-function localizedVolumeConfigLabelPrefix (volumeType) {
-  return VOLUME_TYPE_LABEL_PREFIX + volumeType + '_field_'
-}
-
-function localizedVolumeConfigLabel (volumeType, field) {
-  return localizedVolumeConfigLabelPrefix(volumeType) + field
-}
-
-function localizedVolumeTypes (messages) {
-  return Object.keys(VOLUME_TYPES).map((f) => { return { name: f, message: messages[VOLUME_TYPE_LABEL_PREFIX + f] } })
-}
-
 const VOLUME_SORT = {
   name: (s1, s2) => s1.name && s2.name && s1.name < s2.name
 }
@@ -292,8 +274,6 @@ function extractVolumeAndPath (from) {
 }
 
 export {
-  volumeTypeConfig, localizedVolumeTypes,
-  localizedVolumeConfigLabelPrefix, localizedVolumeConfigLabel,
   sortVolumesByField,
   extractVolumeAndPath,
   VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION,

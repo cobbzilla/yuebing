@@ -88,8 +88,7 @@ const SYSTEM = {
   logger,
   storage: null,
   libraries: {},
-  volume: { name: c.SELF_VOLUME_NAME, self: true, sync: true },
-  syncVolumes: [], // todo: read the list of sync volumes at startup. then sync with them!
+  volume: { name: c.SELF_VOLUME_NAME, self: true, system: true },
   publicConfig: {},
   privateConfig: {},
   workbenchDir: process.env.YB_WORK_DIR
