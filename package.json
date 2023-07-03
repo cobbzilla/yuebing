@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "1.4.5",
+  "version": "2.0.0",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "video",
@@ -26,77 +26,26 @@
     "type": "patreon",
     "url": "https://www.patreon.com/cobbzilla"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cobbzilla/yuebing"
-  },
   "scripts": {
-    "dev": "nuxt",
     "build": "nuxt build",
-    "start": "nuxt start",
+    "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "docker-build": "docker build -t cobbzilla/yuebing:latest .",
-    "docker-run": "scripts/prod_start.sh",
-    "docker-build-dev": "docker build -t cobbzilla/yuebing-dev:latest -f Dockerfile.dev .",
-    "docker-run-dev": "scripts/dev_start.sh",
-    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
-    "lint": "yarn lint:js",
-    "lintfix": "yarn lint:js --fix"
-  },
-  "bin": {
-    "yuebing": "./yuebing"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.141.0",
-    "@aws-sdk/lib-storage": "^3.142.0",
-    "@mdi/font": "^7.0.96",
-    "@nuxtjs/axios": "^5.13.6",
-    "accept-language-parser": "^1.5.0",
-    "bcryptjs": "^2.4.3",
-    "bull": "^4.8.5",
-    "cookie": "^0.5.0",
-    "core-js": "^3.19.3",
-    "dashjs": "^4.4.1",
-    "glob": "^8.0.3",
-    "handlebars": "^4.7.7",
-    "hokeylization": "^1.3.9",
-    "ioredis": "^5.2.2",
-    "jsonpath": "^1.1.1",
-    "lru-cache": "^7.14.0",
-    "md5": "^2.3.0",
-    "mime-types": "^2.1.35",
-    "mobiletto-lite": "^1.1.35",
-    "node-redis-scan": "^1.3.5",
-    "nodemailer": "^6.7.7",
-    "nuxt": "^2.15.8",
-    "randomstring": "^1.2.2",
-    "safe-eval": "^0.4.1",
-    "shasum": "^1.0.2",
-    "shell-escape": "^0.2.0",
-    "sqlite": "^4.1.2",
-    "uuid": "^8.3.2",
-    "vee-validate": "^3.4.14",
-    "videojs-contrib-dash": "^5.1.1",
-    "vue": "^2.6.14",
-    "vue-json-pretty": "^1.9.1",
-    "vue-server-renderer": "^2.6.14",
-    "vue-template-compiler": "^2.6.14",
-    "vuetify": "^2.6.1",
-    "vuewordcloud": "^18.7.12",
-    "webpack": "^4.46.0",
-    "winston": "^3.8.1"
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.16.3",
-    "@nuxt/types": "^2.15.8",
-    "@nuxtjs/eslint-config": "^8.0.0",
-    "@nuxtjs/eslint-module": "^3.0.2",
-    "@nuxtjs/vuetify": "^1.12.3",
-    "eslint": "^8.4.1",
-    "eslint-plugin-nuxt": "^3.1.0",
-    "eslint-plugin-vue": "^8.2.0",
-    "sass": "^1.54.4",
-    "sass-loader": "10.1.1",
-    "video.js": "^7.20.1"
+    "@nuxt/devtools": "latest",
+    "@types/md5": "^2.3.2",
+    "@types/node": "^18",
+    "nuxt": "^3.6.1",
+    "sass": "^1.63.6"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.2.96",
+    "@pinia/nuxt": "^0.4.11",
+    "md5": "^2.3.0",
+    "pinia": "^2.1.4",
+    "safe-eval": "^0.4.1",
+    "vuetify": "^3.3.6"
   }
 }
