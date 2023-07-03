@@ -18,6 +18,10 @@ export const state = () => ({
   createUserSuccess: null,
   createUserError: null,
 
+  editingUser: false,
+  editUserSuccess: null,
+  editUserError: null,
+
   deletingUser: false,
   deleteUserSuccess: null,
   deleteUserError: null,
@@ -141,21 +145,21 @@ export const actions = {
       )
   },
 
-  deleteUser ({ commit }, { email }) {
-    commit('deleteUserRequest', { email })
-    adminService.deleteUser(email)
+  editUser ({ commit }, { user }) {
+    commit('editUserRequest', { user })
+    adminService.editUser(user)
       .then(
-        (ok) => { commit('deleteUserSuccess', { ok, email }) },
-        (error) => { commit('deleteUserFailure', { error }) }
+        (user) => { commit('editUserSuccess', { user }) },
+        (error) => { commit('editUserFailure', { error }) }
       )
   },
 
-  setEditor ({ commit }, { email, editor }) {
-    commit('setEditorRequest', { email, editor })
-    adminService.setEditor(email, editor)
+  deleteUser ({ commit }, { username }) {
+    commit('deleteUserRequest', { username })
+    adminService.deleteUser(username)
       .then(
-        (user) => { commit('setEditorSuccess', { user }) },
-        (error) => { commit('setEditorFailure', { error }) }
+        (ok) => { commit('deleteUserSuccess', { ok, username }) },
+        (error) => { commit('deleteUserFailure', { error }) }
       )
   },
 
@@ -370,7 +374,7 @@ export const mutations = {
     state.createUserError = null
   },
   createUserSuccess (state, { user }) {
-    const newList = state.userList.filter(u => u.email !== user.email)
+    const newList = state.userList.filter(u => u.username !== user.username)
     state.userList.splice(0, state.userList.length)
     state.userList.push(...newList)
     state.userList.push(user)
@@ -383,36 +387,39 @@ export const mutations = {
     state.createUserError = error
   },
 
-  deleteUserRequest (state, { email }) {
+  editUserRequest (state, { user }) {
+    state.editingUser = true
+    state.editUserSuccess = null
+    state.editUserError = null
+  },
+  editUserSuccess (state, { user }) {
+    const newList = state.userList.filter(u => u.username !== user.username)
+    state.userList.splice(0, state.userList.length)
+    state.userList.push(...newList)
+    state.userList.push(user)
+    state.editUserSuccess = user
+    state.editingUser = false
+    state.editUserError = null
+  },
+  editUserFailure (state, { error }) {
+    state.editingUser = false
+    state.editUserError = error
+  },
+
+  deleteUserRequest (state, { username }) {
     state.deletingUser = true
   },
-  deleteUserSuccess (state, { ok, email }) {
+  deleteUserSuccess (state, { ok, username }) {
     state.deletingUser = false
     state.deleteUserSuccess = ok || true
     state.deleteUserError = null
-    const newList = state.userList.filter(u => u.email !== email)
+    const newList = state.userList.filter(u => u.username !== username)
     state.userList.splice(0, state.userList.length)
     state.userList.push(...newList)
   },
   deleteUserFailure (state, { error }) {
     state.deletingUser = false
     state.deleteUserError = error
-  },
-
-  setEditorRequest (state, { email, editor }) {
-    state.updatingEditorFlag = true
-  },
-  setEditorSuccess (state, { user }) {
-    state.updatingEditorFlag = false
-    state.updateEditorFlagSuccess = user || true
-    state.updateEditorFlagError = null
-    const newList = state.userList.map(u => u.email === user.email ? user : u)
-    state.userList.splice(0, state.userList.length)
-    state.userList.push(...newList)
-  },
-  setEditorFailure (state, { error }) {
-    state.updatingEditorFlag = false
-    state.updateEditorFlagError = error
   },
 
   findVolumesRequest (state, { query }) {

@@ -70,7 +70,7 @@ async function autoscan () {
   const now = Date.now()
 
   // 1. find all libraries
-  const libraries = await vol.listLibraries()
+  const libraries = await vol.volumeDb.list()
   if (libraries && libraries.length > 0) {
     for (const library of libraries) {
       // 2. for each library, add source to scan list if most recent scan time is too old for library scan interval
@@ -85,7 +85,7 @@ async function autoscan () {
     }
   } else {
     // 3. if no libraries, add all sources to scan list
-    for (const source of shared_vol.filterSources(vol.listVolumes()).map(s => s.name)) {
+    for (const source of shared_vol.filterSources(vol.volumeDb.list()).map(s => s.name)) {
       sourcesToScan[source] = []
     }
   }
@@ -99,7 +99,7 @@ async function autoscan () {
       // 4a. check for 'scan' JSON object for source
 
       //     - if we have scanned more recently than library scan interval, skip scan
-      const source = await vol.connect(sourceName)
+      const source = await vol.volumeDb.connect(sourceName)
       await scan(source, { autoscan: true })
       // 4b. if we need to scan the source, create/update the 'scan' JSON object for source with start time
       // 4b. scan the source
@@ -122,7 +122,7 @@ async function autoscan () {
         return
       }
       for (const sourceName of sources) {
-        const source = await vol.connect(sourceName)
+        const source = await vol.volumeDb.connect(sourceName)
         const scanPrefix = `${logPrefix} (source ${sourceName}) `
           CURRENT_AUTOSCAN_START = new Date()
           scan(source, { autoscan: true })

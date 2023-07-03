@@ -143,6 +143,7 @@ const SYSTEM = {
       }
 
       const enc = !encryption.key ? null : encryption
+      storage.registerDrivers()
       SYSTEM.storage = await storage.connect(DEST_TYPE, key, secret, opts, enc)
       SYSTEM.volume[DEST_TYPE] = opts
       SYSTEM.volume[DEST_TYPE].key = key

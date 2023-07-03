@@ -4,6 +4,7 @@ export const adminService = {
   getQueue,
   findUsers,
   createUser,
+  editUser,
   migrate,
   deleteUser,
   setEditor,
@@ -38,6 +39,10 @@ function findUsers (query) {
 
 function createUser (user) {
   return fetch('/api/admin/users', a.authPutJson(user || {})).then(a.handleJsonResponse)
+}
+
+function editUser (user) {
+  return fetch('/api/admin/users', a.authPatchJson(user)).then(a.handleJsonResponse)
 }
 
 function migrate (migration) {

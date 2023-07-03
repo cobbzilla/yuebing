@@ -47,8 +47,6 @@
     "yuebing": "./yuebing"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.141.0",
-    "@aws-sdk/lib-storage": "^3.142.0",
     "@mdi/font": "^7.0.96",
     "@nuxtjs/axios": "^5.13.6",
     "accept-language-parser": "^1.5.0",
@@ -65,9 +63,9 @@
     "lru-cache": "^7.14.0",
     "md5": "^2.3.0",
     "mime-types": "^2.1.35",
-    "mobiletto-lite": "^1.1.36",
-    "mobiletto-orm": "^1.3.14",
-    "mobiletto-orm-typedef": "^1.1.13",
+    "mobiletto-lite": "^1.2.1",
+    "mobiletto-orm": "^1.3.17",
+    "mobiletto-orm-typedef": "^1.1.17",
     "node-redis-scan": "^1.3.5",
     "nodemailer": "^6.7.7",
     "nuxt": "^2.16.3",

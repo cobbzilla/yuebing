@@ -349,7 +349,7 @@ async function createUserRecord (caller, user) {
         '?' + auth.VERIFY_EMAIL_PARAM + '=' + encodeURIComponent(user.email) +
         '&' + auth.VERIFY_TOKEN_PARAM + '=' + encodeURIComponent(token)
     }
-    if (flags.flag_welcome_email) {
+    if (user.flags && user.flags.flag_welcome_email) {
       email.sendEmail(user.email, user.locale || c.DEFAULT_LOCALE, email.TEMPLATE_VERIFY_EMAIL, ctx).then(
         () => {
           logger.info(`createUserRecord: verification request sent to user: ${user.email}`)
@@ -383,7 +383,7 @@ async function updateUserRecord (proposed, successHandler) {
   const user = await findUser(proposed.username, proposed.email)
   try {
     const updated = await userDb.update(proposed, user)
-    await successHandler(updated, update)
+    await successHandler(updated)
   } catch (e) {
     logger.error(`updateUserRecord: findUser error: ${err}`)
     throw e

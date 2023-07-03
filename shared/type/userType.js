@@ -5,10 +5,11 @@ const valid = require('./validation')
 
 const USER_TYPEDEF = new MobilettoOrmTypeDef({
   typeName: 'account',
+  tableFields: ['username', 'email', 'firstName', 'lastName', 'locale', 'verified', 'ctime', 'mtime'],
   fields: {
     username: {
       type: 'string',
-      required: true,
+      primary: true,
       min: 2,
       max: 100,
       regex: valid.REGEX_VALIDATORS.username,
@@ -54,6 +55,7 @@ const USER_TYPEDEF = new MobilettoOrmTypeDef({
         return { value: loc, label: `locale_${loc}` }
       }),
       required: true,
+      default: nuxt.publicRuntimeConfig.defaultLocale,
       tabIndex: 6
     },
     flags: {

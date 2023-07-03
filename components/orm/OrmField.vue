@@ -11,7 +11,7 @@
             />
           </div>
           <div v-else-if="field.control === 'text' || field.control === 'password'">
-            text?<v-text-field
+            <v-text-field
               v-model="localValue"
               :type="field.control"
               :label="labelFor(field)"

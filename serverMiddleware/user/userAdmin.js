@@ -17,7 +17,7 @@ async function findUsers (query) {
 async function deleteUser (usernameOrEmail) {
   let found = await u.userRepository.safeFindById(usernameOrEmail)
   if (!found) {
-    found = u.userRepository.safeFindBy('email', usernameOrEmail)
+    found = await u.userRepository.safeFindBy('email', usernameOrEmail)
     if (!found) {
       return null
     }

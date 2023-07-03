@@ -2,7 +2,8 @@ const LRU = require('lru-cache')
 const shasum = require('shasum')
 const q = require('../../util/query')
 
-const { MobilettoOrmError, MobilettoOrmValidationError, repositoryFactory } = require('mobiletto-orm')
+const { MobilettoOrmError, MobilettoOrmValidationError } = require('mobiletto-orm-typedef')
+const { repositoryFactory } = require('mobiletto-orm')
 const system = require('../../util/config').SYSTEM
 const logger = system.logger
 const {
@@ -54,19 +55,28 @@ const connectedDestinations = () => filterDestinations(connectedVolumes())
 
 const systemVolumeRepo = () => repositoryFactory([system.storage]).repository(VOLUME_TYPEDEF)
 
-const mostRecentSyncedStorageArray = null
+let mostRecentSyncedStorageArray = null
+let mostRecentSyncedStorageArray_ctime = null
+const MAX_SYNCED_STORAGE_LIST_CACHE = 1000 * 60
 
 async function syncedStorage () {
+  if (mostRecentSyncedStorageArray != null &&
+    mostRecentSyncedStorageArray_ctime != null &&
+    Date.now() - mostRecentSyncedStorageArray_ctime < MAX_SYNCED_STORAGE_LIST_CACHE) {
+    return mostRecentSyncedStorageArray
+  }
   try {
     const noRedact = true
     const repo = systemVolumeRepo()
     const volumes = await repo.findAll({noRedact})
     const destinations = volumes
-      .filter(dest => dest.mount === VOLUME_MOUNT_DESTINATION && dest.sync === true)
+      .filter(dest => dest.mount === VOLUME_MOUNT_DESTINATION && dest.system === true)
     const connects = []
     destinations.map(async dest => connects.push(connectVolume(dest)))
     const destConns = await Promise.all(connects)
-    return [system.storage, ...destConns]
+    mostRecentSyncedStorageArray = [system.storage, ...destConns]
+    mostRecentSyncedStorageArray_ctime = Date.now()
+    return mostRecentSyncedStorageArray
 
   } catch (e) {
     if (mostRecentSyncedStorageArray && mostRecentSyncedStorageArray.length > 0) {
