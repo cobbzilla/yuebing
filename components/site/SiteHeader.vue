@@ -9,13 +9,13 @@
         <b><v-toolbar-title v-text="title" /></b>
       </NuxtLink>
       <v-spacer />
-      <div v-if="session.user && session.user.email">
-        <v-avatar size="48px" @click.stop="rightDrawer = !rightDrawer">
+      <div v-if="session.loggedIn && session.user.email">
+        <v-avatar size="48px" @click.stop="rightDrawer = session.loggedIn ? !rightDrawer : rightDrawer">
           <v-img :src="gravatarUrl(session.user)" contain :alt="`avatar image for ${session.user.firstName}`" />
         </v-avatar>
       </div>
       <div v-else>
-        <v-btn icon @click.stop="rightDrawer = !rightDrawer">
+        <v-btn icon @click.stop="rightDrawer = session.loggedIn ? !rightDrawer : rightDrawer">
           <v-icon>mdi-account</v-icon>
         </v-btn>
       </div>
@@ -34,7 +34,7 @@
           </template>
           <template #item="{ item, props }">
             <v-list-item v-bind="props">
-              <h1>{{ localeIcon(item.value) }}</h1>
+              <h3>{{ localeIcon(item.value) }}</h3>
             </v-list-item>
           </template>
         </v-select>
@@ -43,7 +43,7 @@
 
     <v-navigation-drawer
       v-model="rightDrawer"
-      :mini-variant="miniVariant"
+      :mini-variant="false"
       :clipped="clipped"
       location="right"
       fixed
@@ -68,7 +68,7 @@
         </v-list-item>
         <v-list-item
           v-if="session.loggedIn"
-          @click.stop="logOut()"
+          @click.stop="session.logout()"
         >
           <v-list-item-title v-text="messages.button_logout" />
         </v-list-item>
@@ -105,10 +105,9 @@ const runtimeConfig = useRuntimeConfig()
 
 const title = runtimeConfig.public.title
 
-// TODO
-const signUpUrl = '/signupURLok?'
-const signInUrl = '/signinURLok?'
-const allowRegistration = false
+const signUpUrl = '/signUp'
+const signInUrl = '/signIn'
+const allowRegistration = runtimeConfig.public.allowRegistration
 const supportedLocales = ref(localesList(session.user, session.browserLocale, session.anonLocale))
 const messages = ref(session.localeMessages)
 const currentLocale = ref(session.locale)
@@ -119,80 +118,9 @@ const selectLocale = (loc) => {
   supportedLocales.value = localesList(session.user, session.browserLocale, session.anonLocale)
 }
 const localeIcon = (loc) => localeEmoji(loc)
-const logOut = () => {} // todo
 
-let clipped = ref(false)
-let drawer = ref(false)
-let fixed = ref(false)
-let miniVariant = ref(false)
-let right = ref(true)
-let rightDrawer = ref(false)
-</script>
-
-<script>
-// noinspection NpmUsedModulesInstalled
-// import { mapState, mapActions } from 'vuex'
-// import { publicConfigField } from '@/shared'
-// import { LOGIN_ENDPOINT, REGISTER_ENDPOINT } from '@/shared/auth'
-// import { localeMessagesForUser, localesList, localeEmoji, userLocale } from '@/shared/locale'
-// import { gravatarEmailUrl } from '@/shared/type/userType'
-
-// noinspection JSUnusedGlobalSymbols
-// export default {
-//   name: 'SiteHeader',
-//   data () {
-//     return {
-//       clipped: false,
-//       drawer: false,
-//       fixed: false,
-//       miniVariant: false,
-//       right: true,
-//       rightDrawer: false,
-//       currentLocale: null
-//     }
-//   },
-//   computed: {
-//     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-//     ...mapState(['browserLocale', 'publicConfig']),
-//     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
-//     signInUrl () { return LOGIN_ENDPOINT },
-//     signUpUrl () { return REGISTER_ENDPOINT },
-//     gravatarUrl () { return this.user && this.user.email ? gravatarEmailUrl(this.user.email) : null },
-//     supportedLocales () { return localesList(this.user, this.browserLocale, this.anonLocale) },
-//     accountName () {
-//       if (this.user) {
-//         if (this.user.firstName && this.user.firstName.trim().length > 0) {
-//           return this.user.firstName
-//         }
-//         if (this.user.email && this.user.email.trim().length > 0) {
-//           return this.user.email.includes('@')
-//             ? this.user.email.substring(0, this.user.email.indexOf('@'))
-//             : this.user.email
-//         }
-//       }
-//       return this.messages && this.messages.anonymous_user_name
-//         ? this.messages.anonymous_user_name
-//         : 'mysterious one'
-//     },
-//     allowRegistration () { return publicConfigField(this, 'allowRegistration') },
-//     title () { return publicConfigField(this, 'title') },
-//     loggedIn () { return this.user && this.userStatus && this.userStatus.loggedIn },
-//     admin () { return this.loggedIn && this.user.admin }
-//   },
-//   created () {
-//     this.currentLocale = userLocale(this.user, this.browserLocale, this.anonLocale)
-//   },
-//   methods: {
-//     ...mapActions('user', ['logout', 'setLocale']),
-//     logOut () {
-//       this.logout({ redirect: true })
-//     },
-//     localeIcon (locale) { return localeEmoji(locale) },
-//     selectLocale () {
-//       this.setLocale({ locale: this.currentLocale })
-//     }
-//   }
-// }
+const clipped = false
+const rightDrawer = ref(true)
 </script>
 
 <style lang="scss" scoped>
