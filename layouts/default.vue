@@ -14,29 +14,25 @@
   </v-app>
 </template>
 
-<script>
-// noinspection NpmUsedModulesInstalled
-// import { mapActions, mapState } from 'vuex'
+<script lang="ts">
+export default {
+  head: {},
+};
+</script>
 
-// export default {
-  // name: 'DefaultLayout',
-  // computed: {
-  //   ...mapState('user', ['user', 'userStatus', 'anonLocale']),
-  //   ...mapState(['publicConfig', 'browserHeaders'])
-  // },
-  // watch: {
-  //   publicConfig (newConfig) {
-  //     if (newConfig && newConfig.title) {
-  //       document.title = newConfig.title
-  //     }
-  //   }
-  // },
-  // created () {
-    // this.fetchBrowserHeaders()
-    // this.loadPublicConfig()
-  // },
-  // methods: {
-    // ...mapActions(['fetchBrowserHeaders', 'loadPublicConfig'])
-  // }
-// }
+<script setup lang="ts">
+import { useConfigStore } from "~/stores/config";
+import { storeToRefs } from "pinia";
+import { DEFAULT_META } from "~/utils/meta";
+
+const config = useConfigStore();
+const configRefs = storeToRefs(config);
+config.loadPublicConfig();
+
+useSeoMeta({
+  title: () => {
+    return configRefs?.publicConfig?.value?.title || "⌛🥮";
+  },
+  ...DEFAULT_META,
+});
 </script>
