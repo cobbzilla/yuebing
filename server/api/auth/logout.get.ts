@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) =>
   filterErrors(event, "logout", (event) =>
     requireAccountObject(event, "logout", async (_event, session, _account) => {
       await sessionRepository().purge(session.token, { force: true });
+      deleteCookie(event, "account", await cookieOptions());
       return true;
     }),
   ),

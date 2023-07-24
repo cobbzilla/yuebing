@@ -1,25 +1,31 @@
 <template>
   <v-form :id="formName" @submit.prevent="handleSave">
-    <v-container>
-      <OrmFormFields
-        :fields="fields"
-        :thing="newThing"
-        :read-only-object="readOnlyObject"
-        :root-thing="newThing"
-        :obj-path="''"
-        :field-header="''"
-        :server-errors="serverErrors"
-        :success-event="successEvent"
-        :label-prefixes="labelPrefixes"
-        :submitted="submitted"
-        :saving="saving"
-        :create="create"
-        :define-input-binds="defineInputBinds"
-        :meta="meta"
-        :errors="errors"
-        :form-level="0"
-        @update="onFieldUpdate"
-      />
+    <v-container class="ma-0 pa-0">
+      <v-row>
+        <v-col>
+          <v-container class="ma-0 pa-0">
+            <OrmFormFields
+              :fields="fields"
+              :thing="newThing"
+              :read-only-object="readOnlyObject"
+              :root-thing="newThing"
+              :obj-path="''"
+              :field-header="''"
+              :server-errors="serverErrors"
+              :success-event="successEvent"
+              :label-prefixes="labelPrefixes"
+              :submitted="submitted"
+              :saving="saving"
+              :create="create"
+              :define-input-binds="defineInputBinds"
+              :meta="meta"
+              :errors="errors"
+              :form-level="0"
+              @update="onFieldUpdate"
+            />
+          </v-container>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col>
           <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleSave">
@@ -120,9 +126,9 @@ watch(successEvent, (newEvent) => {
 });
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
-  // console.log(`OrmForm.onFieldUpdate: emitting ${JSON.stringify(update)}`);
   if (update) {
-    deepUpdate(newThing, update.field, update.value);
+    // console.log(`OrmForm.onFieldUpdate: deep updating ${update.field} with value ${update.value}`);
+    deepUpdate(newThing.value, update.field, update.value);
     emit("update", update);
   }
 };

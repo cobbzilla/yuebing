@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { PublicConfigTypeDef, PrivateConfigTypeDef } from "yuebing-model";
+import { PublicConfigTypeDef, PrivateConfigTypeDef, PublicConfigType, PrivateConfigType } from "yuebing-model";
 import { configService } from "~/utils/services/configService";
 
 export const useConfigStore = defineStore("config", {
@@ -9,20 +9,23 @@ export const useConfigStore = defineStore("config", {
     privateConfig: null as PrivateConfigTypeDef | null,
   }),
   actions: {
-    async loadBrowserHeaders(): Promise<void> {
+    async loadBrowserHeaders(): Promise<Record<string, string>> {
       if (this.browserHeaders == null) {
         this.browserHeaders = await configService.browserHeaders();
       }
+      return this.browserHeaders;
     },
-    async loadPublicConfig(): Promise<void> {
+    async loadPublicConfig(): Promise<PublicConfigType> {
       if (this.publicConfig == null) {
         this.publicConfig = await configService.loadPublicConfig();
       }
+      return this.publicConfig;
     },
-    async loadPrivateConfig(): Promise<void> {
+    async loadPrivateConfig(): Promise<PrivateConfigType> {
       if (this.privateConfig == null) {
         this.privateConfig = await configService.loadPrivateConfig();
       }
+      return this.privateConfig;
     },
     async refresh(): Promise<void> {
       if (this.publicConfig != null) {

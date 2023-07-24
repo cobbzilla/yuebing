@@ -1,11 +1,11 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col>
-        <div v-if="(field.updatable === false && !create) || isReadOnly()">
+  <v-container class="ma-0 pa-0">
+    <v-row class="ma-0 pa-0">
+      <v-col class="ma-0 pa-0">
+        <div v-if="(field.updatable === false && !create) || isReadOnly()" class="ma-0 pa-0">
           <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
         </div>
-        <div v-else-if="field.control === 'text' || field.control === 'password'">
+        <div v-else-if="field.control === 'text' || field.control === 'password'" class="ma-0 pa-0">
           <v-text-field
             v-model="localValue"
             :v-bind="field.name"
@@ -17,10 +17,10 @@
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
-        <div v-else-if="field.control === 'label'">
+        <div v-else-if="field.control === 'label'" class="ma-0 pa-0">
           <v-text-field
             v-if="!create"
             v-model="localValue"
@@ -33,7 +33,7 @@
             :readonly="true"
           />
         </div>
-        <div v-else-if="field.control === 'textarea'">
+        <div v-else-if="field.control === 'textarea'" class="ma-0 pa-0">
           <v-textarea
             v-model="localValue"
             :v-bind="field.name"
@@ -44,10 +44,10 @@
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
-        <div v-else-if="field.control === 'flag'">
+        <div v-else-if="field.control === 'flag'" class="ma-0 pa-0">
           <v-checkbox
             v-model="localValue"
             :v-bind="field.name"
@@ -57,45 +57,45 @@
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
-        <div v-else-if="field.control === 'select'">
+        <div v-else-if="field.control === 'select'" class="ma-0 pa-0">
           <v-select
             v-model="localValue"
             :v-bind="field.name"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
-            item-text="label"
+            item-title="label"
             :full-width="false"
             :name="field.name"
-            :value="valueOrDefault"
+            :value="valueOrDefault()"
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
-        <div v-else-if="field.control === 'multi'">
+        <div v-else-if="field.control === 'multi'" class="ma-0 pa-0">
           <v-select
             v-model="localValue"
             :v-bind="field.name"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
-            item-text="label"
+            item-title="label"
             :full-width="false"
             :name="field.name"
-            :value="valueOrDefault"
+            :value="valueOrDefault()"
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
             :multiple="true"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
-        <div v-else>
+        <div v-else class="ma-0 pa-0">
           <v-text-field
             v-model="localValue"
             :v-bind="field.name"
@@ -103,11 +103,11 @@
             :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
-            :value="valueOrDefault"
+            :value="valueOrDefault()"
             class="form-control"
             :error="submitted && errors.length > 0"
             :error-messages="submitted ? fieldError(errors) : undefined"
-            @change="$emit('update', { field: objPath, value: localValue })"
+            @update:model-value="sendUpdate()"
           />
         </div>
       </v-col>
@@ -144,14 +144,13 @@ const props = withDefaults(
     create: () => false,
     submitted: () => false,
     saving: () => false,
+    value: () => "",
     labelPrefixes: () => ["label_"],
   },
 );
 
-/* const emit = */ defineEmits<{
-  submitted: [];
-  update: [field: string, value: any];
-  cancel: [];
+const emit = defineEmits<{
+  update: [{ field: string; value: any }];
 }>();
 
 const session = storeToRefs(useSessionStore());
@@ -162,6 +161,11 @@ const messages = ref(session.localeMessages);
 });
 
 const localValue = ref(props.value ? props.value : props.field.default ? props.field.default : null);
+
+const sendUpdate = () => {
+  // console.log(`sendUpdate: localValue of ${props.objPath} is ${localValue.value}`);
+  emit("update", { field: props.objPath, value: localValue.value });
+};
 
 const isReadOnly = () => {
   // console.log(
@@ -203,7 +207,7 @@ const fieldItems = (field: MobilettoOrmFieldDefConfig) => {
     ? []
     : field.items.map((item) => {
         return {
-          value: item.value,
+          value: `${item.value}`,
           label:
             typeof item.rawLabel === "boolean" && item.rawLabel === true
               ? item.label

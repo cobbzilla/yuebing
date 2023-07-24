@@ -88,7 +88,8 @@ watch(publicConfig, (newConfig) => {
 
 const signUpUrl = "/signUp";
 
-const session = storeToRefs(useSessionStore());
+const sessionStore = useSessionStore();
+const session = storeToRefs(sessionStore);
 const messages = ref(session.localeMessages);
 
 const fieldErrors = (field: string | string[]) => {
@@ -107,10 +108,10 @@ const hasError = (field: string | string[]) => {
 };
 
 const loginDisabled: () => boolean = () => {
-  return session.userStatus.loggingIn || !usernameOrEmail || !password || false;
+  return !usernameOrEmail || !password || false;
 };
 
 const handleLogin = handleSubmit((values) => {
-  session.login(values.usernameOrEmail, values.password);
+  sessionStore.login(values.usernameOrEmail, values.password);
 });
 </script>

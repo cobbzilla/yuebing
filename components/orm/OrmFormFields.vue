@@ -1,13 +1,13 @@
 <template>
-  <v-container>
-    <v-row v-if="fieldHeader !== ''">
-      <v-col>
+  <v-container class="ma-0 pa-0">
+    <v-row v-if="fieldHeader !== ''" class="ma-0 pa-0">
+      <v-col class="ma-0 pa-0">
         <h4>{{ messages[fieldHeader] }}</h4>
       </v-col>
     </v-row>
-    <v-row v-for="(field, fieldIndex) in props.fields" :key="fieldIndex">
-      <v-col v-if="fieldVisible(field)">
-        <div v-if="isObject(field)">
+    <v-row v-for="(field, fieldIndex) in props.fields" :key="fieldIndex" class="ma-0 pa-0">
+      <v-col class="ma-0 pa-0">
+        <v-container v-if="fieldVisible(field) && isObject(field)" class="ma-0 pa-0">
           <OrmFormFields
             :fields="tabIndexed(field)"
             :root-thing="rootThing"
@@ -27,8 +27,8 @@
             :form-level="formLevel + 1"
             @update="onFieldUpdate"
           />
-        </div>
-        <div v-else>
+        </v-container>
+        <v-container v-else-if="fieldVisible(field)" class="ma-0 pa-0">
           <OrmField
             :field="field"
             :root-thing="rootThing"
@@ -46,7 +46,7 @@
             :errors="errors"
             @update="onFieldUpdate"
           />
-        </div>
+        </v-container>
       </v-col>
     </v-row>
   </v-container>
@@ -94,9 +94,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  submitted: [obj: MobilettoOrmObject];
   update: [update: { field: string; value: any }];
-  cancel: [];
 }>();
 
 const session = storeToRefs(useSessionStore());
@@ -160,7 +158,6 @@ const isObject = (field: MobilettoOrmFieldDefConfig) => {
   return isObj;
 };
 const onFieldUpdate = (update: { field: string; value: any }) => {
-  // console.log(`OrmFormField.onFieldUpdate: emitting ${JSON.stringify(update)}`);
   emit("update", update);
 };
 </script>

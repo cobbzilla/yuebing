@@ -1,21 +1,19 @@
 import { SESSION_HEADER } from "../auth";
 
-export const USER_LOCAL_STORAGE_KEY = "user";
-
-export function currentUser() {
-  const userJson = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
+export function currentAccount() {
+  const accountJson = useCookie<string>("account").value;
   try {
-    return userJson ? JSON.parse(userJson) : null;
+    return accountJson ? JSON.parse(accountJson) : null;
   } catch (e) {
-    // console.log(`currentUser: error parsing userJson: ${userJson}: ${e}`);
+    // console.log(`currentAccount: error parsing accountJson: ${accountJson}: ${e}`);
   }
 }
 
 export function authHeader() {
-  const user = currentUser();
-  if (user && user.session) {
+  const account = currentAccount();
+  if (account && account.session) {
     const headers: Record<string, string> = {};
-    headers[SESSION_HEADER] = user.session;
+    headers[SESSION_HEADER] = account.session;
     return headers;
   } else {
     return {};

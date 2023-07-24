@@ -1,21 +1,23 @@
 <template>
-  <v-container v-if="publicConfig?.needsAdmin"> </v-container>
-  <v-container v-else>
-    <v-row>
-      index page is here! and publicConfig.needsAdmin={{ publicConfig?.needsAdmin }}
-      <!--      <ListObjects/>-->
-    </v-row>
+  <!--  <v-container v-if="publicConfig?.needsAdmin"> </v-container>-->
+  <!--  <v-container v-else>-->
+  <v-container>
+    <v-row> index page is here </v-row>
   </v-container>
 </template>
 
 <script setup lang="ts">
 // import { storeToRefs } from "pinia";
 // import { useSessionStore } from "~/stores/session";
-// import { useConfigStore } from "~/stores/config";
+import { useConfigStore } from "~/stores/config";
 
 // const session = storeToRefs(useSessionStore());
 // const messages = ref(session.localeMessages);
 
-// const config = storeToRefs(useConfigStore());
+const configStore = useConfigStore();
+// const config = storeToRefs(configStore);
 // const publicConfig = ref(config.publicConfig);
+if ((await configStore.loadPublicConfig())?.needsAdmin === true) {
+  navigateTo("/auth/register2");
+}
 </script>

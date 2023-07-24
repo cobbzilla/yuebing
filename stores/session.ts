@@ -1,25 +1,21 @@
 import { defineStore } from "pinia";
-import { RegistrationType } from "yuebing-model";
-import { MIN_ID_LENGTH } from "mobiletto-orm-typedef";
+import { AccountType, RegistrationType } from "yuebing-model";
 import { currentLocaleForUser, FALLBACK_DEFAULT_LANG, localeMessagesForUser } from "yuebing-messages";
-import { USER_LOCAL_STORAGE_KEY } from "~/utils/services/serviceUtil";
 import { authService } from "~/utils/services/authService";
-
-export const localStorageUser = () => JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY) || "null");
+import { accountService } from "~/utils/services/model/accountService";
 
 export const useSessionStore = defineStore("session", {
   state: () => ({
-    user: localStorageUser(),
-    userStatus: { loggedIn: !!localStorageUser(), loggingIn: false, registering: false },
+    user: ((useCookie(SESSION_COOKIE_NAME) && useCookie(SESSION_COOKIE_NAME).value) || {}) as AccountType,
     currentLocale: FALLBACK_DEFAULT_LANG,
     browserLocale: FALLBACK_DEFAULT_LANG,
     anonLocale: FALLBACK_DEFAULT_LANG,
   }),
   getters: {
-    loggedIn: (state) => state.user && state.userStatus && state.userStatus.loggedIn,
-    admin: (state) => state.userStatus.loggedIn && state.user?.admin,
+    loggedIn: (state) => state.user && state.user.username,
+    admin: (state) => state.user && state.user?.admin,
     locale: (state) =>
-      state.user && state.userStatus.loggedIn && state.user.locale
+      state.user && state.user.locale
         ? state.user.locale
         : state.anonLocale
         ? state.anonLocale
@@ -29,9 +25,10 @@ export const useSessionStore = defineStore("session", {
     localeMessages: (state) => localeMessagesForUser(state.user, state.browserLocale, state.anonLocale),
   },
   actions: {
-    setLocale(loc: string): void {
-      if (this.user && this.userStatus.loggedIn) {
+    async setLocale(loc: string): Promise<void> {
+      if (this.user.username) {
         this.user.locale = loc;
+        await accountService.updateAccount(this.user);
         // todo: save user
       } else {
         this.anonLocale = loc;
@@ -40,33 +37,22 @@ export const useSessionStore = defineStore("session", {
       // console.log(`setLocale: set currentLocale=${this.currentLocale} on this=${JSON.stringify(this)}`);
     },
     async login(usernameOrEmail: string, password: string): Promise<void> {
-      this.userStatus.loggingIn = true;
-      try {
-        const account = await authService.login({ usernameOrEmail, password });
-        if (account) {
-          this.user = account;
-          this.userStatus.loggedIn = (account.session && account.session.length > MIN_ID_LENGTH) || false;
-        }
-      } finally {
-        this.userStatus.loggingIn = false;
+      if (this.user.username) {
+        throw new Error(`session.login: user already logged in: ${this.user.username}`);
+      }
+      const account = await authService.login({ usernameOrEmail, password });
+      if (account) {
+        this.user = account;
       }
     },
     async register(registration: RegistrationType): Promise<void> {
-      this.userStatus.registering = true;
-      try {
-        const account = await authService.register(registration);
-        if (account) {
-          this.user = account;
-          this.userStatus.loggedIn = account.token && account.token.length > MIN_ID_LENGTH;
-        }
-      } finally {
-        this.userStatus.registering = false;
+      const account = await authService.register(registration);
+      if (account) {
+        this.user = account;
       }
     },
     logout(): void {
-      localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
-      this.user = null;
-      this.userStatus.loggedIn = false;
+      this.user = {} as AccountType;
       navigateTo("/");
     },
   },
