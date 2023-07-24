@@ -39,8 +39,8 @@ export const useAccountStore = defineStore("account", {
       updateList(this.accountList, AccountTypeDef.id(this.account));
     },
     async accountDelete(account: string): Promise<void> {
-      this.account = await accountService.deleteAccount(account);
-      updateList(this.accountList, AccountTypeDef.id(this.account), { remove: true });
+      await accountService.deleteAccount(account);
+      updateList(this.accountList, account, { remove: true });
     },
   },
 });

@@ -7,6 +7,7 @@ import * as a from "~/utils/services/serviceUtil";
 export const accountService = {
   searchAccount,
   findAccount,
+  createAccount,
   updateAccount,
   deleteAccount,
 };
