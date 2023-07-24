@@ -2,17 +2,15 @@
 // @eslint-disable camelcase
 
 export default defineEventHandler(async (event) => {
-    filterErrors(event, "account.lookup", async (event) => {
-        requireAdminAccountObject(event, "account.lookup", async (event, _session, _account) => {
-        
-            const id = event.context.params.id;
-            const accountRepo = accountRepository();
-            const account_by_id = await accountRepo.safeFindById(id);
-            if (account_by_id) return account_by_id;
-            const account_by_email = await accountRepo.safeFindFirstBy("email", id);
-            if (account_by_email) return account_by_email;
-            throw createError({statusCode: 404, statusMessage: "not found"});
-        });
-        
+  filterErrors(event, "account.lookup", async (event) => {
+    requireAdminAccountObject(event, "account.lookup", async (event, _session, _account) => {
+      const id = event.context.params.id;
+      const accountRepo = accountRepository();
+      const account_by_id = await accountRepo.safeFindById(id);
+      if (account_by_id) return account_by_id;
+      const account_by_email = await accountRepo.safeFindFirstBy("email", id);
+      if (account_by_email) return account_by_email;
+      throw createError({ statusCode: 404, statusMessage: "not found" });
     });
+  });
 });

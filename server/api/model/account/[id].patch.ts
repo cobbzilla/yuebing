@@ -3,21 +3,19 @@
 import { AccountType, AccountTypeDef } from "yuebing-model";
 
 export default defineEventHandler(async (event) => {
-    filterErrors(event, "account.update", async (event) => {
-        requireAdminAccountObject(event, "account.update", async (event, _session, _account) => {
-        
-            const id = event.context.params.id;
-            const accountRepo = accountRepository();
-            const obj: AccountType = await readBody(event);
-            if (!obj) {
-                throw createError({ statusCode: 400, statusMessage: "bad request" });
-            }
-            if (AccountTypeDef.id(obj) !== id) {
-                throw createError({ statusCode: 422, statusMessage: "validation error", data: { id: ["mismatch"] } });
-            } else {
-                return await accountRepo.update(obj);
-            }
-        });
-        
+  filterErrors(event, "account.update", async (event) => {
+    requireAdminAccountObject(event, "account.update", async (event, _session, _account) => {
+      const id = event.context.params.id;
+      const accountRepo = accountRepository();
+      const obj: AccountType = await readBody(event);
+      if (!obj) {
+        throw createError({ statusCode: 400, statusMessage: "bad request" });
+      }
+      if (AccountTypeDef.id(obj) !== id) {
+        throw createError({ statusCode: 422, statusMessage: "validation error", data: { id: ["mismatch"] } });
+      } else {
+        return await accountRepo.update(obj);
+      }
     });
+  });
 });

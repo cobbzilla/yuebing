@@ -4,26 +4,24 @@
 import { MobilettoOrmSyncError } from "mobiletto-orm-typedef";
 
 export default defineEventHandler(async (event) => {
-    filterErrors(event, "account.delete", async (event) => {
-        requireAdminAccountObject(event, "account.create", async (event, _session, _account) => {
-        
-            const id = event.context.params.id;
-            const accountRepo = accountRepository();
-            try {
-                const account_by_id = await accountRepo.safeFindById(id);
-                if (account_by_id) {
-                    return await accountRepo.remove(account_by_id);
-                }
-            } catch (e) {
-                if (e instanceof MobilettoOrmSyncError) {
-                    logger.warn(`account.delete: sync error: ${e}`);
-                    throw conflict();
-                }
-                logger.error(`account.delete: unexpected error: ${e}`);
-                throw serverError();
-            }
-            throw notFound(id);
-        });
-        
+  filterErrors(event, "account.delete", async (event) => {
+    requireAdminAccountObject(event, "account.delete", async (event, _session, _account) => {
+      const id = event.context.params.id;
+      const accountRepo = accountRepository();
+      try {
+        const account_by_id = await accountRepo.safeFindById(id);
+        if (account_by_id) {
+          return await accountRepo.remove(account_by_id);
+        }
+      } catch (e) {
+        if (e instanceof MobilettoOrmSyncError) {
+          logger.warn(`account.delete: sync error: ${e}`);
+          throw conflict();
+        }
+        logger.error(`account.delete: unexpected error: ${e}`);
+        throw serverError();
+      }
+      throw notFound(id);
     });
+  });
 });
