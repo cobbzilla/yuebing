@@ -34,9 +34,7 @@
               <h4>
                 {{
                   messages.info_search_indexes_building.parseMessage({
-                    indexes: searchIndexesBuilding.join(
-                      messages.locale_text_list_separator,
-                    ),
+                    indexes: searchIndexesBuilding.join(messages.locale_text_list_separator),
                   })
                 }}
               </h4>
@@ -60,11 +58,7 @@
                   }}
                 </h2>
               </div>
-              <div
-                v-else-if="
-                  (isPublic || loggedIn) && tagWeights && tagWeights.length > 0
-                "
-              >
+              <div v-else-if="(isPublic || loggedIn) && tagWeights && tagWeights.length > 0">
                 <vue-word-cloud
                   id="searchTagCloud"
                   :words="tagWeights"
@@ -94,9 +88,7 @@
                   </v-card-title>
                   <v-card-text>
                     <v-btn icon>
-                      <v-icon style="font-size: xxx-large; color: whitesmoke">
-                        mdi-arrow-left
-                      </v-icon>
+                      <v-icon style="font-size: xxx-large; color: whitesmoke"> mdi-arrow-left </v-icon>
                     </v-btn>
                   </v-card-text>
                 </v-card>
@@ -140,9 +132,7 @@
                   </v-card-title>
                   <v-card-text>
                     <v-btn icon>
-                      <v-icon style="font-size: xxx-large; color: whitesmoke">
-                        mdi-arrow-right
-                      </v-icon>
+                      <v-icon style="font-size: xxx-large; color: whitesmoke"> mdi-arrow-right </v-icon>
                     </v-btn>
                   </v-card-text>
                 </v-card>
@@ -173,15 +163,9 @@ export default {
   components: { SearchBar, VueWordCloud },
   data() {
     return {
-      searchTerms:
-        this.searchQuery && this.searchQuery.tags
-          ? this.searchQuery.tags.join(" ")
-          : "",
+      searchTerms: this.searchQuery && this.searchQuery.tags ? this.searchQuery.tags.join(" ") : "",
       noCache: this.searchQuery && this.searchQuery.noCache === true,
-      offset:
-        this.searchQuery && this.searchQuery.offset
-          ? +this.searchQuery.offset
-          : 0,
+      offset: this.searchQuery && this.searchQuery.offset ? +this.searchQuery.offset : 0,
       pageSize: 20,
     };
   },
@@ -198,43 +182,22 @@ export default {
     ]),
     ...mapState("tags", ["tagWeights"]),
     messages() {
-      return localeMessagesForUser(
-        this.user,
-        this.browserLocale,
-        this.anonLocale,
-      );
+      return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale);
     },
     isPublic() {
       return this.publicConfig && this.publicConfig.public === true;
     },
     unverifiedUserAndNotPublic() {
-      return (
-        !this.isPublic &&
-        this.user &&
-        this.user.email &&
-        this.userStatus &&
-        !this.user.verified
-      );
+      return !this.isPublic && this.user && this.user.email && this.userStatus && !this.user.verified;
     },
     noQuery() {
-      return (
-        typeof this.$route.query.s === "undefined" ||
-        this.$route.query.s.length === 0
-      );
+      return typeof this.$route.query.s === "undefined" || this.$route.query.s.length === 0;
     },
     noSearchResults() {
-      return (
-        !this.searchResults ||
-        !this.searchResults.objectList ||
-        this.searchResults.objectList.length === 0
-      );
+      return !this.searchResults || !this.searchResults.objectList || this.searchResults.objectList.length === 0;
     },
     hasPrev() {
-      return (
-        this.searchResults &&
-        this.searchResults.start &&
-        this.searchResults.start > 0
-      );
+      return this.searchResults && this.searchResults.start && this.searchResults.start > 0;
     },
     hasNext() {
       return this.searchResults && this.searchResults.more;
@@ -282,10 +245,7 @@ export default {
         s: this.$route.query.s || "",
         o:
           this.searchResults && this.searchResults.more
-            ? Math.min(
-                this.searchResults.total,
-                this.searchResults.start + this.pageSize,
-              )
+            ? Math.min(this.searchResults.total, this.searchResults.start + this.pageSize)
             : this.pageSize,
       };
       this.$router.push({ path: this.$route.path, query });

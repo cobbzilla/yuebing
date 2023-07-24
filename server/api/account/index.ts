@@ -33,9 +33,6 @@ export default defineEventHandler(async (event) => {
     return createError({ statusCode: 403, statusMessage: "forbidden" });
   }
   const val = await handlers[method](event);
-  console.log(
-    `New request (returning ${val}) with method ${event.req.method}: ` +
-      getRequestURL(event),
-  );
+  console.log(`New request (returning ${val}) with method ${event.req.method}: ` + getRequestURL(event));
   return val;
 });

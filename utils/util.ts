@@ -3,8 +3,8 @@
 // As such, code here should remain very simple. Constants. Stateless methods. Nothing too fancy.
 //
 
-import {AuthAccountType, VolumeType} from "yuebing-model";
-import {sessionParams, UserStatus} from "~/utils/auth";
+import { AuthAccountType, VolumeType } from "yuebing-model";
+import { sessionParams, UserStatus } from "~/utils/auth";
 
 // adapted from https://stackoverflow.com/a/1203361
 function getExtension(filename: string) {

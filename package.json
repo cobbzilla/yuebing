@@ -32,11 +32,14 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prettier": "npx prettier src test --check",
+    "lint": "npx eslint components layouts pages plugins server stores utils",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "npx prettier components layouts pages plugins server stores utils --check",
     "prettier:fix": "npm run prettier -- --write"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@types/bcrypt": "^5.0.0",
     "@types/md5": "^2.3.2",
     "@types/node": "^18",

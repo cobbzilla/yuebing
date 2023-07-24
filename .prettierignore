@@ -1,2 +1,2 @@
-.nuxt/
-yuebing_storage*
+server/api/model/
+stores/model/
