@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "video",
@@ -32,7 +32,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "npx eslint components layouts pages plugins server stores utils",
+    "lint": "npx eslint --no-error-on-unmatched-pattern components/**/*.{vue,ts,js} layouts/*.{vue,ts,js} pages/*.{vue,ts,js} pages/**/*.{vue,ts,js} plugins/*.{vue,ts,js} plugins/**/*.{vue,ts,js} server/*.{ts,js} server/**/*.{ts,js} stores/*.{ts,js} stores/**/*.{ts,js} utils/*.{ts,js} utils/**/*.{ts,js}",
     "lint:fix": "npm run lint -- --fix",
     "prettier": "npx prettier components layouts pages plugins server stores utils --check",
     "prettier:fix": "npm run prettier -- --write"
@@ -47,12 +47,14 @@
     "@typescript-eslint/parser": "^5.61.0",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-vue": "^9.15.1",
     "h3": "^1.7.1",
     "nuxt": "^3.6.1",
     "prettier": "^3.0.0",
     "sass": "^1.63.6",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vue-eslint-parser": "^9.3.1"
   },
   "dependencies": {
     "@mdi/font": "^7.2.96",
@@ -81,7 +83,7 @@
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.0.1",
-    "yuebing-model": "^2.2.24",
+    "yuebing-model": "^2.2.26",
     "yup": "^1.2.0"
   }
 }

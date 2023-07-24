@@ -28,6 +28,12 @@ const MOBILETTO_INIT = new Cached<boolean>(
   { name: "mobiletto_init" },
 );
 
+type YuebingConnection = {
+  name: string;
+  type: string;
+  connection: MobilettoConnection;
+};
+
 type SystemStoragesType = {
   storages: YuebingConnection[];
   loadTime: number;
@@ -37,12 +43,6 @@ const SYSTEM_STORAGE: SystemStoragesType = {
   storages: [],
   loadTime: 0,
   refreshInterval: 60 * 60 * 1000, // every hour
-};
-
-type YuebingConnection = {
-  name: string;
-  type: string;
-  connection: MobilettoConnection;
 };
 
 const initializeStorage = async (): Promise<YuebingConnection> => {
@@ -130,7 +130,7 @@ const systemStorage = async (): Promise<MobilettoConnection[]> => {
     const repository = factory.repository<VolumeType>(VolumeTypeDef);
 
     // find all volumes
-    const volumes: VolumeType[] = await repository.find((v) => v.system);
+    const volumes: VolumeType[] = await repository.find((v: VolumeType) => v.system);
     logger.info(`systemStorage[refresh] connecting to ${volumes.length} volumes`);
 
     // connect to all volumes

@@ -1,8 +1,7 @@
-import { AccountType, RegistrationType, UsernameAndPasswordType } from "yuebing-model";
+import { AccountType, AuthAccountType, RegistrationType, UsernameAndPasswordType } from "yuebing-model";
 
 import * as auth from "../auth.js";
 import * as a from "./serviceUtil.js";
-import { AuthAccountType } from "yuebing-model/lib/esm";
 
 export const authService = {
   login,

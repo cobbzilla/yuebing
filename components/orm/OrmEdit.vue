@@ -69,14 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import { findMessage, parseMessage } from "yuebing-messages";
-import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
-
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
+import { useSessionStore } from "~/stores/session";
+import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
 
 const props = withDefaults(
   defineProps<{
@@ -127,22 +126,22 @@ const isError = (obj: object) => isNonEmptyObject(obj);
 
 const onEditOrmUpdate = (update: { field: string; value: any }) => {
   if (update) {
-    console.log(`OrmEdit.onEditOrmUpdate emitting newObjectUpdate: ${JSON.stringify(update)}`);
+    // console.log(`OrmEdit.onEditOrmUpdate emitting newObjectUpdate: ${JSON.stringify(update)}`);
     emit("editObjectUpdate", update);
   }
 };
 
 const onEditOrmSubmit = (submitted: any) => {
   if (submitted) {
-    console.log(`OrmEdit.onEditOrmSubmit emitting newObjectSubmit: ${JSON.stringify(submitted)}`);
+    // console.log(`OrmEdit.onEditOrmSubmit emitting newObjectSubmit: ${JSON.stringify(submitted)}`);
     emit("editObjectSubmit", submitted);
   }
 };
 
 const onCancelOrmForm = (cancel: any) => {
   if (cancel) {
-    console.log(`OrmEdit.onCancelOrmForm emitting newObjectCancel: ${JSON.stringify(cancel)}`);
-    emit("editObjectCancel", cancel);
+    // console.log(`OrmEdit.onCancelOrmForm emitting newObjectCancel: ${JSON.stringify(cancel)}`);
+    emit("editObjectCancel");
   }
 };
 
@@ -150,7 +149,7 @@ const editFormName = () => `edit${props.typeDef.typeName}Form`;
 const objectFields = () => props.typeDef.tabIndexedFields();
 
 const editObjectError = ref(props.editObjectError);
-watch(editObjectError, async (newError: any) => {
+watch(editObjectError, (newError: any) => {
   if (newError) {
     if (newError.errors) {
       errorSnackTimeout.value = -1;
@@ -168,10 +167,10 @@ watch(editObjectError, async (newError: any) => {
 });
 
 const editObjectSuccess = ref(props.editObjectSuccess);
-watch(editObjectSuccess, async (ok) => {
+watch(editObjectSuccess, (ok) => {
   if (ok) {
     // longer timeout for these kinds of things, more time to see the message
-    console.log(`OrmEdit.editObjectSuccess received: ${JSON.stringify(ok)}`);
+    // console.log(`OrmEdit.editObjectSuccess received: ${JSON.stringify(ok)}`);
     successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
     showSuccessSnackbar.value = true;
     showErrorSnackbar.value = false;

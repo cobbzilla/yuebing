@@ -7,7 +7,7 @@ export function currentUser() {
   try {
     return userJson ? JSON.parse(userJson) : null;
   } catch (e) {
-    console.log(`currentUser: error parsing userJson: ${userJson}: ${e}`);
+    // console.log(`currentUser: error parsing userJson: ${userJson}: ${e}`);
   }
 }
 
@@ -70,7 +70,7 @@ export function handleJsonResponse<T>(response: Response): Promise<T> {
       try {
         data = typeof text === "string" ? JSON.parse(text) : null;
       } catch (e) {
-        console.log(`handleJsonResponse: error parsing: ${text}`);
+        // console.log(`handleJsonResponse: error parsing: ${text}`);
         data = null;
       }
       if (!response.ok) {

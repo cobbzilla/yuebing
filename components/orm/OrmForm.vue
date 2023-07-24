@@ -46,18 +46,18 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/yup";
 import { findMessage, parseMessage } from "yuebing-messages";
 import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import * as yup from "yup";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
   defineProps<{
     typeDef: MobilettoOrmTypeDef;
-    validationSchema: yup.ObjectSchema;
+    validationSchema: yup.Schema;
     typeNameMessage: string;
     formName: string;
     thing: MobilettoOrmObject;
@@ -86,8 +86,8 @@ const props = withDefaults(
   },
 );
 const emit = defineEmits<{
-  submitted: [];
-  update: [thing: MobilettoOrmObject];
+  submitted: [obj: MobilettoOrmObject];
+  update: [update: { field: string; value: any }];
   cancel: [];
 }>();
 
@@ -105,38 +105,38 @@ const { errors, defineInputBinds, meta, handleSubmit } = useForm({
 const successEvent = ref(props.successEvent);
 const serverErrors = ref(props.serverErrors);
 
-watch(serverErrors, async (newError) => {
+watch(serverErrors, (newError) => {
   if (newError && newError.errors && Object.keys(newError.errors).length > 0) {
     // what to do here
-    console.log(`found serverErrors, need to set these somehow: ${JSON.stringify(newError)}`);
+    // console.log(`found serverErrors, need to set these somehow: ${JSON.stringify(newError)}`);
     // this.$refs[props.formName].setErrors(newError.errors);
   }
 });
 
-watch(successEvent, async (newEvent) => {
+watch(successEvent, (newEvent) => {
   if (newEvent && typeof newEvent === "object" && Object.keys(newEvent).length > 0) {
     Object.assign(newThing, JSON.parse(JSON.stringify(props.thing)));
   }
 });
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
-  console.log(`OrmForm.onFieldUpdate: emitting ${JSON.stringify(update)}`);
+  // console.log(`OrmForm.onFieldUpdate: emitting ${JSON.stringify(update)}`);
   if (update) {
     deepUpdate(newThing, update.field, update.value);
     emit("update", update);
   }
 };
 
-const handleSave = handleSubmit((values) => {
+const handleSave = handleSubmit((values: Record<string, any>) => {
   try {
-    console.log(`OrmForm.handleSave: emitting submitted: ${JSON.stringify(values)}`);
-    emit("submitted", values);
+    // console.log(`OrmForm.handleSave: emitting submitted: ${JSON.stringify(values)}`);
+    emit("submitted", values as MobilettoOrmObject);
   } catch (e) {
-    console.error(`OrmForm.handleSave failed: ${e}`);
+    // console.error(`OrmForm.handleSave failed: ${e}`);
   }
 });
 
 const handleCancel = () => {
-  emit("cancel", true);
+  emit("cancel");
 };
 </script>

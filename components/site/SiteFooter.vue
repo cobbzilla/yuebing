@@ -6,10 +6,12 @@
       <!--      </v-col>-->
       <!--      <v-spacer />-->
       <v-col v-if="messages.footer_credit">
+        <!--eslint-disable vue/no-v-html-->
         <div
           style="font-size: xx-small; text-align: right; position: absolute; bottom: 40px"
           v-html="messages.footer_credit"
         />
+        <!--eslint-enable vue/no-v-html-->
       </v-col>
     </v-row>
   </v-container>

@@ -1,6 +1,6 @@
+import { VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION } from "yuebing-model";
 import { AdminSummary } from "~/utils/admin";
 import { PUBLIC_CONFIG } from "~/server/utils/config";
-import { VOLUME_MOUNT_SOURCE, VOLUME_MOUNT_DESTINATION } from "yuebing-model";
 
 export default defineEventHandler(async (event) => {
   const publicConfig = await PUBLIC_CONFIG.get();

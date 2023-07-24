@@ -1,13 +1,12 @@
 import { SESSION_HEADER } from "~/utils/auth";
 import { forbidden } from "~/server/utils/filter/errorHandler";
-import { sessionRepository, SessionRepositoryType } from "~/server/utils/repo/sessionRepo";
-import { MobilettoOrmNotFoundError } from "mobiletto-orm";
+import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { AccountType, SessionType } from "yuebing-model";
-import { AccountRepositoryType, accountRepository } from "~/server/utils/repo/accountRepo";
+import { accountRepository } from "~/server/utils/repo/accountRepo";
 
 export const requireAccount = async (
   event,
-  logPrefix: string,
+  _logPrefix: string,
   fn: (event, session: SessionType) => Promise<unknown>,
 ) => {
   if (!event?.req?.headers[SESSION_HEADER]) {
@@ -36,7 +35,7 @@ export const requireAdminAccountObject = async (
   logPrefix: string,
   fn: (event, session: SessionType, account: AccountType) => Promise<unknown>,
 ) => {
-  return requireAccountObject(event, logPrefix, async (event, session: SessionType, account: AccountType) => {
+  return requireAccountObject(event, logPrefix, (event, session: SessionType, account: AccountType) => {
     if (account.admin === true) {
       return fn(event, session, account);
     } else {

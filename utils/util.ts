@@ -7,6 +7,7 @@ import { AuthAccountType, VolumeType } from "yuebing-model";
 import { sessionParams, UserStatus } from "~/utils/auth";
 
 // adapted from https://stackoverflow.com/a/1203361
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getExtension(filename: string) {
   return filename.split(".").pop();
 }

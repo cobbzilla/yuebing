@@ -1,3 +1,4 @@
+import { ValidationErrors } from "mobiletto-orm";
 import {
   AccountType,
   AccountTypeDef,
@@ -8,7 +9,6 @@ import {
   RegistrationTypeDef,
 } from "yuebing-model";
 import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/accountRepo";
-import { MobilettoOrmValidationError, ValidationErrors } from "mobiletto-orm";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, forbidden, validationError } from "~/server/utils/filter/errorHandler";
 

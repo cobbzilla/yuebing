@@ -68,11 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { storeToRefs } from "pinia";
+import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import { parseDateMessage } from "yuebing-messages";
 import { useConfigStore } from "~/stores/config";
 import { useSessionStore } from "~/stores/session";
-import { parseDateMessage } from "yuebing-messages";
 
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);

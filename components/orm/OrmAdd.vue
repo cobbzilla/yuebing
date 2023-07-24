@@ -71,11 +71,11 @@
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
-import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import { findMessage, parseMessage } from "yuebing-messages";
+import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
+import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
   defineProps<{
@@ -122,22 +122,22 @@ const isError = (obj: object) => isNonEmptyObject(obj);
 
 const onAddOrmUpdate = (update: { field: string; value: any }) => {
   if (update) {
-    console.log(`OrmAdd.onAddOrmUpdate emitting newObjectUpdate: ${JSON.stringify(update)}`);
+    // console.log(`OrmAdd.onAddOrmUpdate emitting newObjectUpdate: ${JSON.stringify(update)}`);
     emit("newObjectUpdate", update);
   }
 };
 
 const onAddOrmSubmit = (submitted: any) => {
   if (submitted) {
-    console.log(`OrmAdd.onAddOrmSubmit emitting newObjectSubmit: ${JSON.stringify(submitted)}`);
+    // console.log(`OrmAdd.onAddOrmSubmit emitting newObjectSubmit: ${JSON.stringify(submitted)}`);
     emit("newObjectSubmit", submitted);
   }
 };
 
 const onCancelOrmForm = (cancel: any) => {
   if (cancel) {
-    console.log(`OrmAdd.onCancelOrmForm emitting newObjectCancel: ${JSON.stringify(cancel)}`);
-    emit("newObjectCancel", cancel);
+    // console.log(`OrmAdd.onCancelOrmForm emitting newObjectCancel: ${JSON.stringify(cancel)}`);
+    emit("newObjectCancel");
   }
 };
 
@@ -145,7 +145,7 @@ const addFormName = () => `add${props.typeDef.typeName}Form`;
 const objectFields = () => props.typeDef.tabIndexedFields();
 
 const addObjectError = ref(props.addObjectError);
-watch(addObjectError, async (newError: any) => {
+watch(addObjectError, (newError: any) => {
   if (newError) {
     if (newError.errors) {
       errorSnackTimeout.value = -1;
@@ -163,10 +163,10 @@ watch(addObjectError, async (newError: any) => {
 });
 
 const addObjectSuccess = ref(props.addObjectSuccess);
-watch(addObjectSuccess, async (ok) => {
+watch(addObjectSuccess, (ok) => {
   if (ok) {
     // longer timeout for these kinds of things, more time to see the message
-    console.log(`OrmAdd.addObjectSuccess received: ${JSON.stringify(ok)}`);
+    // console.log(`OrmAdd.addObjectSuccess received: ${JSON.stringify(ok)}`);
     successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
     showSuccessSnackbar.value = true;
     showErrorSnackbar.value = false;

@@ -9,13 +9,13 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
+// import { storeToRefs } from "pinia";
+// import { useSessionStore } from "~/stores/session";
+// import { useConfigStore } from "~/stores/config";
 
-const session = storeToRefs(useSessionStore());
-const messages = ref(session.localeMessages);
+// const session = storeToRefs(useSessionStore());
+// const messages = ref(session.localeMessages);
 
-const config = storeToRefs(useConfigStore());
-const publicConfig = ref(config.publicConfig);
+// const config = storeToRefs(useConfigStore());
+// const publicConfig = ref(config.publicConfig);
 </script>

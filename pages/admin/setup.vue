@@ -29,10 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
-import { ref } from "vue";
-
-const session = storeToRefs(useSessionStore());
-const messages = ref(session.localeMessages);
+// import { storeToRefs } from "pinia";
+// import { useSessionStore } from "~/stores/session";
+//
+// const session = storeToRefs(useSessionStore());
+// const messages = ref(session.localeMessages);
 </script>

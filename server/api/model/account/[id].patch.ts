@@ -4,7 +4,7 @@ import { AccountType, AccountTypeDef } from "yuebing-model";
 
 export default defineEventHandler(async (event) => {
     filterErrors(event, "account.update", async (event) => {
-        requireAdminAccountObject(event, "account.create", async (event, session, account) => {
+        requireAdminAccountObject(event, "account.update", async (event, _session, _account) => {
         
             const id = event.context.params.id;
             const accountRepo = accountRepository();

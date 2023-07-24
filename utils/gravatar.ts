@@ -12,4 +12,4 @@ export const gravatarEmailUrl = (email: string): string | null =>
     : null;
 
 export const gravatarUrl = (user: Record<string, any>): string | null =>
-  typeof user?.email === "string" && user.email.indexOf("@") !== -1 ? gravatarEmailUrl(user.email) : null;
+  typeof user?.email === "string" && user.email.includes("@") ? gravatarEmailUrl(user.email) : null;

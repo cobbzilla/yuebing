@@ -17,13 +17,12 @@ const HAS_ADMIN: Cached<boolean> = new Cached(
   { name: "hasAdmin", default: false },
 );
 
-export const hasAdmin = async (): Promise<boolean> => {
+export const hasAdmin = (): Promise<boolean> => {
   return HAS_ADMIN.get();
 };
 
 export const PUBLIC_CONFIG: Cached<PublicConfigType> = new Cached(
   async (): Promise<PublicConfigType> => {
-    const admins = await accountRepository().safeFindBy("admin", true);
     return Object.assign({}, await publicConfigRepository().findSingleton(), {
       needsAdmin: !(await hasAdmin()),
     });

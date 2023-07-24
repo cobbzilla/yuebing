@@ -55,14 +55,13 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/yup";
-import { ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
 import { fieldErrorMessage } from "yuebing-messages";
 import { UsernameAndPasswordSchema } from "yuebing-model";
+import { useSessionStore } from "~/stores/session";
+import { useConfigStore } from "~/stores/config";
 
 const { errors, defineInputBinds, meta, handleSubmit } = useForm({
   validationSchema: toTypedSchema(UsernameAndPasswordSchema),
@@ -80,7 +79,7 @@ const publicConfig = ref(config.publicConfig);
 const configLoaded = ref(false);
 const registrationEnabled = ref(false);
 
-watch(publicConfig, async (newConfig, oldConfig) => {
+watch(publicConfig, (newConfig) => {
   if (!configLoaded.value) {
     configLoaded.value = true;
     registrationEnabled.value = newConfig?.registrationEnabled ? newConfig.registrationEnabled : false;

@@ -18,9 +18,9 @@
           :add-object-error="addObjectError"
           :add-object-error-message="addObjectErrorMessage"
           :add-object-success-message="addObjectSuccessMessage"
-          @newObjectUpdate="onNewObjectUpdate"
-          @newObjectSubmit="onNewObjectSubmit"
-          @newObjectCancel="onNewObjectCancel"
+          @new-object-update="onNewObjectUpdate"
+          @new-object-submit="onNewObjectSubmit"
+          @new-object-cancel="onNewObjectCancel"
         />
       </v-col>
     </v-row>
@@ -37,8 +37,8 @@
         :edit-object-error="editObjectError"
         :edit-object-error-message="editObjectErrorMessage"
         :edit-object-success-message="editObjectSuccessMessage"
-        @editObjectSubmit="onEditObjectSubmit"
-        @editObjectCancel="onEditObjectCancel"
+        @edit-object-submit="onEditObjectSubmit"
+        @edit-object-cancel="onEditObjectCancel"
       />
     </v-row>
     <v-row v-else>
@@ -151,6 +151,7 @@ type ActionConfig = {
 const props = withDefaults(
   defineProps<{
     typeDef: MobilettoOrmTypeDef;
+    typeAdminMessage: string;
     typeNameMessage: string;
     labelPrefixes: string[];
     objectList: MobilettoOrmObject[];
@@ -223,8 +224,8 @@ const addingObject = ref(false);
 const findingObjects = ref(false);
 const editingObject = ref({});
 
-const addFormName = () => `add${props.typeDef.typeName}Form`;
-const objectFields = () => props.typeDef.tabIndexedFields();
+// const addFormName = () => `add${props.typeDef.typeName}Form`;
+// const objectFields = () => props.typeDef.tabIndexedFields();
 
 const searchQuery = () => ({
   pageNumber: pageNumber.value,
@@ -247,9 +248,9 @@ const tableFieldMessages = () => {
   return defaultTableFieldMessages;
 };
 
-const isNonEmptyObject = (obj: object) => obj && typeof obj === "object" && Object.keys(obj).length > 0;
-const isSuccess = (obj: object) => isNonEmptyObject(obj);
-const isError = (obj: object) => isNonEmptyObject(obj);
+// const isNonEmptyObject = (obj: object) => obj && typeof obj === "object" && Object.keys(obj).length > 0;
+// const isSuccess = (obj: object) => isNonEmptyObject(obj);
+// const isError = (obj: object) => isNonEmptyObject(obj);
 
 const fieldError = (field: string, error: any, labelPrefix = "label_") => {
   return field && error ? fieldErrorMessage(field, error, messages.value, labelPrefix) : "(no message)";
@@ -257,11 +258,11 @@ const fieldError = (field: string, error: any, labelPrefix = "label_") => {
 
 const searchObjects = () => {
   if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(searchQuery())) {
-    console.log("not sending duplicate search");
+    // console.log("not sending duplicate search");
   } else {
     const query = searchQuery();
     lastQuery.value = Object.assign({}, query);
-    console.log(`searchObjects: emitting query: ${JSON.stringify(query)}`);
+    // console.log(`searchObjects: emitting query: ${JSON.stringify(query)}`);
     findingObjects.value = true;
     emit("query", query);
   }
@@ -333,20 +334,20 @@ const delObject = (obj: MobilettoOrmObject) => {
 };
 
 const objectList = ref(props.objectList);
-watch(objectList, async (newList) => {
+watch(objectList, (newList) => {
   if (newList && Array.isArray(newList)) {
     findingObjects.value = false;
   }
 });
 const addObjectSuccess = ref(props.addObjectSuccess);
-watch(addObjectSuccess, async (success) => {
+watch(addObjectSuccess, (success) => {
   if (success && typeof success === "object" && Object.keys(success).length > 0) {
     addingObject.value = false;
     searchObjects();
   }
 });
 const editObjectSuccess = ref(props.editObjectSuccess);
-watch(editObjectSuccess, async (success) => {
+watch(editObjectSuccess, (success) => {
   if (success && typeof success === "object" && Object.keys(success).length > 0) {
     editingObject.value = {};
     searchObjects();

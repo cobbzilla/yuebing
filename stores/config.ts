@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { configService } from "~/utils/services/configService";
 import { PublicConfigTypeDef, PrivateConfigTypeDef } from "yuebing-model";
+import { configService } from "~/utils/services/configService";
 
 export const useConfigStore = defineStore("config", {
   state: () => ({

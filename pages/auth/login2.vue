@@ -44,10 +44,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
-import { fieldErrorMessage } from "yuebing-messages";
 import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
+import { useSessionStore } from "~/stores/session";
+// import { useConfigStore } from "~/stores/config";
+// import { fieldErrorMessage } from "yuebing-messages";
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
   console.log(`login2.onFieldUpdate received: ${JSON.stringify(update)}`);

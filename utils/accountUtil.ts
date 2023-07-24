@@ -1,5 +1,3 @@
-import * as md5 from "md5";
-
 import { AccountType as Account } from "yuebing-model";
 
 export const ACCOUNT_SORT: Record<string, (u1: Account, u2: Account) => number> = {

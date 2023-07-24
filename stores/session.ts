@@ -37,7 +37,7 @@ export const useSessionStore = defineStore("session", {
         this.anonLocale = loc;
       }
       this.currentLocale = currentLocaleForUser(this.user, this.browserLocale, this.anonLocale);
-      console.log(`setLocale: set currentLocale=${this.currentLocale} on this=${JSON.stringify(this)}`);
+      // console.log(`setLocale: set currentLocale=${this.currentLocale} on this=${JSON.stringify(this)}`);
     },
     async login(usernameOrEmail: string, password: string): Promise<void> {
       this.userStatus.loggingIn = true;

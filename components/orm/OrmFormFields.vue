@@ -17,6 +17,7 @@
             :field-header="''"
             :success-event="successEvent"
             :server-errors="serverErrors"
+            :define-input-binds="defineInputBinds"
             :meta="meta"
             :errors="errors"
             :label-prefixes="labelPrefixes"
@@ -40,6 +41,7 @@
             :saving="saving"
             :create="create"
             :success-event="successEvent"
+            :define-input-binds="defineInputBinds"
             :meta="meta"
             :errors="errors"
             @update="onFieldUpdate"
@@ -52,9 +54,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
 import { MobilettoOrmObject, ValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
   defineProps<{
@@ -69,6 +71,7 @@ const props = withDefaults(
     saving: boolean;
     successEvent: object;
     serverErrors: ValidationErrors;
+    defineInputBinds: any;
     meta: any;
     errors: any;
     labelPrefixes: string[];
@@ -91,8 +94,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  submitted: [];
-  update: [field: string, value: any];
+  submitted: [obj: MobilettoOrmObject];
+  update: [update: { field: string; value: any }];
   cancel: [];
 }>();
 
@@ -157,7 +160,7 @@ const isObject = (field: MobilettoOrmFieldDefConfig) => {
   return isObj;
 };
 const onFieldUpdate = (update: { field: string; value: any }) => {
-  console.log(`OrmFormField.onFieldUpdate: emitting ${JSON.stringify(update)}`);
+  // console.log(`OrmFormField.onFieldUpdate: emitting ${JSON.stringify(update)}`);
   emit("update", update);
 };
 </script>

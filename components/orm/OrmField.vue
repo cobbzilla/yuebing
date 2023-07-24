@@ -8,6 +8,7 @@
         <div v-else-if="field.control === 'text' || field.control === 'password'">
           <v-text-field
             v-model="localValue"
+            :v-bind="field.name"
             :type="field.control"
             :label="labelFor(field)"
             :full-width="false"
@@ -23,6 +24,7 @@
           <v-text-field
             v-if="!create"
             v-model="localValue"
+            :v-bind="field.name"
             :type="'text'"
             :label="labelFor(field)"
             :full-width="false"
@@ -34,6 +36,7 @@
         <div v-else-if="field.control === 'textarea'">
           <v-textarea
             v-model="localValue"
+            :v-bind="field.name"
             :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
@@ -47,6 +50,7 @@
         <div v-else-if="field.control === 'flag'">
           <v-checkbox
             v-model="localValue"
+            :v-bind="field.name"
             :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
@@ -59,6 +63,7 @@
         <div v-else-if="field.control === 'select'">
           <v-select
             v-model="localValue"
+            :v-bind="field.name"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
@@ -75,6 +80,7 @@
         <div v-else-if="field.control === 'multi'">
           <v-select
             v-model="localValue"
+            :v-bind="field.name"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
@@ -92,6 +98,7 @@
         <div v-else>
           <v-text-field
             v-model="localValue"
+            :v-bind="field.name"
             :type="field.control"
             :label="labelFor(field)"
             :full-width="false"
@@ -110,10 +117,10 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
-import { MobilettoOrmObject, ValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { fieldErrorMessage, findMessage } from "yuebing-messages";
+import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
   defineProps<{
@@ -127,6 +134,7 @@ const props = withDefaults(
     submitted: boolean;
     saving: boolean;
     successEvent: object;
+    defineInputBinds: any;
     meta: any;
     errors: any;
     labelPrefixes: string[];
@@ -140,7 +148,7 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits<{
+/* const emit = */ defineEmits<{
   submitted: [];
   update: [field: string, value: any];
   cancel: [];
@@ -149,14 +157,18 @@ const emit = defineEmits<{
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 
+/* const localField = */ props.defineInputBinds(props.field.name, {
+  validateOnInput: true,
+});
+
 const localValue = ref(props.value ? props.value : props.field.default ? props.field.default : null);
 
 const isReadOnly = () => {
-  console.log(
-    `isReadOnly(${props.field.name}) evaluating with props.rootThing=${JSON.stringify(
-      props.rootThing,
-    )} and props.readOnlyObject(props.rootThing) == ${props.readOnlyObject(props.rootThing)}`,
-  );
+  // console.log(
+  //   `isReadOnly(${props.field.name}) evaluating with props.rootThing=${JSON.stringify(
+  //     props.rootThing,
+  //   )} and props.readOnlyObject(props.rootThing) == ${props.readOnlyObject(props.rootThing)}`,
+  // );
   return typeof props.readOnlyObject === "function" && props.readOnlyObject(props.rootThing) === true;
 };
 
@@ -176,7 +188,7 @@ const valueOrDefault = () => {
 
 const successEvent = ref(props.successEvent);
 
-watch(successEvent, async (newEvent) => {
+watch(successEvent, (newEvent) => {
   if (newEvent && typeof newEvent === "object" && Object.keys(newEvent).length > 0) {
     localValue.value = valueOrDefault();
   }

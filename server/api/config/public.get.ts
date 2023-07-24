@@ -1,3 +1,3 @@
-export default defineEventHandler(async (event) => {
+export default defineEventHandler((_event) => {
   return PUBLIC_CONFIG.get();
 });

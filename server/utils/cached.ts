@@ -1,5 +1,6 @@
 import { DEFAULT_CLOCK, ClockType } from "~/utils/util";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type TFunc<T> = <T>() => Promise<T>;
 
 export type CachedConfig<T> = {
@@ -43,7 +44,7 @@ export class Cached<T> {
   }
 
   async get(): Promise<T> {
-    if (this.cached != undefined && (!this.timeout || this.clock.now() - this.loadTime < this.timeout)) {
+    if (this.cached !== undefined && (!this.timeout || this.clock.now() - this.loadTime < this.timeout)) {
       return this.cached;
     }
     const result: T | Error = await this.refresh();

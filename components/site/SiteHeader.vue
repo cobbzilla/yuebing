@@ -2,7 +2,7 @@
   <div>
     <v-app-bar :clipped-left="clipped" fixed app>
       <NuxtLink to="/" style="text-decoration: none">
-        <b><v-toolbar-title v-text="title()" /></b>
+        <b><v-toolbar-title :text="title()" /></b>
       </NuxtLink>
       <v-spacer />
       <div v-if="session.loggedIn && session.user.email && session.user.firstName && gravatarUrl(session.user)">
@@ -27,7 +27,7 @@
           item-value="name"
           :value="currentLocale"
           dense
-          @update:modelValue="selectLocale"
+          @update:model-value="selectLocale"
         >
           <template #selection="{ item }">
             <h1 class="localeSelectorCurrentLocale">
@@ -46,19 +46,19 @@
     <v-navigation-drawer v-model="rightDrawer" :mini-variant="false" :clipped="clipped" location="right" fixed app>
       <v-list>
         <v-list-item v-if="session.loggedIn" to="/profile" router exact>
-          <v-list-item-title v-text="messages.button_profile" />
+          <v-list-item-title :text="messages.button_profile" />
         </v-list-item>
         <v-list-item v-if="session.admin" to="/admin" router exact>
-          <v-list-item-title v-text="messages.button_admin" />
+          <v-list-item-title :text="messages.button_admin" />
         </v-list-item>
         <v-list-item v-if="session.loggedIn" @click.stop="session.logout()">
-          <v-list-item-title v-text="messages.button_logout" />
+          <v-list-item-title :text="messages.button_logout" />
         </v-list-item>
         <v-list-item v-if="!session.loggedIn" :to="signInUrl" router exact>
-          <v-list-item-title v-text="messages.button_login" />
+          <v-list-item-title :text="messages.button_login" />
         </v-list-item>
         <v-list-item v-if="!session.loggedIn && registrationEnabled()" :to="signUpUrl" router exact>
-          <v-list-item-title v-text="messages.button_register" />
+          <v-list-item-title :text="messages.button_register" />
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -67,22 +67,19 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { localesList, localeEmoji } from "yuebing-messages";
 import { useConfigStore } from "~/stores/config";
 import { useSessionStore } from "~/stores/session";
-import { localesList, localeEmoji } from "yuebing-messages";
 import { gravatarUrl } from "~/utils/gravatar";
 
 const session = useSessionStore();
 const config = useConfigStore();
 await config.loadPublicConfig();
 
-const title = () => {
-  config?.publicConfig?.title ? config.publicConfig.title : "Yuebing 🥮";
-};
+const title = () => (config?.publicConfig?.title ? config.publicConfig.title : "Yuebing 🥮");
 
-const registrationEnabled = () => {
+const registrationEnabled = () =>
   config?.publicConfig?.registrationEnabled ? config.publicConfig.registrationEnabled : false;
-};
 
 const signUpUrl = "/signUp";
 const signInUrl = "/signIn";

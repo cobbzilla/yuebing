@@ -14,15 +14,9 @@
   </v-app>
 </template>
 
-<script lang="ts">
-export default {
-  head: {},
-};
-</script>
-
 <script setup lang="ts">
-import { useConfigStore } from "~/stores/config";
 import { storeToRefs } from "pinia";
+import { useConfigStore } from "~/stores/config";
 import { DEFAULT_META } from "~/utils/meta";
 
 const config = useConfigStore();
@@ -35,4 +29,10 @@ useSeoMeta({
   },
   ...DEFAULT_META,
 });
+</script>
+
+<script lang="ts">
+export default {
+  head: {},
+};
 </script>

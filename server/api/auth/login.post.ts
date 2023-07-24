@@ -12,7 +12,7 @@ import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/ac
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, notFound } from "~/server/utils/filter/errorHandler";
 
-export default defineEventHandler(async (event) =>
+export default defineEventHandler((event) =>
   filterErrors(event, "logout", async (event) => {
     const loginRequest: UsernameAndPasswordType = await readBody(event);
 
