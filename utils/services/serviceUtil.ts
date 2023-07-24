@@ -1,4 +1,4 @@
-import { USER_SESSION_HEADER, ANON_LOCALE_STORAGE_KEY } from "../util.js";
+import { SESSION_HEADER } from "../auth";
 
 export const USER_LOCAL_STORAGE_KEY = "user";
 
@@ -15,7 +15,7 @@ export function authHeader() {
   const user = currentUser();
   if (user && user.session) {
     const headers: Record<string, string> = {};
-    headers[USER_SESSION_HEADER] = user.session;
+    headers[SESSION_HEADER] = user.session;
     return headers;
   } else {
     return {};
@@ -64,19 +64,23 @@ export function authDataJson<T>(obj: T, method: string, headers: OptionalHeaders
 }
 
 export function handleJsonResponse<T>(response: Response): Promise<T> {
-  return response.text().then((text) => {
-    let data;
-    try {
-      data = typeof text === "string" ? JSON.parse(text) : null;
-    } catch (e) {
-      console.log(`handleJsonResponse: error parsing: ${text}`);
-      data = null;
-    }
-    if (!response.ok) {
-      const error = data || text || response.statusText;
-      return Promise.reject(error);
-    }
-    // console.log(`handleJsonResponse returning: ${JSON.stringify(data, null, 2)}`)
-    return data;
-  });
+  if (response && typeof response.text === "function") {
+    return response.text().then((text) => {
+      let data;
+      try {
+        data = typeof text === "string" ? JSON.parse(text) : null;
+      } catch (e) {
+        console.log(`handleJsonResponse: error parsing: ${text}`);
+        data = null;
+      }
+      if (!response.ok) {
+        const error = data || text || response.statusText;
+        return Promise.reject(error);
+      }
+      // console.log(`handleJsonResponse returning: ${JSON.stringify(data, null, 2)}`)
+      return data;
+    });
+  } else {
+    return Promise.resolve(response as T);
+  }
 }

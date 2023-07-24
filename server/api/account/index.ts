@@ -37,6 +37,5 @@ export default defineEventHandler(async (event) => {
     `New request (returning ${val}) with method ${event.req.method}: ` +
       getRequestURL(event),
   );
-  // return `wtf man: ${val} is what it is\n`;
   return val;
 });

@@ -1,19 +1,21 @@
 import { DEFAULT_CLOCK, ClockType } from "~/utils/util";
 
-type CachedConfig<T> = {
+export type TFunc<T> = <T>() => Promise<T>;
+
+export type CachedConfig<T> = {
   name?: string;
   timeout?: number;
   clock?: ClockType;
-  default?: T;
+  default?: T | TFunc<T>;
 };
 
 export class Cached<T> {
   private readonly fn: () => Promise<T>;
-  private readonly timeout: number | undefined;
+  timeout: number | undefined;
   private readonly clock: ClockType;
   private readonly name?: string;
   private cached?: T;
-  private readonly default?: T;
+  private readonly default?: T | TFunc<T>;
   private loadTime: number;
 
   constructor(fn: () => Promise<T>, config?: CachedConfig<T>) {
@@ -51,7 +53,11 @@ export class Cached<T> {
         return this.cached;
       } else if (this.default) {
         logger.warn(`cached${this.name ? `[${this.name}]` : ""}.get: error refreshing, returning default value`);
-        return this.default;
+        if (typeof this.default === "function") {
+          return await (this.default as TFunc<T>)();
+        } else {
+          return this.default;
+        }
       }
       throw result;
     }

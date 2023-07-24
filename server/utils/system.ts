@@ -3,6 +3,7 @@ import { MobilettoConnection, mobiletto, registerDriver, MobilettoDriverParamete
 import { storageClient as localDriver } from "mobiletto-driver-local";
 import { storageClient as s3Driver } from "mobiletto-driver-s3";
 import { storageClient as b2Driver } from "mobiletto-driver-b2";
+import { storageClient as genericDriver } from "mobiletto-driver-generic";
 import {
   MobilettoOrmRepositoryFactory,
   MobilettoOrmStorageResolver,
@@ -14,12 +15,14 @@ import {
 import { VolumeTypeDef, VolumeType } from "yuebing-model";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
+import { DEFAULT_TEMP_VOLUME, DEFAULT_VOLUME_PREFIX } from "~/utils/util";
 
 const MOBILETTO_INIT = new Cached<boolean>(
   (): Promise<boolean> => {
     registerDriver("local", localDriver as MobilettoDriverParameter);
     registerDriver("s3", s3Driver as MobilettoDriverParameter);
     registerDriver("b2", b2Driver as MobilettoDriverParameter);
+    registerDriver("generic", genericDriver as MobilettoDriverParameter);
     return Promise.resolve(true);
   },
   { name: "mobiletto_init" },
@@ -53,14 +56,14 @@ const initializeStorage = async (): Promise<YuebingConnection> => {
     const secret = process.env.YUEBING_STORAGE_SECRET || null;
     const opts = JSON.parse(process.env.YUEBING_STORAGE_OPTS || "{}");
     return {
-      name: `~default-env-${driverPath}`,
+      name: `${DEFAULT_VOLUME_PREFIX} env:${driverPath}`,
       type: driverPath,
       connection: await mobiletto(driverPath, key, secret, opts),
     };
   } else {
     // create new storage on local filesystem
     return {
-      name: "~default-tmpdir",
+      name: DEFAULT_TEMP_VOLUME,
       type: "local",
       connection: await mobiletto("local", fs.mkdtempSync("yuebing_storage_")),
     };

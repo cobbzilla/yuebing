@@ -2,6 +2,7 @@ import { PrivateConfigType, PublicConfigType } from "yuebing-model";
 import { FALLBACK_DEFAULT_LANG } from "yuebing-messages";
 
 export const DEFAULT_PUBLIC_CONFIG: PublicConfigType = {
+  isDefault: true,
   public: process.env.YB_PUBLIC ? !!process.env.YB_PUBLIC : false,
   title: process.env.YB_TITLE ? process.env.YB_TITLE : "Yuebing 🥮",
   siteUrl: process.env.YB_SITE_URL ? process.env.YB_SITE_URL : "http://127.0.0.1:3000",
@@ -13,6 +14,7 @@ export const DEFAULT_PUBLIC_CONFIG: PublicConfigType = {
 };
 
 export const DEFAULT_PRIVATE_CONFIG: PrivateConfigType = {
+  isDefault: true,
   auth: {
     verifyAccountTimeout: process.env.YB_AUTH_VERIFY_ACCOUNT_TIMEOUT
       ? parseInt(process.env.YB_AUTH_VERIFY_ACCOUNT_TIMEOUT)

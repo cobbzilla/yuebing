@@ -3,31 +3,17 @@
 // As such, code here should remain very simple. Constants. Stateless methods. Nothing too fancy.
 //
 
-import { AuthAccountType, VolumeType } from "yuebing-model";
+import {AuthAccountType, VolumeType} from "yuebing-model";
+import {sessionParams, UserStatus} from "~/utils/auth";
 
 // adapted from https://stackoverflow.com/a/1203361
 function getExtension(filename: string) {
   return filename.split(".").pop();
 }
 
-// const NO_CACHE_HEADER = 'x-yb-nocache'
-export const USER_SESSION_HEADER = "x-yb-session";
-export const USER_SESSION_QUERY_PARAM = "s";
 export const QUALITY_PARAM = "q";
-export const ANON_LOCALE_STORAGE_KEY = "anon_locale";
 
 export const INDEX_STILL_BUILDING_TOKEN = "~~";
-
-export type UserStatus = {
-  loggedIn?: boolean;
-};
-
-export function sessionParams(user?: AuthAccountType, status?: UserStatus) {
-  if (!user || !user.session || !status || !status.loggedIn) {
-    return "";
-  }
-  return `?${USER_SESSION_QUERY_PARAM}=${user.session}`;
-}
 
 export const STREAM_API = "/api/source/stream";
 
@@ -133,12 +119,13 @@ export const UI_CONFIG = {
   snackbarSuccessTimeout: 6000,
 };
 
-export const SELF_VOLUME_NAME = " ~ this ~ ";
+export const DEFAULT_VOLUME_PREFIX = "~ default ~";
+export const DEFAULT_TEMP_VOLUME = DEFAULT_VOLUME_PREFIX + ":tmpdir";
 
-export const isSelfVolume = (volume: string | VolumeType) =>
+export const isDefaultVolume = (volume: string | VolumeType) =>
   volume &&
-  ((typeof volume === "string" && volume === SELF_VOLUME_NAME) ||
-    (typeof volume === "object" && volume.name && volume.name === SELF_VOLUME_NAME));
+  ((typeof volume === "string" && volume.startsWith(DEFAULT_VOLUME_PREFIX)) ||
+    (typeof volume === "object" && volume.name && volume.name.startsWith(DEFAULT_VOLUME_PREFIX)));
 
 export const deepUpdate = (obj: any, fieldPath: string, value: any) => {
   let thing = obj;

@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import { accountService } from "~/utils/services/accountService";
 import { RegistrationType } from "yuebing-model";
 import { MIN_ID_LENGTH } from "mobiletto-orm-typedef";
 import { currentLocaleForUser, FALLBACK_DEFAULT_LANG, localeMessagesForUser } from "yuebing-messages";
 import { USER_LOCAL_STORAGE_KEY } from "~/utils/services/serviceUtil";
+import { authService } from "~/utils/services/authService";
 
 export const localStorageUser = () => JSON.parse(localStorage.getItem(USER_LOCAL_STORAGE_KEY) || "null");
 
@@ -42,7 +42,7 @@ export const useSessionStore = defineStore("session", {
     async login(usernameOrEmail: string, password: string): Promise<void> {
       this.userStatus.loggingIn = true;
       try {
-        const account = await accountService.login({ usernameOrEmail, password });
+        const account = await authService.login({ usernameOrEmail, password });
         if (account) {
           this.user = account;
           this.userStatus.loggedIn = (account.session && account.session.length > MIN_ID_LENGTH) || false;
@@ -54,7 +54,7 @@ export const useSessionStore = defineStore("session", {
     async register(registration: RegistrationType): Promise<void> {
       this.userStatus.registering = true;
       try {
-        const account = await accountService.register(registration);
+        const account = await authService.register(registration);
         if (account) {
           this.user = account;
           this.userStatus.loggedIn = account.token && account.token.length > MIN_ID_LENGTH;

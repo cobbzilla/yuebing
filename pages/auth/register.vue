@@ -2,13 +2,13 @@
   <v-container>
     <v-row>
       <v-col>
-        <h2>{{ messages.title_login }}</h2>
+        <h2>{{ messages.title_register }}</h2>
       </v-col>
     </v-row>
     <div>
       <v-row>
         <v-col>
-          <v-form id="form" @submit.prevent="handleLogin">
+          <v-form id="form" @submit.prevent="handleFormSubmit">
             <div class="form-group">
               <v-text-field
                 v-bind="usernameOrEmail"
@@ -80,7 +80,7 @@ const publicConfig = ref(config.publicConfig);
 const configLoaded = ref(false);
 const registrationEnabled = ref(false);
 
-watch(publicConfig, async (newConfig) => {
+watch(publicConfig, async (newConfig, oldConfig) => {
   if (!configLoaded.value) {
     configLoaded.value = true;
     registrationEnabled.value = newConfig?.registrationEnabled ? newConfig.registrationEnabled : false;

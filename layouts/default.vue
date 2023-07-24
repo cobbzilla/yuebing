@@ -27,7 +27,7 @@ import { DEFAULT_META } from "~/utils/meta";
 
 const config = useConfigStore();
 const configRefs = storeToRefs(config);
-config.loadPublicConfig();
+config.loadBrowserHeaders();
 
 useSeoMeta({
   title: () => {

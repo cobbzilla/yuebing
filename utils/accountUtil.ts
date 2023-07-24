@@ -55,17 +55,3 @@ export const sortByField = (
   ascending
     ? array.sort(ACCOUNT_SORT[field])
     : array.sort(ACCOUNT_SORT[field]).reverse();
-
-const GRAVATAR_RATING_LEVEL = "r";
-const GRAVATAR_DEFAULT_IMAGE = "retro";
-
-const gravatarEmailHash = (email: string) =>
-  email ? md5(email.trim().toLowerCase()) : null;
-const gravatarEmailUrl = (email: string) =>
-  email
-    ? `https://www.gravatar.com/avatar/${gravatarEmailHash(
-        email,
-      )}?d=${encodeURIComponent(
-        GRAVATAR_DEFAULT_IMAGE,
-      )}&r=${GRAVATAR_RATING_LEVEL}`
-    : null;
