@@ -16,8 +16,8 @@
                 type="text"
                 name="email"
                 class="form-control"
-                :error="hasError(['usernameOrEmail', 'email', 'username'])"
-                :error-messages="fieldErrors(['usernameOrEmail', 'email', 'username'])"
+                :error="submitted && hasError(['usernameOrEmail', 'email', 'username'])"
+                :error-messages="fieldError(['usernameOrEmail', 'email', 'username'])"
               />
             </div>
             <div class="form-group">
@@ -27,8 +27,8 @@
                 type="password"
                 name="password"
                 class="form-control"
-                :error="hasError('password')"
-                :error-messages="fieldErrors('password')"
+                :error="submitted && hasError('password')"
+                :error-messages="fieldError('password')"
                 @keyup.enter="handleLogin"
               />
             </div>
@@ -64,7 +64,7 @@ import { UsernameAndPasswordSchema } from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";
 
-const { errors, defineInputBinds, meta, handleSubmit } = useForm({
+const { errors, defineInputBinds /*, meta */, handleSubmit } = useForm({
   validationSchema: toTypedSchema(UsernameAndPasswordSchema),
 });
 
@@ -79,6 +79,7 @@ const config = storeToRefs(useConfigStore());
 const publicConfig = ref(config.publicConfig);
 const configLoaded = ref(false);
 const registrationEnabled = ref(false);
+const submitted = ref(false);
 
 watch(publicConfig, (newConfig) => {
   if (!configLoaded.value) {
@@ -93,26 +94,37 @@ const sessionStore = useSessionStore();
 const session = storeToRefs(sessionStore);
 const messages = ref(session.localeMessages);
 
-const fieldErrors = (field: string | string[]) => {
-  if (!meta.value.pending || !errors || !errors.value) return [];
-  if (!Array.isArray(field)) {
-    field = [field];
+const fieldError = (field: string | string[]) => {
+  const errs = errors.value as Record<string, string>;
+  const fields = Array.isArray(field) ? field : [field];
+  const fieldName = fields[0];
+  if (!submitted.value || !errs[fieldName]) {
+    console.log(
+      `fieldError: bailing early because !submitted.value (${!submitted.value})) || !errs[fieldName] (${!errs[
+        fieldName
+      ]})`,
+    );
+    return "";
   }
-  const fieldName = field[0];
-  for (const f of field as string[]) {
-    if ((errors.value as Record<string, string>)[f]) return [fieldErrorMessage(fieldName, errors.value[f], messages)];
+  for (const f of fields) {
+    if (errs[f]) {
+      return fieldErrorMessage(fieldName, errs[f], messages.value);
+    }
   }
-  return [];
+  return "";
 };
 const hasError = (field: string | string[]) => {
-  return fieldErrors(field).length > 0;
+  return fieldError(field) !== "";
 };
-
 const loginDisabled: () => boolean = () => {
   return !usernameOrEmail || !password || false;
 };
 
-const handleLogin = handleSubmit((values) => {
-  sessionStore.login(values.usernameOrEmail, values.password);
-});
+const handleLogin = async () => {
+  submitted.value = true;
+  await handleSubmit((values) => {
+    console.log(`handleLogin: somehow these values passed validation: ${JSON.stringify(values)}`);
+    sessionStore.login(values.usernameOrEmail, values.password);
+  });
+};
 </script>

@@ -8,7 +8,7 @@
     <div>
       <v-row>
         <v-col>
-          <v-form id="form" @submit.prevent="handleFormSubmit">
+          <v-form id="form" @submit.prevent="handleRegister">
             <div class="form-group">
               <v-text-field
                 v-bind="usernameOrEmail"
@@ -99,7 +99,9 @@ const fieldErrors = (field: string | string[]) => {
   }
   const fieldName = field[0];
   for (const f of field as string[]) {
-    if ((errors.value as Record<string, string>)[f]) return [fieldErrorMessage(fieldName, errors.value[f], messages)];
+    if ((errors.value as Record<string, string>)[f]) {
+      return [fieldErrorMessage(fieldName, (errors.value as Record<string, string>)[f], messages.value)];
+    }
   }
   return [];
 };
@@ -111,7 +113,7 @@ const loginDisabled: () => boolean = () => {
   return !usernameOrEmail || !password || false;
 };
 
-const handleLogin = handleSubmit((values) => {
-  sessionStore.login(values.usernameOrEmail, values.password);
+const handleRegister = handleSubmit((values) => {
+  console.log(`handleRegister called with values=${JSON.stringify(values)}`);
 });
 </script>

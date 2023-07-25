@@ -6,6 +6,7 @@
           <v-container class="ma-0 pa-0">
             <OrmFormFields
               :fields="fields"
+              :validation-schema="validationSchema"
               :thing="newThing"
               :read-only-object="readOnlyObject"
               :root-thing="newThing"
@@ -17,9 +18,8 @@
               :submitted="submitted"
               :saving="saving"
               :create="create"
-              :define-input-binds="defineInputBinds"
-              :meta="meta"
-              :errors="errors"
+              :form="form"
+              :form-fields="formFields"
               :form-level="0"
               @update="onFieldUpdate"
             />
@@ -54,9 +54,9 @@
 import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/yup";
-import { findMessage, parseMessage } from "yuebing-messages";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import * as yup from "yup";
+import { findMessage, parseMessage } from "yuebing-messages";
+import { MobilettoOrmFieldDefConfigs, MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 
@@ -104,9 +104,27 @@ const msg = (key: string, ctx: Record<string, unknown>) =>
 
 const newThing = ref(JSON.parse(JSON.stringify(props.thing)));
 
-const { errors, defineInputBinds, meta, handleSubmit } = useForm({
-  validationSchema: toTypedSchema(props.validationSchema),
-});
+// const { errors, defineInputBinds, defineComponentBinds, meta, handleSubmit } = useForm({
+//   validationSchema: toTypedSchema(props.validationSchema),
+// });
+const form = reactive(
+  useForm({
+    validationSchema: toTypedSchema(props.validationSchema),
+  }),
+);
+const formFields: Record<string, unknown> = reactive({});
+const buildFields = (formFields: Record<string, unknown>, typeFields: MobilettoOrmFieldDefConfigs, objPath: string) => {
+  Object.keys(typeFields).forEach((fieldName) => {
+    const field = typeFields[fieldName];
+    const fieldPath = objPath + field.name;
+    if (field.fields) {
+      buildFields(formFields, field.fields, fieldPath + ".");
+    } else {
+      formFields[fieldPath] = reactive(form.defineInputBinds(fieldPath));
+    }
+  });
+};
+buildFields(formFields, props.typeDef.fields, "");
 
 const successEvent = ref(props.successEvent);
 const serverErrors = ref(props.serverErrors);
@@ -127,15 +145,15 @@ watch(successEvent, (newEvent) => {
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
   if (update) {
-    // console.log(`OrmForm.onFieldUpdate: deep updating ${update.field} with value ${update.value}`);
+    console.log(`OrmForm.onFieldUpdate: deep updating ${update.field} with value ${update.value}`);
     deepUpdate(newThing.value, update.field, update.value);
     emit("update", update);
   }
 };
 
-const handleSave = handleSubmit((values: Record<string, any>) => {
+const handleSave = form.handleSubmit((values: Record<string, any>) => {
   try {
-    // console.log(`OrmForm.handleSave: emitting submitted: ${JSON.stringify(values)}`);
+    console.log(`OrmForm.handleSave: emitting submitted: ${JSON.stringify(values)}`);
     emit("submitted", values as MobilettoOrmObject);
   } catch (e) {
     // console.error(`OrmForm.handleSave failed: ${e}`);

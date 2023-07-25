@@ -17,13 +17,12 @@
             :field-header="''"
             :success-event="successEvent"
             :server-errors="serverErrors"
-            :define-input-binds="defineInputBinds"
-            :meta="meta"
-            :errors="errors"
             :label-prefixes="labelPrefixes"
             :submitted="submitted"
             :saving="saving"
             :create="create"
+            :form="form"
+            :form-fields="formFields"
             :form-level="formLevel + 1"
             @update="onFieldUpdate"
           />
@@ -41,9 +40,8 @@
             :saving="saving"
             :create="create"
             :success-event="successEvent"
-            :define-input-binds="defineInputBinds"
-            :meta="meta"
-            :errors="errors"
+            :form="form"
+            :form-field="formFields[objPath]"
             @update="onFieldUpdate"
           />
         </v-container>
@@ -54,6 +52,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
+import { FormContext } from "vee-validate";
 import { MobilettoOrmObject, ValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
@@ -71,9 +70,8 @@ const props = withDefaults(
     saving: boolean;
     successEvent: object;
     serverErrors: ValidationErrors;
-    defineInputBinds: any;
-    meta: any;
-    errors: any;
+    form: FormContext;
+    formFields: Record<string, unknown>;
     labelPrefixes: string[];
     formLevel: number;
   }>(),

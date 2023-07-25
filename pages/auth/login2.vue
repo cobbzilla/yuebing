@@ -12,6 +12,7 @@
             form-name="login_form"
             :type-def="UsernameAndPasswordTypeDef"
             :validation-schema="UsernameAndPasswordSchema"
+            :field-schema="UsernameAndPasswordSchemaFields"
             type-name-message="login_form"
             :thing="{}"
             save-button-message="button_login"
@@ -43,7 +44,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
+import {
+  UsernameAndPasswordSchema,
+  UsernameAndPasswordSchemaFields,
+  UsernameAndPasswordType,
+  UsernameAndPasswordTypeDef,
+} from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
 // import { useConfigStore } from "~/stores/config";
 // import { fieldErrorMessage } from "yuebing-messages";
