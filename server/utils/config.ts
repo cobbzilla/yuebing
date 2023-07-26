@@ -41,6 +41,7 @@ export const PRIVATE_CONFIG: Cached<PrivateConfigType> = new Cached(
   { name: "privateConfig", default: DEFAULT_PRIVATE_CONFIG },
 );
 
-export const registrationEnabled = async (): Promise<boolean> => {
-  return (await PUBLIC_CONFIG.get()).registrationEnabled;
-};
+export const registrationEnabled = async (): Promise<boolean> =>
+  (await PUBLIC_CONFIG.get()).registrationEnabled || false;
+
+export const needsAdmin = async (): Promise<boolean> => (await PUBLIC_CONFIG.get()).needsAdmin || false;

@@ -1,4 +1,3 @@
-import { ValidationErrors } from "mobiletto-orm";
 import {
   AccountType,
   AccountTypeDef,
@@ -11,11 +10,18 @@ import {
 import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/accountRepo";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, forbidden, validationError } from "~/server/utils/filter/errorHandler";
+import { needsAdmin } from "~/server/utils/config";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
 export default defineEventHandler((event) =>
   filterErrors(event, "register", async (event) => {
+    const adminInit = await needsAdmin();
     if (!(await registrationEnabled())) {
-      throw forbidden();
+      if (adminInit) {
+        logger.info("register: needsAdmin was true, allowing registration");
+      } else {
+        throw forbidden();
+      }
     }
 
     const regRequest: RegistrationType = await readBody(event);
@@ -25,7 +31,7 @@ export default defineEventHandler((event) =>
     const username = validated.username;
     const email = validated.email;
     const repo: AccountRepositoryType = accountRepository();
-    const errors: ValidationErrors = {};
+    const errors: MobilettoOrmValidationErrors = {};
 
     if ((await repo.findByUsernameOrEmail(username)) != null) {
       errors.username = ["exists"];
@@ -36,6 +42,9 @@ export default defineEventHandler((event) =>
     if (Object.keys(errors).length > 0) {
       throw validationError(errors);
     }
+
+    // only set admin flag for first admin
+    validated.admin = adminInit;
 
     // create the account
     const account: AccountType = await accountRepository().create(validated);
