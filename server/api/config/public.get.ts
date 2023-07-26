@@ -1,3 +1,3 @@
-export default defineEventHandler((_event) => {
-  return PUBLIC_CONFIG.get();
-});
+export default defineEventHandler((_event) =>
+  filterErrors(_event, "config.public.get", (_event) => PUBLIC_CONFIG.get()),
+);

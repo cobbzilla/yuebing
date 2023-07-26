@@ -1,4 +1,5 @@
-import { VolumeTypeDef, VolumeType } from "yuebing-model";
+import { DestinationType, DestinationTypeDef, SourceType, SourceTypeDef } from "yuebing-model";
 import { ybRepo } from "~/server/utils/system";
 
-export const volumeRepository = () => ybRepo<VolumeType>(VolumeTypeDef);
+export const sourceRepository = () => ybRepo<SourceType>(SourceTypeDef);
+export const destinationRepository = () => ybRepo<DestinationType>(DestinationTypeDef);

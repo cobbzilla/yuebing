@@ -55,6 +55,6 @@ export default defineEventHandler((event) =>
       ...(AccountTypeDef.redact(account) as AccountType),
       session: sess.token,
     };
-    return await setSessionCookie(event, AuthAccountTypeDef.redact(authAccount));
+    return await setSessionCookie(event, AuthAccountTypeDef.redact(authAccount) as AuthAccountType);
   }),
 );

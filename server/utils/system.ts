@@ -12,7 +12,7 @@ import {
   MobilettoOrmTypeDef,
   MobilettoOrmRepository,
 } from "mobiletto-orm";
-import { VolumeTypeDef, VolumeType } from "yuebing-model";
+import { DestinationType, DestinationTypeDef, VolumeType } from "yuebing-model";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
 import { DEFAULT_TEMP_VOLUME, DEFAULT_VOLUME_PREFIX } from "~/utils/util";
@@ -127,11 +127,11 @@ const systemStorage = async (): Promise<MobilettoConnection[]> => {
   if (Date.now() - SYSTEM_STORAGE.loadTime > SYSTEM_STORAGE.refreshInterval) {
     // create a new volume repository with the current storages
     const factory = repositoryFactory(currentConnections());
-    const repository = factory.repository<VolumeType>(VolumeTypeDef);
+    const repository = factory.repository<DestinationType>(DestinationTypeDef);
 
     // find all volumes
-    const volumes: VolumeType[] = await repository.find((v: VolumeType) => v.system);
-    logger.info(`systemStorage[refresh] connecting to ${volumes.length} volumes`);
+    const volumes: DestinationType[] = (await repository.safeFindBy("system", true)) as DestinationType[];
+    logger.info(`systemStorage[refresh] connecting to ${volumes.length} volumes, again ok?`);
 
     // connect to all volumes
     const connectPromises: Promise<VolumeConnectResult>[] = volumes.map((v) => connectVolume(v));

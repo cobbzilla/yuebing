@@ -9,7 +9,9 @@ export const validationError = (errors: ValidationErrors) =>
     data: JSON.stringify(errors),
   });
 
-export const forbidden = () => createError({ statusCode: 403 });
+export const forbidden = () => {
+  return createError({ statusCode: 403 });
+};
 
 export const notFound = (id: string) =>
   createError({

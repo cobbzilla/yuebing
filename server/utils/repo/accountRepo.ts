@@ -16,14 +16,14 @@ export const accountRepository = () => {
       ...ybRepo<AccountType>(AccountTypeDef),
       findByUsernameOrEmail: async (usernameOrEmail: string): Promise<AccountType | null> => {
         if (!REPO.r) {
-          throw new MobilettoOrmError("accountRepository not initialized");
+          throw new MobilettoOrmError("findByUsernameOrEmail: accountRepository not initialized");
         }
         try {
           return await (usernameOrEmail.includes("@")
             ? REPO.r.safeFindFirstBy("email", usernameOrEmail)
             : REPO.r.safeFindFirstBy("username", usernameOrEmail));
         } catch (e) {
-          return null;
+          throw new MobilettoOrmError(`findByUsernameOrEmail: ${e}`);
         }
       },
     };

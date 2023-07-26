@@ -1,4 +1,4 @@
-import { MobilettoOrmError, MobilettoOrmRepository, MobilettoOrmTypeDef } from "mobiletto-orm";
+import { generateId, MobilettoOrmError, MobilettoOrmRepository, MobilettoOrmTypeDef, sha } from "mobiletto-orm";
 import { AccountType, AuthAccountTypeDef, SessionType, SessionTypeDef } from "yuebing-model";
 import { ybRepo } from "~/server/utils/system";
 
@@ -18,9 +18,10 @@ export const sessionRepository = () => {
         if (!REPO.r) {
           throw new MobilettoOrmError("sessionRepository not initialized");
         }
+        const accountId = AuthAccountTypeDef.id(account);
         return REPO.r.create({
-          token: "", // create will fill this out
-          account: AuthAccountTypeDef.id(account),
+          token: generateId(accountId), // create will replace this, but it must pass validation
+          account: accountId,
         });
       },
     };

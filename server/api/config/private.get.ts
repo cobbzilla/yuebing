@@ -1,5 +1,5 @@
-export default defineEventHandler(async (event) => {
-  // todo: verify user session is admin
-  // todo: consider moving this API to /admin
-  return PRIVATE_CONFIG.get();
-});
+export default defineEventHandler(async (_event) =>
+  filterErrors(_event, "config.private.get", async (_event) =>
+    requireAdminAccountObject(_event, "config.private.get", (_event, _session, _account) => PRIVATE_CONFIG.get()),
+  ),
+);

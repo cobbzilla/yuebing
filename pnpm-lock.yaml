@@ -78,8 +78,8 @@ dependencies:
     specifier: ^2.0.9
     version: 2.0.9
   yuebing-model:
-    specifier: ^2.2.33
-    version: 2.2.33
+    specifier: ^2.2.39
+    version: 2.2.39
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -224,14 +224,14 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@aws-sdk/client-s3@3.374.0:
-    resolution: {integrity: sha512-1qhzOHN48DPAvHi/G2FQfx1DXpbiOfOUqJvnSCRKKo7UaPPN1426Ufw2qizTRiLo/suK2ABCb7spbTxqEFjvLw==}
+  /@aws-sdk/client-s3@3.377.0:
+    resolution: {integrity: sha512-sbZ3iJKhwMRVAK/AFVzUFcmojRhGvDfUDF1ouB/zLOCeGY0UekP/HnUNHmowYpFQsvHiEo0rQjmbbrGrlFPijw==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-crypto/sha1-browser': 3.0.0
       '@aws-crypto/sha256-browser': 3.0.0
       '@aws-crypto/sha256-js': 3.0.0
-      '@aws-sdk/client-sts': 3.370.0
+      '@aws-sdk/client-sts': 3.377.0
       '@aws-sdk/credential-provider-node': 3.370.0
       '@aws-sdk/hash-stream-node': 3.374.0
       '@aws-sdk/middleware-bucket-endpoint': 3.370.0
@@ -369,8 +369,8 @@ packages:
       - aws-crt
     dev: false
 
-  /@aws-sdk/client-sts@3.370.0:
-    resolution: {integrity: sha512-utFxOPWIzbN+3kc415Je2o4J72hOLNhgR2Gt5EnRSggC3yOnkC4GzauxG8n7n5gZGBX45eyubHyPOXLOIyoqQA==}
+  /@aws-sdk/client-sts@3.377.0:
+    resolution: {integrity: sha512-K/yTHxVtTIwU42qCxbv78eT74j+GZMCcQ5TUd2fwxEWeq8HcIWcTIhujv7F6UtdrQHrou20wZ/+jMQtVKfkXXQ==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-crypto/sha256-browser': 3.0.0
@@ -500,18 +500,19 @@ packages:
   /@aws-sdk/hash-stream-node@3.374.0:
     resolution: {integrity: sha512-Ta7YEFcgc+d4Rt7foV/fbgnXP8IgMAb+JVzZVYcHTwQf836+PdjGfKbamYkh8cM2xE47hzZqPe+BacCjePqH7g==}
     engines: {node: '>=14.0.0'}
+    deprecated: This package has moved to @smithy/hash-stream-node
     dependencies:
       '@smithy/hash-stream-node': 1.1.0
       tslib: 2.6.1
     dev: false
 
-  /@aws-sdk/lib-storage@3.374.0(@aws-sdk/client-s3@3.374.0):
-    resolution: {integrity: sha512-62xI6CxhwbIrO8s/t+AfPzekhoR8DSkY1qpR5AWDN2mIRVcAidkrvLdPLEGSG0knyBr+CH6qNLBuLEBkqAfRlw==}
+  /@aws-sdk/lib-storage@3.377.0(@aws-sdk/client-s3@3.377.0):
+    resolution: {integrity: sha512-9XdHonAbs1UUr4zeVE7fgLF1vLwvG7kIUUTZTiQVYaX+egyA0lAciRdfTx/OYA/y3MkeoKjn/0tIfGIL3wXZWQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@aws-sdk/client-s3': ^3.0.0
     dependencies:
-      '@aws-sdk/client-s3': 3.374.0
+      '@aws-sdk/client-s3': 3.377.0
       '@smithy/abort-controller': 1.1.0
       '@smithy/middleware-endpoint': 1.1.0
       '@smithy/smithy-client': 1.1.0
@@ -7218,8 +7219,8 @@ packages:
   /mobiletto-driver-s3@2.0.8:
     resolution: {integrity: sha512-3sXjwkh5UFYxSP+v34fd1KzbteHe7aVMlLVJ7pSR+c7/TBtt4BKkjF9BiFdKNHej89kL8WQdpvWA2mayPOvMvQ==}
     dependencies:
-      '@aws-sdk/client-s3': 3.374.0
-      '@aws-sdk/lib-storage': 3.374.0(@aws-sdk/client-s3@3.374.0)
+      '@aws-sdk/client-s3': 3.377.0
+      '@aws-sdk/lib-storage': 3.377.0(@aws-sdk/client-s3@3.377.0)
     transitivePeerDependencies:
       - '@aws-sdk/signature-v4-crt'
       - aws-crt
@@ -10353,8 +10354,8 @@ packages:
     resolution: {integrity: sha512-oVzONxfIP6jWbZ72fqGBe+oeZ6FziUL+w39VxEz77aZMiHgwRg3o0MkdjX5l/3O3lPHP/EY07nFwrSTBGMUSnA==}
     dev: false
 
-  /yuebing-model@2.2.33:
-    resolution: {integrity: sha512-wJGUu0dkemizs2JLj8wd23jK8jVrjZyO3N846vx01GQP2gacfOi2nEegpu12jrYy/mLvhXTksyEgd/4rPw6IUg==}
+  /yuebing-model@2.2.39:
+    resolution: {integrity: sha512-kObIZHie8aKMUHa/PPU8cg4mikH5KyVAE1xk3E2vbHBa9+r7pL3+9EuGarvTE67GdFiD0euxNW778BBTSmGk8Q==}
     dependencies:
       handlebars: 4.7.7
     dev: false
