@@ -75,8 +75,8 @@ dependencies:
     specifier: ^3.10.0
     version: 3.10.0
   yuebing-messages:
-    specifier: ^2.0.9
-    version: 2.0.9
+    specifier: ^2.0.11
+    version: 2.0.11
   yuebing-model:
     specifier: ^2.2.40
     version: 2.2.40
@@ -10350,8 +10350,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yuebing-messages@2.0.9:
-    resolution: {integrity: sha512-oVzONxfIP6jWbZ72fqGBe+oeZ6FziUL+w39VxEz77aZMiHgwRg3o0MkdjX5l/3O3lPHP/EY07nFwrSTBGMUSnA==}
+  /yuebing-messages@2.0.11:
+    resolution: {integrity: sha512-gxubgO/qx1n7cVgR7y+5akcIIxwJRmYVXG+QOiKOtLySI8qe2Gst8WEA8CvVQQhDhNX+Y0C6p/Qyj1WJu+EbyQ==}
     dev: false
 
   /yuebing-model@2.2.40:

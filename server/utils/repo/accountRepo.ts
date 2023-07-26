@@ -6,27 +6,18 @@ export type AccountRepositoryType = MobilettoOrmRepository<AccountType> & {
   findByUsernameOrEmail: (usernameOrEmail: string) => Promise<AccountType | null>;
 };
 
-const REPO: { r: AccountRepositoryType | null } = {
-  r: null,
-};
-
-export const accountRepository = () => {
-  if (REPO.r == null) {
-    REPO.r = {
-      ...ybRepo<AccountType>(AccountTypeDef),
-      findByUsernameOrEmail: async (usernameOrEmail: string): Promise<AccountType | null> => {
-        if (!REPO.r) {
-          throw new MobilettoOrmError("findByUsernameOrEmail: accountRepository not initialized");
-        }
-        try {
-          return await (usernameOrEmail.includes("@")
-            ? REPO.r.safeFindFirstBy("email", usernameOrEmail)
-            : REPO.r.safeFindFirstBy("username", usernameOrEmail));
-        } catch (e) {
-          throw new MobilettoOrmError(`findByUsernameOrEmail: ${e}`);
-        }
-      },
-    };
-  }
-  return REPO.r;
+export const accountRepository = (): AccountRepositoryType => {
+  const baseRepo = ybRepo<AccountType>(AccountTypeDef);
+  return {
+    ...baseRepo,
+    findByUsernameOrEmail: async (usernameOrEmail: string): Promise<AccountType | null> => {
+      try {
+        return await (usernameOrEmail.includes("@")
+          ? baseRepo.safeFindFirstBy("email", usernameOrEmail)
+          : baseRepo.safeFindFirstBy("username", usernameOrEmail));
+      } catch (e) {
+        throw new MobilettoOrmError(`findByUsernameOrEmail: ${e}`);
+      }
+    },
+  };
 };
