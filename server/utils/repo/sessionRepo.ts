@@ -14,12 +14,12 @@ export const sessionRepository = () => {
   if (REPO.r == null) {
     REPO.r = {
       ...ybRepo<SessionType>(SessionTypeDef),
-      newSession: (account: AccountType): Promise<SessionType> => {
+      newSession: async (account: AccountType): Promise<SessionType> => {
         if (!REPO.r) {
           throw new MobilettoOrmError("sessionRepository not initialized");
         }
         const accountId = AuthAccountTypeDef.id(account);
-        return REPO.r.create({
+        return await REPO.r.create({
           token: generateId(accountId), // create will replace this, but it must pass validation
           account: accountId,
         });

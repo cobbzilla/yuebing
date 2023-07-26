@@ -3,7 +3,7 @@ import { Cached } from "~/server/utils/cached";
 import { privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
 import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG } from "~/server/utils/default";
 
-const HAS_ADMIN: Cached<boolean> = new Cached(
+export const HAS_ADMIN: Cached<boolean> = new Cached(
   async (): Promise<boolean> => {
     const admins = await accountRepository().safeFindBy("admin", true);
     const found = (admins && admins.length > 0) || false;
@@ -14,7 +14,7 @@ const HAS_ADMIN: Cached<boolean> = new Cached(
     }
     return found;
   },
-  { name: "hasAdmin", default: false },
+  { name: "hasAdmin", default: false, timeout: 60000 },
 );
 
 export const hasAdmin = (): Promise<boolean> => {
@@ -29,6 +29,7 @@ export const PUBLIC_CONFIG: Cached<PublicConfigType> = new Cached(
   },
   {
     name: "publicConfig",
+    timeout: 60000,
     default: async <PublicConfigType>() =>
       Object.assign({}, DEFAULT_PUBLIC_CONFIG, {
         needsAdmin: !(await hasAdmin()),
@@ -38,7 +39,7 @@ export const PUBLIC_CONFIG: Cached<PublicConfigType> = new Cached(
 
 export const PRIVATE_CONFIG: Cached<PrivateConfigType> = new Cached(
   async (): Promise<PrivateConfigType> => await privateConfigRepository().findSingleton(),
-  { name: "privateConfig", default: DEFAULT_PRIVATE_CONFIG },
+  { name: "privateConfig", default: DEFAULT_PRIVATE_CONFIG, timeout: 60000 },
 );
 
 export const registrationEnabled = async (): Promise<boolean> =>

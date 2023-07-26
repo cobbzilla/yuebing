@@ -13,9 +13,14 @@ import { filterErrors, forbidden, validationError } from "~/server/utils/filter/
 import { needsAdmin } from "~/server/utils/config";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
+// one-way flag, avoids needless await once initial admin is established
+let ADMIN_INIT: boolean | null = null;
+
 export default defineEventHandler((event) =>
   filterErrors(event, "register", async (event) => {
-    const adminInit = await needsAdmin();
+    const adminInit = ADMIN_INIT ? ADMIN_INIT : await needsAdmin();
+    if (adminInit) ADMIN_INIT = true;
+
     if (!(await registrationEnabled())) {
       if (adminInit) {
         logger.info("register: needsAdmin was true, allowing registration");
@@ -43,8 +48,13 @@ export default defineEventHandler((event) =>
       throw validationError(errors);
     }
 
-    // only set admin flag for first admin
-    validated.admin = adminInit;
+    // handle first admin
+    if (adminInit) {
+      validated.admin = true;
+      validated.verified = Date.now();
+      HAS_ADMIN.reset();
+      PUBLIC_CONFIG.reset();
+    }
 
     // create the account
     const account: AccountType = await accountRepository().create(validated);

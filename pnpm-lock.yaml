@@ -48,8 +48,8 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.1.41
-    version: 2.1.41
+    specifier: ^2.1.42
+    version: 2.1.42
   mobiletto-orm-typedef:
     specifier: ^2.1.45
     version: 2.1.45
@@ -78,8 +78,8 @@ dependencies:
     specifier: ^2.0.9
     version: 2.0.9
   yuebing-model:
-    specifier: ^2.2.39
-    version: 2.2.39
+    specifier: ^2.2.40
+    version: 2.2.40
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -7233,8 +7233,8 @@ packages:
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.1.41:
-    resolution: {integrity: sha512-hDz18q1qqhIIk9rLtmRD/mptmeJ9E1xN1N3klNmEcmOJl9232y07kNgwTUM8fzcZHrjcb/lhPOU+Atyrcap+Iw==}
+  /mobiletto-orm@2.1.42:
+    resolution: {integrity: sha512-9x0l2lXsOj7BXolINp32PD5w+j2VwSxx4KPDf51UnpdVtQ8zxdD1jM0GK1vtP2EDAg4tlU4UmKj83gCLuGD5Nw==}
     dependencies:
       mobiletto-base: 2.0.31
       mobiletto-orm-typedef: 2.1.45
@@ -10354,8 +10354,8 @@ packages:
     resolution: {integrity: sha512-oVzONxfIP6jWbZ72fqGBe+oeZ6FziUL+w39VxEz77aZMiHgwRg3o0MkdjX5l/3O3lPHP/EY07nFwrSTBGMUSnA==}
     dev: false
 
-  /yuebing-model@2.2.39:
-    resolution: {integrity: sha512-kObIZHie8aKMUHa/PPU8cg4mikH5KyVAE1xk3E2vbHBa9+r7pL3+9EuGarvTE67GdFiD0euxNW778BBTSmGk8Q==}
+  /yuebing-model@2.2.40:
+    resolution: {integrity: sha512-MBuOsWQtt0Pdb4BE03FmBkTZ06J+z6RNb+S1NlQkU614w4vVXEox0zbn7Vg20v7Eew6EbjPBTlmX+okUe5N0Fg==}
     dependencies:
       handlebars: 4.7.7
     dev: false
