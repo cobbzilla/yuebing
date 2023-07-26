@@ -29,7 +29,7 @@
             {{ messages[props.saveButtonMessage] }}
           </v-btn>
         </v-col>
-        <v-col>
+        <v-col v-if="showCancel()">
           <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleCancel">
             {{ messages[props.cancelButtonMessage] }}
           </v-btn>
@@ -119,6 +119,8 @@ const handleSave = async () => {
     emit("submitted", validated);
   }
 };
+
+const showCancel = () => !props.cancelButtonMessage || props.cancelButtonMessage.length === 0;
 
 const handleCancel = () => {
   emit("cancel");

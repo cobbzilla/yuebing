@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "video",
@@ -80,7 +80,7 @@
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
-    "yuebing-messages": "^2.0.8",
+    "yuebing-messages": "^2.0.9",
     "yuebing-model": "^2.2.33",
     "yup": "^1.2.0"
   }
