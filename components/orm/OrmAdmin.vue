@@ -14,7 +14,6 @@
           :add-object-object="addObjectObject"
           :object-submitted="objectSubmitted"
           :add-object-message="addObjectMessage"
-          :add-object-success="addObjectSuccess"
           :add-object-error="addObjectError"
           :add-object-error-message="addObjectErrorMessage"
           :add-object-success-message="addObjectSuccessMessage"
@@ -33,7 +32,6 @@
         :read-only-object="readOnlyObject"
         :object-submitted="objectSubmitted"
         :edit-object-message="editObjectMessage"
-        :edit-object-success="editObjectSuccess"
         :edit-object-error="editObjectError"
         :edit-object-error-message="editObjectErrorMessage"
         :edit-object-success-message="editObjectSuccessMessage"
@@ -137,7 +135,7 @@
 
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { fieldErrorMessage, findMessage, parseMessage } from "yuebing-messages";
 import { storeToRefs } from "pinia";
 import { useSessionStore } from "~/stores/session";
@@ -159,15 +157,13 @@ const props = withDefaults(
     totalObjectCount: number;
     addObjectObject: MobilettoOrmObject;
     addObjectMessage: string;
-    addObjectSuccess: MobilettoOrmObject;
-    addObjectError: ValidationErrors;
+    addObjectError: MobilettoOrmValidationErrors;
     addObjectSuccessMessage: string;
     addObjectErrorMessage: string;
     readOnlyObject: () => boolean;
     viewObjectMessage: string;
     editObjectMessage: string;
-    editObjectSuccess: MobilettoOrmObject;
-    editObjectError: ValidationErrors;
+    editObjectError: MobilettoOrmValidationErrors;
     editObjectSuccessMessage: string;
     editObjectErrorMessage: string;
     canEdit: () => boolean;
@@ -339,20 +335,20 @@ watch(objectList, (newList) => {
     findingObjects.value = false;
   }
 });
-const addObjectSuccess = ref(props.addObjectSuccess);
-watch(addObjectSuccess, (success) => {
-  if (success && typeof success === "object" && Object.keys(success).length > 0) {
-    addingObject.value = false;
-    searchObjects();
-  }
-});
-const editObjectSuccess = ref(props.editObjectSuccess);
-watch(editObjectSuccess, (success) => {
-  if (success && typeof success === "object" && Object.keys(success).length > 0) {
-    editingObject.value = {};
-    searchObjects();
-  }
-});
+// const addObjectSuccess = ref(props.addObjectSuccess);
+// watch(addObjectSuccess, (success) => {
+//   if (success && typeof success === "object" && Object.keys(success).length > 0) {
+//     addingObject.value = false;
+//     searchObjects();
+//   }
+// });
+// const editObjectSuccess = ref(props.editObjectSuccess);
+// watch(editObjectSuccess, (success) => {
+//   if (success && typeof success === "object" && Object.keys(success).length > 0) {
+//     editingObject.value = {};
+//     searchObjects();
+//   }
+// });
 
 searchObjects();
 </script>

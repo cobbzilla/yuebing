@@ -4,31 +4,31 @@
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
-            snackbar:
-            {{
-              msg(editObjectSuccessMessage, {
-                id: (editObjectSuccess as MobilettoOrmObject)[typeDef.idField(editObjectSuccess) as string],
-                type: messages[typeNameMessage],
-              })
-            }}
+            <!--            snackbar:-->
+            <!--            {{-->
+            <!--              msg(editObjectSuccessMessage, {-->
+            <!--                id: (editObjectSuccess as MobilettoOrmObject)[typeDef.idField(editObjectSuccess) as string],-->
+            <!--                type: messages[typeNameMessage],-->
+            <!--              })-->
+            <!--            }}-->
           </h4>
         </v-snackbar>
       </v-col>
     </v-row>
-    <v-row v-if="showErrorSnackbar && isError(editObjectError)">
+    <v-row v-if="showErrorSnackbar && isError(editObjectServerErrors)">
       <v-col>
         <v-snackbar v-model="showErrorSnackbar" :timeout="errorSnackTimeout" color="error" centered>
           <h4>
             {{
               msg(editObjectErrorMessage, {
                 type: messages[typeNameMessage],
-                error: `${editObjectError ?? "undefined"}`,
+                error: `${editObjectServerErrors ?? "undefined"}`,
               })
             }}
           </h4>
           <small>
             <vue-json-pretty
-              :data="JSON.stringify(editObjectError)"
+              :data="JSON.stringify(editObjectServerErrors)"
               :show-line="false"
               :show-double-quotes="false"
               :select-on-click-node="false"
@@ -55,9 +55,7 @@
           save-button-message="admin_button_edit"
           :fields="objectFields"
           :create="false"
-          :submitted="objectSubmitted"
-          :success-event="editObjectSuccess"
-          :server-errors="editObjectError"
+          :server-errors="editObjectServerErrors"
           :label-prefixes="labelPrefixes"
           @update="onEditOrmUpdate"
           @submitted="onEditOrmSubmit"
@@ -70,12 +68,12 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { findMessage, parseMessage } from "yuebing-messages";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { useSessionStore } from "~/stores/session";
-import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
+import { SNACKBAR_ERROR_DEFAULT_TIMEOUT } from "~/utils/ui";
 
 const props = withDefaults(
   defineProps<{
@@ -89,7 +87,7 @@ const props = withDefaults(
     objectSubmitted: boolean;
     editObjectMessage: string;
     editObjectSuccess: MobilettoOrmObject;
-    editObjectError: ValidationErrors;
+    editObjectError: MobilettoOrmValidationErrors;
     editObjectSuccessMessage: string;
     editObjectErrorMessage: string;
   }>(),
@@ -148,8 +146,8 @@ const onCancelOrmForm = (cancel: any) => {
 const editFormName = () => `edit${props.typeDef.typeName}Form`;
 const objectFields = () => props.typeDef.tabIndexedFields();
 
-const editObjectError = ref(props.editObjectError);
-watch(editObjectError, (newError: any) => {
+const editObjectServerErrors = ref(props.editObjectError);
+watch(editObjectServerErrors, (newError: any) => {
   if (newError) {
     if (newError.errors) {
       errorSnackTimeout.value = -1;
@@ -166,17 +164,17 @@ watch(editObjectError, (newError: any) => {
   }
 });
 
-const editObjectSuccess = ref(props.editObjectSuccess);
-watch(editObjectSuccess, (ok) => {
-  if (ok) {
-    // longer timeout for these kinds of things, more time to see the message
-    // console.log(`OrmEdit.editObjectSuccess received: ${JSON.stringify(ok)}`);
-    successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
-    showSuccessSnackbar.value = true;
-    showErrorSnackbar.value = false;
-  } else {
-    showSuccessSnackbar.value = false;
-    successSnackTimeout.value = -1;
-  }
-});
+// const editObjectSuccess = ref(props.editObjectSuccess);
+// watch(editObjectSuccess, (ok) => {
+//   if (ok) {
+//     // longer timeout for these kinds of things, more time to see the message
+//     // console.log(`OrmEdit.editObjectSuccess received: ${JSON.stringify(ok)}`);
+//     successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
+//     showSuccessSnackbar.value = true;
+//     showErrorSnackbar.value = false;
+//   } else {
+//     showSuccessSnackbar.value = false;
+//     successSnackTimeout.value = -1;
+//   }
+// });
 </script>

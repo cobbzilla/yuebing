@@ -15,14 +15,12 @@
             :read-only-object="readOnlyObject"
             :obj-path="nextPath(field.name!)"
             :field-header="''"
-            :success-event="successEvent"
             :server-errors="serverErrors"
+            :validation-error="validationError"
             :label-prefixes="labelPrefixes"
             :submitted="submitted"
             :saving="saving"
             :create="create"
-            :form="form"
-            :form-fields="formFields"
             :form-level="formLevel + 1"
             @update="onFieldUpdate"
           />
@@ -39,9 +37,8 @@
             :submitted="submitted"
             :saving="saving"
             :create="create"
-            :success-event="successEvent"
-            :form="form"
-            :form-field="formFields[objPath]"
+            :server-errors="serverErrors"
+            :validation-error="validationError"
             @update="onFieldUpdate"
           />
         </v-container>
@@ -52,8 +49,8 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { FormContext } from "vee-validate";
-import { MobilettoOrmObject, ValidationErrors } from "mobiletto-orm";
+import { ValidationError } from "yup";
+import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 
@@ -62,16 +59,14 @@ const props = withDefaults(
     fieldHeader: string;
     rootThing: MobilettoOrmObject;
     thing: MobilettoOrmObject;
+    validationError: ValidationError;
     readOnlyObject: () => boolean;
     objPath: string;
     fields: MobilettoOrmFieldDefConfig[];
     create: boolean;
     submitted: boolean;
     saving: boolean;
-    successEvent: object;
-    serverErrors: ValidationErrors;
-    form: FormContext;
-    formFields: Record<string, unknown>;
+    serverErrors: MobilettoOrmValidationErrors;
     labelPrefixes: string[];
     formLevel: number;
   }>(),

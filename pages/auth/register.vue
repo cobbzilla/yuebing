@@ -8,46 +8,23 @@
     <div>
       <v-row>
         <v-col>
-          <v-form id="form" @submit.prevent="handleRegister">
-            <div class="form-group">
-              <v-text-field
-                v-bind="usernameOrEmail"
-                :label="messages.label_usernameOrEmail"
-                type="text"
-                name="email"
-                class="form-control"
-                :error="hasError(['usernameOrEmail', 'email', 'username'])"
-                :error-messages="fieldErrors(['usernameOrEmail', 'email', 'username'])"
-              />
-            </div>
-            <div class="form-group">
-              <v-text-field
-                v-bind="password"
-                :label="messages.label_password"
-                type="password"
-                name="password"
-                class="form-control"
-                :error="hasError('password')"
-                :error-messages="fieldErrors('password')"
-                @keyup.enter="handleLogin"
-              />
-            </div>
-            <div class="form-group">
-              <v-btn class="btn btn-primary" :disabled="loginDisabled()" @click.stop="handleLogin">
-                {{ messages.button_login }}
-              </v-btn>
-              <v-btn v-if="registrationEnabled" class="btn btn-primary" :to="signUpUrl" nuxt plain right>
-                {{ messages.button_register }}
-              </v-btn>
-            </div>
-          </v-form>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <NuxtLink to="/reset" class="btn btn-link">
-            {{ messages.button_forgot_password }}
-          </NuxtLink>
+          <OrmForm
+            form-name="register_form"
+            :type-def="regTypeDef"
+            :validation-schema="RegistrationSchema"
+            type-name-message="register_form"
+            :thing="{}"
+            save-button-message="button_register"
+            cancel-button-message="button_login"
+            :fields="regTypeDef.tabIndexedFields()"
+            :create="true"
+            :read-only-object="() => false"
+            :server-errors="registerServerErrors"
+            :label-prefixes="['', 'label_']"
+            @submitted="onRegistrationSubmitted"
+            @update="onRegistrationUpdated"
+            @cancel="onSignIn"
+          />
         </v-col>
       </v-row>
     </div>
@@ -56,64 +33,28 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/yup";
-import { fieldErrorMessage } from "yuebing-messages";
-import { UsernameAndPasswordSchema } from "yuebing-model";
+import { RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
-
-const { errors, defineInputBinds, meta, handleSubmit } = useForm({
-  validationSchema: toTypedSchema(UsernameAndPasswordSchema),
-});
-
-const usernameOrEmail = defineInputBinds("usernameOrEmail", {
-  validateOnInput: true,
-});
-const password = defineInputBinds("password", {
-  validateOnInput: true,
-});
-
-const config = storeToRefs(useConfigStore());
-const publicConfig = ref(config.publicConfig);
-const configLoaded = ref(false);
-const registrationEnabled = ref(false);
-
-watch(publicConfig, (newConfig) => {
-  if (!configLoaded.value) {
-    configLoaded.value = true;
-    registrationEnabled.value = newConfig?.registrationEnabled ? newConfig.registrationEnabled : false;
-  }
-});
-
-const signUpUrl = "/signUp";
 
 const sessionStore = useSessionStore();
 const session = storeToRefs(sessionStore);
 const messages = ref(session.localeMessages);
 
-const fieldErrors = (field: string | string[]) => {
-  if (!meta.value.pending || !errors || !errors.value) return [];
-  if (!Array.isArray(field)) {
-    field = [field];
-  }
-  const fieldName = field[0];
-  for (const f of field as string[]) {
-    if ((errors.value as Record<string, string>)[f]) {
-      return [fieldErrorMessage(fieldName, (errors.value as Record<string, string>)[f], messages.value)];
-    }
-  }
-  return [];
-};
-const hasError = (field: string | string[]) => {
-  return fieldErrors(field).length > 0;
+const registrationObject = ref({} as RegistrationType);
+const registerServerErrors = ref({} as MobilettoOrmValidationErrors);
+
+const regTypeDef = hideOrmFields(RegistrationTypeDef, ["flags"]);
+
+const onSignIn = () => {
+  navigateTo("/auth/login");
 };
 
-const loginDisabled: () => boolean = () => {
-  return !usernameOrEmail || !password || false;
+const onRegistrationUpdated = (update: { field: string; value: any }) => {
+  registrationObject.value[update.field] = update.value;
 };
 
-const handleRegister = handleSubmit((values) => {
-  console.log(`handleRegister called with values=${JSON.stringify(values)}`);
-});
+const onRegistrationSubmitted = (reg: RegistrationType) => {
+  sessionStore.register(reg, registerServerErrors);
+};
 </script>

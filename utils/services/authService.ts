@@ -1,5 +1,7 @@
 import { AccountType, AuthAccountType, RegistrationType, UsernameAndPasswordType } from "yuebing-model";
 
+import { Ref } from "vue";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import * as auth from "../auth.js";
 import * as a from "./serviceUtil.js";
 
@@ -15,8 +17,13 @@ export const authService = {
   inviteFriends,
 };
 
-function login(auth: UsernameAndPasswordType): Promise<AuthAccountType> {
-  return $fetch("/api/auth/login", a.authPostJson(auth)).then(a.handleJsonResponse<AuthAccountType>);
+function login(
+  auth: UsernameAndPasswordType,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<AuthAccountType> {
+  return $fetch("/api/auth/login", a.authPostJson(auth))
+    .then(a.handleJsonResponse<AuthAccountType>)
+    .catch(a.handleErrors(serverErrors));
 }
 
 function logout() {
@@ -24,8 +31,13 @@ function logout() {
   return $fetch("/api/auth/logout", a.authGet()).then(a.handleJsonResponse);
 }
 
-function register(registration: RegistrationType): Promise<AuthAccountType> {
-  return $fetch("/api/auth/register", a.authPostJson(registration)).then(a.handleJsonResponse<AuthAccountType>);
+function register(
+  registration: RegistrationType,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<AuthAccountType> {
+  return $fetch("/api/auth/register", a.authPostJson(registration))
+    .then(a.handleJsonResponse<AuthAccountType>)
+    .catch(a.handleErrors(serverErrors));
 }
 
 function verify(email: string, token: string, resetPasswordHash: string, newPassword: string) {

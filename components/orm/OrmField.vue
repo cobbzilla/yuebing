@@ -7,24 +7,24 @@
         </div>
         <div v-else-if="field.control === 'text' || field.control === 'password'" class="ma-0 pa-0">
           <v-text-field
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :type="field.control"
             :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
           />
         </div>
         <div v-else-if="field.control === 'label'" class="ma-0 pa-0">
           <v-text-field
             v-if="!create"
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :type="'text'"
             :label="labelFor(field)"
             :full-width="false"
@@ -35,35 +35,35 @@
         </div>
         <div v-else-if="field.control === 'textarea'" class="ma-0 pa-0">
           <v-textarea
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
           />
         </div>
         <div v-else-if="field.control === 'flag'" class="ma-0 pa-0">
           <v-checkbox
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
           />
         </div>
         <div v-else-if="field.control === 'select'" class="ma-0 pa-0">
           <v-select
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
@@ -72,15 +72,15 @@
             :name="field.name"
             :value="valueOrDefault()"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
           />
         </div>
         <div v-else-if="field.control === 'multi'" class="ma-0 pa-0">
           <v-select
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
@@ -89,24 +89,24 @@
             :name="field.name"
             :value="valueOrDefault()"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             :multiple="true"
             @update:model-value="sendUpdate()"
           />
         </div>
         <div v-else class="ma-0 pa-0">
           <v-text-field
-            v-model="ff"
-            :v-bind="ff"
+            v-model="localValue"
+            :v-bind="localValue"
             :type="field.control"
             :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
             :value="valueOrDefault()"
             class="form-control"
-            :error="submitted && Object.keys(form.errors).length > 0"
-            :error-messages="submitted ? fieldError(form.errors) : undefined"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
           />
         </div>
@@ -117,10 +117,10 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { FormContext } from "vee-validate";
-import { MobilettoOrmObject } from "mobiletto-orm";
+import { ValidationError } from "yup";
+import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
-import { fieldErrorMessage, findMessage } from "yuebing-messages";
+import { findMessage } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
@@ -129,14 +129,13 @@ const props = withDefaults(
     rootThing: MobilettoOrmObject;
     thing: MobilettoOrmObject;
     readOnlyObject: (obj: MobilettoOrmObject) => boolean;
+    serverErrors: MobilettoOrmValidationErrors;
+    validationError: ValidationError;
     objPath: string;
     value: any;
     create: boolean;
     submitted: boolean;
     saving: boolean;
-    successEvent: object;
-    form: FormContext;
-    formField: unknown;
     labelPrefixes: string[];
   }>(),
   {
@@ -156,25 +155,14 @@ const emit = defineEmits<{
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 
-const ff = ref(props.formField);
-// const props.formField = props.form.defineInputBinds(props.objPath, {
-//   validateOnInput: true,
-// });
-// const props.formField = reactive(useField(() => props.form.values[props.objPath]));
-// props.formField.resetField({ value: props.value ? props.value : props.field.default ? props.field.default : "" });
-// props.formField.value = props.value ? props.value : props.field.default ? props.field.default : null;
+const localValue = ref(props.thing[props.field.name as string] || "");
 
 const sendUpdate = () => {
-  console.log(`sendUpdate: value of ${props.objPath} is ${props.formField.value}`);
-  emit("update", { field: props.objPath, value: props.formField.value });
+  // console.log(`sendUpdate: value of ${props.objPath} is ${localValue.value}`);
+  emit("update", { field: props.objPath, value: localValue.value });
 };
 
 const isReadOnly = () => {
-  // console.log(
-  //   `isReadOnly(${props.field.name}) evaluating with props.rootThing=${JSON.stringify(
-  //     props.rootThing,
-  //   )} and props.readOnlyObject(props.rootThing) == ${props.readOnlyObject(props.rootThing)}`,
-  // );
   return typeof props.readOnlyObject === "function" && props.readOnlyObject(props.rootThing) === true;
 };
 
@@ -190,18 +178,6 @@ const valueOrDefault = () => {
     return props.field.default;
   }
   return null;
-};
-
-const successEvent = ref(props.successEvent);
-
-watch(successEvent, (newEvent) => {
-  if (newEvent && typeof newEvent === "object" && Object.keys(newEvent).length > 0) {
-    props.formField.resetField(valueOrDefault());
-  }
-});
-
-const fieldError = (error: any) => {
-  return error ? fieldErrorMessage(props.formField.name, error, messages.value, props.labelPrefixes) : "(no message)";
 };
 
 const fieldItems = (field: MobilettoOrmFieldDefConfig) => {
@@ -224,5 +200,19 @@ const labelFor = (field: MobilettoOrmFieldDefConfig) => {
   }
   const fieldName = field.name as string;
   return findMessage(fieldName, messages.value, props.labelPrefixes);
+};
+
+const fieldError = (field: string | string[]) =>
+  ormFieldErrorMessage(
+    field,
+    messages.value,
+    props.validationError,
+    props.serverErrors,
+    props.submitted,
+    props.objPath,
+  );
+
+const hasError = (field: string | string[]) => {
+  return fieldError(field) !== "";
 };
 </script>

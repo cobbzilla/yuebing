@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { AccountType, RegistrationType } from "yuebing-model";
 import { currentLocaleForUser, FALLBACK_DEFAULT_LANG, localeMessagesForUser } from "yuebing-messages";
 import { authService } from "~/utils/services/authService";
@@ -36,17 +37,17 @@ export const useSessionStore = defineStore("session", {
       this.currentLocale = currentLocaleForUser(this.user, this.browserLocale, this.anonLocale);
       // console.log(`setLocale: set currentLocale=${this.currentLocale} on this=${JSON.stringify(this)}`);
     },
-    async login(usernameOrEmail: string, password: string): Promise<void> {
+    async login(usernameOrEmail: string, password: string, errors: Ref<MobilettoOrmValidationErrors>): Promise<void> {
       if (this.user.username) {
         throw new Error(`session.login: user already logged in: ${this.user.username}`);
       }
-      const account = await authService.login({ usernameOrEmail, password });
+      const account = await authService.login({ usernameOrEmail, password }, errors);
       if (account) {
         this.user = account;
       }
     },
-    async register(registration: RegistrationType): Promise<void> {
-      const account = await authService.register(registration);
+    async register(registration: RegistrationType, errors: Ref<MobilettoOrmValidationErrors>): Promise<void> {
+      const account = await authService.register(registration, errors);
       if (account) {
         this.user = account;
       }

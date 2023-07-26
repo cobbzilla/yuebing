@@ -6,20 +6,17 @@
           <v-container class="ma-0 pa-0">
             <OrmFormFields
               :fields="fields"
-              :validation-schema="validationSchema"
+              :validation-error="validationError"
               :thing="newThing"
               :read-only-object="readOnlyObject"
               :root-thing="newThing"
               :obj-path="''"
               :field-header="''"
               :server-errors="serverErrors"
-              :success-event="successEvent"
               :label-prefixes="labelPrefixes"
               :submitted="submitted"
               :saving="saving"
               :create="create"
-              :form="form"
-              :form-fields="formFields"
               :form-level="0"
               @update="onFieldUpdate"
             />
@@ -29,20 +26,12 @@
       <v-row>
         <v-col>
           <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleSave">
-            {{
-              msg(props.saveButtonMessage, {
-                type: messages[props.typeNameMessage],
-              })
-            }}
+            {{ messages[props.saveButtonMessage] }}
           </v-btn>
         </v-col>
         <v-col>
           <v-btn class="btn btn-primary" :disabled="saving" @click.stop="handleCancel">
-            {{
-              msg(props.cancelButtonMessage, {
-                type: messages[props.typeNameMessage],
-              })
-            }}
+            {{ messages[props.cancelButtonMessage] }}
           </v-btn>
         </v-col>
       </v-row>
@@ -52,11 +41,8 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/yup";
 import * as yup from "yup";
-import { findMessage, parseMessage } from "yuebing-messages";
-import { MobilettoOrmFieldDefConfigs, MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 
@@ -72,10 +58,7 @@ const props = withDefaults(
     cancelButtonMessage: string;
     fields: MobilettoOrmFieldDefConfig[];
     create: boolean;
-    submitted: boolean;
-    saving: boolean;
-    successEvent: object;
-    serverErrors: ValidationErrors;
+    serverErrors: MobilettoOrmValidationErrors;
     labelPrefixes: string[];
   }>(),
   {
@@ -85,8 +68,6 @@ const props = withDefaults(
     cancelButtonMessage: "button_cancel",
     fields: () => [],
     create: () => false,
-    submitted: () => false,
-    saving: () => false,
     serverErrors: () => ({}),
     labelPrefixes: () => ["", "label_"],
   },
@@ -99,66 +80,45 @@ const emit = defineEmits<{
 
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
-const msg = (key: string, ctx: Record<string, unknown>) =>
-  parseMessage(findMessage(key, messages.value, props.labelPrefixes), messages.value, ctx);
 
 const newThing = ref(JSON.parse(JSON.stringify(props.thing)));
+const submitted = ref(false);
+const saving = ref(false);
+const validationError = ref({} as yup.ValidationError);
 
-// const { errors, defineInputBinds, defineComponentBinds, meta, handleSubmit } = useForm({
-//   validationSchema: toTypedSchema(props.validationSchema),
-// });
-const form = reactive(
-  useForm({
-    validationSchema: toTypedSchema(props.validationSchema),
-  }),
-);
-const formFields: Record<string, unknown> = reactive({});
-const buildFields = (formFields: Record<string, unknown>, typeFields: MobilettoOrmFieldDefConfigs, objPath: string) => {
-  Object.keys(typeFields).forEach((fieldName) => {
-    const field = typeFields[fieldName];
-    const fieldPath = objPath + field.name;
-    if (field.fields) {
-      buildFields(formFields, field.fields, fieldPath + ".");
-    } else {
-      formFields[fieldPath] = reactive(form.defineInputBinds(fieldPath));
-    }
-  });
-};
-buildFields(formFields, props.typeDef.fields, "");
-
-const successEvent = ref(props.successEvent);
 const serverErrors = ref(props.serverErrors);
-
-watch(serverErrors, (newError) => {
-  if (newError && newError.errors && Object.keys(newError.errors).length > 0) {
-    // what to do here
-    // console.log(`found serverErrors, need to set these somehow: ${JSON.stringify(newError)}`);
-    // this.$refs[props.formName].setErrors(newError.errors);
-  }
-});
-
-watch(successEvent, (newEvent) => {
-  if (newEvent && typeof newEvent === "object" && Object.keys(newEvent).length > 0) {
-    Object.assign(newThing, JSON.parse(JSON.stringify(props.thing)));
-  }
-});
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
   if (update) {
-    console.log(`OrmForm.onFieldUpdate: deep updating ${update.field} with value ${update.value}`);
     deepUpdate(newThing.value, update.field, update.value);
     emit("update", update);
+    validate();
   }
 };
 
-const handleSave = form.handleSubmit((values: Record<string, any>) => {
+const validate = async () => {
   try {
-    console.log(`OrmForm.handleSave: emitting submitted: ${JSON.stringify(values)}`);
-    emit("submitted", values as MobilettoOrmObject);
+    const validated = await props.validationSchema.validate(newThing.value, { abortEarly: false });
+    validationError.value = {};
+    return validated;
   } catch (e) {
-    // console.error(`OrmForm.handleSave failed: ${e}`);
+    if (e.errors) {
+      validationError.value = e as yup.ValidationError;
+      return null;
+    } else {
+      // console.log(`OrmForm.validate: error: ${e}`);
+      return null;
+    }
   }
-});
+};
+
+const handleSave = async () => {
+  submitted.value = true;
+  const validated = await validate();
+  if (validated) {
+    emit("submitted", validated);
+  }
+};
 
 const handleCancel = () => {
   emit("cancel");

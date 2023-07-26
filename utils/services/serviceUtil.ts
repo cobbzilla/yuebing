@@ -1,3 +1,4 @@
+import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { SESSION_HEADER } from "../auth";
 
 export function currentAccount() {
@@ -82,3 +83,17 @@ export function handleJsonResponse<T>(response: Response): Promise<T> {
     return Promise.resolve(response as T);
   }
 }
+
+export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) => (e) => {
+  if (e.statusCode === 403) {
+    serverErrors.value.usernameOrEmail = ["forbidden"];
+  } else if (e.statusCode === 404) {
+    if (typeof e.data?.id === "string" && e.data.id.length > 0) {
+      serverErrors.value[e.data.id] = ["notFound"];
+    }
+  } else if (e.statusCode === 422) {
+    serverErrors.value = e.data as MobilettoOrmValidationErrors;
+  } else {
+    throw e;
+  }
+};

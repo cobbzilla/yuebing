@@ -4,13 +4,13 @@
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
-            snackbar:
-            {{
-              msg(addObjectSuccessMessage, {
-                id: (addObjectSuccess as MobilettoOrmObject)[typeDef.idField(addObjectSuccess) as string],
-                type: messages[typeNameMessage],
-              })
-            }}
+<!--            snackbar:-->
+<!--            {{-->
+<!--              msg(addObjectSuccessMessage, {-->
+<!--                id: (addObjectSuccess as MobilettoOrmObject)[typeDef.idField(addObjectSuccess) as string],-->
+<!--                type: messages[typeNameMessage],-->
+<!--              })-->
+<!--            }}-->
           </h4>
         </v-snackbar>
       </v-col>
@@ -54,8 +54,6 @@
           save-button-message="admin_button_add"
           :fields="objectFields"
           :create="true"
-          :submitted="objectSubmitted"
-          :success-event="addObjectSuccess"
           :server-errors="addObjectError"
           :label-prefixes="labelPrefixes"
           @update="onAddOrmUpdate"
@@ -72,9 +70,9 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
 import { storeToRefs } from "pinia";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, ValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { findMessage, parseMessage } from "yuebing-messages";
-import { SNACKBAR_ERROR_DEFAULT_TIMEOUT, SNACKBAR_SUCCESS_DEFAULT_TIMEOUT } from "~/utils/ui";
+import { SNACKBAR_ERROR_DEFAULT_TIMEOUT } from "~/utils/ui";
 import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
@@ -86,8 +84,7 @@ const props = withDefaults(
     addObjectObject: MobilettoOrmObject;
     objectSubmitted: boolean;
     addObjectMessage: string;
-    addObjectSuccess: MobilettoOrmObject;
-    addObjectError: ValidationErrors;
+    addObjectServerErrors: MobilettoOrmValidationErrors;
     addObjectSuccessMessage: string;
     addObjectErrorMessage: string;
   }>(),
@@ -144,7 +141,7 @@ const onCancelOrmForm = (cancel: any) => {
 const addFormName = () => `add${props.typeDef.typeName}Form`;
 const objectFields = () => props.typeDef.tabIndexedFields();
 
-const addObjectError = ref(props.addObjectError);
+const addObjectError = ref(props.addObjectServerErrors);
 watch(addObjectError, (newError: any) => {
   if (newError) {
     if (newError.errors) {
@@ -162,17 +159,17 @@ watch(addObjectError, (newError: any) => {
   }
 });
 
-const addObjectSuccess = ref(props.addObjectSuccess);
-watch(addObjectSuccess, (ok) => {
-  if (ok) {
-    // longer timeout for these kinds of things, more time to see the message
-    // console.log(`OrmAdd.addObjectSuccess received: ${JSON.stringify(ok)}`);
-    successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
-    showSuccessSnackbar.value = true;
-    showErrorSnackbar.value = false;
-  } else {
-    showSuccessSnackbar.value = false;
-    successSnackTimeout.value = -1;
-  }
-});
+// const addObjectSuccess = ref(props.addObjectSuccess);
+// watch(addObjectSuccess, (ok) => {
+//   if (ok) {
+//     // longer timeout for these kinds of things, more time to see the message
+//     // console.log(`OrmAdd.addObjectSuccess received: ${JSON.stringify(ok)}`);
+//     successSnackTimeout.value = SNACKBAR_SUCCESS_DEFAULT_TIMEOUT;
+//     showSuccessSnackbar.value = true;
+//     showErrorSnackbar.value = false;
+//   } else {
+//     showSuccessSnackbar.value = false;
+//     successSnackTimeout.value = -1;
+//   }
+// });
 </script>

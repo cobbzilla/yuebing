@@ -18,6 +18,6 @@ import { useConfigStore } from "~/stores/config";
 // const config = storeToRefs(configStore);
 // const publicConfig = ref(config.publicConfig);
 if (((await useConfigStore().loadPublicConfig()) as PublicConfigType)?.needsAdmin === true) {
-  navigateTo("/auth/register2?setup=true");
+  navigateTo("/auth/register?setup=true");
 }
 </script>
