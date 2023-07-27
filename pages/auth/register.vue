@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { AuthAccountType, RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
+import { RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";

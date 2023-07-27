@@ -2,7 +2,7 @@
 
 import { MobilettoOrmObject, MobilettoOrmPurgeResults } from "mobiletto-orm";
 import { SourceType, SourceTypeDef } from "yuebing-model";
-import * as a from "~/utils/services/serviceUtil";
+import * as a from "~/utils/services/api";
 
 export const sourceService = {
   searchSource,

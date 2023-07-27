@@ -1,7 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.0.6",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "version": "2.0.7",
   "keywords": [
     "video",
     "private",
@@ -81,7 +80,7 @@
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.0.11",
-    "yuebing-model": "^2.3.0",
+    "yuebing-model": "^2.3.2",
     "yup": "^1.2.0"
   }
 }

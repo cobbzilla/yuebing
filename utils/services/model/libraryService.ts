@@ -2,7 +2,7 @@
 
 import { MobilettoOrmObject, MobilettoOrmPurgeResults } from "mobiletto-orm";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
-import * as a from "~/utils/services/serviceUtil";
+import * as a from "~/utils/services/api";
 
 export const libraryService = {
   searchLibrary,

@@ -4,7 +4,7 @@ import { AccountType, AuthAccountType, RegistrationType } from "yuebing-model";
 import { currentLocaleForUser, FALLBACK_DEFAULT_LANG, localeMessagesForUser } from "yuebing-messages";
 import { authService } from "~/utils/services/authService";
 import { accountService } from "~/utils/services/model/accountService";
-import {sessionService} from "~/utils/services/sessionService";
+import { sessionService } from "~/utils/services/sessionService";
 
 const initialUserObject = (): AuthAccountType => {
   const ck = useCookie(SESSION_COOKIE_NAME);
