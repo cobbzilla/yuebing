@@ -2,7 +2,7 @@
 
 import { MobilettoOrmObject, MobilettoOrmPurgeResults } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
-import * as a from "~/utils/services/api";
+import * as a from "~/utils/services/serviceUtil";
 
 export const destinationService = {
   searchDestination,
@@ -27,9 +27,7 @@ function createDestination(destination: DestinationType): Promise<DestinationTyp
 
 function updateDestination(destination: DestinationType): Promise<DestinationType> {
   const id = DestinationTypeDef.id(destination);
-  return $fetch(`/api/model/destination/${id}`, a.authPostJson(destination)).then(
-    a.handleJsonResponse<DestinationType>,
-  );
+  return $fetch(`/api/model/destination/${id}`, a.authPostJson(destination)).then(a.handleJsonResponse<DestinationType>);
 }
 
 function deleteDestination(id: string, purge?: boolean): Promise<MobilettoOrmObject | MobilettoOrmPurgeResults> {

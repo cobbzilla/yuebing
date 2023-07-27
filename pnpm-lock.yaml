@@ -78,8 +78,8 @@ dependencies:
     specifier: ^2.0.11
     version: 2.0.11
   yuebing-model:
-    specifier: ^2.2.42
-    version: 2.2.42
+    specifier: ^2.3.0
+    version: 2.3.0
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -3965,7 +3965,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001517
-      electron-to-chromium: 1.4.472
+      electron-to-chromium: 1.4.473
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11(browserslist@4.21.9)
 
@@ -4766,8 +4766,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: true
 
-  /electron-to-chromium@1.4.472:
-    resolution: {integrity: sha512-JL+vQaO4/3mnE68YLaO6tS61YFTlQp8/9JJj1kMP0CL9GHjLYt8t3T0aA3sW3PvdiXjnVeaZ6Kf0mGtt9+2j+Q==}
+  /electron-to-chromium@1.4.473:
+    resolution: {integrity: sha512-aVfC8+440vGfl06l8HKKn8/PD5jRfSnLkTTD65EFvU46igbpQRri1gxSzW9/+TeUlwYzrXk1sw867T96zlyECA==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -10345,8 +10345,8 @@ packages:
     resolution: {integrity: sha512-gxubgO/qx1n7cVgR7y+5akcIIxwJRmYVXG+QOiKOtLySI8qe2Gst8WEA8CvVQQhDhNX+Y0C6p/Qyj1WJu+EbyQ==}
     dev: false
 
-  /yuebing-model@2.2.42:
-    resolution: {integrity: sha512-YyiW360vCHR91RV9+cMMEPrV1Jqu1sGOtLzQ5kOxb8ADOCciMpjn0l1uzAlrrhD0xiwGqMBXB0CLme3TG7/svw==}
+  /yuebing-model@2.3.0:
+    resolution: {integrity: sha512-yiIjxH4oksBCAXnTO4WAzdH/8r+C/fICRuqzC4tK/8K6E06thYTAKwfsz0wf8gtp7G4wEZ61IvF0/uZBm0QFxA==}
     dependencies:
       handlebars: 4.7.7
     dev: false

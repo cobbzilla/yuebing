@@ -18,6 +18,7 @@
 import { storeToRefs } from "pinia";
 import { useConfigStore } from "~/stores/config";
 import { DEFAULT_META } from "~/utils/meta";
+import { useSessionStore } from "~/stores/session";
 
 const config = useConfigStore();
 const configRefs = storeToRefs(config);
@@ -29,6 +30,12 @@ useSeoMeta({
   },
   ...DEFAULT_META,
 });
+
+const sessionStore = useSessionStore();
+if (sessionStore.needsRefresh) {
+  console.log("layouts/default: sessionStore.needsRefresh was true, calling sessionStore.getAccount()");
+  sessionStore.getAccount();
+}
 </script>
 
 <script lang="ts">

@@ -26,9 +26,9 @@ function login(
     .catch(a.handleErrors(serverErrors)) as Promise<AuthAccountType>;
 }
 
-function logout() {
-  // sends a Set-Cookie that invalidates whatever current cookie is set
-  return $fetch("/api/auth/logout", a.authGet()).then(a.handleJsonResponse);
+function logout(): Promise<boolean> {
+  // deletes the current session cookie
+  return $fetch("/api/auth/logout", a.authGet()).then(a.handleJsonResponse<boolean>);
 }
 
 function register(

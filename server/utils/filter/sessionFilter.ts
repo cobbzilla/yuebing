@@ -1,13 +1,14 @@
-import { SESSION_HEADER } from "~/utils/auth";
-import { forbidden } from "~/server/utils/filter/errorHandler";
-import { sessionRepository } from "~/server/utils/repo/sessionRepo";
+import { H3Event } from "h3";
 import { AccountType, SessionType } from "yuebing-model";
+import { SESSION_HEADER } from "~/utils/auth";
+import { forbidden } from "~/server/utils/filter/errorFilter";
+import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { accountRepository } from "~/server/utils/repo/accountRepo";
 
 export const requireAccount = async (
-  event,
+  event: H3Event,
   _logPrefix: string,
-  fn: (event, session: SessionType) => Promise<unknown>,
+  fn: (event: H3Event, session: SessionType) => Promise<unknown>,
 ) => {
   if (!event?.req?.headers[SESSION_HEADER]) {
     throw forbidden();
@@ -19,9 +20,9 @@ export const requireAccount = async (
 };
 
 export const requireAccountObject = async (
-  event,
+  event: H3Event,
   logPrefix: string,
-  fn: (event, session: SessionType, account: AccountType) => Promise<unknown>,
+  fn: (event: H3Event, session: SessionType, account: AccountType) => Promise<unknown>,
 ) => {
   return requireAccount(event, logPrefix, async (event, session) => {
     const account: AccountType | null = await accountRepository().safeFindById(session.account);
@@ -31,9 +32,9 @@ export const requireAccountObject = async (
 };
 
 export const requireAdminAccountObject = async (
-  event,
+  event: H3Event,
   logPrefix: string,
-  fn: (event, session: SessionType, account: AccountType) => Promise<unknown>,
+  fn: (event: H3Event, session: SessionType, account: AccountType) => Promise<unknown>,
 ) => {
   return requireAccountObject(event, logPrefix, (event, session: SessionType, account: AccountType) => {
     if (account.admin === true) {

@@ -41,7 +41,12 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
-import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
+import {
+  AuthAccountType,
+  UsernameAndPasswordSchema,
+  UsernameAndPasswordType,
+  UsernameAndPasswordTypeDef,
+} from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
 
 const sessionStore = useSessionStore();
@@ -59,7 +64,6 @@ const onLoginUpdated = (update: { field: string; value: any }) => {
   usernameAndPasswordObject.value[update.field] = update.value;
 };
 
-const onLoginSubmitted = (login: UsernameAndPasswordType) => {
+const onLoginSubmitted = (login: UsernameAndPasswordType) =>
   sessionStore.login(login.usernameOrEmail, login.password, loginServerErrors);
-};
 </script>

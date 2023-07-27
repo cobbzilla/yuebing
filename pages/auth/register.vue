@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
+import { AuthAccountType, RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";
@@ -72,7 +72,5 @@ const isSetup = () => route.path.startsWith("/setup");
 const cancelButtonMessage = () => (isSetup() ? undefined : "button_login");
 const registerButtonMessage = () => (isSetup() ? "title_register_setup" : "button_register");
 
-const onRegistrationSubmitted = (reg: RegistrationType) => {
-  sessionStore.register(reg, registerServerErrors);
-};
+const onRegistrationSubmitted = (reg: RegistrationType) => sessionStore.register(reg, registerServerErrors);
 </script>
