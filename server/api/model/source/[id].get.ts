@@ -8,6 +8,8 @@ export default defineEventHandler(async (event) => {
       const sourceRepo = sourceRepository();
       const source_by_id = await sourceRepo.safeFindById(id);
       if (source_by_id) return source_by_id;
+      const source_by_name = await sourceRepo.safeFindFirstBy("name", id);
+      if (source_by_name) return source_by_name;
       throw createError({ statusCode: 404, statusMessage: "not found" });
     });
   });

@@ -1,5 +1,5 @@
 import { PublicConfigTypeDef, PrivateConfigTypeDef } from "yuebing-model";
-import * as a from "./serviceUtil.js";
+import * as a from "./api.js";
 
 export const configService = {
   browserHeaders,

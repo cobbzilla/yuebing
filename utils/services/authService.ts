@@ -3,7 +3,7 @@ import { AccountType, AuthAccountType, RegistrationType, UsernameAndPasswordType
 import { Ref } from "vue";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import * as auth from "../auth.js";
-import * as a from "./serviceUtil.js";
+import * as a from "./api.js";
 
 export const authService = {
   login,
@@ -23,7 +23,7 @@ function login(
 ): Promise<AuthAccountType> {
   return $fetch("/api/auth/login", a.authPostJson(auth))
     .then(a.handleJsonResponse<AuthAccountType>)
-    .catch(a.handleErrors(serverErrors));
+    .catch(a.handleErrors(serverErrors)) as Promise<AuthAccountType>;
 }
 
 function logout() {
