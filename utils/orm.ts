@@ -1,17 +1,13 @@
-import { MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
-import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import { MobilettoOrmFieldDefConfig, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { ValidationError } from "yup";
 import { fieldErrorMessage } from "yuebing-messages";
 
 export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): MobilettoOrmTypeDef => {
-  const hidden = {};
+  const hidden: Record<string, MobilettoOrmFieldDefConfig> = {};
   fields.forEach((f) => {
-    const field: MobilettoOrmFieldDefConfig = typeDef.fields[f];
-    const fieldCopy: MobilettoOrmFieldDefConfig = JSON.parse(JSON.stringify(field)) as MobilettoOrmFieldDefConfig;
-    fieldCopy.control = "hidden";
-    hidden[f] = fieldCopy;
+    hidden[f] = { control: "hidden" };
   });
-  return typeDef.extend({ fields: hidden });
+  return typeDef.extend({ typeName: typeDef.typeName, fields: hidden });
 };
 
 export const ormFieldErrorMessage = (

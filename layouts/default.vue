@@ -15,14 +15,17 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
 import { useConfigStore } from "~/stores/config";
 import { DEFAULT_META } from "~/utils/meta";
 import { useSessionStore } from "~/stores/session";
+import { isHome, isSetup, isSignIn } from "~/utils/config";
+import { storeToRefs } from "pinia";
 
-const config = useConfigStore();
-const configRefs = storeToRefs(config);
-await config.loadBrowserHeaders();
+const configStore = useConfigStore();
+const configRefs = storeToRefs(configStore);
+await configStore.loadPublicConfig();
+await configStore.loadBrowserHeaders();
+const needsAdmin = () => configRefs.publicConfig?.value?.needsAdmin || false;
 
 useSeoMeta({
   title: () => {
@@ -32,9 +35,24 @@ useSeoMeta({
 });
 
 const sessionStore = useSessionStore();
-if (sessionStore.needsRefresh) {
-  console.log("layouts/default: sessionStore.needsRefresh was true, calling sessionStore.getAccount()");
-  sessionStore.getAccount();
+const sessionRefs = storeToRefs(sessionStore);
+
+const loggedIn = () => sessionRefs.user?.value?.username && sessionRefs.user?.value?.session;
+const hasSession = () => sessionRefs.user?.value?.session;
+
+if (!isSetup()) {
+  if (needsAdmin()) {
+    navigateTo("/setup");
+  } else {
+    if (hasSession() && !loggedIn()) {
+      const account = await sessionStore.getAccount();
+      if (account && account.session) {
+        if (!isHome()) navigateTo("/home");
+      }
+    } else if (isHome() && !loggedIn()) {
+      if (!isSignIn()) navigateTo("/signIn");
+    }
+  }
 }
 </script>
 

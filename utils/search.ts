@@ -1,4 +1,4 @@
-import { MobilettoOrmFindOpts } from "mobiletto-orm";
+import { MobilettoOrmFindOpts } from "mobiletto-orm-typedef";
 
 export type MobilettoOrmFindApiOpts = {
   field?: string;

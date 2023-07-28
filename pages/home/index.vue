@@ -1,6 +1,8 @@
 <template>
   <v-container>
-    <v-row> index page is here </v-row>
+    <v-row>
+      <v-col><b>home page is here!</b></v-col>
+    </v-row>
   </v-container>
 </template>
 

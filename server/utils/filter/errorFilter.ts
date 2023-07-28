@@ -1,8 +1,7 @@
-import { MobilettoOrmNotFoundError, MobilettoOrmValidationError, ValidationErrors } from "mobiletto-orm";
-import { MobilettoNotFoundError } from "mobiletto-base";
-import { H3Error } from "h3";
+import { MobilettoOrmNotFoundError, MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { H3Error, H3Event } from "h3";
 
-export const validationError = (errors: ValidationErrors) =>
+export const validationError = (errors: MobilettoOrmValidationErrors) =>
   createError({
     statusCode: 422,
     statusMessage: "validation error",
@@ -12,6 +11,8 @@ export const validationError = (errors: ValidationErrors) =>
 export const forbidden = () => {
   return createError({ statusCode: 403 });
 };
+
+export const badRequest = () => createError({ statusCode: 400, statusMessage: "bad request" });
 
 export const notFound = (id: string) =>
   createError({
@@ -28,7 +29,7 @@ export const serverError = () =>
 
 export const conflict = () => createError({ statusCode: 409, statusMessage: "conflict" });
 
-export const filterErrors = async (event, logPrefix: string, fn: (event) => Promise<unknown>) => {
+export const filterErrors = async (event: H3Event, logPrefix: string, fn: (event: H3Event) => Promise<unknown>) => {
   try {
     return fn(event);
   } catch (e) {
@@ -36,7 +37,7 @@ export const filterErrors = async (event, logPrefix: string, fn: (event) => Prom
       throw e;
     } else if (e instanceof MobilettoOrmValidationError) {
       throw validationError(e.errors);
-    } else if (e instanceof MobilettoOrmNotFoundError || e instanceof MobilettoNotFoundError) {
+    } else if (e instanceof MobilettoOrmNotFoundError) {
       throw notFound(e.id);
     } else {
       logger.error(`${logPrefix}: server error: ${JSON.stringify(e)}`);

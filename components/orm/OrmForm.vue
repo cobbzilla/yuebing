@@ -42,8 +42,12 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import * as yup from "yup";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
-import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import {
+  MobilettoOrmFieldDefConfig,
+  MobilettoOrmObject,
+  MobilettoOrmTypeDef,
+  MobilettoOrmValidationErrors,
+} from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
@@ -120,7 +124,8 @@ const handleSave = async () => {
   }
 };
 
-const showCancel = () => !props.cancelButtonMessage || props.cancelButtonMessage.length === 0;
+const showCancel = () =>
+  props.cancelButtonMessage && props.cancelButtonMessage.length && props.cancelButtonMessage.length > 0;
 
 const handleCancel = () => {
   emit("cancel");

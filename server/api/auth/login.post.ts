@@ -11,6 +11,7 @@ import * as bcrypt from "bcrypt";
 import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/accountRepo";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, notFound } from "~/server/utils/filter/errorFilter";
+import {FIND_NOREDACT} from "mobiletto-orm";
 
 export default defineEventHandler((event) =>
   filterErrors(event, "logout", async (event) => {
@@ -23,7 +24,7 @@ export default defineEventHandler((event) =>
     const login = validated.usernameOrEmail;
     const password = validated.password;
     const repo: AccountRepositoryType = accountRepository();
-    const account = await repo.findByUsernameOrEmail(login);
+    const account = await repo.findByUsernameOrEmail(login, FIND_NOREDACT);
     if (!account) {
       throw notFound(login);
     }
@@ -40,6 +41,6 @@ export default defineEventHandler((event) =>
       ...(AccountTypeDef.redact(account) as AccountType),
       session: sess.token,
     };
-    return await setSessionCookie(event, AuthAccountTypeDef.redact(authAccount));
+    return await setSessionCookie(event, AuthAccountTypeDef.redact(authAccount) as AuthAccountType);
   }),
 );

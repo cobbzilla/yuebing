@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { findMessage, parseMessage } from "yuebing-messages";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";

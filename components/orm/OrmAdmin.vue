@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { fieldErrorMessage, findMessage, parseMessage } from "yuebing-messages";
 import { storeToRefs } from "pinia";
 import { useSessionStore } from "~/stores/session";

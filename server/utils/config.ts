@@ -1,7 +1,9 @@
-import { PrivateConfigType, PublicConfigType } from "yuebing-model";
+import * as bcrypt from "bcrypt";
+import { DEFAULT_BCRYPT_TIME_TARGET, PrivateConfigType, PublicConfigType } from "yuebing-model";
 import { Cached } from "~/server/utils/cached";
 import { privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
 import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG } from "~/server/utils/default";
+import { rand } from "mobiletto-orm";
 
 export const HAS_ADMIN: Cached<boolean> = new Cached(
   async (): Promise<boolean> => {
@@ -46,3 +48,22 @@ export const registrationEnabled = async (): Promise<boolean> =>
   (await PUBLIC_CONFIG.get()).registrationEnabled || false;
 
 export const needsAdmin = async (): Promise<boolean> => (await PUBLIC_CONFIG.get()).needsAdmin || false;
+
+export const bcryptTimeTarget = async (): Promise<number> =>
+  (await PRIVATE_CONFIG.get()).auth?.bcryptTimeTarget || DEFAULT_BCRYPT_TIME_TARGET;
+
+const bcryptStartRounds = 8;
+const bcryptDurations: Record<number, number> = {};
+
+export const bcryptRounds = async (): Promise<number> => {
+  const target = await bcryptTimeTarget();
+  const data = rand(128);
+  for (let rounds = bcryptStartRounds; true; rounds++) {
+    if (!bcryptDurations[rounds]) {
+      const start = Date.now();
+      await bcrypt.hash(data, rounds);
+      bcryptDurations[rounds] = Date.now() - start;
+    }
+    if (bcryptDurations[rounds] >= target) return rounds + 1;
+  }
+};

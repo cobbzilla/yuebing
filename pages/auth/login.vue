@@ -15,7 +15,7 @@
             type-name-message="login_form"
             :thing="usernameAndPasswordObject"
             save-button-message="button_login"
-            cancel-button-message="button_register"
+            :cancel-button-message="cancelButtonMessage()"
             :fields="UsernameAndPasswordTypeDef.tabIndexedFields()"
             :create="true"
             :read-only-object="() => false"
@@ -40,24 +40,22 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
-import {
-  AuthAccountType,
-  UsernameAndPasswordSchema,
-  UsernameAndPasswordType,
-  UsernameAndPasswordTypeDef,
-} from "yuebing-model";
+import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
+import { configRegistrationEnabled } from "~/utils/config";
 
 const sessionStore = useSessionStore();
-const session = storeToRefs(sessionStore);
-const messages = ref(session.localeMessages);
+const sessionRefs = storeToRefs(sessionStore);
+const messages = ref(sessionRefs.localeMessages);
 
 const usernameAndPasswordObject = ref({} as UsernameAndPasswordType);
 const loginServerErrors = ref({} as MobilettoOrmValidationErrors);
 
+const cancelButtonMessage = () => (configRegistrationEnabled() ? "button_register" : "");
+
 const onSignUp = () => {
-  navigateTo("/auth/register");
+  navigateTo("/signUp");
 };
 
 const onLoginUpdated = (update: { field: string; value: any }) => {
@@ -65,5 +63,14 @@ const onLoginUpdated = (update: { field: string; value: any }) => {
 };
 
 const onLoginSubmitted = (login: UsernameAndPasswordType) =>
-  sessionStore.login(login.usernameOrEmail, login.password, loginServerErrors);
+  sessionStore
+    .login(login.usernameOrEmail, login.password, loginServerErrors)
+    .then((account) => sessionStore.setLocale(account.locale, true))
+    .catch((e) => {
+      if (e instanceof MobilettoOrmValidationError) {
+        loginServerErrors.value = e.errors;
+      } else {
+        throw e;
+      }
+    });
 </script>

@@ -18,9 +18,10 @@
 </template>
 
 <script setup>
-const messages = {
-  footer_credit: "what a nice footer you have there",
-};
+import { storeToRefs } from "pinia";
+import { useSessionStore } from "~/stores/session";
+
+const messages = ref(storeToRefs(useSessionStore()).localeMessages);
 </script>
 
 <script>

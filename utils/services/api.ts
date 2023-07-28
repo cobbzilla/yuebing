@@ -1,20 +1,12 @@
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
-import { SESSION_HEADER } from "../auth";
-
-export function currentAccount() {
-  const accountJson = useCookie<string>("account").value;
-  try {
-    return accountJson ? JSON.parse(accountJson) : null;
-  } catch (e) {
-    // console.log(`currentAccount: error parsing accountJson: ${accountJson}: ${e}`);
-  }
-}
+import { SESSION_HEADER, sessionCookie } from "../auth";
+import { isSecure } from "~/utils/config";
 
 export function authHeader() {
-  const account = currentAccount();
-  if (account && account.session) {
+  const session = sessionCookie(isSecure());
+  if (session) {
     const headers: Record<string, string> = {};
-    headers[SESSION_HEADER] = account.session;
+    headers[SESSION_HEADER] = session.value;
     return headers;
   } else {
     return {};

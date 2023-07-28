@@ -44,6 +44,7 @@
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
+    "cookie-es": "^1.0.0",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-vue": "^9.15.1",
@@ -53,6 +54,7 @@
     "sass": "^1.63.6",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^5.1.6",
+    "unctx": "^2.3.1",
     "vue-eslint-parser": "^9.3.1"
   },
   "dependencies": {
@@ -70,17 +72,16 @@
     "mobiletto-driver-generic": "^2.0.11",
     "mobiletto-driver-local": "^2.0.7",
     "mobiletto-driver-s3": "^2.0.8",
-    "mobiletto-orm": "^2.1.44",
-    "mobiletto-orm-typedef": "^2.1.48",
+    "mobiletto-orm": "^2.1.49",
+    "mobiletto-orm-typedef": "^2.2.1",
     "pinia": "^2.1.4",
-    "unctx": "^2.3.1",
     "vue": "^3.3.4",
     "vue-json-pretty": "^2.2.4",
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.0.11",
-    "yuebing-model": "^2.3.2",
+    "yuebing-model": "^2.3.10",
     "yup": "^1.2.0"
   }
 }

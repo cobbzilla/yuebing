@@ -1,6 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { resolve } from "pathe";
 
+const registerFile = resolve(__dirname, "./pages/auth/register.vue");
+const loginFile = resolve(__dirname, "./pages/auth/login.vue");
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: true,
@@ -14,48 +17,48 @@ export default defineNuxtConfig({
         {
           name: "setup",
           path: "/setup",
-          file: resolve(__dirname, "./pages/auth/register.vue"),
+          file: registerFile,
         },
         {
           name: "signUp",
           path: "/signUp",
-          file: resolve(__dirname, "./pages/auth/register.vue"),
+          file: registerFile,
         },
         {
           name: "signup",
           path: "/signup",
-          file: resolve(__dirname, "./pages/auth/register.vue"),
+          file: registerFile,
         },
         {
           name: "register",
           path: "/register",
-          file: resolve(__dirname, "./pages/auth/register.vue"),
+          file: registerFile,
         },
         {
           name: "login",
           path: "/login",
-          file: resolve(__dirname, "./pages/auth/login.vue"),
+          file: loginFile,
         },
         {
           name: "signIn",
           path: "/signIn",
-          file: resolve(__dirname, "./pages/auth/login.vue"),
+          file: loginFile,
         },
         {
           name: "signin",
           path: "/signin",
-          file: resolve(__dirname, "./pages/auth/login.vue"),
+          file: loginFile,
         },
       );
     },
   },
-  vite: {
-    optimizeDeps: {
-      esbuildOptions: {
-        define: {
-          global: "globalThis",
-        },
-      },
-    },
-  },
+  // vite: {
+  //   optimizeDeps: {
+  //     esbuildOptions: {
+  //       define: {
+  //         // global: "globalThis",
+  //       },
+  //     },
+  //   },
+  // },
 });

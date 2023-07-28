@@ -5,17 +5,19 @@
         <b><v-toolbar-title :text="title()" /></b>
       </NuxtLink>
       <v-spacer />
-      <div v-if="session.loggedIn && session.user.email && session.user.firstName && gravatarUrl(session.user)">
-        <v-avatar size="48px" @click.stop="rightDrawer = session.loggedIn ? !rightDrawer : rightDrawer">
+      <div
+        v-if="loggedIn() && sessionStore.user.email && sessionStore.user.firstName && gravatarUrl(sessionStore.user)"
+      >
+        <v-avatar size="48px" @click.stop="rightDrawer = loggedIn() ? !rightDrawer : rightDrawer">
           <v-img
-            :src="gravatarUrl(session.user) || undefined"
+            :src="gravatarUrl(sessionStore.user) || undefined"
             contain
-            :alt="`avatar image for ${session.user.firstName}`"
+            :alt="`avatar image for ${sessionStore.user.firstName}`"
           />
         </v-avatar>
       </div>
       <div v-else>
-        <v-btn icon @click.stop="rightDrawer = session.loggedIn ? !rightDrawer : rightDrawer">
+        <v-btn icon @click.stop="rightDrawer = loggedIn() ? !rightDrawer : rightDrawer">
           <v-icon>mdi-account</v-icon>
         </v-btn>
       </div>
@@ -41,25 +43,38 @@
           </template>
         </v-select>
       </div>
+      <div>
+        <small>
+          DEBUG SECTION:<br />
+          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.user ==
+          {{ JSON.stringify(sessionStore.user || "null") }} ]] [[ sessionRefs.user ==
+          {{ JSON.stringify(sessionRefs.user || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[
+          sessionRefs.admin == {{ sessionRefs.admin }} ]]
+        </small>
+      </div>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="rightDrawer" :mini-variant="false" :clipped="clipped" location="right" fixed app>
+    <v-navigation-drawer
+      v-if="showNav()"
+      v-model="rightDrawer"
+      :mini-variant="false"
+      :clipped="clipped"
+      location="right"
+      fixed
+      app
+    >
       <v-list>
-        <v-list-item v-if="session.loggedIn" to="/profile" router exact>
-          <v-list-item-title :text="messages.button_profile" />
-        </v-list-item>
-        <v-list-item v-if="session.admin" to="/admin" router exact>
-          <v-list-item-title :text="messages.button_admin" />
-        </v-list-item>
-        <v-list-item v-if="session.loggedIn" @click.stop="session.logout()">
-          <v-list-item-title :text="messages.button_logout" />
-        </v-list-item>
-        <v-list-item v-if="!session.loggedIn" :to="signInUrl" router exact>
-          <v-list-item-title :text="messages.button_login" />
-        </v-list-item>
-        <v-list-item v-if="!session.loggedIn && registrationEnabled()" :to="signUpUrl" router exact>
-          <v-list-item-title :text="messages.button_register" />
-        </v-list-item>
+        <v-list-item v-if="loggedIn()" to="/profile" router exact :title="messages?.button_profile" />
+        <v-list-item v-if="sessionRefs.admin.value" to="/admin" router exact :title="messages?.button_admin" />
+        <v-list-item v-if="loggedIn()" @click.stop="sessionStore.logout()" :title="messages?.button_logout" />
+        <v-list-item v-if="!loggedIn()" :to="signInUrl" router exact :title="messages?.button_login" />
+        <v-list-item
+          v-if="!loggedIn() && regEnabled()"
+          :to="signUpUrl"
+          router
+          exact
+          :title="messages?.button_register"
+        />
       </v-list>
     </v-navigation-drawer>
   </div>
@@ -71,28 +86,42 @@ import { localesList, localeEmoji } from "yuebing-messages";
 import { useConfigStore } from "~/stores/config";
 import { useSessionStore } from "~/stores/session";
 import { gravatarUrl } from "~/utils/gravatar";
+import { storeToRefs } from "pinia";
+import { configRegistrationEnabled, configTitle } from "~/utils/config";
 
-const session = useSessionStore();
-const config = useConfigStore();
-await config.loadPublicConfig();
+const configStore = useConfigStore();
+const configRefs = storeToRefs(configStore);
+await configStore.loadPublicConfig();
 
-const title = () => (config?.publicConfig?.title ? config.publicConfig.title : "Yuebing 🥮");
-
-const registrationEnabled = () =>
-  config?.publicConfig?.registrationEnabled ? config.publicConfig.registrationEnabled : false;
+const title = configTitle;
+const regEnabled = configRegistrationEnabled;
 
 const signUpUrl = "/signUp";
 const signInUrl = "/signIn";
-const supportedLocales = ref(localesList(session.user, session.browserLocale, session.anonLocale));
-const messages = ref(session.localeMessages);
-const currentLocale = ref(session.currentLocale);
+
+const sessionStore = useSessionStore();
+const sessionRefs = storeToRefs(sessionStore);
+
+const loggedIn = () => sessionRefs.user?.value?.username && sessionRefs.user?.value?.session;
+
+const supportedLocales = ref(
+  localesList(sessionRefs.user.value, sessionRefs.browserLocale.value, sessionRefs.anonLocale.value),
+);
+
+const messages = ref(sessionStore.localeMessages);
+const currentLocale = sessionRefs.currentLocale;
 const selectLocale = (loc: string) => {
   currentLocale.value = loc;
-  session.setLocale(loc);
-  messages.value = session.localeMessages;
-  supportedLocales.value = localesList(session.user, session.browserLocale, session.anonLocale);
+  sessionStore.setLocale(loc);
+  messages.value = sessionStore.localeMessages;
+  supportedLocales.value = localesList(
+    sessionRefs.user.value,
+    sessionRefs.browserLocale.value,
+    sessionRefs.anonLocale.value,
+  );
 };
 const localeIcon = (loc: string) => localeEmoji(loc);
+const showNav = () => !configRefs.publicConfig?.value?.needsAdmin;
 
 const clipped = false;
 const rightDrawer = ref(true);

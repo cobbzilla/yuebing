@@ -10,12 +10,16 @@ export const requireAccount = async (
   _logPrefix: string,
   fn: (event: H3Event, session: SessionType) => Promise<unknown>,
 ) => {
-  if (!event?.req?.headers[SESSION_HEADER]) {
+  if (!event?.node?.req?.headers[SESSION_HEADER]) {
+    deleteCookie(event, SESSION_COOKIE_NAME, await cookieOptions());
     throw forbidden();
   }
-  const token = event?.req?.headers[SESSION_HEADER];
+  const token = event?.node?.req?.headers[SESSION_HEADER];
   const session: SessionType | null = await sessionRepository().safeFindById(token);
-  if (!session) throw forbidden();
+  if (!session) {
+    deleteCookie(event, SESSION_COOKIE_NAME, await cookieOptions());
+    throw forbidden();
+  }
   return fn(event, session);
 };
 

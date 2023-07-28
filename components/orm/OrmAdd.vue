@@ -70,7 +70,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
 import { storeToRefs } from "pinia";
-import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { findMessage, parseMessage } from "yuebing-messages";
 import { SNACKBAR_ERROR_DEFAULT_TIMEOUT } from "~/utils/ui";
 import { useSessionStore } from "~/stores/session";

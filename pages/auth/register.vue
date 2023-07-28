@@ -16,13 +16,13 @@
         <v-col>
           <OrmForm
             form-name="register_form"
-            :type-def="regTypeDef"
+            :type-def="regType"
             :validation-schema="RegistrationSchema"
             type-name-message="register_form"
             :thing="{}"
             :save-button-message="registerButtonMessage()"
             :cancel-button-message="cancelButtonMessage()"
-            :fields="regTypeDef.tabIndexedFields()"
+            :fields="regType.tabIndexedFields()"
             :create="true"
             :read-only-object="() => false"
             :server-errors="registerServerErrors"
@@ -39,25 +39,22 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { RegistrationSchema, RegistrationType, RegistrationTypeDef } from "yuebing-model";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { RegistrationSchema, RegistrationType } from "yuebing-model";
+import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
+import { RegistrationFormTypeDef } from "~/utils/auth";
 import { parseMessage } from "yuebing-messages";
+import { isSetup, configTitle } from "~/utils/config";
 
 const sessionStore = useSessionStore();
-const session = storeToRefs(sessionStore);
-const messages = ref(session.localeMessages);
+const sessionRefs = storeToRefs(sessionStore);
+const messages = ref(sessionRefs.localeMessages);
 
-const config = useConfigStore();
-const title = () => (config?.publicConfig?.title ? config.publicConfig.title : "Yuebing 🥮");
+const msg = (msgKey: string) => parseMessage(msgKey, messages.value, { title: configTitle() });
 
-const msg = (msgKey: string) => parseMessage(msgKey, messages.value, { title: title() });
-
+const regType = RegistrationFormTypeDef;
 const registrationObject = ref({} as RegistrationType);
 const registerServerErrors = ref({} as MobilettoOrmValidationErrors);
-
-const regTypeDef = hideOrmFields(RegistrationTypeDef, ["flags"]);
 
 const onSignIn = () => {
   navigateTo("/auth/login");
@@ -67,10 +64,18 @@ const onRegistrationUpdated = (update: { field: string; value: any }) => {
   registrationObject.value[update.field] = update.value;
 };
 
-const route = useRoute();
-const isSetup = () => route.path.startsWith("/setup");
-const cancelButtonMessage = () => (isSetup() ? undefined : "button_login");
+const cancelButtonMessage = () => (isSetup() ? "" : "button_login");
 const registerButtonMessage = () => (isSetup() ? "title_register_setup" : "button_register");
 
-const onRegistrationSubmitted = (reg: RegistrationType) => sessionStore.register(reg, registerServerErrors);
+const onRegistrationSubmitted = (reg: RegistrationType) =>
+  sessionStore
+    .register(reg, registerServerErrors)
+    .then((account) => sessionStore.setLocale(account.locale, true))
+    .catch((e) => {
+      if (e instanceof MobilettoOrmValidationError) {
+        registerServerErrors.value = e.errors;
+      } else {
+        throw e;
+      }
+    });
 </script>

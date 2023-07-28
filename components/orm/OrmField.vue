@@ -118,8 +118,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { ValidationError } from "yup";
-import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm";
-import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
+import { MobilettoOrmFieldDefConfig, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { findMessage } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
 

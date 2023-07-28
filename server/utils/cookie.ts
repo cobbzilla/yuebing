@@ -1,12 +1,13 @@
-import { AuthAccountType, AuthAccountTypeDef, PrivateConfigType, PublicConfigType } from "yuebing-model";
+import { CookieSerializeOptions } from "cookie-es";
 import { H3Event } from "h3";
-import { SESSION_COOKIE_NAME } from "~/utils/auth";
 import { MIN_ID_LENGTH } from "mobiletto-orm-typedef";
+import { AuthAccountType, PublicConfigType } from "yuebing-model";
+import { cookieOpts, SESSION_COOKIE_NAME } from "~/utils/auth";
 
-export const cookieOptions = async () => {
+export const cookieOptions = async (): Promise<CookieSerializeOptions> => {
   const publicConfig: PublicConfigType = await PUBLIC_CONFIG.get();
   const secure = publicConfig.siteUrl.startsWith("https://");
-  return { secure };
+  return cookieOpts(secure);
 };
 
 export const setSessionCookie = async (event: H3Event, authAccount: AuthAccountType) => {
