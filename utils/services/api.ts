@@ -80,8 +80,8 @@ export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) =>
   if (e.statusCode === 403) {
     serverErrors.value.global = ["forbidden"];
   } else if (e.statusCode === 404) {
-    if (typeof e.data?.id === "string" && e.data.id.length > 0) {
-      serverErrors.value[e.data.id] = ["notFound"];
+    if (typeof e.data?.data === "string" && e.data.data.length > 0) {
+      serverErrors.value[e.data.data] = ["notFound"];
     }
   } else if (e.statusCode === 422) {
     serverErrors.value = e.data as MobilettoOrmValidationErrors;

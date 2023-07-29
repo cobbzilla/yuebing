@@ -62,9 +62,7 @@ export const useSessionStore = defineStore("session", {
       if (this.account.session) {
         console.warn(`session.login: user already logged in: ${this.account.username} (refreshing)`);
       }
-      console.log("session.login: logging in");
       const account: AuthAccountType = await authService.login({ usernameOrEmail, password }, errors);
-      console.log(`session.login: logged in account=${JSON.stringify(account ? account : "undefined/null")}`);
       if (account) {
         this.account = account;
         await useConfigStore().refresh();

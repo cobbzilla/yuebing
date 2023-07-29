@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
 import { configRegistrationEnabled } from "~/utils/config";
@@ -61,22 +61,11 @@ const onLoginUpdated = (update: { field: string; value: any }) => {
 };
 
 const onLoginSubmitted = (login: UsernameAndPasswordType) =>
-  sessionStore
-    .login(login.usernameOrEmail, login.password, loginServerErrors)
-    .then((acct) => {
-      if (acct) {
-        sessionStore.setLocale(acct.locale, true);
-      } else {
-        console.warn(`onLoginSubmitted: no account!`);
-      }
-    })
-    .catch((e) => {
-      if (e instanceof MobilettoOrmValidationError) {
-        loginServerErrors.value = e.errors;
-      } else {
-        throw e;
-      }
-    });
+  sessionStore.login(login.usernameOrEmail, login.password, loginServerErrors).then((acct) => {
+    if (acct) {
+      sessionStore.setLocale(acct.locale, true);
+    }
+  });
 
 watch(account, (newAccount) => {
   console.log(`login.watch.account: got newAccount: ${JSON.stringify(newAccount)}`);
