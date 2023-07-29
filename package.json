@@ -81,7 +81,7 @@
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.0.13",
-    "yuebing-model": "^2.3.22",
+    "yuebing-model": "^2.3.23",
     "yup": "^1.2.0"
   }
 }

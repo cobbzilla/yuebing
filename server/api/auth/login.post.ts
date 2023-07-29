@@ -26,13 +26,13 @@ export default defineEventHandler((event) =>
     const repo: AccountRepositoryType = accountRepository();
     const account = await repo.findByUsernameOrEmail(login, FIND_NOREDACT);
     if (!account) {
-      throw notFound(login);
+      throw notFound("usernameOrEmail");
     }
 
     // note: account.password is the bcrypt'd password
     const match = await bcrypt.compare(password, account.password);
     if (!match) {
-      throw notFound(login);
+      throw notFound("usernameOrEmail");
     }
 
     // start a session

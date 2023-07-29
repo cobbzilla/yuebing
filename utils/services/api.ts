@@ -78,7 +78,7 @@ export function handleJsonResponse<T>(response: Response): Promise<T> {
 
 export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) => (e) => {
   if (e.statusCode === 403) {
-    serverErrors.value.usernameOrEmail = ["forbidden"];
+    serverErrors.value.global = ["forbidden"];
   } else if (e.statusCode === 404) {
     if (typeof e.data?.id === "string" && e.data.id.length > 0) {
       serverErrors.value[e.data.id] = ["notFound"];

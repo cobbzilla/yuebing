@@ -23,7 +23,10 @@ function login(
 ): Promise<AuthAccountType> {
   return $fetch("/api/auth/login", a.authPostJson(auth))
     .then(a.handleJsonResponse<AuthAccountType>)
-    .catch(a.handleErrors(serverErrors)) as Promise<AuthAccountType>;
+    .catch((e) => {
+      console.log(`authService.login error: ${e}`);
+      a.handleErrors(serverErrors)(e);
+    }) as Promise<AuthAccountType>;
 }
 
 function logout(): Promise<boolean> {

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "destination.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "destination.update", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("");
+      if (!id) throw notFound("id");
       const obj: DestinationType = await readBody(event);
       if (!obj) {
         throw badRequest();

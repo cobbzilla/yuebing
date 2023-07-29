@@ -7,7 +7,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "library.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "library.create", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("");
+      if (!id) throw notFound("id");
       const obj: LibraryType = await readBody(event);
       if (!obj) {
         throw badRequest();

@@ -75,8 +75,8 @@ dependencies:
     specifier: ^2.0.13
     version: 2.0.13
   yuebing-model:
-    specifier: ^2.3.22
-    version: 2.3.22
+    specifier: ^2.3.23
+    version: 2.3.23
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -10135,8 +10135,8 @@ packages:
     resolution: {integrity: sha512-+LZScOSDB4k6XbgP7NdXe97pAGH01tD/10iOiwScrBx2O6EDUp4f0yZ5qQSraWkuYGXn/k9ZeZp19kUNB9yflg==}
     dev: false
 
-  /yuebing-model@2.3.22:
-    resolution: {integrity: sha512-C+YL+U9+O9cmOYivUE51d4gpT+c0PlPhDdqMXp9eHBzB9p8wgCfHvlX3tvR7OAT9gQELMF2RXlxZMTT2k95ifQ==}
+  /yuebing-model@2.3.23:
+    resolution: {integrity: sha512-GZc7CXwibQR4sF+Uj+S5sqP3ZQdzUP9FPpcWf35MsvWPLRuTyqlyV4EDqiu9X7EC0rOpBzTlUy0eXp0pK6XQWw==}
     dependencies:
       handlebars: 4.7.7
     dev: false

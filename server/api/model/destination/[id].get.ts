@@ -7,7 +7,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "destination.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "destination.lookup", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("");
+      if (!id) throw notFound("id");
       const destinationRepo = destinationRepository();
       const destination_by_id = await destinationRepo.safeFindById(id);
       if (destination_by_id) return destination_by_id;

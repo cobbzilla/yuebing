@@ -62,7 +62,9 @@ export const useSessionStore = defineStore("session", {
       if (this.account.session) {
         console.warn(`session.login: user already logged in: ${this.account.username} (refreshing)`);
       }
+      console.log("session.login: logging in");
       const account: AuthAccountType = await authService.login({ usernameOrEmail, password }, errors);
+      console.log(`session.login: logged in account=${JSON.stringify(account ? account : "undefined/null")}`);
       if (account) {
         this.account = account;
         await useConfigStore().refresh();
@@ -88,7 +90,7 @@ export const useSessionStore = defineStore("session", {
         const account: AuthAccountType = await sessionService.getAccount();
         if (account) {
           if (Object.keys(account).length === 0) {
-            console.log("getAccount: setting invalidSession")
+            console.log("getAccount: setting invalidSession");
             this.account.invalidSession = this.account.session;
           } else {
             this.account = account;

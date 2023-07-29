@@ -46,8 +46,8 @@ import { useSessionStore } from "~/stores/session";
 import { configRegistrationEnabled } from "~/utils/config";
 
 const sessionStore = useSessionStore();
-const sessionRefs = storeToRefs(sessionStore);
-const messages = ref(sessionRefs.localeMessages);
+const { account, localeMessages } = storeToRefs(sessionStore);
+const messages = localeMessages;
 
 const usernameAndPasswordObject = ref({} as UsernameAndPasswordType);
 const loginServerErrors = ref({} as MobilettoOrmValidationErrors);
@@ -63,7 +63,13 @@ const onLoginUpdated = (update: { field: string; value: any }) => {
 const onLoginSubmitted = (login: UsernameAndPasswordType) =>
   sessionStore
     .login(login.usernameOrEmail, login.password, loginServerErrors)
-    .then((account) => sessionStore.setLocale(account.locale, true))
+    .then((acct) => {
+      if (acct) {
+        sessionStore.setLocale(acct.locale, true);
+      } else {
+        console.warn(`onLoginSubmitted: no account!`);
+      }
+    })
     .catch((e) => {
       if (e instanceof MobilettoOrmValidationError) {
         loginServerErrors.value = e.errors;
@@ -72,7 +78,8 @@ const onLoginSubmitted = (login: UsernameAndPasswordType) =>
       }
     });
 
-watch(sessionRefs.account, (newAccount) => {
+watch(account, (newAccount) => {
+  console.log(`login.watch.account: got newAccount: ${JSON.stringify(newAccount)}`);
   if (Object.keys(newAccount).length) {
     navigateTo(newAccount.admin ? "/admin" : "/home");
   }

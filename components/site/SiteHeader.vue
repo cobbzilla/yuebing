@@ -7,13 +7,10 @@
       <v-spacer />
       <div
         v-if="
-          loggedIn() &&
-          sessionStore.account.email &&
-          sessionStore.account.firstName &&
-          gravatarUrl(sessionStore.account)
+          loggedIn && sessionStore.account.email && sessionStore.account.firstName && gravatarUrl(sessionStore.account)
         "
       >
-        <v-avatar size="48px" @click.stop="rightDrawer = loggedIn() ? !rightDrawer : rightDrawer">
+        <v-avatar size="48px" @click.stop="rightDrawer = loggedIn ? !rightDrawer : rightDrawer">
           <v-img
             :src="gravatarUrl(sessionStore.account) || undefined"
             contain
@@ -22,7 +19,7 @@
         </v-avatar>
       </div>
       <div v-else>
-        <v-btn icon @click.stop="rightDrawer = loggedIn() ? !rightDrawer : rightDrawer">
+        <v-btn icon @click.stop="rightDrawer = loggedIn ? !rightDrawer : rightDrawer">
           <v-icon>mdi-account</v-icon>
         </v-btn>
       </div>
@@ -51,10 +48,9 @@
       <!--      <div>-->
       <!--        <small>-->
       <!--          DEBUG SECTION:<br />-->
-      <!--          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.account ==-->
-      <!--          {{ JSON.stringify(sessionStore.account || "null") }} ]] [[ sessionRefs.account ==-->
-      <!--          {{ JSON.stringify(sessionRefs.account || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[-->
-      <!--          sessionRefs.admin == {{ sessionRefs.admin }} ]]-->
+      <!--          [[ showNav() == {{ showNav() }} ]] [[ loggedIn == {{ loggedIn }} ]] [[ sessionStore.account ==-->
+      <!--          {{ JSON.stringify(sessionStore.account || "null") }} ]] [[ account ==-->
+      <!--          admin == {{ admin }} ]]-->
       <!--        </small>-->
       <!--      </div>-->
     </v-app-bar>
@@ -69,17 +65,11 @@
       app
     >
       <v-list>
-        <v-list-item v-if="loggedIn()" to="/profile" router exact :title="messages?.button_profile" />
-        <v-list-item v-if="sessionRefs.admin.value" to="/admin" router exact :title="messages?.button_admin" />
-        <v-list-item v-if="loggedIn()" @click.stop="sessionStore.logout()" :title="messages?.button_logout" />
-        <v-list-item v-if="!loggedIn()" :to="signInUrl" router exact :title="messages?.button_login" />
-        <v-list-item
-          v-if="!loggedIn() && regEnabled()"
-          :to="signUpUrl"
-          router
-          exact
-          :title="messages?.button_register"
-        />
+        <v-list-item v-if="loggedIn" to="/profile" router exact :title="messages?.button_profile" />
+        <v-list-item v-if="admin" to="/admin" router exact :title="messages?.button_admin" />
+        <v-list-item v-if="loggedIn" @click.stop="sessionStore.logout()" :title="messages?.button_logout" />
+        <v-list-item v-if="!loggedIn" :to="signInUrl" router exact :title="messages?.button_login" />
+        <v-list-item v-if="!loggedIn && regEnabled()" :to="signUpUrl" router exact :title="messages?.button_register" />
       </v-list>
     </v-navigation-drawer>
   </div>
@@ -95,7 +85,7 @@ import { storeToRefs } from "pinia";
 import { configRegistrationEnabled, configTitle } from "~/utils/config";
 
 const configStore = useConfigStore();
-const configRefs = storeToRefs(configStore);
+const { publicConfig } = storeToRefs(configStore);
 await configStore.loadPublicConfig();
 
 const title = configTitle;
@@ -105,31 +95,32 @@ const signUpUrl = "/signUp";
 const signInUrl = "/signIn";
 
 const sessionStore = useSessionStore();
-const sessionRefs = storeToRefs(sessionStore);
+const { account, admin, loggedIn, browserLocale, anonLocale, currentLocale } = storeToRefs(sessionStore);
 
-const loggedIn = () => sessionRefs.account?.value?.username && sessionRefs.account?.value?.session;
-
-const supportedLocales = ref(
-  localesList(sessionRefs.account.value, sessionRefs.browserLocale.value, sessionRefs.anonLocale.value),
-);
+const supportedLocales = ref(localesList(account.value, browserLocale.value, anonLocale.value));
 
 const messages = ref(sessionStore.localeMessages);
-const currentLocale = sessionRefs.currentLocale;
 const selectLocale = (loc: string) => {
   currentLocale.value = loc;
   sessionStore.setLocale(loc);
   messages.value = sessionStore.localeMessages;
-  supportedLocales.value = localesList(
-    sessionRefs.account.value,
-    sessionRefs.browserLocale.value,
-    sessionRefs.anonLocale.value,
-  );
+  supportedLocales.value = localesList(account.value, browserLocale.value, anonLocale.value);
 };
 const localeIcon = (loc: string) => localeEmoji(loc);
-const showNav = () => !configRefs.publicConfig?.value?.needsAdmin;
+const showNav = () => !publicConfig.value?.needsAdmin;
 
 const clipped = false;
 const rightDrawer = ref(true);
+
+watch(loggedIn, (oldLoggedIn, nowLoggedIn) => {
+  console.log(`SiteHeader.watch(loggedIn): oldLoggedIn=${oldLoggedIn}, nowLoggedIn=${nowLoggedIn}`);
+  if (oldLoggedIn === true && nowLoggedIn === false) {
+    if (useRoute().path !== "/") {
+      console.log(`SiteHeader: logout ===> /`);
+      navigateTo("/");
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>

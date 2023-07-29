@@ -53,8 +53,8 @@ await configStore.loadPublicConfig();
 const needsAdmin = () => publicConfig.value?.needsAdmin || false;
 
 const sessionStore = useSessionStore();
-const sessionRefs = storeToRefs(sessionStore);
-const messages = ref(sessionRefs.localeMessages);
+const { account, localeMessages } = storeToRefs(sessionStore);
+const messages = localeMessages;
 
 const msg = (msgKey: string) => parseMessage(msgKey, messages.value, { title: configTitle() });
 
@@ -74,7 +74,13 @@ const registerButtonMessage = () => (isSetup() ? "title_register_setup" : "butto
 const onRegistrationSubmitted = (reg: RegistrationType) =>
   sessionStore
     .register(reg, registerServerErrors)
-    .then((account) => sessionStore.setLocale(account.locale, true))
+    .then((acct) => {
+      if (acct) {
+        sessionStore.setLocale(account.locale, true);
+      } else {
+        console.warn(`onRegistrationSubmitted: no account!`);
+      }
+    })
     .catch((e) => {
       if (e instanceof MobilettoOrmValidationError) {
         registerServerErrors.value = e.errors;
@@ -83,16 +89,20 @@ const onRegistrationSubmitted = (reg: RegistrationType) =>
       }
     });
 
-if (isSetup() && !needsAdmin()) {
-  const regEnabled = configRegistrationEnabled();
-  console.log(`register ===> /signUp or /signIn (regEnabled=${regEnabled})`);
-  navigateTo(regEnabled ? "/signUp" : "/signIn");
-} else if (!configRegistrationEnabled()) {
-  console.log(`register ===> /signIn (reg not enabled)`);
-  navigateTo("/signIn");
+if (isSetup()) {
+  if (!needsAdmin()) {
+    const regEnabled = configRegistrationEnabled();
+    console.log(`register ===> /signUp or /signIn (regEnabled=${regEnabled})`);
+    navigateTo(regEnabled ? "/signUp" : "/signIn");
+  }
+} else {
+  if (!configRegistrationEnabled()) {
+    console.log(`register ===> /signIn (reg not enabled)`);
+    navigateTo("/signIn");
+  }
 }
 
-watch(sessionRefs.account, (newAccount) => {
+watch(account, (newAccount) => {
   if (Object.keys(newAccount).length > 0) {
     navigateTo(newAccount.admin ? "/admin" : "/home");
   }

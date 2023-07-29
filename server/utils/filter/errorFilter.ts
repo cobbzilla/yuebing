@@ -38,7 +38,7 @@ export const filterErrors = async (event: H3Event, logPrefix: string, fn: (event
     } else if (e instanceof MobilettoOrmValidationError) {
       throw validationError(e.errors);
     } else if (e instanceof MobilettoOrmNotFoundError) {
-      throw notFound(e.id);
+      throw notFound("id");
     } else {
       logger.error(`${logPrefix}: server error: ${JSON.stringify(e)}`);
       throw serverError();
