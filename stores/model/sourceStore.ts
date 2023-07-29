@@ -4,14 +4,15 @@ import { defineStore } from "pinia";
 import { SourceType, SourceTypeDef } from "yuebing-model";
 import { sourceService } from "~/utils/services/model/sourceService";
 
-const updateList = (list: SourceType[] | null, id: string, remove?: { remove?: boolean }) => {
+const updateList = (list: SourceType[] | null, id: string, opts?: { source?: SourceType, remove?: boolean }) => {
+  if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => SourceTypeDef.id(e) === id);
     if (foundIndex && foundIndex >= 0) {
-      if (remove && remove.remove === true) {
+      if (opts && opts.remove === true) {
         list.splice(foundIndex, 1);
-      } else {
-        list.splice(foundIndex, 1, this.source);
+      } else if (opts && opts.source) {
+        list.splice(foundIndex, 1, opts.source);
       }
     }
   }
@@ -25,18 +26,17 @@ export const useSourceStore = defineStore("source", {
   actions: {
     async sourceLookup(id: string): Promise<void> {
       this.source = await sourceService.findSource(id);
-      updateList(this.sourceList, SourceTypeDef.id(this.source));
+      updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
     },
     async sourceSearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
       this.sourceList = await sourceService.searchSource(query);
     },
     async sourceCreate(source: SourceType): Promise<void> {
       this.source = await sourceService.createSource(source);
-      updateList(this.sourceList, SourceTypeDef.id(this.source));
     },
     async sourceUpdate(source: SourceType): Promise<void> {
       this.source = await sourceService.updateSource(source);
-      updateList(this.sourceList, SourceTypeDef.id(this.source));
+      updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
     },
     async sourceDelete(source: string): Promise<void> {
       await sourceService.deleteSource(source);

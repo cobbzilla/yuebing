@@ -4,14 +4,15 @@ import { defineStore } from "pinia";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
 import { libraryService } from "~/utils/services/model/libraryService";
 
-const updateList = (list: LibraryType[] | null, id: string, remove?: { remove?: boolean }) => {
+const updateList = (list: LibraryType[] | null, id: string, opts?: { library?: LibraryType, remove?: boolean }) => {
+  if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => LibraryTypeDef.id(e) === id);
     if (foundIndex && foundIndex >= 0) {
-      if (remove && remove.remove === true) {
+      if (opts && opts.remove === true) {
         list.splice(foundIndex, 1);
-      } else {
-        list.splice(foundIndex, 1, this.library);
+      } else if (opts && opts.library) {
+        list.splice(foundIndex, 1, opts.library);
       }
     }
   }
@@ -25,18 +26,17 @@ export const useLibraryStore = defineStore("library", {
   actions: {
     async libraryLookup(id: string): Promise<void> {
       this.library = await libraryService.findLibrary(id);
-      updateList(this.libraryList, LibraryTypeDef.id(this.library));
+      updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
     },
     async librarySearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
       this.libraryList = await libraryService.searchLibrary(query);
     },
     async libraryCreate(library: LibraryType): Promise<void> {
       this.library = await libraryService.createLibrary(library);
-      updateList(this.libraryList, LibraryTypeDef.id(this.library));
     },
     async libraryUpdate(library: LibraryType): Promise<void> {
       this.library = await libraryService.updateLibrary(library);
-      updateList(this.libraryList, LibraryTypeDef.id(this.library));
+      updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
     },
     async libraryDelete(library: string): Promise<void> {
       await libraryService.deleteLibrary(library);

@@ -75,8 +75,8 @@ dependencies:
     specifier: ^2.0.11
     version: 2.0.11
   yuebing-model:
-    specifier: ^2.3.10
-    version: 2.3.10
+    specifier: ^2.3.11
+    version: 2.3.11
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -5486,7 +5486,7 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       cross-spawn: 7.0.3
-      signal-exit: 4.0.2
+      signal-exit: 4.0.3
     dev: true
 
   /form-data@4.0.0:
@@ -8713,8 +8713,8 @@ packages:
   /signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
-  /signal-exit@4.0.2:
-    resolution: {integrity: sha512-MY2/qGx4enyjprQnFaZsHib3Yadh3IXyV2C321GY0pjGfVBu4un0uDJkwgdxqO+Rdx8JMT8IfJIRwbYVz3Ob3Q==}
+  /signal-exit@4.0.3:
+    resolution: {integrity: sha512-U97H1k7QQ8OQJ18ryc5lSI16ouK1a43nSNRkXz16OMcc5dTVz5TlQxgf2NbX+cF0luukRuy3/womPZqfpIucbw==}
     engines: {node: '>=14'}
     dev: true
 
@@ -10136,8 +10136,8 @@ packages:
     resolution: {integrity: sha512-gxubgO/qx1n7cVgR7y+5akcIIxwJRmYVXG+QOiKOtLySI8qe2Gst8WEA8CvVQQhDhNX+Y0C6p/Qyj1WJu+EbyQ==}
     dev: false
 
-  /yuebing-model@2.3.10:
-    resolution: {integrity: sha512-zXN/7LlDI9G6Foxvb+htROsqiyXOzRC4ROypZELYVG4dT52s9QelmftxeTrTtjfc5573neFKlOP+3b3Cg561XQ==}
+  /yuebing-model@2.3.11:
+    resolution: {integrity: sha512-DaaLU25DuXKj3m57gWCgze4IkjxwmTd0Sh9w9VVW67meDr5W1ScTMX+Hn5nEtHth+eJziC939x2R5sskjWzx6g==}
     dependencies:
       handlebars: 4.7.7
     dev: false

@@ -4,14 +4,15 @@ import { defineStore } from "pinia";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { destinationService } from "~/utils/services/model/destinationService";
 
-const updateList = (list: DestinationType[] | null, id: string, remove?: { remove?: boolean }) => {
+const updateList = (list: DestinationType[] | null, id: string, opts?: { destination?: DestinationType, remove?: boolean }) => {
+  if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => DestinationTypeDef.id(e) === id);
     if (foundIndex && foundIndex >= 0) {
-      if (remove && remove.remove === true) {
+      if (opts && opts.remove === true) {
         list.splice(foundIndex, 1);
-      } else {
-        list.splice(foundIndex, 1, this.destination);
+      } else if (opts && opts.destination) {
+        list.splice(foundIndex, 1, opts.destination);
       }
     }
   }
@@ -25,18 +26,17 @@ export const useDestinationStore = defineStore("destination", {
   actions: {
     async destinationLookup(id: string): Promise<void> {
       this.destination = await destinationService.findDestination(id);
-      updateList(this.destinationList, DestinationTypeDef.id(this.destination));
+      updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
     },
     async destinationSearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
       this.destinationList = await destinationService.searchDestination(query);
     },
     async destinationCreate(destination: DestinationType): Promise<void> {
       this.destination = await destinationService.createDestination(destination);
-      updateList(this.destinationList, DestinationTypeDef.id(this.destination));
     },
     async destinationUpdate(destination: DestinationType): Promise<void> {
       this.destination = await destinationService.updateDestination(destination);
-      updateList(this.destinationList, DestinationTypeDef.id(this.destination));
+      updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
     },
     async destinationDelete(destination: string): Promise<void> {
       await destinationService.deleteDestination(destination);
