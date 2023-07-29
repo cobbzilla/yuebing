@@ -68,7 +68,6 @@ const onLoginSubmitted = (login: UsernameAndPasswordType) =>
   });
 
 watch(account, (newAccount) => {
-  console.log(`login.watch.account: got newAccount: ${JSON.stringify(newAccount)}`);
   if (Object.keys(newAccount).length) {
     navigateTo(newAccount.admin ? "/admin" : "/home");
   }

@@ -42,24 +42,18 @@ const hasSession = () => account.value?.session;
 const refreshingAccount = ref(false);
 const route = useRoute();
 
-console.log(`default ===> START account=${JSON.stringify(account)}`);
 if (!isSetup()) {
-  console.log(`default ===> 2222 account=${JSON.stringify(account)}`);
   if (needsAdmin()) {
-    console.log("default ===> /setup");
     navigateTo("/setup");
   } else if (!isSignIn()) {
     if (account.value.invalidSession) {
-      console.log(`default ===> /signIn (invalid session!) account=${JSON.stringify(account)}`);
       navigateTo("/signIn");
     } else {
       if (hasSession() && !loggedIn()) {
-        console.log(`default (refreshing.value = true) account=${JSON.stringify(account)}`);
         refreshingAccount.value = true;
         sessionStore.getAccount(route.path);
       } else if (isHome() && !loggedIn()) {
         if (!isSignIn()) {
-          console.log("default ===> /signIn");
           navigateTo("/signIn");
         }
       }
@@ -67,13 +61,13 @@ if (!isSetup()) {
   }
 }
 
-watch(account, async (newAccount) => {
-  console.log(`default.watch(account): starting with account=${JSON.stringify(newAccount)}`);
-  if (refreshingAccount.value && newAccount && newAccount.session) {
-    console.log(
-      "default.watch(account): in refreshingAccount.value && account && account.session (refreshing.value = false)",
-    );
-    // refreshingAccount.value = false;
+watch(account, async (newAccount, oldAccount) => {
+  if (
+    refreshingAccount.value &&
+    newAccount &&
+    newAccount.session &&
+    (!oldAccount || !oldAccount.session || oldAccount.session !== newAccount.session)
+  ) {
     if (!isHome()) {
       console.log("default.watch(account): ===> /home");
       navigateTo("/home");

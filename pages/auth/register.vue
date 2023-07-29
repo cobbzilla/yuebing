@@ -77,8 +77,6 @@ const onRegistrationSubmitted = (reg: RegistrationType) =>
     .then((acct) => {
       if (acct) {
         sessionStore.setLocale(account.locale, true);
-      } else {
-        console.warn(`onRegistrationSubmitted: no account!`);
       }
     })
     .catch((e) => {
@@ -92,12 +90,10 @@ const onRegistrationSubmitted = (reg: RegistrationType) =>
 if (isSetup()) {
   if (!needsAdmin()) {
     const regEnabled = configRegistrationEnabled();
-    console.log(`register ===> /signUp or /signIn (regEnabled=${regEnabled})`);
     navigateTo(regEnabled ? "/signUp" : "/signIn");
   }
 } else {
   if (!configRegistrationEnabled()) {
-    console.log(`register ===> /signIn (reg not enabled)`);
     navigateTo("/signIn");
   }
 }

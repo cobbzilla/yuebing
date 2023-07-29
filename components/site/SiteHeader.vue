@@ -112,11 +112,9 @@ const showNav = () => !publicConfig.value?.needsAdmin;
 const clipped = false;
 const rightDrawer = ref(true);
 
-watch(loggedIn, (oldLoggedIn, nowLoggedIn) => {
-  console.log(`SiteHeader.watch(loggedIn): oldLoggedIn=${oldLoggedIn}, nowLoggedIn=${nowLoggedIn}`);
-  if (oldLoggedIn === true && nowLoggedIn === false) {
+watch(loggedIn, (nowLoggedIn, oldLoggedIn) => {
+  if (oldLoggedIn && !nowLoggedIn) {
     if (useRoute().path !== "/") {
-      console.log(`SiteHeader: logout ===> /`);
       navigateTo("/");
     }
   }
