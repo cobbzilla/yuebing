@@ -37,23 +37,34 @@ useSeoMeta({
 const sessionStore = useSessionStore();
 const sessionRefs = storeToRefs(sessionStore);
 
-const loggedIn = () => sessionRefs.user?.value?.username && sessionRefs.user?.value?.session;
-const hasSession = () => sessionRefs.user?.value?.session;
+const loggedIn = () => sessionRefs.account?.value?.username && sessionRefs.account?.value?.session;
+const hasSession = () => sessionRefs.account?.value?.session;
+const refreshingAccount = ref(false);
 
 if (!isSetup()) {
   if (needsAdmin()) {
     navigateTo("/setup");
   } else {
     if (hasSession() && !loggedIn()) {
-      const account = await sessionStore.getAccount();
-      if (account && account.session) {
-        if (!isHome()) navigateTo("/home");
-      }
+      refreshingAccount.value = true;
+      sessionStore.getAccount();
     } else if (isHome() && !loggedIn()) {
       if (!isSignIn()) navigateTo("/signIn");
     }
   }
 }
+
+watch(sessionRefs.account, (account) => {
+  console.log(`default.watch(sessionRefs.account): starting with account=${JSON.stringify(account)}`);
+  if (refreshingAccount.value && account && account.session) {
+    console.log("default.watch(sessionRefs.account): in refreshingAccount.value && account && account.session");
+    refreshingAccount.value = false;
+    if (!isHome()) {
+      console.log("default.watch(sessionRefs.account): ===> /home");
+      navigateTo("/home");
+    }
+  }
+});
 </script>
 
 <script lang="ts">

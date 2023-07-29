@@ -48,11 +48,11 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.1.51
-    version: 2.1.51
+    specifier: ^2.1.57
+    version: 2.1.57
   mobiletto-orm-typedef:
-    specifier: ^2.2.4
-    version: 2.2.4
+    specifier: ^2.2.10
+    version: 2.2.10
   pinia:
     specifier: ^2.1.4
     version: 2.1.4(typescript@5.1.6)(vue@3.3.4)
@@ -72,11 +72,11 @@ dependencies:
     specifier: ^3.10.0
     version: 3.10.0
   yuebing-messages:
-    specifier: ^2.0.11
-    version: 2.0.11
+    specifier: ^2.0.13
+    version: 2.0.13
   yuebing-model:
-    specifier: ^2.3.15
-    version: 2.3.15
+    specifier: ^2.3.22
+    version: 2.3.22
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -6993,20 +6993,15 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-typedef@2.2.4:
-    resolution: {integrity: sha512-7NiFN/XTceMmMJOdEsrMmYB32fn33gRksj/wiN8Yj/9tFs1x1qJRHBRNbGl2jJTOAMy2GA20BebrRmOjNu+gJA==}
+  /mobiletto-orm-typedef@2.2.10:
+    resolution: {integrity: sha512-F8aySnx/kKuQ4XgNTHIF+Wvp44J1c5WirBHuja72lM0YDzBqlTrSl5bKxJcdmZ4RDL/gdFbHCpjRl5Sd33gKIw==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.1.51:
-    resolution: {integrity: sha512-HyVERDZHrpLeAVVv/oGmHnesifCzn2tUA8X0W0AJN4B3fECJZyikLdkuNSG6aX/ahKreKyvwd017FzazqRZtJQ==}
-    dependencies:
-      mobiletto-base: 2.0.31
-      mobiletto-orm-typedef: 2.2.4
-    transitivePeerDependencies:
-      - supports-color
+  /mobiletto-orm@2.1.57:
+    resolution: {integrity: sha512-f6FVaaYdcILVFO+SPjCel4N40CTsJSONv4JISClEXe2RiCyLm86UdZdNwfO/TsTFFbtx2QaNyHAg+TXET03QAg==}
     dev: false
 
   /mri@1.2.0:
@@ -10136,12 +10131,12 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yuebing-messages@2.0.11:
-    resolution: {integrity: sha512-gxubgO/qx1n7cVgR7y+5akcIIxwJRmYVXG+QOiKOtLySI8qe2Gst8WEA8CvVQQhDhNX+Y0C6p/Qyj1WJu+EbyQ==}
+  /yuebing-messages@2.0.13:
+    resolution: {integrity: sha512-+LZScOSDB4k6XbgP7NdXe97pAGH01tD/10iOiwScrBx2O6EDUp4f0yZ5qQSraWkuYGXn/k9ZeZp19kUNB9yflg==}
     dev: false
 
-  /yuebing-model@2.3.15:
-    resolution: {integrity: sha512-hUkr+FwyVXms/hzpLBdBNa2AiwCnkJEBpzU3g/KycbbP5xUnCAMaasWWmJWuNVATsqcJmnlb9DcqyIh7/f2A4w==}
+  /yuebing-model@2.3.22:
+    resolution: {integrity: sha512-C+YL+U9+O9cmOYivUE51d4gpT+c0PlPhDdqMXp9eHBzB9p8wgCfHvlX3tvR7OAT9gQELMF2RXlxZMTT2k95ifQ==}
     dependencies:
       handlebars: 4.7.7
     dev: false

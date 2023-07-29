@@ -28,7 +28,7 @@ const messages = ref(storeToRefs(useSessionStore()).localeMessages);
 // noinspection NpmUsedModulesInstalled
 // import { mapState } from 'vuex'
 // import { publicConfigField } from '@/shared'
-// import { localeMessagesForUser } from '@/shared/locale'
+// import { localeMessagesForAccount } from '@/shared/locale'
 // import InviteFriends from '@/components/site/InviteFriends.vue'
 //
 // // noinspection JSUnusedGlobalSymbols
@@ -38,7 +38,7 @@ const messages = ref(storeToRefs(useSessionStore()).localeMessages);
 //   computed: {
 //     ...mapState('user', ['user', 'userStatus', 'anonLocale']),
 //     ...mapState(['browserLocale', 'publicConfig']),
-//     messages () { return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale) },
+//     messages () { return localeMessagesForAccount(this.user, this.browserLocale, this.anonLocale) },
 //     canEmail () { return publicConfigField(this, 'emailEnabled') },
 //     inviteFriendsEnabled () { return publicConfigField(this, 'inviteFriendsEnabled') }
 //   }

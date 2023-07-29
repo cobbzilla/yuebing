@@ -30,7 +30,7 @@ export const DEFAULT_PRIVATE_CONFIG: PrivateConfigType = {
   email: {
     host: process.env.YB_EMAIL_HOST ? process.env.YB_EMAIL_HOST : "127.0.0.1",
     port: process.env.YB_EMAIL_PORT ? parseInt(process.env.YB_EMAIL_PORT) : 25,
-    user: process.env.YB_EMAIL_USER ? process.env.YB_EMAIL_USER : "smtp_user",
+    account: process.env.YB_EMAIL_USER ? process.env.YB_EMAIL_USER : "smtp_user",
     password: process.env.YB_EMAIL_PASSWORD ? process.env.YB_EMAIL_PASSWORD : "",
     secure: process.env.YB_EMAIL_SECURE ? !!process.env.YB_EMAIL_SECURE : false,
     fromEmail: process.env.YB_EMAIL_FROM_EMAIL ? process.env.YB_EMAIL_FROM_EMAIL : "nobody@localhost.example",

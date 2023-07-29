@@ -155,7 +155,7 @@ import SearchBar from "@/components/site/SearchBar";
 import { proxyMediaUrl } from "utils/fuckall";
 import { objectEncodePath } from "@/shared/media";
 import { findThumbnail } from "@/shared/mediainfo";
-import { localeMessagesForUser } from "@/shared/locale";
+import { localeMessagesForAccount } from "@/shared/locale";
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -182,7 +182,7 @@ export default {
     ]),
     ...mapState("tags", ["tagWeights"]),
     messages() {
-      return localeMessagesForUser(this.user, this.browserLocale, this.anonLocale);
+      return localeMessagesForAccount(this.user, this.browserLocale, this.anonLocale);
     },
     isPublic() {
       return this.publicConfig && this.publicConfig.public === true;

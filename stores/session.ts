@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { AccountType, AuthAccountType, RegistrationType } from "yuebing-model";
-import { currentLocaleForUser, FALLBACK_DEFAULT_LANG, localeMessagesForUser } from "yuebing-messages";
+import { currentLocaleForAccount, FALLBACK_DEFAULT_LANG, localeMessagesForAccount } from "yuebing-messages";
 import { authService } from "~/utils/services/authService";
 import { accountService } from "~/utils/services/model/accountService";
 import { sessionService } from "~/utils/services/sessionService";
@@ -9,7 +9,7 @@ import { useConfigStore } from "~/stores/config";
 import { sessionCookie } from "~/utils/auth";
 import { isSecure } from "~/utils/config";
 
-const initialUserObject = (): AuthAccountType => {
+const initialAccountObject = (): AuthAccountType => {
   const ck = sessionCookie(isSecure());
   if (ck && ck.value) {
     return { session: ck.value } as AuthAccountType;
@@ -19,52 +19,52 @@ const initialUserObject = (): AuthAccountType => {
 
 export const useSessionStore = defineStore("session", {
   state: () => ({
-    user: initialUserObject(),
+    account: initialAccountObject(),
     currentLocale: FALLBACK_DEFAULT_LANG,
     browserLocale: FALLBACK_DEFAULT_LANG,
     anonLocale: FALLBACK_DEFAULT_LANG,
   }),
   getters: {
-    loggedIn: (state) => state.user && state.user.username && state.user.session,
+    loggedIn: (state) => state.account && state.account.username && state.account.session,
     needsRefresh: (state) =>
-      state.user &&
-      state.user.session &&
-      (!state.user.invalidSession || state.user.invalidSession !== state.user.session) &&
-      !state.user.username,
-    admin: (state) => state.user && state.user.username && state.user.session && state.user.admin === true,
+      state.account &&
+      state.account.session &&
+      (!state.account.invalidSession || state.account.invalidSession !== state.account.session) &&
+      !state.account.username,
+    admin: (state) => state.account && state.account.username && state.account.session && state.account.admin === true,
     locale: (state) =>
-      state.user && state.user.locale
-        ? state.user.locale
+      state.account && state.account.locale
+        ? state.account.locale
         : state.anonLocale
         ? state.anonLocale
         : state.browserLocale
         ? state.browserLocale
         : FALLBACK_DEFAULT_LANG,
-    localeMessages: (state) => localeMessagesForUser(state.user, state.browserLocale, state.anonLocale),
+    localeMessages: (state) => localeMessagesForAccount(state.account, state.browserLocale, state.anonLocale),
   },
   actions: {
     async setLocale(loc: string, skipUpdate?: boolean): Promise<void> {
-      if (this.user.session) {
-        this.user.locale = loc;
+      if (this.account.session) {
+        this.account.locale = loc;
         if (!skipUpdate) {
-          await accountService.updateAccount(this.user);
+          await accountService.updateAccount(this.account);
         }
       } else {
         this.anonLocale = loc;
       }
-      this.currentLocale = currentLocaleForUser(this.user, this.browserLocale, this.anonLocale);
+      this.currentLocale = currentLocaleForAccount(this.account, this.browserLocale, this.anonLocale);
     },
     async login(
       usernameOrEmail: string,
       password: string,
       errors: Ref<MobilettoOrmValidationErrors>,
     ): Promise<AuthAccountType> {
-      if (this.user.session) {
-        console.warn(`session.login: user already logged in: ${this.user.username} (refreshing)`);
+      if (this.account.session) {
+        console.warn(`session.login: user already logged in: ${this.account.username} (refreshing)`);
       }
       const account: AuthAccountType = await authService.login({ usernameOrEmail, password }, errors);
       if (account) {
-        this.user = account;
+        this.account = account;
         useConfigStore()
           .refresh()
           .then(() => {
@@ -79,11 +79,11 @@ export const useSessionStore = defineStore("session", {
     ): Promise<AuthAccountType> {
       if (this.loggedIn) {
         navigateTo(this.admin ? "/admin" : "/home");
-        return this.user;
+        return this.account;
       }
       const account: AuthAccountType = await authService.register(registration, errors);
       if (account) {
-        this.user = account;
+        this.account = account;
         useConfigStore()
           .refresh()
           .then(() => {
@@ -96,12 +96,12 @@ export const useSessionStore = defineStore("session", {
       const account: AuthAccountType = await sessionService.getAccount();
       if (account) {
         if (Object.keys(account).length === 0) {
-          this.user.invalidSession = this.user.session;
+          this.account.invalidSession = this.account.session;
           if (!useRoute().path.startsWith("/signIn")) {
             navigateTo("/signIn");
           }
         } else {
-          this.user = account;
+          this.account = account;
         }
       }
       return account;
@@ -109,7 +109,7 @@ export const useSessionStore = defineStore("session", {
     logout(): void {
       authService.logout().then((ok) => {
         if (ok) {
-          this.user = {} as AccountType;
+          this.account = {} as AccountType;
           useConfigStore()
             .refresh()
             .then(() => {
