@@ -4,8 +4,8 @@ import { H3Event } from "h3";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
 
 export default defineEventHandler(async (event: H3Event) => {
-  filterErrors(event, "library.update", async (event: H3Event) => {
-    requireAdminAccountObject(event, "library.update", async (event: H3Event, session, account) => {
+  return await filterErrors(event, "library.update", async (event: H3Event) => {
+    return await requireAdminAccountObject(event, "library.update", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
       if (!id) throw notFound("");
       const obj: LibraryType = await readBody(event);

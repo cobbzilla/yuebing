@@ -1,6 +1,6 @@
-import { H3Event } from "h3";
+import { EventHandler, H3Event } from "h3";
 import { AccountType, SessionType } from "yuebing-model";
-import { SESSION_HEADER } from "~/utils/auth";
+import { SESSION_HEADER, SESSION_COOKIE_NAME } from "~/utils/auth";
 import { forbidden } from "~/server/utils/filter/errorFilter";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { accountRepository } from "~/server/utils/repo/accountRepo";
@@ -20,7 +20,7 @@ export const requireAccount = async (
     deleteCookie(event, SESSION_COOKIE_NAME, await cookieOptions());
     throw forbidden();
   }
-  return fn(event, session);
+  return await fn(event, session);
 };
 
 export const requireAccountObject = async (
@@ -31,7 +31,7 @@ export const requireAccountObject = async (
   return requireAccount(event, logPrefix, async (event, session) => {
     const account: AccountType | null = await accountRepository().safeFindById(session.account);
     if (!account) throw forbidden();
-    return fn(event, session, account);
+    return await fn(event, session, account);
   });
 };
 
@@ -40,9 +40,9 @@ export const requireAdminAccountObject = async (
   logPrefix: string,
   fn: (event: H3Event, session: SessionType, account: AccountType) => Promise<unknown>,
 ) => {
-  return requireAccountObject(event, logPrefix, (event, session: SessionType, account: AccountType) => {
+  return await requireAccountObject(event, logPrefix, async (event, session: SessionType, account: AccountType) => {
     if (account.admin === true) {
-      return fn(event, session, account);
+      return await fn(event, session, account);
     } else {
       throw forbidden();
     }

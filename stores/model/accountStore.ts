@@ -24,23 +24,28 @@ export const useAccountStore = defineStore("account", {
     accountList: null as AccountType[] | null,
   }),
   actions: {
-    async accountLookup(id: string): Promise<void> {
+    async accountLookup(id: string): Promise<AccountType> {
       this.account = await accountService.findAccount(id);
       updateList(this.accountList, AccountTypeDef.id(this.account), { account: this.account });
+      return this.account;
     },
-    async accountSearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
+    async accountSearch(query?: MobilettoOrmFindApiOpts): Promise<AccountType[]> {
       this.accountList = await accountService.searchAccount(query);
+      return this.accountList || [];
     },
-    async accountCreate(account: AccountType): Promise<void> {
+    async accountCreate(account: AccountType): Promise<AccountType> {
       this.account = await accountService.createAccount(account);
+      return this.account;
     },
-    async accountUpdate(account: AccountType): Promise<void> {
+    async accountUpdate(account: AccountType): Promise<AccountType> {
       this.account = await accountService.updateAccount(account);
       updateList(this.accountList, AccountTypeDef.id(this.account), { account: this.account });
+      return this.account;
     },
-    async accountDelete(account: string): Promise<void> {
+    async accountDelete(account: string): Promise<boolean> {
       await accountService.deleteAccount(account);
       updateList(this.accountList, account, { remove: true });
+      return true;
     },
   },
 });

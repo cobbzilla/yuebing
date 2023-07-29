@@ -24,23 +24,28 @@ export const useSourceStore = defineStore("source", {
     sourceList: null as SourceType[] | null,
   }),
   actions: {
-    async sourceLookup(id: string): Promise<void> {
+    async sourceLookup(id: string): Promise<SourceType> {
       this.source = await sourceService.findSource(id);
       updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
+      return this.source;
     },
-    async sourceSearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
+    async sourceSearch(query?: MobilettoOrmFindApiOpts): Promise<SourceType[]> {
       this.sourceList = await sourceService.searchSource(query);
+      return this.sourceList || [];
     },
-    async sourceCreate(source: SourceType): Promise<void> {
+    async sourceCreate(source: SourceType): Promise<SourceType> {
       this.source = await sourceService.createSource(source);
+      return this.source;
     },
-    async sourceUpdate(source: SourceType): Promise<void> {
+    async sourceUpdate(source: SourceType): Promise<SourceType> {
       this.source = await sourceService.updateSource(source);
       updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
+      return this.source;
     },
-    async sourceDelete(source: string): Promise<void> {
+    async sourceDelete(source: string): Promise<boolean> {
       await sourceService.deleteSource(source);
       updateList(this.sourceList, source, { remove: true });
+      return true;
     },
   },
 });

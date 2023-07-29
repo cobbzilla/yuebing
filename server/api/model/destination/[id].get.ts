@@ -4,8 +4,8 @@
 import { H3Event } from "h3";
 
 export default defineEventHandler(async (event: H3Event) => {
-  filterErrors(event, "destination.lookup", async (event: H3Event) => {
-    requireAdminAccountObject(event, "destination.lookup", async (event: H3Event, session, account) => {
+  return await filterErrors(event, "destination.lookup", async (event: H3Event) => {
+    return await requireAdminAccountObject(event, "destination.lookup", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
       if (!id) throw notFound("");
       const destinationRepo = destinationRepository();

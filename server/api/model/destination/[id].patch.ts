@@ -4,8 +4,8 @@ import { H3Event } from "h3";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 
 export default defineEventHandler(async (event: H3Event) => {
-  filterErrors(event, "destination.update", async (event: H3Event) => {
-    requireAdminAccountObject(event, "destination.update", async (event: H3Event, session, account) => {
+  return await filterErrors(event, "destination.update", async (event: H3Event) => {
+    return await requireAdminAccountObject(event, "destination.update", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
       if (!id) throw notFound("");
       const obj: DestinationType = await readBody(event);

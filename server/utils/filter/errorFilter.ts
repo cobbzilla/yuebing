@@ -31,7 +31,7 @@ export const conflict = () => createError({ statusCode: 409, statusMessage: "con
 
 export const filterErrors = async (event: H3Event, logPrefix: string, fn: (event: H3Event) => Promise<unknown>) => {
   try {
-    return fn(event);
+    return await fn(event);
   } catch (e) {
     if (e instanceof H3Error) {
       throw e;

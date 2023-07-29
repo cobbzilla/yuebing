@@ -24,23 +24,28 @@ export const useDestinationStore = defineStore("destination", {
     destinationList: null as DestinationType[] | null,
   }),
   actions: {
-    async destinationLookup(id: string): Promise<void> {
+    async destinationLookup(id: string): Promise<DestinationType> {
       this.destination = await destinationService.findDestination(id);
       updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
+      return this.destination;
     },
-    async destinationSearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
+    async destinationSearch(query?: MobilettoOrmFindApiOpts): Promise<DestinationType[]> {
       this.destinationList = await destinationService.searchDestination(query);
+      return this.destinationList || [];
     },
-    async destinationCreate(destination: DestinationType): Promise<void> {
+    async destinationCreate(destination: DestinationType): Promise<DestinationType> {
       this.destination = await destinationService.createDestination(destination);
+      return this.destination;
     },
-    async destinationUpdate(destination: DestinationType): Promise<void> {
+    async destinationUpdate(destination: DestinationType): Promise<DestinationType> {
       this.destination = await destinationService.updateDestination(destination);
       updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
+      return this.destination;
     },
-    async destinationDelete(destination: string): Promise<void> {
+    async destinationDelete(destination: string): Promise<boolean> {
       await destinationService.deleteDestination(destination);
       updateList(this.destinationList, destination, { remove: true });
+      return true;
     },
   },
 });

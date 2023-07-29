@@ -24,23 +24,28 @@ export const useLibraryStore = defineStore("library", {
     libraryList: null as LibraryType[] | null,
   }),
   actions: {
-    async libraryLookup(id: string): Promise<void> {
+    async libraryLookup(id: string): Promise<LibraryType> {
       this.library = await libraryService.findLibrary(id);
       updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
+      return this.library;
     },
-    async librarySearch(query?: MobilettoOrmFindApiOpts): Promise<void> {
+    async librarySearch(query?: MobilettoOrmFindApiOpts): Promise<LibraryType[]> {
       this.libraryList = await libraryService.searchLibrary(query);
+      return this.libraryList || [];
     },
-    async libraryCreate(library: LibraryType): Promise<void> {
+    async libraryCreate(library: LibraryType): Promise<LibraryType> {
       this.library = await libraryService.createLibrary(library);
+      return this.library;
     },
-    async libraryUpdate(library: LibraryType): Promise<void> {
+    async libraryUpdate(library: LibraryType): Promise<LibraryType> {
       this.library = await libraryService.updateLibrary(library);
       updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
+      return this.library;
     },
-    async libraryDelete(library: string): Promise<void> {
+    async libraryDelete(library: string): Promise<boolean> {
       await libraryService.deleteLibrary(library);
       updateList(this.libraryList, library, { remove: true });
+      return true;
     },
   },
 });

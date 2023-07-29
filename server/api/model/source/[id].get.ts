@@ -4,8 +4,8 @@
 import { H3Event } from "h3";
 
 export default defineEventHandler(async (event: H3Event) => {
-  filterErrors(event, "source.lookup", async (event: H3Event) => {
-    requireAdminAccountObject(event, "source.lookup", async (event: H3Event, session, account) => {
+  return await filterErrors(event, "source.lookup", async (event: H3Event) => {
+    return await requireAdminAccountObject(event, "source.lookup", async (event: H3Event, session, account) => {
       const id = event?.context?.params?.id;
       if (!id) throw notFound("");
       const sourceRepo = sourceRepository();

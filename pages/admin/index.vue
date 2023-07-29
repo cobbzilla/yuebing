@@ -8,8 +8,12 @@
 
 <script setup lang="ts">
 import { useLibraryStore } from "~/stores/model/libraryStore";
-import {FIND_FIRST} from "mobiletto-orm-typedef";
+import { LibraryType } from "yuebing-model";
 
 const libraryStore = useLibraryStore();
-libraryStore.librarySearch({predicate: FIND_FIRST})
+libraryStore.librarySearch().then((libraries: LibraryType[]) => {
+  if (libraries.length === 0) {
+    navigateTo("/admin/library/setup");
+  }
+});
 </script>

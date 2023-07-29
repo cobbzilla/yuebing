@@ -68,7 +68,7 @@ export const useSessionStore = defineStore("session", {
         useConfigStore()
           .refresh()
           .then(() => {
-            navigateTo("/home");
+            navigateTo(account.admin ? "/admin" : "/home");
           });
       }
       return account;
@@ -78,7 +78,7 @@ export const useSessionStore = defineStore("session", {
       errors: Ref<MobilettoOrmValidationErrors>,
     ): Promise<AuthAccountType> {
       if (this.loggedIn) {
-        navigateTo("/home");
+        navigateTo(this.admin ? "/admin" : "/home");
         return this.user;
       }
       const account: AuthAccountType = await authService.register(registration, errors);
@@ -87,7 +87,7 @@ export const useSessionStore = defineStore("session", {
         useConfigStore()
           .refresh()
           .then(() => {
-            navigateTo("/home");
+            navigateTo(account.admin ? "/admin" : "/home");
           });
       }
       return account;
