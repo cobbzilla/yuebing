@@ -43,15 +43,15 @@
           </template>
         </v-select>
       </div>
-      <div>
-        <small>
-          DEBUG SECTION:<br />
-          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.user ==
-          {{ JSON.stringify(sessionStore.user || "null") }} ]] [[ sessionRefs.user ==
-          {{ JSON.stringify(sessionRefs.user || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[
-          sessionRefs.admin == {{ sessionRefs.admin }} ]]
-        </small>
-      </div>
+      <!--      <div>-->
+      <!--        <small>-->
+      <!--          DEBUG SECTION:<br />-->
+      <!--          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.user ==-->
+      <!--          {{ JSON.stringify(sessionStore.user || "null") }} ]] [[ sessionRefs.user ==-->
+      <!--          {{ JSON.stringify(sessionRefs.user || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[-->
+      <!--          sessionRefs.admin == {{ sessionRefs.admin }} ]]-->
+      <!--        </small>-->
+      <!--      </div>-->
     </v-app-bar>
 
     <v-navigation-drawer
