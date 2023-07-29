@@ -22,45 +22,60 @@ import { isHome, isSetup, isSignIn } from "~/utils/config";
 import { storeToRefs } from "pinia";
 
 const configStore = useConfigStore();
-const configRefs = storeToRefs(configStore);
+const { publicConfig } = storeToRefs(configStore);
 await configStore.loadPublicConfig();
 await configStore.loadBrowserHeaders();
-const needsAdmin = () => configRefs.publicConfig?.value?.needsAdmin || false;
+const needsAdmin = () => publicConfig.value?.needsAdmin || false;
 
 useSeoMeta({
   title: () => {
-    return configRefs?.publicConfig?.value?.title || "⌛🥮";
+    return publicConfig?.value?.title || "⌛🥮";
   },
   ...DEFAULT_META,
 });
 
 const sessionStore = useSessionStore();
-const sessionRefs = storeToRefs(sessionStore);
+const { account } = storeToRefs(sessionStore);
 
-const loggedIn = () => sessionRefs.account?.value?.username && sessionRefs.account?.value?.session;
-const hasSession = () => sessionRefs.account?.value?.session;
+const loggedIn = () => account.value?.username && account.value?.session;
+const hasSession = () => account.value?.session;
 const refreshingAccount = ref(false);
+const route = useRoute();
 
+console.log(`default ===> START account=${JSON.stringify(account)}`);
 if (!isSetup()) {
+  console.log(`default ===> 2222 account=${JSON.stringify(account)}`);
   if (needsAdmin()) {
+    console.log("default ===> /setup");
     navigateTo("/setup");
-  } else {
-    if (hasSession() && !loggedIn()) {
-      refreshingAccount.value = true;
-      sessionStore.getAccount();
-    } else if (isHome() && !loggedIn()) {
-      if (!isSignIn()) navigateTo("/signIn");
+  } else if (!isSignIn()) {
+    if (account.value.invalidSession) {
+      console.log(`default ===> /signIn (invalid session!) account=${JSON.stringify(account)}`);
+      navigateTo("/signIn");
+    } else {
+      if (hasSession() && !loggedIn()) {
+        console.log(`default (refreshing.value = true) account=${JSON.stringify(account)}`);
+        refreshingAccount.value = true;
+        sessionStore.getAccount(route.path);
+      } else if (isHome() && !loggedIn()) {
+        if (!isSignIn()) {
+          console.log("default ===> /signIn");
+          navigateTo("/signIn");
+        }
+      }
     }
   }
 }
 
-watch(sessionRefs.account, (account) => {
-  console.log(`default.watch(sessionRefs.account): starting with account=${JSON.stringify(account)}`);
-  if (refreshingAccount.value && account && account.session) {
-    console.log("default.watch(sessionRefs.account): in refreshingAccount.value && account && account.session");
-    refreshingAccount.value = false;
+watch(account, async (newAccount) => {
+  console.log(`default.watch(account): starting with account=${JSON.stringify(newAccount)}`);
+  if (refreshingAccount.value && newAccount && newAccount.session) {
+    console.log(
+      "default.watch(account): in refreshingAccount.value && account && account.session (refreshing.value = false)",
+    );
+    // refreshingAccount.value = false;
     if (!isHome()) {
-      console.log("default.watch(sessionRefs.account): ===> /home");
+      console.log("default.watch(account): ===> /home");
       navigateTo("/home");
     }
   }

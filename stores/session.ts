@@ -14,7 +14,7 @@ const initialAccountObject = (): AuthAccountType => {
   if (ck && ck.value) {
     return { session: ck.value } as AuthAccountType;
   }
-  return {} as AuthAccountType;
+  return { session: null } as AuthAccountType;
 };
 
 export const useSessionStore = defineStore("session", {
@@ -65,11 +65,7 @@ export const useSessionStore = defineStore("session", {
       const account: AuthAccountType = await authService.login({ usernameOrEmail, password }, errors);
       if (account) {
         this.account = account;
-        useConfigStore()
-          .refresh()
-          .then(() => {
-            navigateTo(account.admin ? "/admin" : "/home");
-          });
+        await useConfigStore().refresh();
       }
       return account;
     },
@@ -78,45 +74,34 @@ export const useSessionStore = defineStore("session", {
       errors: Ref<MobilettoOrmValidationErrors>,
     ): Promise<AuthAccountType> {
       if (this.loggedIn) {
-        navigateTo(this.admin ? "/admin" : "/home");
         return this.account;
       }
       const account: AuthAccountType = await authService.register(registration, errors);
       if (account) {
         this.account = account;
-        useConfigStore()
-          .refresh()
-          .then(() => {
-            navigateTo(account.admin ? "/admin" : "/home");
-          });
+        await useConfigStore().refresh();
       }
       return account;
     },
     async getAccount(): Promise<AuthAccountType> {
-      const account: AuthAccountType = await sessionService.getAccount();
-      if (account) {
-        if (Object.keys(account).length === 0) {
-          this.account.invalidSession = this.account.session;
-          if (!useRoute().path.startsWith("/signIn")) {
-            navigateTo("/signIn");
+      if (!this.account.invalidSession) {
+        const account: AuthAccountType = await sessionService.getAccount();
+        if (account) {
+          if (Object.keys(account).length === 0) {
+            console.log("getAccount: setting invalidSession")
+            this.account.invalidSession = this.account.session;
+          } else {
+            this.account = account;
           }
-        } else {
-          this.account = account;
         }
       }
-      return account;
+      return this.account;
     },
-    logout(): void {
-      authService.logout().then((ok) => {
-        if (ok) {
-          this.account = {} as AccountType;
-          useConfigStore()
-            .refresh()
-            .then(() => {
-              navigateTo("/");
-            });
-        }
-      });
+    async logout(): Promise<void> {
+      if (await authService.logout()) {
+        this.account = {} as AccountType;
+        await useConfigStore().refresh();
+      }
     },
   },
 });

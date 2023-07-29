@@ -6,13 +6,18 @@
       </NuxtLink>
       <v-spacer />
       <div
-        v-if="loggedIn() && sessionStore.user.email && sessionStore.user.firstName && gravatarUrl(sessionStore.user)"
+        v-if="
+          loggedIn() &&
+          sessionStore.account.email &&
+          sessionStore.account.firstName &&
+          gravatarUrl(sessionStore.account)
+        "
       >
         <v-avatar size="48px" @click.stop="rightDrawer = loggedIn() ? !rightDrawer : rightDrawer">
           <v-img
-            :src="gravatarUrl(sessionStore.user) || undefined"
+            :src="gravatarUrl(sessionStore.account) || undefined"
             contain
-            :alt="`avatar image for ${sessionStore.user.firstName}`"
+            :alt="`avatar image for ${sessionStore.account.firstName}`"
           />
         </v-avatar>
       </div>
@@ -46,9 +51,9 @@
       <!--      <div>-->
       <!--        <small>-->
       <!--          DEBUG SECTION:<br />-->
-      <!--          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.user ==-->
-      <!--          {{ JSON.stringify(sessionStore.user || "null") }} ]] [[ sessionRefs.user ==-->
-      <!--          {{ JSON.stringify(sessionRefs.user || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[-->
+      <!--          [[ showNav() == {{ showNav() }} ]] [[ loggedIn() == {{ loggedIn() }} ]] [[ sessionStore.account ==-->
+      <!--          {{ JSON.stringify(sessionStore.account || "null") }} ]] [[ sessionRefs.account ==-->
+      <!--          {{ JSON.stringify(sessionRefs.account || "null") }} ]] [[ sessionStore.admin == {{ sessionStore.admin }} ]] [[-->
       <!--          sessionRefs.admin == {{ sessionRefs.admin }} ]]-->
       <!--        </small>-->
       <!--      </div>-->
@@ -102,10 +107,10 @@ const signInUrl = "/signIn";
 const sessionStore = useSessionStore();
 const sessionRefs = storeToRefs(sessionStore);
 
-const loggedIn = () => sessionRefs.user?.value?.username && sessionRefs.user?.value?.session;
+const loggedIn = () => sessionRefs.account?.value?.username && sessionRefs.account?.value?.session;
 
 const supportedLocales = ref(
-  localesList(sessionRefs.user.value, sessionRefs.browserLocale.value, sessionRefs.anonLocale.value),
+  localesList(sessionRefs.account.value, sessionRefs.browserLocale.value, sessionRefs.anonLocale.value),
 );
 
 const messages = ref(sessionStore.localeMessages);
@@ -115,7 +120,7 @@ const selectLocale = (loc: string) => {
   sessionStore.setLocale(loc);
   messages.value = sessionStore.localeMessages;
   supportedLocales.value = localesList(
-    sessionRefs.user.value,
+    sessionRefs.account.value,
     sessionRefs.browserLocale.value,
     sessionRefs.anonLocale.value,
   );

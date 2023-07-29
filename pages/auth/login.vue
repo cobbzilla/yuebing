@@ -54,9 +54,7 @@ const loginServerErrors = ref({} as MobilettoOrmValidationErrors);
 
 const cancelButtonMessage = () => (configRegistrationEnabled() ? "button_register" : "");
 
-const onSignUp = () => {
-  navigateTo("/signUp");
-};
+const onSignUp = () => navigateTo("/signUp");
 
 const onLoginUpdated = (update: { field: string; value: any }) => {
   usernameAndPasswordObject.value[update.field] = update.value;
@@ -73,4 +71,10 @@ const onLoginSubmitted = (login: UsernameAndPasswordType) =>
         throw e;
       }
     });
+
+watch(sessionRefs.account, (newAccount) => {
+  if (Object.keys(newAccount).length) {
+    navigateTo(newAccount.admin ? "/admin" : "/home");
+  }
+});
 </script>

@@ -44,7 +44,13 @@ import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobil
 import { useSessionStore } from "~/stores/session";
 import { RegistrationFormTypeDef } from "~/utils/auth";
 import { parseMessage } from "yuebing-messages";
-import { isSetup, configTitle } from "~/utils/config";
+import { isSetup, configTitle, configRegistrationEnabled } from "~/utils/config";
+import { useConfigStore } from "~/stores/config";
+
+const configStore = useConfigStore();
+const { publicConfig } = storeToRefs(configStore);
+await configStore.loadPublicConfig();
+const needsAdmin = () => publicConfig.value?.needsAdmin || false;
 
 const sessionStore = useSessionStore();
 const sessionRefs = storeToRefs(sessionStore);
@@ -56,9 +62,7 @@ const regType = RegistrationFormTypeDef;
 const registrationObject = ref({} as RegistrationType);
 const registerServerErrors = ref({} as MobilettoOrmValidationErrors);
 
-const onSignIn = () => {
-  navigateTo("/auth/login");
-};
+const onSignIn = () => navigateTo("/auth/login");
 
 const onRegistrationUpdated = (update: { field: string; value: any }) => {
   registrationObject.value[update.field] = update.value;
@@ -78,4 +82,19 @@ const onRegistrationSubmitted = (reg: RegistrationType) =>
         throw e;
       }
     });
+
+if (isSetup() && !needsAdmin()) {
+  const regEnabled = configRegistrationEnabled();
+  console.log(`register ===> /signUp or /signIn (regEnabled=${regEnabled})`);
+  navigateTo(regEnabled ? "/signUp" : "/signIn");
+} else if (!configRegistrationEnabled()) {
+  console.log(`register ===> /signIn (reg not enabled)`);
+  navigateTo("/signIn");
+}
+
+watch(sessionRefs.account, (newAccount) => {
+  if (Object.keys(newAccount).length > 0) {
+    navigateTo(newAccount.admin ? "/admin" : "/home");
+  }
+});
 </script>

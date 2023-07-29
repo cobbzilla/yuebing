@@ -8,10 +8,13 @@
 
 <script setup lang="ts">
 import { useLibraryStore } from "~/stores/model/libraryStore";
-import { LibraryType } from "yuebing-model";
+import { storeToRefs } from "pinia";
 
 const libraryStore = useLibraryStore();
-libraryStore.librarySearch().then((libraries: LibraryType[]) => {
+const { libraryList } = storeToRefs(libraryStore);
+libraryStore.librarySearch();
+
+watch(libraryList, (libraries) => {
   if (libraries.length === 0) {
     navigateTo("/admin/library/setup");
   }

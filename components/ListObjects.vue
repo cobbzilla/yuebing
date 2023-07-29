@@ -182,13 +182,13 @@ export default {
     ]),
     ...mapState("tags", ["tagWeights"]),
     messages() {
-      return localeMessagesForAccount(this.user, this.browserLocale, this.anonLocale);
+      return localeMessagesForAccount(this.account, this.browserLocale, this.anonLocale);
     },
     isPublic() {
       return this.publicConfig && this.publicConfig.public === true;
     },
     unverifiedUserAndNotPublic() {
-      return !this.isPublic && this.user && this.user.email && this.userStatus && !this.user.verified;
+      return !this.isPublic && this.account && this.account.email && this.accountStatus && !this.account.verified;
     },
     noQuery() {
       return typeof this.$route.query.s === "undefined" || this.$route.query.s.length === 0;
@@ -203,7 +203,7 @@ export default {
       return this.searchResults && this.searchResults.more;
     },
     loggedIn() {
-      return this.user && this.userStatus && this.user.email;
+      return this.account && this.account.session && this.account.email;
     },
   },
   created() {
@@ -218,7 +218,7 @@ export default {
       return findThumbnail(obj);
     },
     proxyUrl(obj) {
-      return proxyMediaUrl(obj, this.user, this.userStatus);
+      return proxyMediaUrl(obj, this.account, { loggedIn: !!this.account.session });
     },
     displayName(name) {
       return name ? name.replaceAll("_", " ") : name;
