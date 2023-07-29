@@ -48,11 +48,11 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.1.49
-    version: 2.1.49
+    specifier: ^2.1.50
+    version: 2.1.50
   mobiletto-orm-typedef:
-    specifier: ^2.2.1
-    version: 2.2.1
+    specifier: ^2.2.4
+    version: 2.2.4
   pinia:
     specifier: ^2.1.4
     version: 2.1.4(typescript@5.1.6)(vue@3.3.4)
@@ -75,8 +75,8 @@ dependencies:
     specifier: ^2.0.11
     version: 2.0.11
   yuebing-model:
-    specifier: ^2.3.11
-    version: 2.3.11
+    specifier: ^2.3.12
+    version: 2.3.12
   yup:
     specifier: ^1.2.0
     version: 1.2.0
@@ -6993,18 +6993,18 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-typedef@2.2.1:
-    resolution: {integrity: sha512-ywU6UzlwMZ1csU5JDBmAJU8ijOyefOrHslnGNG5e72p8ufQVF3csYAPO9NsxoExY2BFaFsbDxF/hnKFB07Fjuw==}
+  /mobiletto-orm-typedef@2.2.4:
+    resolution: {integrity: sha512-7NiFN/XTceMmMJOdEsrMmYB32fn33gRksj/wiN8Yj/9tFs1x1qJRHBRNbGl2jJTOAMy2GA20BebrRmOjNu+gJA==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.1.49:
-    resolution: {integrity: sha512-+ZhsmzCdrhTf33g56yvkmHpoMHCYM8+ggz91ruZa2K5RL1WQRO2t0/vR1rhVVD5/tmJ8k582OhmTQiMMSbK2gQ==}
+  /mobiletto-orm@2.1.50:
+    resolution: {integrity: sha512-SoxkDP/8Lu0CKaIeSJMvNr6vULp29mgsa5PD31CuHVS47U2br7T/rDo5vzfaLytjhl/nHdSrus5b2hxsYWNvLw==}
     dependencies:
       mobiletto-base: 2.0.31
-      mobiletto-orm-typedef: 2.2.1
+      mobiletto-orm-typedef: 2.2.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -10136,8 +10136,8 @@ packages:
     resolution: {integrity: sha512-gxubgO/qx1n7cVgR7y+5akcIIxwJRmYVXG+QOiKOtLySI8qe2Gst8WEA8CvVQQhDhNX+Y0C6p/Qyj1WJu+EbyQ==}
     dev: false
 
-  /yuebing-model@2.3.11:
-    resolution: {integrity: sha512-DaaLU25DuXKj3m57gWCgze4IkjxwmTd0Sh9w9VVW67meDr5W1ScTMX+Hn5nEtHth+eJziC939x2R5sskjWzx6g==}
+  /yuebing-model@2.3.12:
+    resolution: {integrity: sha512-gqjpeGmuCWtk1rEHeGXFZPv+/ex5tRa8RW8kPDBHd6Qcja1mUvxMvNTF7J1WfrnQAhAKnzXu/bLW/v5Rd3k/9Q==}
     dependencies:
       handlebars: 4.7.7
     dev: false

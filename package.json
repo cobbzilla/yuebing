@@ -72,8 +72,8 @@
     "mobiletto-driver-generic": "^2.0.11",
     "mobiletto-driver-local": "^2.0.7",
     "mobiletto-driver-s3": "^2.0.8",
-    "mobiletto-orm": "^2.1.49",
-    "mobiletto-orm-typedef": "^2.2.1",
+    "mobiletto-orm": "^2.1.50",
+    "mobiletto-orm-typedef": "^2.2.4",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-json-pretty": "^2.2.4",
@@ -81,7 +81,7 @@
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.0.11",
-    "yuebing-model": "^2.3.11",
+    "yuebing-model": "^2.3.12",
     "yup": "^1.2.0"
   }
 }
