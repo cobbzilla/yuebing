@@ -10,7 +10,6 @@
             v-model="localValue"
             :v-bind="localValue"
             :type="field.control"
-            :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
@@ -42,7 +41,6 @@
           <v-textarea
             v-model="localValue"
             :v-bind="localValue"
-            :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
@@ -61,7 +59,6 @@
           <v-checkbox
             v-model="localValue"
             :v-bind="localValue"
-            :label="labelFor(field)"
             :full-width="true"
             :name="field.name"
             class="form-control"
@@ -79,7 +76,6 @@
           <v-select
             v-model="localValue"
             :v-bind="localValue"
-            :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
             item-title="label"
@@ -101,7 +97,6 @@
           <v-select
             v-model="localValue"
             :v-bind="localValue"
-            :label="labelFor(field)"
             :items="fieldItems(field)"
             item-value="value"
             item-title="label"
@@ -124,7 +119,6 @@
           <v-slider
             v-model="localValue"
             :v-bind="localValue"
-            :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
             :min="field.minValue"
@@ -148,7 +142,6 @@
             v-model="localValue"
             :v-bind="localValue"
             :type="field.control"
-            :label="labelFor(field)"
             :full-width="false"
             :name="field.name"
             :value="valueOrDefault()"
@@ -170,7 +163,6 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ValidationError } from "yup";
 import { MobilettoOrmFieldDefConfig, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { findMessage } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
@@ -181,8 +173,8 @@ const props = withDefaults(
     rootThing: MobilettoOrmObject;
     thing: MobilettoOrmObject;
     readOnlyObject: (obj: MobilettoOrmObject) => boolean;
+    clientErrors: MobilettoOrmValidationErrors;
     serverErrors: MobilettoOrmValidationErrors;
-    validationError: ValidationError;
     objPath: string;
     value: any;
     create: boolean;
@@ -267,7 +259,7 @@ const fieldError = (field: string | string[]) =>
     field,
     messages.value,
     props.labelPrefixes,
-    props.validationError,
+    props.clientErrors,
     props.serverErrors,
     props.submitted,
     props.objPath,

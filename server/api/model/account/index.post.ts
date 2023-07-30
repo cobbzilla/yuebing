@@ -5,8 +5,8 @@ import { H3Event } from "h3";
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "account.search", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "account.search", async (event: H3Event, session, account) => {
-      const accountRepo = accountRepository();
       const opts: MobilettoOrmFindApiOpts = (await readBody(event)) || {};
+      const accountRepo = accountRepository();
       if (opts.field && opts.value) {
         return await accountRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else {

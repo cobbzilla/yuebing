@@ -14,7 +14,6 @@
           <OrmForm
             form-name="setup_library_form"
             :type-def="libType"
-            :validation-schema="LibrarySchema"
             type-name-message="typename_library"
             cancel-button-message=""
             :thing="libraryObject"
@@ -34,7 +33,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { LibrarySchema, LibraryType, LibraryTypeDef } from "yuebing-model";
+import { LibraryType, LibraryTypeDef } from "yuebing-model";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";

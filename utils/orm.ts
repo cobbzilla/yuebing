@@ -10,11 +10,17 @@ export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): M
   return typeDef.extend({ typeName: typeDef.typeName, fields: hidden });
 };
 
+const normalizeMsg = (errMsg: string) => errMsg.replace(/\./g, "_");
+
+const errMatch = (f: string) => (e: string) => normalizeMsg(e) === normalizeMsg(f);
+
+const errMatchStart = (objPath: string) => (e: string) => normalizeMsg(e).startsWith(`${normalizeMsg(objPath)}_`);
+
 export const ormFieldErrorMessage = (
   field: string | string[],
   messages: Record<string, string>,
   labelPrefixes: string[],
-  validationError: ValidationError,
+  clientErrors: MobilettoOrmValidationErrors,
   serverErrors: MobilettoOrmValidationErrors,
   submitted?: boolean,
   objPath?: string,
@@ -22,18 +28,34 @@ export const ormFieldErrorMessage = (
   if (submitted === false) {
     return "";
   }
-  const errs = validationError && validationError.errors ? validationError.errors : [];
   const fields = Array.isArray(field) ? field : [field];
   const fieldName = fields[0];
   for (const f of fields) {
-    let errMsg = errs.find((e) => e.includes(`${f}_`));
+    const clientErrFields = Object.keys(clientErrors);
+    const serverErrFields = Object.keys(serverErrors);
+    let errMsg = clientErrFields.find(errMatch(f));
+    if (errMsg) {
+      errMsg = errMsg + "_" + clientErrors[errMsg][0];
+    } else {
+      errMsg = serverErrFields.find(errMatch(f)) || undefined;
+      if (errMsg) {
+        errMsg = errMsg + "_" + serverErrors[errMsg][0];
+      }
+    }
     if (!errMsg && objPath && objPath.length > 0) {
-      errMsg = errs.find((e) => e.includes(`${objPath}_`));
+      errMsg = clientErrFields.find(errMatchStart(objPath));
+      if (errMsg) {
+        errMsg = errMsg + "_" + clientErrors[errMsg][0];
+      } else {
+        errMsg = serverErrFields.find(errMatchStart(objPath));
+        if (errMsg) {
+          errMsg = errMsg + "_" + serverErrors[errMsg][0];
+        }
+      }
     }
     if (errMsg) {
-      return fieldErrorMessage(fieldName, errMsg, messages, labelPrefixes);
-    } else if (serverErrors && serverErrors[fieldName]) {
-      return fieldErrorMessage(fieldName, serverErrors[fieldName][0], messages, labelPrefixes);
+      errMsg = normalizeMsg(errMsg);
+      return fieldErrorMessage(normalizeMsg(fieldName), errMsg, messages, labelPrefixes);
     }
   }
   return "";

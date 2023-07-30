@@ -15,6 +15,7 @@ export default defineEventHandler(async (event: H3Event) => {
       if (LibraryTypeDef.id(obj) !== id) {
         throw validationError({ id: ["mismatch"] });
       } else {
+        const libraryRepo = libraryRepository();
         return await libraryRepo.update(obj);
       }
     });

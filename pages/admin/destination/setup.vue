@@ -14,7 +14,6 @@
           <OrmForm
             form-name="setup_destination_form"
             :type-def="DestinationTypeDef"
-            :validation-schema="DestinationSchema"
             type-name-message="typename_destination"
             cancel-button-message=""
             :thing="destinationObject"
@@ -34,7 +33,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { DestinationType, DestinationSchema, DestinationTypeDef } from "yuebing-model";
+import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";

@@ -15,6 +15,7 @@ export default defineEventHandler(async (event: H3Event) => {
       if (AccountTypeDef.id(obj) !== id) {
         throw validationError({ id: ["mismatch"] });
       } else {
+        const accountRepo = accountRepository();
         return await accountRepo.update(obj);
       }
     });

@@ -17,7 +17,6 @@
           <OrmForm
             form-name="register_form"
             :type-def="regType"
-            :validation-schema="RegistrationSchema"
             type-name-message="register_form"
             :thing="{}"
             :save-button-message="registerButtonMessage()"
@@ -39,7 +38,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { RegistrationSchema, RegistrationType } from "yuebing-model";
+import { RegistrationType } from "yuebing-model";
 import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { RegistrationFormTypeDef } from "~/utils/auth";

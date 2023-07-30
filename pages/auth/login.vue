@@ -11,7 +11,6 @@
           <OrmForm
             form-name="login_form"
             :type-def="UsernameAndPasswordTypeDef"
-            :validation-schema="UsernameAndPasswordSchema"
             type-name-message="login_form"
             :thing="usernameAndPasswordObject"
             save-button-message="button_login"
@@ -41,7 +40,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
-import { UsernameAndPasswordSchema, UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
+import { UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
 import { useSessionStore } from "~/stores/session";
 import { configRegistrationEnabled } from "~/utils/config";
 

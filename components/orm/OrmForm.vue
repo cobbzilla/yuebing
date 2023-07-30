@@ -6,12 +6,12 @@
           <v-container class="ma-0 pa-0">
             <OrmFormFields
               :fields="fields"
-              :validation-error="validationError"
               :thing="newThing"
               :read-only-object="readOnlyObject"
               :root-thing="newThing"
               :obj-path="''"
               :field-header="''"
+              :client-errors="clientErrors"
               :server-errors="serverErrors"
               :label-prefixes="labelPrefixes"
               :submitted="submitted"
@@ -41,11 +41,11 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import * as yup from "yup";
 import {
   MobilettoOrmFieldDefConfig,
   MobilettoOrmObject,
   MobilettoOrmTypeDef,
+  MobilettoOrmValidationError,
   MobilettoOrmValidationErrors,
 } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
@@ -53,7 +53,6 @@ import { useSessionStore } from "~/stores/session";
 const props = withDefaults(
   defineProps<{
     typeDef: MobilettoOrmTypeDef;
-    validationSchema: yup.Schema;
     typeNameMessage: string;
     formName: string;
     thing: MobilettoOrmObject;
@@ -88,8 +87,7 @@ const messages = ref(session.localeMessages);
 const newThing = ref(JSON.parse(JSON.stringify(props.thing)));
 const submitted = ref(false);
 const saving = ref(false);
-const validationError = ref({} as yup.ValidationError);
-
+const clientErrors = ref({} as MobilettoOrmValidationErrors);
 const serverErrors = ref(props.serverErrors);
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
@@ -102,17 +100,17 @@ const onFieldUpdate = (update: { field: string; value: any }) => {
 
 const validate = async () => {
   try {
-    const validated = await props.validationSchema.validate(newThing.value, { abortEarly: false });
-    validationError.value = {};
+    const validated = await props.typeDef.validate(newThing.value, props.create ? undefined : props.thing);
+    clientErrors.value = {} as MobilettoOrmValidationErrors;
     return validated;
   } catch (e) {
-    if (e.errors) {
-      validationError.value = e as yup.ValidationError;
-      return null;
+    if (e instanceof MobilettoOrmValidationError) {
+      console.log(`OrmForm.validate (submitted=${submitted.value}): validation error ${e}: ${JSON.stringify(e)}`);
+      clientErrors.value = e.errors;
     } else {
-      // console.log(`OrmForm.validate: error: ${e}`);
-      return null;
+      console.log(`OrmForm.validate: unknown error ${e}: ${JSON.stringify(e)}`);
     }
+    return null;
   }
 };
 

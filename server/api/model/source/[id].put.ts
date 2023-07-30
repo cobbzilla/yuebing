@@ -15,6 +15,7 @@ export default defineEventHandler(async (event: H3Event) => {
       if (SourceTypeDef.id(obj) !== id) {
         throw validationError({ id: ["mismatch"] });
       } else {
+        const sourceRepo = sourceRepository();
         return await sourceRepo.create(obj);
       }
     });

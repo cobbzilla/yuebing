@@ -15,7 +15,6 @@
             v-if="srcTypeDef"
             form-name="setup_source_form"
             :type-def="srcTypeDef"
-            :validation-schema="SourceSchema"
             type-name-message="typename_source"
             cancel-button-message=""
             :thing="sourceObject"
@@ -23,7 +22,7 @@
             :create="true"
             :read-only-object="() => false"
             :server-errors="createSourceServerErrors"
-            :label-prefixes="['label_volume_', 'label_source_', '', 'label_']"
+            :label-prefixes="['label_sourceType_', 'label_volumeType_']"
             @submitted="onFormSubmitted"
             @update="onFormUpdated"
           />
@@ -35,7 +34,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { SourceType, SourceSchema, SourceTypeDef } from "yuebing-model";
+import { SourceType, SourceTypeDef } from "yuebing-model";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";
@@ -75,5 +74,8 @@ const onFormUpdated = (update: { field: string; value: any }) => {
   sourceObject.value[update.field] = update.value;
 };
 
-const onFormSubmitted = (src: SourceType) => sourceStore.sourceCreate(src, createSourceServerErrors);
+const onFormSubmitted = (src: SourceType) => {
+  console.log(`form was submitted: ${JSON.stringify(src)}`);
+  return sourceStore.sourceCreate(src, createSourceServerErrors);
+};
 </script>

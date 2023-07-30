@@ -2,22 +2,23 @@
   <v-container class="ma-0 pa-0">
     <v-row v-if="fieldHeader !== ''" class="ma-0 pa-0">
       <v-col class="ma-0 pa-0">
-        <h4>{{ messages[fieldHeader] }}</h4>
+        <h4>{{ headerMessage() }}</h4>
       </v-col>
     </v-row>
     <v-row v-for="(field, fieldIndex) in props.fields" :key="fieldIndex" class="ma-0 pa-0">
       <v-col class="ma-0 pa-0">
-        <v-container v-if="fieldVisible(field) && isObject(field)" class="ma-0 pa-0">
+        <v-container v-if="isObject(field)" class="ma-0 pa-0">
           <OrmFormFields
+            v-show="fieldVisible(field)"
+            :field-header="field.name!"
             :fields="tabIndexed(field)"
             :root-thing="rootThing"
             :thing="props.thing[field.name!]"
             :read-only-object="readOnlyObject"
             :obj-path="nextPath(field.name!)"
-            :field-header="''"
+            :client-errors="clientErrors"
             :server-errors="serverErrors"
-            :validation-error="validationError"
-            :label-prefixes="labelPrefixes"
+            :label-prefixes="nextLabelPrefixes(field.name!)"
             :submitted="submitted"
             :saving="saving"
             :create="create"
@@ -25,8 +26,9 @@
             @update="onFieldUpdate"
           />
         </v-container>
-        <v-container v-else-if="fieldVisible(field)" class="ma-0 pa-0">
+        <v-container v-else class="ma-0 pa-0">
           <OrmField
+            v-show="fieldVisible(field)"
             :field="field"
             :root-thing="rootThing"
             :thing="thing"
@@ -37,8 +39,8 @@
             :submitted="submitted"
             :saving="saving"
             :create="create"
+            :client-errors="clientErrors"
             :server-errors="serverErrors"
-            :validation-error="validationError"
             @update="onFieldUpdate"
           />
         </v-container>
@@ -49,22 +51,22 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ValidationError } from "yup";
 import { MobilettoOrmFieldDefConfig, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
+import { findMessage } from "yuebing-messages";
 
 const props = withDefaults(
   defineProps<{
     fieldHeader: string;
     rootThing: MobilettoOrmObject;
     thing: MobilettoOrmObject;
-    validationError: ValidationError;
     readOnlyObject: () => boolean;
     objPath: string;
     fields: MobilettoOrmFieldDefConfig[];
     create: boolean;
     submitted: boolean;
     saving: boolean;
+    clientErrors: MobilettoOrmValidationErrors;
     serverErrors: MobilettoOrmValidationErrors;
     labelPrefixes: string[];
     formLevel: number;
@@ -92,6 +94,8 @@ const emit = defineEmits<{
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 
+const headerMessage = () => findMessage(props.fieldHeader, messages.value, props.labelPrefixes);
+
 const valueOrDefault = (thing: any, field: MobilettoOrmFieldDefConfig) => {
   const fieldName: string = field.name as string;
   if (typeof thing[fieldName] !== "undefined") {
@@ -105,12 +109,21 @@ const valueOrDefault = (thing: any, field: MobilettoOrmFieldDefConfig) => {
   }
   return null;
 };
+
 const nextPath = (field: string) => {
   if (props.objPath === "") {
     return field;
   }
   return props.objPath + "." + field;
 };
+
+const nextLabelPrefixes = (fieldName: string): string[] => {
+  if (props.objPath === "") {
+    return props.labelPrefixes;
+  }
+  return props.labelPrefixes.map((p) => p + "_" + fieldName + "_");
+};
+
 const tabIndexed = (field: MobilettoOrmFieldDefConfig): MobilettoOrmFieldDefConfig[] => {
   const fields = field.fields ? field.fields : {};
   return Array.isArray(field.tabIndexes)
