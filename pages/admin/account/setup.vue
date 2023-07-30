@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>SETUP!</v-col>
+      <v-col>SETUP accounts!</v-col>
     </v-row>
   </v-container>
 </template>

@@ -4,13 +4,13 @@
       <v-col>
         <v-snackbar v-model="showSuccessSnackbar" :timeout="successSnackTimeout" color="success" centered>
           <h4>
-<!--            snackbar:-->
-<!--            {{-->
-<!--              msg(addObjectSuccessMessage, {-->
-<!--                id: (addObjectSuccess as MobilettoOrmObject)[typeDef.idField(addObjectSuccess) as string],-->
-<!--                type: messages[typeNameMessage],-->
-<!--              })-->
-<!--            }}-->
+            <!--            snackbar:-->
+            <!--            {{-->
+            <!--              msg(addObjectSuccessMessage, {-->
+            <!--                id: (addObjectSuccess as MobilettoOrmObject)[typeDef.idField(addObjectSuccess) as string],-->
+            <!--                type: messages[typeNameMessage],-->
+            <!--              })-->
+            <!--            }}-->
           </h4>
         </v-snackbar>
       </v-col>

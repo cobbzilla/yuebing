@@ -13,6 +13,7 @@ export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): M
 export const ormFieldErrorMessage = (
   field: string | string[],
   messages: Record<string, string>,
+  labelPrefixes: string[],
   validationError: ValidationError,
   serverErrors: MobilettoOrmValidationErrors,
   submitted?: boolean,
@@ -30,9 +31,9 @@ export const ormFieldErrorMessage = (
       errMsg = errs.find((e) => e.includes(`${objPath}_`));
     }
     if (errMsg) {
-      return fieldErrorMessage(fieldName, errMsg, messages);
+      return fieldErrorMessage(fieldName, errMsg, messages, labelPrefixes);
     } else if (serverErrors && serverErrors[fieldName]) {
-      return fieldErrorMessage(fieldName, serverErrors[fieldName][0], messages);
+      return fieldErrorMessage(fieldName, serverErrors[fieldName][0], messages, labelPrefixes);
     }
   }
   return "";

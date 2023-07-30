@@ -1,0 +1,79 @@
+<template>
+  <v-container>
+    <v-row>
+      <v-col>
+        <h2>{{ messages.title_source_setup }}</h2>
+        <b>
+          {{ messages.title_source_setup_details }}
+        </b>
+      </v-col>
+    </v-row>
+    <div>
+      <v-row>
+        <v-col>
+          <OrmForm
+            v-if="srcTypeDef"
+            form-name="setup_source_form"
+            :type-def="srcTypeDef"
+            :validation-schema="SourceSchema"
+            type-name-message="typename_source"
+            cancel-button-message=""
+            :thing="sourceObject"
+            :fields="srcTypeDef.tabIndexedFields()"
+            :create="true"
+            :read-only-object="() => false"
+            :server-errors="createSourceServerErrors"
+            :label-prefixes="['label_volume_', 'label_source_', '', 'label_']"
+            @submitted="onFormSubmitted"
+            @update="onFormUpdated"
+          />
+        </v-col>
+      </v-row>
+    </div>
+  </v-container>
+</template>
+
+<script setup lang="ts">
+import { storeToRefs } from "pinia";
+import { SourceType, SourceSchema, SourceTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { useSessionStore } from "~/stores/session";
+import { useConfigStore } from "~/stores/config";
+import { useSourceStore } from "~/stores/model/sourceStore";
+
+const configStore = useConfigStore();
+const { publicConfig } = storeToRefs(configStore);
+configStore.loadPublicConfig();
+const srcTypeDef = SourceTypeDef.extend({
+  typeName: SourceTypeDef.typeName,
+  fields: {
+    encryption: {
+      fields: {
+        encryptionAlgo: configCiphers(publicConfig.value),
+      },
+    },
+  },
+});
+
+const sessionStore = useSessionStore();
+const { account, localeMessages } = storeToRefs(sessionStore);
+const messages = localeMessages;
+
+const sourceStore = useSourceStore();
+const { sourceList } = storeToRefs(sourceStore);
+sourceStore.sourceSearch();
+watch(sourceList, (newSources) => {
+  if (newSources && newSources.length > 0) {
+    navigateTo("/admin/destination/setup");
+  }
+});
+
+const sourceObject = ref({} as SourceType);
+const createSourceServerErrors = ref({} as MobilettoOrmValidationErrors);
+
+const onFormUpdated = (update: { field: string; value: any }) => {
+  sourceObject.value[update.field] = update.value;
+};
+
+const onFormSubmitted = (src: SourceType) => sourceStore.sourceCreate(src, createSourceServerErrors);
+</script>

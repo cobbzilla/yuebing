@@ -11,7 +11,7 @@ import * as bcrypt from "bcrypt";
 import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/accountRepo";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, notFound } from "~/server/utils/filter/errorFilter";
-import {FIND_NOREDACT} from "mobiletto-orm";
+import { FIND_NOREDACT } from "mobiletto-orm";
 
 export default defineEventHandler((event) =>
   filterErrors(event, "logout", async (event) => {

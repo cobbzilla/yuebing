@@ -1,9 +1,15 @@
 import * as bcrypt from "bcrypt";
-import { DEFAULT_BCRYPT_TIME_TARGET, PrivateConfigType, PublicConfigType } from "yuebing-model";
+import {
+  DEFAULT_BCRYPT_TIME_TARGET,
+  DEFAULT_ENCRYPTION_ALGO,
+  PrivateConfigType,
+  PublicConfigType,
+} from "yuebing-model";
 import { Cached } from "~/server/utils/cached";
 import { privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
 import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG } from "~/server/utils/default";
 import { rand } from "mobiletto-orm";
+import crypto from "crypto";
 
 export const HAS_ADMIN: Cached<boolean> = new Cached(
   async (): Promise<boolean> => {
@@ -27,6 +33,7 @@ export const PUBLIC_CONFIG: Cached<PublicConfigType> = new Cached(
   async (): Promise<PublicConfigType> => {
     return Object.assign({}, await publicConfigRepository().findSingleton(), {
       needsAdmin: !(await hasAdmin()),
+      crypto: { ciphers: crypto.getCiphers() },
     });
   },
   {
@@ -35,6 +42,7 @@ export const PUBLIC_CONFIG: Cached<PublicConfigType> = new Cached(
     default: async <PublicConfigType>() =>
       Object.assign({}, DEFAULT_PUBLIC_CONFIG, {
         needsAdmin: !(await hasAdmin()),
+        crypto: { ciphers: crypto.getCiphers() },
       }) as PublicConfigType,
   },
 );

@@ -18,7 +18,12 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-text-field>
         </div>
         <div v-else-if="field.control === 'label'" class="ma-0 pa-0">
           <v-text-field
@@ -45,7 +50,12 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-textarea>
         </div>
         <div v-else-if="field.control === 'flag'" class="ma-0 pa-0">
           <v-checkbox
@@ -58,7 +68,12 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-checkbox>
         </div>
         <div v-else-if="field.control === 'select'" class="ma-0 pa-0">
           <v-select
@@ -75,7 +90,12 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-select>
         </div>
         <div v-else-if="field.control === 'multi'" class="ma-0 pa-0">
           <v-select
@@ -93,7 +113,35 @@
             :error-messages="fieldError(objPath)"
             :multiple="true"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-select>
+        </div>
+        <div v-else-if="isRange()">
+          <v-slider
+            v-model="localValue"
+            :v-bind="localValue"
+            :label="labelFor(field)"
+            :full-width="false"
+            :name="field.name"
+            :min="field.minValue"
+            :max="field.maxValue"
+            :value="valueOrDefault()"
+            class="form-control"
+            :error="submitted && hasError(objPath)"
+            :error-messages="fieldError(objPath)"
+            thumb-label
+            step="100"
+            @update:model-value="sendUpdate()"
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-slider>
         </div>
         <div v-else class="ma-0 pa-0">
           <v-text-field
@@ -108,7 +156,12 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             @update:model-value="sendUpdate()"
-          />
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelFor(field) }}
+            </template>
+          </v-text-field>
         </div>
       </v-col>
     </v-row>
@@ -165,6 +218,14 @@ const isReadOnly = () => {
   return typeof props.readOnlyObject === "function" && props.readOnlyObject(props.rootThing) === true;
 };
 
+const isRange = () => {
+  return (
+    props.field.control === "range" &&
+    typeof props.field.minValue === "number" &&
+    typeof props.field.maxValue === "number"
+  );
+};
+
 const valueOrDefault = () => {
   if (typeof props.value !== "undefined" && props.value != null) {
     return props.value;
@@ -205,6 +266,7 @@ const fieldError = (field: string | string[]) =>
   ormFieldErrorMessage(
     field,
     messages.value,
+    props.labelPrefixes,
     props.validationError,
     props.serverErrors,
     props.submitted,

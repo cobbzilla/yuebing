@@ -72,16 +72,16 @@
     "mobiletto-driver-generic": "^2.0.11",
     "mobiletto-driver-local": "^2.0.7",
     "mobiletto-driver-s3": "^2.0.8",
-    "mobiletto-orm": "^2.1.57",
-    "mobiletto-orm-typedef": "^2.2.10",
+    "mobiletto-orm": "^2.1.58",
+    "mobiletto-orm-typedef": "^2.2.11",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-json-pretty": "^2.2.4",
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
-    "yuebing-messages": "^2.0.13",
-    "yuebing-model": "^2.3.23",
+    "yuebing-messages": "^2.0.15",
+    "yuebing-model": "^2.3.30",
     "yup": "^1.2.0"
   }
 }

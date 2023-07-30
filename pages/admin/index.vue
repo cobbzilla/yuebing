@@ -16,7 +16,7 @@ libraryStore.librarySearch();
 
 watch(libraryList, (libraries) => {
   if (libraries.length === 0) {
-    navigateTo("/admin/library/setup");
+    navigateTo("/admin/source/setup");
   }
 });
 </script>

@@ -1,4 +1,6 @@
 import { useConfigStore } from "~/stores/config";
+import { DEFAULT_ENCRYPTION_ALGO, PublicConfigType } from "yuebing-model";
+import { storeToRefs } from "pinia";
 
 export const configTitle = (): string => useConfigStore().publicConfig?.title || "⌛🥮";
 
@@ -11,3 +13,34 @@ export const configRegistrationEnabled = (): boolean => useConfigStore().publicC
 export const isSetup = () => useRoute().path.startsWith("/setup");
 export const isSignIn = () => useRoute().path.startsWith("/signIn");
 export const isHome = () => useRoute().path.startsWith("/home");
+
+export const configCiphers = (
+  publicConfig: PublicConfigType,
+): {
+  values: string[];
+  labels: string[];
+  items: { value: string; label: string; title?: string; rawLabel: boolean }[];
+} => {
+  return publicConfig?.crypto?.ciphers
+    ? {
+        values: publicConfig?.crypto?.ciphers,
+        labels: publicConfig?.crypto?.ciphers,
+        items: publicConfig?.crypto?.ciphers.map((c: string) => ({
+          label: c,
+          value: c,
+          rawLabel: true,
+        })),
+      }
+    : {
+        values: [DEFAULT_ENCRYPTION_ALGO],
+        labels: [DEFAULT_ENCRYPTION_ALGO],
+        items: [
+          {
+            value: DEFAULT_ENCRYPTION_ALGO,
+            label: DEFAULT_ENCRYPTION_ALGO,
+            title: DEFAULT_ENCRYPTION_ALGO,
+            rawLabel: true,
+          },
+        ],
+      };
+};

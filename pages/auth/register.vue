@@ -76,7 +76,7 @@ const onRegistrationSubmitted = (reg: RegistrationType) =>
     .register(reg, registerServerErrors)
     .then((acct) => {
       if (acct) {
-        sessionStore.setLocale(account.locale, true);
+        sessionStore.setLocale(account.value.locale, true);
       }
     })
     .catch((e) => {
