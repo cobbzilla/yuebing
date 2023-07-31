@@ -75,8 +75,8 @@ dependencies:
     specifier: ^2.0.20
     version: 2.0.20
   yuebing-model:
-    specifier: ^2.3.35
-    version: 2.3.35
+    specifier: ^2.3.36
+    version: 2.3.36
 
 devDependencies:
   '@nuxt/devtools':
@@ -10093,8 +10093,8 @@ packages:
     resolution: {integrity: sha512-BI/DKfoZ/Z9tKTeCD9U5hRm2ghqfcS9HJfCZ60KRmFWsh8kp25qNHZvThKgeJKMo8xK6o+4UdeMOe1fW66b5rg==}
     dev: false
 
-  /yuebing-model@2.3.35:
-    resolution: {integrity: sha512-aPZ83JDQVJ9/4Z+w4mew8oKMDjMxdogycGvRYb5K1V+lmX4cZOAoxIss5RQM1Emwfvw+Gn7W2NJw1uphxwft6Q==}
+  /yuebing-model@2.3.36:
+    resolution: {integrity: sha512-T5hvMKX8GIs33WCZlQVg+tWC+hA9lXV4gqmQM5bGco2jgRrGaHdFiZ/aX9iPMkXuoKI8xP0nnPVBeyC/DhyJzw==}
     dev: false
 
   /zhead@2.0.9:

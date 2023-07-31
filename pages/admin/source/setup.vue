@@ -71,11 +71,9 @@ const sourceObject = ref({} as SourceType);
 const createSourceServerErrors = ref({} as MobilettoOrmValidationErrors);
 
 const onFormUpdated = (update: { field: string; value: any }) => {
-  sourceObject.value[update.field] = update.value;
+  deepUpdate(sourceObject.value, update.field, update.value);
 };
 
-const onFormSubmitted = (src: SourceType) => {
-  console.log(`form was submitted: ${JSON.stringify(src)}`);
-  return sourceStore.sourceCreate(src, createSourceServerErrors);
-};
+const onFormSubmitted = (src: SourceType) =>
+  sourceStore.sourceCreate(src, createSourceServerErrors).then(() => sourceStore.sourceSearch());
 </script>

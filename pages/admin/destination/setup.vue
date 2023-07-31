@@ -13,15 +13,15 @@
         <v-col>
           <OrmForm
             form-name="setup_destination_form"
-            :type-def="DestinationTypeDef"
+            :type-def="destTypeDef"
             type-name-message="typename_destination"
             cancel-button-message=""
             :thing="destinationObject"
-            :fields="DestinationTypeDef.tabIndexedFields()"
+            :fields="destFields()"
             :create="true"
             :read-only-object="() => false"
             :server-errors="createDestinationServerErrors"
-            :label-prefixes="['', 'label_']"
+            :label-prefixes="['label_destinationType_', 'label_volumeType_']"
             @submitted="onFormSubmitted"
             @update="onFormUpdated"
           />
@@ -41,6 +41,24 @@ import { useDestinationStore } from "~/stores/model/destinationStore";
 
 const configStore = useConfigStore();
 const { publicConfig } = storeToRefs(configStore);
+configStore.loadPublicConfig();
+const destTypeDef = DestinationTypeDef.extend({
+  typeName: DestinationTypeDef.typeName,
+  fields: {
+    encryption: {
+      fields: {
+        encryptionAlgo: configCiphers(publicConfig.value),
+      },
+    },
+    system: {
+      control: "hidden",
+      default: true,
+    },
+  },
+});
+const destFields = () => {
+  return destTypeDef.tabIndexedFields().filter((f) => f.name !== "system");
+};
 
 const sessionStore = useSessionStore();
 const { account, localeMessages } = storeToRefs(sessionStore);
@@ -59,9 +77,13 @@ const destinationObject = ref({} as DestinationType);
 const createDestinationServerErrors = ref({} as MobilettoOrmValidationErrors);
 
 const onFormUpdated = (update: { field: string; value: any }) => {
-  destinationObject.value[update.field] = update.value;
+  deepUpdate(destinationObject.value, update.field, update.value);
 };
 
-const onFormSubmitted = (src: DestinationType) =>
-  destinationStore.destinationCreate(src, createDestinationServerErrors);
+const onFormSubmitted = (dest: DestinationType) => {
+  dest.system = true;
+  return destinationStore
+    .destinationCreate(dest, createDestinationServerErrors)
+    .then(() => destinationStore.destinationSearch());
+};
 </script>

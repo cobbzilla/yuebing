@@ -2,7 +2,20 @@
   <v-container class="ma-0 pa-0">
     <v-row class="ma-0 pa-0">
       <v-col class="ma-0 pa-0">
-        <div v-if="(field.updatable === false && !create) || isReadOnly()" class="ma-0 pa-0">
+        <div v-if="field.control === 'hidden'" v-show="false" class="ma-0 pa-0">
+          <v-text-field
+            v-show="false"
+            v-if="!create"
+            v-model="localValue"
+            :v-bind="localValue"
+            :type="'text'"
+            :full-width="false"
+            :name="field.name"
+            class="form-control"
+            :readonly="true"
+          />
+        </div>
+        <div v-else-if="(field.updatable === false && !create) || isReadOnly()" class="ma-0 pa-0">
           <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
         </div>
         <div v-else-if="field.control === 'text' || field.control === 'password'" class="ma-0 pa-0">
