@@ -1,15 +1,10 @@
+import * as crypto from "crypto";
 import * as bcrypt from "bcrypt";
-import {
-  DEFAULT_BCRYPT_TIME_TARGET,
-  DEFAULT_ENCRYPTION_ALGO,
-  PrivateConfigType,
-  PublicConfigType,
-} from "yuebing-model";
+import { rand } from "mobiletto-orm";
+import { DEFAULT_BCRYPT_TIME_TARGET, PrivateConfigType, PublicConfigType } from "yuebing-model";
 import { Cached } from "~/server/utils/cached";
 import { privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
 import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG } from "~/server/utils/default";
-import { rand } from "mobiletto-orm";
-import crypto from "crypto";
 
 export const HAS_ADMIN: Cached<boolean> = new Cached(
   async (): Promise<boolean> => {

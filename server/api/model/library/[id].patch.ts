@@ -2,20 +2,23 @@
 
 import { H3Event } from "h3";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "library.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "library.update", async (event: H3Event, session, account) => {
+      const libraryRepo = libraryRepository();
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
+      if (!id) throw notFound(libraryRepo.typeDef.idFieldName());
       const obj: LibraryType = await readBody(event);
       if (!obj) {
         throw badRequest();
       }
       if (LibraryTypeDef.id(obj) !== id) {
-        throw validationError({ id: ["mismatch"] });
+        const errs: MobilettoOrmValidationErrors = {};
+        errs[libraryRepo.typeDef.idFieldName()] = ["mismatch"];
+        throw validationError(errs);
       } else {
-        const libraryRepo = libraryRepository();
         return await libraryRepo.update(obj);
       }
     });

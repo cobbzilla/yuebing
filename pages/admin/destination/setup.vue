@@ -56,9 +56,7 @@ const destTypeDef = DestinationTypeDef.extend({
     },
   },
 });
-const destFields = () => {
-  return destTypeDef.tabIndexedFields().filter((f) => f.name !== "system");
-};
+const destFields = () => destTypeDef.tabIndexedFields().filter((f) => f.name !== "system");
 
 const sessionStore = useSessionStore();
 const { account, localeMessages } = storeToRefs(sessionStore);

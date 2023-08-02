@@ -6,7 +6,7 @@ import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
 import { libraryService } from "~/utils/services/model/libraryService";
 
-const updateList = (list: LibraryType[] | null, id: string, opts?: { library?: LibraryType, remove?: boolean }) => {
+const updateList = (list: LibraryType[] | null, id: string, opts?: { library?: LibraryType; remove?: boolean }) => {
   if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => LibraryTypeDef.id(e) === id);
@@ -44,13 +44,17 @@ export const useLibraryStore = defineStore("library", {
       updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
       return this.library;
     },
-    async libraryDelete(library: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
+    async libraryDelete(
+      library: string,
+      serverErrors: Ref<MobilettoOrmValidationErrors>,
+      purge?: boolean,
+    ): Promise<boolean> {
       const deleteResult = await libraryService.deleteLibrary(library, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.libraryList, library, serverErrors, { remove: true });
         return true;
       }
-      return false
+      return false;
     },
   },
 });

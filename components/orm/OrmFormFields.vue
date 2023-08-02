@@ -52,8 +52,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmFieldDefConfig, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
-import { useSessionStore } from "~/stores/session";
 import { findMessage } from "yuebing-messages";
+import { useSessionStore } from "~/stores/session";
 
 const props = withDefaults(
   defineProps<{

@@ -2,20 +2,23 @@
 
 import { H3Event } from "h3";
 import { SourceType, SourceTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "source.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "source.update", async (event: H3Event, session, account) => {
+      const sourceRepo = sourceRepository();
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
+      if (!id) throw notFound(sourceRepo.typeDef.idFieldName());
       const obj: SourceType = await readBody(event);
       if (!obj) {
         throw badRequest();
       }
       if (SourceTypeDef.id(obj) !== id) {
-        throw validationError({ id: ["mismatch"] });
+        const errs: MobilettoOrmValidationErrors = {};
+        errs[sourceRepo.typeDef.idFieldName()] = ["mismatch"];
+        throw validationError(errs);
       } else {
-        const sourceRepo = sourceRepository();
         return await sourceRepo.update(obj);
       }
     });

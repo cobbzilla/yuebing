@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { useLibraryStore } from "~/stores/model/libraryStore";
 import { storeToRefs } from "pinia";
+import { useLibraryStore } from "~/stores/model/libraryStore";
 
 const libraryStore = useLibraryStore();
 const { libraryList } = storeToRefs(libraryStore);

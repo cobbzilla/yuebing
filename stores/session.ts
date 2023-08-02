@@ -59,9 +59,9 @@ export const useSessionStore = defineStore("session", {
       password: string,
       errors: Ref<MobilettoOrmValidationErrors>,
     ): Promise<AuthAccountType> {
-      if (this.account.session) {
-        console.warn(`session.login: user already logged in: ${this.account.username} (refreshing)`);
-      }
+      // if (this.account.session) {
+      //   console.warn(`session.login: user already logged in: ${this.account.username} (refreshing)`);
+      // }
       const account: AuthAccountType = await authService.login({ usernameOrEmail, password }, errors);
       if (account) {
         this.account = account;
@@ -88,7 +88,6 @@ export const useSessionStore = defineStore("session", {
         const account: AuthAccountType = await sessionService.getAccount();
         if (account) {
           if (Object.keys(account).length === 0) {
-            console.log("getAccount: setting invalidSession");
             this.account.invalidSession = this.account.session;
           } else {
             this.account = account;

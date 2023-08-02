@@ -6,7 +6,7 @@ import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { SourceType, SourceTypeDef } from "yuebing-model";
 import { sourceService } from "~/utils/services/model/sourceService";
 
-const updateList = (list: SourceType[] | null, id: string, opts?: { source?: SourceType, remove?: boolean }) => {
+const updateList = (list: SourceType[] | null, id: string, opts?: { source?: SourceType; remove?: boolean }) => {
   if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => SourceTypeDef.id(e) === id);
@@ -44,13 +44,17 @@ export const useSourceStore = defineStore("source", {
       updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
       return this.source;
     },
-    async sourceDelete(source: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
+    async sourceDelete(
+      source: string,
+      serverErrors: Ref<MobilettoOrmValidationErrors>,
+      purge?: boolean,
+    ): Promise<boolean> {
       const deleteResult = await sourceService.deleteSource(source, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.sourceList, source, serverErrors, { remove: true });
         return true;
       }
-      return false
+      return false;
     },
   },
 });

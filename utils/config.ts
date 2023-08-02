@@ -1,6 +1,5 @@
-import { useConfigStore } from "~/stores/config";
 import { DEFAULT_ENCRYPTION_ALGO, PublicConfigType } from "yuebing-model";
-import { storeToRefs } from "pinia";
+import { useConfigStore } from "~/stores/config";
 
 export const configTitle = (): string => useConfigStore().publicConfig?.title || "⌛🥮";
 

@@ -2,20 +2,23 @@
 
 import { H3Event } from "h3";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "destination.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "destination.update", async (event: H3Event, session, account) => {
+      const destinationRepo = destinationRepository();
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
+      if (!id) throw notFound(destinationRepo.typeDef.idFieldName());
       const obj: DestinationType = await readBody(event);
       if (!obj) {
         throw badRequest();
       }
       if (DestinationTypeDef.id(obj) !== id) {
-        throw validationError({ id: ["mismatch"] });
+        const errs: MobilettoOrmValidationErrors = {};
+        errs[destinationRepo.typeDef.idFieldName()] = ["mismatch"];
+        throw validationError(errs);
       } else {
-        const destinationRepo = destinationRepository();
         return await destinationRepo.update(obj);
       }
     });

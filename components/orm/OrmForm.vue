@@ -102,13 +102,14 @@ const validate = async () => {
   try {
     const validated = await props.typeDef.validate(newThing.value, props.create ? undefined : props.thing);
     clientErrors.value = {} as MobilettoOrmValidationErrors;
+    // console.log(`OrmForm.handleSave: validated: ${JSON.stringify(newThing.value)} ===> ${JSON.stringify(validated)}`);
     return validated;
   } catch (e) {
     if (e instanceof MobilettoOrmValidationError) {
-      console.log(`OrmForm.validate (submitted=${submitted.value}): validation error ${e}: ${JSON.stringify(e)}`);
+      // console.log(`OrmForm.validate (submitted=${submitted.value}): validation error ${e}: ${JSON.stringify(e)}`);
       clientErrors.value = e.errors;
     } else {
-      console.log(`OrmForm.validate: unknown error ${e}: ${JSON.stringify(e)}`);
+      // console.log(`OrmForm.validate: unknown error ${e}: ${JSON.stringify(e)}`);
     }
     return null;
   }

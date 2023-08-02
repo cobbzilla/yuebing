@@ -8,8 +8,8 @@ export const sessionService = {
 function getAccount(): Promise<AuthAccountType> {
   return $fetch("/api/account", a.authGet())
     .then(a.handleJsonResponse<AuthAccountType>)
-    .catch((e) => {
-      console.log(`getAccount error: ${e}, returning empty object`);
+    .catch((_e) => {
+      // console.log(`getAccount error: ${e}, returning empty object`);
       return {};
     });
 }

@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
 import { useConfigStore } from "~/stores/config";
 import { DEFAULT_META } from "~/utils/meta";
 import { useSessionStore } from "~/stores/session";
 import { isHome, isSetup, isSignIn } from "~/utils/config";
-import { storeToRefs } from "pinia";
 
 const configStore = useConfigStore();
 const { publicConfig } = storeToRefs(configStore);
@@ -48,20 +48,18 @@ if (!isSetup()) {
   } else if (!isSignIn()) {
     if (account.value.invalidSession) {
       navigateTo("/signIn");
-    } else {
-      if (hasSession() && !loggedIn()) {
+    } else if (hasSession() && !loggedIn()) {
         refreshingAccount.value = true;
         sessionStore.getAccount(route.path);
       } else if (isHome() && !loggedIn()) {
         if (!isSignIn()) {
           navigateTo("/signIn");
         }
-      }
     }
   }
 }
 
-watch(account, async (newAccount, oldAccount) => {
+watch(account, (newAccount, oldAccount) => {
   if (
     refreshingAccount.value &&
     newAccount &&
@@ -69,7 +67,7 @@ watch(account, async (newAccount, oldAccount) => {
     (!oldAccount || !oldAccount.session || oldAccount.session !== newAccount.session)
   ) {
     if (!isHome()) {
-      console.log("default.watch(account): ===> /home");
+      // console.log("default.watch(account): ===> /home");
       navigateTo("/home");
     }
   }

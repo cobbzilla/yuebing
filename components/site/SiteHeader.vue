@@ -67,7 +67,7 @@
       <v-list>
         <v-list-item v-if="loggedIn" to="/profile" router exact :title="messages?.button_profile" />
         <v-list-item v-if="admin" to="/admin" router exact :title="messages?.button_admin" />
-        <v-list-item v-if="loggedIn" @click.stop="sessionStore.logout()" :title="messages?.button_logout" />
+        <v-list-item v-if="loggedIn" :title="messages?.button_logout" @click.stop="sessionStore.logout()" />
         <v-list-item v-if="!loggedIn" :to="signInUrl" router exact :title="messages?.button_login" />
         <v-list-item v-if="!loggedIn && regEnabled()" :to="signUpUrl" router exact :title="messages?.button_register" />
       </v-list>
@@ -76,12 +76,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { storeToRefs } from "pinia";
 import { localesList, localeEmoji } from "yuebing-messages";
 import { useConfigStore } from "~/stores/config";
 import { useSessionStore } from "~/stores/session";
 import { gravatarUrl } from "~/utils/gravatar";
-import { storeToRefs } from "pinia";
 import { configRegistrationEnabled, configTitle } from "~/utils/config";
 
 const configStore = useConfigStore();

@@ -6,7 +6,7 @@ import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { AccountType, AccountTypeDef } from "yuebing-model";
 import { accountService } from "~/utils/services/model/accountService";
 
-const updateList = (list: AccountType[] | null, id: string, opts?: { account?: AccountType, remove?: boolean }) => {
+const updateList = (list: AccountType[] | null, id: string, opts?: { account?: AccountType; remove?: boolean }) => {
   if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => AccountTypeDef.id(e) === id);
@@ -44,13 +44,17 @@ export const useAccountStore = defineStore("account", {
       updateList(this.accountList, AccountTypeDef.id(this.account), { account: this.account });
       return this.account;
     },
-    async accountDelete(account: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
+    async accountDelete(
+      account: string,
+      serverErrors: Ref<MobilettoOrmValidationErrors>,
+      purge?: boolean,
+    ): Promise<boolean> {
       const deleteResult = await accountService.deleteAccount(account, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.accountList, account, serverErrors, { remove: true });
         return true;
       }
-      return false
+      return false;
     },
   },
 });

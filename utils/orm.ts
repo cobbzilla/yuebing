@@ -1,5 +1,4 @@
 import { MobilettoOrmFieldDefConfig, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
-import { ValidationError } from "yup";
 import { fieldErrorMessage } from "yuebing-messages";
 
 export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): MobilettoOrmTypeDef => {

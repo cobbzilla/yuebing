@@ -101,7 +101,7 @@ const REPO_FACTORY: { factory: MobilettoOrmRepositoryFactory | null } = {
 
 const dynamicRepoFactory = (): MobilettoOrmRepositoryFactory => {
   if (!REPO_FACTORY.factory) {
-    REPO_FACTORY.factory = repositoryFactory(getStorages);
+    REPO_FACTORY.factory = repositoryFactory(getStorages, { prettyJson: !!process?.env?.YUEBING_PRETTY_JSON });
   }
   return REPO_FACTORY.factory;
 };

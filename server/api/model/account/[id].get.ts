@@ -6,9 +6,9 @@ import { H3Event } from "h3";
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "account.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "account.lookup", async (event: H3Event, session, account) => {
-      const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
       const accountRepo = accountRepository();
+      const id = event?.context?.params?.id;
+      if (!id) throw notFound(accountRepo.typeDef.idFieldName());
       const account_by_id = await accountRepo.safeFindById(id);
       if (account_by_id) return account_by_id;
       const account_by_username = await accountRepo.safeFindFirstBy("username", id);

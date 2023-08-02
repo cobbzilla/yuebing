@@ -18,29 +18,20 @@ function searchLibrary(query?: MobilettoOrmFindApiOpts): Promise<LibraryType[]> 
   return $fetch("/api/model/library", a.authPostJson(query)).then(a.handleJsonResponse<LibraryType[]>);
 }
 
-function findLibrary(
-  id: string,
-  serverErrors: Ref<MobilettoOrmValidationErrors>,
-): Promise<LibraryType> {
+function findLibrary(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<LibraryType> {
   return $fetch(`/api/model/library/${id}`, a.authGet())
     .then(a.handleJsonResponse<LibraryType>)
     .catch(a.handleErrors(serverErrors)) as Promise<LibraryType>;
 }
 
-function createLibrary(
-  library: LibraryType,
-  serverErrors: Ref<MobilettoOrmValidationErrors>,
-): Promise<LibraryType> {
+function createLibrary(library: LibraryType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<LibraryType> {
   const id = LibraryTypeDef.id(library);
   return $fetch(`/api/model/library/${id}`, a.authPutJson(library))
     .then(a.handleJsonResponse<LibraryType>)
     .catch(a.handleErrors(serverErrors)) as Promise<LibraryType>;
 }
 
-function updateLibrary(
-  library: LibraryType,
-  serverErrors: Ref<MobilettoOrmValidationErrors>,
-): Promise<LibraryType> {
+function updateLibrary(library: LibraryType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<LibraryType> {
   const id = LibraryTypeDef.id(library);
   return $fetch(`/api/model/library/${id}`, a.authPatchJson(library))
     .then(a.handleJsonResponse<LibraryType>)
@@ -50,7 +41,7 @@ function updateLibrary(
 function deleteLibrary(
   id: string,
   serverErrors: Ref<MobilettoOrmValidationErrors>,
-  purge?: boolean
+  purge?: boolean,
 ): Promise<MobilettoOrmObject | MobilettoOrmPurgeResults> {
   return $fetch(`/api/model/library/${id}/${purge ? `?purge=${purge}` : ""}`, a.authDelete())
     .then(a.handleJsonResponse<MobilettoOrmObject | MobilettoOrmPurgeResults>)

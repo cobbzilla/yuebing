@@ -1,4 +1,3 @@
-import { FIND_FIRST } from "mobiletto-orm-typedef";
 
 export type MobilettoOrmFindApiOpts = {
   field?: string;

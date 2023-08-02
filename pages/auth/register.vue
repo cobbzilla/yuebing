@@ -2,13 +2,13 @@
   <v-container>
     <v-row>
       <v-col v-if="isSetup()">
-        <h2>{{ messages.title_register_setup }}</h2>
+        <h2>{{ messages["title_register_setup"] }}</h2>
         <b>
           {{ msg("title_register_setup_details") }}
         </b>
       </v-col>
       <v-col v-else>
-        <h2>{{ messages.title_register }}</h2>
+        <h2>{{ messages["title_register"] }}</h2>
       </v-col>
     </v-row>
     <div>
@@ -38,11 +38,11 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
+import { MobilettoOrmObject, MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { RegistrationType } from "yuebing-model";
-import { MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { parseMessage } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
 import { RegistrationFormTypeDef } from "~/utils/auth";
-import { parseMessage } from "yuebing-messages";
 import { isSetup, configTitle, configRegistrationEnabled } from "~/utils/config";
 import { useConfigStore } from "~/stores/config";
 
@@ -70,9 +70,9 @@ const onRegistrationUpdated = (update: { field: string; value: any }) => {
 const cancelButtonMessage = () => (isSetup() ? "" : "button_login");
 const registerButtonMessage = () => (isSetup() ? "title_register_setup" : "button_register");
 
-const onRegistrationSubmitted = (reg: RegistrationType) =>
+const onRegistrationSubmitted = (reg: MobilettoOrmObject) =>
   sessionStore
-    .register(reg, registerServerErrors)
+    .register(reg as RegistrationType, registerServerErrors)
     .then((acct) => {
       if (acct) {
         sessionStore.setLocale(account.value.locale, true);
@@ -91,10 +91,8 @@ if (isSetup()) {
     const regEnabled = configRegistrationEnabled();
     navigateTo(regEnabled ? "/signUp" : "/signIn");
   }
-} else {
-  if (!configRegistrationEnabled()) {
-    navigateTo("/signIn");
-  }
+} else if (!configRegistrationEnabled()) {
+  navigateTo("/signIn");
 }
 
 watch(account, (newAccount) => {

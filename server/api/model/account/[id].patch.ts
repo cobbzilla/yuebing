@@ -2,20 +2,23 @@
 
 import { H3Event } from "h3";
 import { AccountType, AccountTypeDef } from "yuebing-model";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "account.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "account.update", async (event: H3Event, session, account) => {
+      const accountRepo = accountRepository();
       const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
+      if (!id) throw notFound(accountRepo.typeDef.idFieldName());
       const obj: AccountType = await readBody(event);
       if (!obj) {
         throw badRequest();
       }
       if (AccountTypeDef.id(obj) !== id) {
-        throw validationError({ id: ["mismatch"] });
+        const errs: MobilettoOrmValidationErrors = {};
+        errs[accountRepo.typeDef.idFieldName()] = ["mismatch"];
+        throw validationError(errs);
       } else {
-        const accountRepo = accountRepository();
         return await accountRepo.update(obj);
       }
     });

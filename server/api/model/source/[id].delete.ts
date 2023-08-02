@@ -7,9 +7,9 @@ import { MobilettoOrmSyncError } from "mobiletto-orm-typedef";
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "source.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "source.delete", async (event: H3Event, session, account) => {
-      const id = event?.context?.params?.id;
-      if (!id) throw notFound("id");
       const sourceRepo = sourceRepository();
+      const id = event?.context?.params?.id;
+      if (!id) throw notFound(sourceRepo.typeDef.idFieldName());
       try {
         const source_by_id = await sourceRepo.safeFindById(id);
         if (source_by_id) {

@@ -89,6 +89,9 @@ sw.*
 # Vim swap files
 *.swp
 
+# Nuxt builds
+.output
+
 # other temp files
 tmp
 *~

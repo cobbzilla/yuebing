@@ -1,6 +1,6 @@
+import { CookieSerializeOptions } from "cookie-es";
 import { AuthAccountType, RegistrationTypeDef } from "yuebing-model";
 import { hideOrmFields } from "~/utils/orm";
-import { CookieSerializeOptions } from "cookie-es";
 
 export const VERIFY_EMAIL_PARAM = "e";
 export const VERIFY_TOKEN_PARAM = "t";
