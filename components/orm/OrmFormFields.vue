@@ -165,4 +165,5 @@ const isObject = (field: MobilettoOrmFieldDefConfig) => {
 const onFieldUpdate = (update: { field: string; value: any }) => {
   emit("update", update);
 };
+console.log(`formFieldsSetup completed with rootThing=${JSON.stringify(props.rootThing, null, 2)}!`);
 </script>

@@ -129,4 +129,6 @@ const showCancel = () =>
 const handleCancel = () => {
   emit("cancel");
 };
+
+console.log(`OrmForm setup finishing with typeDef.fields.sources=${JSON.stringify(props.typeDef.fields.sources)}`)
 </script>

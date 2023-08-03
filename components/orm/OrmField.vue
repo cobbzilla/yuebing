@@ -29,11 +29,11 @@
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-text-field>
         </div>
@@ -43,7 +43,7 @@
             v-model="localValue"
             :v-bind="localValue"
             :type="'text'"
-            :label="labelFor(field)"
+            :label="labelForField()"
             :full-width="false"
             :name="field.name"
             class="form-control"
@@ -60,13 +60,24 @@
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-textarea>
+        </div>
+        <div v-else-if="field.control === 'duration'" class="ma-0 pa-0">
+          <DurationField
+              class="form-control"
+              :full-width="true"
+              :field-label="labelForField()"
+              :field-value="value ? value : field.default ? field.default : null"
+              :field-error-message="fieldError(objPath)"
+              :label-prefixes="labelPrefixes"
+              @update="sendUpdate"
+          />
         </div>
         <div v-else-if="field.control === 'flag'" class="ma-0 pa-0">
           <v-checkbox
@@ -77,11 +88,11 @@
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-checkbox>
         </div>
@@ -89,20 +100,22 @@
           <v-select
             v-model="localValue"
             :v-bind="localValue"
-            :items="fieldItems(field)"
+            :items="fieldItems()"
             item-value="value"
             item-title="label"
+            :hint="hintForListItem()"
+            persistent-hint
             :full-width="false"
             :name="field.name"
             :value="valueOrDefault()"
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-select>
         </div>
@@ -110,7 +123,7 @@
           <v-select
             v-model="localValue"
             :v-bind="localValue"
-            :items="fieldItems(field)"
+            :items="fieldItems()"
             item-value="value"
             item-title="label"
             :full-width="false"
@@ -120,11 +133,11 @@
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
             :multiple="true"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-select>
         </div>
@@ -142,11 +155,11 @@
             :error-messages="fieldError(objPath)"
             thumb-label
             step="100"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-slider>
         </div>
@@ -161,11 +174,11 @@
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
-            @update:model-value="sendUpdate()"
+            @update:model-value="sendUpdate"
           >
             <template #label>
               <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
-              >{{ labelFor(field) }}
+              >{{ labelForField() }}
             </template>
           </v-text-field>
         </div>
@@ -176,9 +189,15 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { MobilettoOrmFieldDefConfig, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import {
+  MobilettoOrmFieldDefConfig,
+  MobilettoOrmFieldIndexableValue,
+  MobilettoOrmObject,
+  MobilettoOrmValidationErrors
+} from "mobiletto-orm-typedef";
 import { findMessage } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
+import DurationField from "~/components/DurationField.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -201,7 +220,7 @@ const props = withDefaults(
     submitted: () => false,
     saving: () => false,
     value: () => "",
-    labelPrefixes: () => ["label_"],
+    labelPrefixes: () => ["label_"]
   },
 );
 
@@ -213,11 +232,6 @@ const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 
 const localValue = ref(props.thing[props.field.name as string] || "");
-
-const sendUpdate = () => {
-  // console.log(`sendUpdate: value of ${props.objPath} is ${localValue.value}`);
-  emit("update", { field: props.objPath, value: localValue.value });
-};
 
 const isReadOnly = () => {
   return typeof props.readOnlyObject === "function" && props.readOnlyObject(props.rootThing) === true;
@@ -245,7 +259,8 @@ const valueOrDefault = () => {
   return null;
 };
 
-const fieldItems = (field: MobilettoOrmFieldDefConfig) => {
+const fieldItems = () => {
+  const field = props.field;
   return !field.items
     ? []
     : field.items.map((item) => {
@@ -259,13 +274,24 @@ const fieldItems = (field: MobilettoOrmFieldDefConfig) => {
       });
 };
 
-const labelFor = (field: MobilettoOrmFieldDefConfig) => {
+const labelForField = () => {
+  const field = props.field;
   if (field.label && typeof field.label === "string" && field.label.length > 0) {
     return findMessage(field.label, messages.value, ["", ...props.labelPrefixes]);
   }
   const fieldName = field.name as string;
   return findMessage(fieldName, messages.value, props.labelPrefixes);
 };
+
+const hintForListItem = () => {
+  const field = props.field
+  if (field.control && field.control === "select" && field.items && localValue.value) {
+    const item = field.items.find(i => i.value === localValue.value);
+    if (item) {
+      return item.hint ? messages.value[item.hint] : undefined;
+    }
+  }
+}
 
 const fieldError = (field: string | string[]) =>
   ormFieldErrorMessage(
@@ -281,4 +307,9 @@ const fieldError = (field: string | string[]) =>
 const hasError = (field: string | string[]) => {
   return fieldError(field) !== "";
 };
+
+const sendUpdate = (val: MobilettoOrmFieldIndexableValue) => {
+  localValue.value = val;
+  emit("update", { field: props.objPath, value: val });
+}
 </script>
