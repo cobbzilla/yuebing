@@ -2,7 +2,9 @@
   <v-container>
     <v-row>
       <v-col>
+        <!--suppress TypeScriptUnresolvedReference -->
         <h2>{{ messages.title_library_setup }}</h2>
+        <!--suppress TypeScriptUnresolvedReference -->
         <b>
           {{ messages.title_library_setup_details }}
         </b>
@@ -12,17 +14,18 @@
       <v-row>
         <v-col>
           <OrmForm
-            v-if="sourcesLoaded && destinationsLoaded"
+            v-if="sourcesLoaded && destinationsLoaded && libTypeDef"
             form-name="setup_library_form"
             :type-def="libTypeDef"
             type-name-message="typename_library"
             cancel-button-message=""
             :thing="libraryObject"
-            :fields="libFields"
+            :fields="libTypeDefFields"
             :create="true"
             :read-only-object="() => false"
             :server-errors="createLibraryServerErrors"
-            :label-prefixes="['admin_label_library_', 'label_']"
+            :label-prefixes="['admin_label_library_', 'label_media_', 'label_']"
+            :hint-suffixes="['_description']"
             @submitted="onFormSubmitted"
             @update="onFormUpdated"
           />
@@ -33,9 +36,15 @@
 </template>
 
 <script setup lang="ts">
+import { Ref } from "vue";
 import { storeToRefs } from "pinia";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
-import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import {
+  MobilettoOrmFieldDefConfig,
+  MobilettoOrmObject,
+  MobilettoOrmTypeDef,
+  MobilettoOrmValidationErrors
+} from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useLibraryStore } from "~/stores/model/libraryStore";
 import { useSourceStore } from "~/stores/model/sourceStore";
@@ -48,27 +57,55 @@ const messages = localeMessages;
 const libraryStore = useLibraryStore();
 const { libraryList } = storeToRefs(libraryStore);
 
+const libTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
+const libTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+
+const typeDefSources = ref({} as MobilettoOrmFieldDefConfig);
+const sourcesLoaded = ref(false);
+const typeDefDestinations = ref({} as MobilettoOrmFieldDefConfig);
+const destinationsLoaded = ref(false);
+
+const libraryObject = ref({} as LibraryType);
+const createLibraryServerErrors = ref({} as MobilettoOrmValidationErrors);
+
 const sourceStore = useSourceStore();
 const { sourceList } = storeToRefs(sourceStore);
-sourceStore.sourceSearch();
+
+const destinationStore = useDestinationStore();
+const { destinationList } = storeToRefs(destinationStore);
+
+const initLibTypeDef = () => {
+  const typeDef = LibraryTypeDef.extend({
+    fields: {
+      sources: typeDefSources.value,
+      destinations: typeDefDestinations.value
+    }
+  });
+  console.log(`initLibTypeDef: setting libTypeDef.value with sources=${JSON.stringify(typeDefSources.value)}`)
+  libTypeDefFields.value = typeDef.tabIndexedFields();
+  libTypeDef.value = typeDef;
+}
+
 watch(sourceList, (newSources) => {
   if (newSources && newSources.length === 0) {
     navigateTo("/admin/source/setup");
   } else if (newSources && newSources.length > 0) {
     typeDefSources.value.values = libraryObject.value.sources = newSources.map((s) => s.name);
+    typeDefSources.value.labels = newSources.map((s) => s.name);
     typeDefSources.value.items = newSources.map((s) => ({
       label: s.name,
       value: s.name,
       title: s.name,
       rawLabel: true,
     }));
+    console.log("sourcesLoaded!");
     sourcesLoaded.value = true;
+    if (destinationsLoaded.value) {
+      initLibTypeDef()
+    }
   }
 });
 
-const destinationStore = useDestinationStore();
-const { destinationList } = storeToRefs(destinationStore);
-destinationStore.destinationSearch();
 watch(destinationList, (newDestinations) => {
   if (newDestinations && newDestinations.length === 0) {
     navigateTo("/admin/source/setup"); // source will navigateTo destination/setup if needed
@@ -80,20 +117,13 @@ watch(destinationList, (newDestinations) => {
       title: s.name,
       rawLabel: true,
     }));
+    console.log(`destinationsLoaded: ${JSON.stringify(typeDefDestinations.value.values)}`);
     destinationsLoaded.value = true;
+    if (sourcesLoaded.value) {
+      initLibTypeDef()
+    }
   }
 });
-
-const libTypeDef = LibraryTypeDef;
-const libFields = libTypeDef.tabIndexedFields();
-
-const typeDefSources = ref(LibraryTypeDef.fields.sources);
-const sourcesLoaded = ref(false);
-const typeDefDestinations = ref(LibraryTypeDef.fields.destinations);
-const destinationsLoaded = ref(false);
-
-const libraryObject = ref({} as LibraryType);
-const createLibraryServerErrors = ref({} as MobilettoOrmValidationErrors);
 
 const onFormUpdated = (update: { field: string; value: any }) => {
   libraryObject.value[update.field] = update.value;
@@ -109,4 +139,7 @@ watch(libraryList, (newList, oldList) => {
     }
   }
 });
+
+sourceStore.sourceSearch();
+destinationStore.destinationSearch();
 </script>

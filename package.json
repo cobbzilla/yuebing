@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "keywords": [
     "video",
     "private",
@@ -73,15 +73,15 @@
     "mobiletto-driver-generic": "^2.0.11",
     "mobiletto-driver-local": "^2.0.7",
     "mobiletto-driver-s3": "^2.0.8",
-    "mobiletto-orm": "^2.1.72",
-    "mobiletto-orm-typedef": "^2.2.23",
+    "mobiletto-orm": "^2.1.73",
+    "mobiletto-orm-typedef": "^2.2.24",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-json-pretty": "^2.2.4",
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
-    "yuebing-messages": "^2.0.22",
-    "yuebing-model": "^2.3.44"
+    "yuebing-messages": "^2.0.28",
+    "yuebing-model": "^2.3.53"
   }
 }
