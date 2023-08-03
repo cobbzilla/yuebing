@@ -18,7 +18,10 @@ function searchDestination(query?: MobilettoOrmFindApiOpts): Promise<Destination
   return $fetch("/api/model/destination", a.authPostJson(query)).then(a.handleJsonResponse<DestinationType[]>);
 }
 
-function findDestination(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
+function findDestination(
+  id: string,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<DestinationType> {
   return $fetch(`/api/model/destination/${id}`, a.authGet())
     .then(a.handleJsonResponse<DestinationType>)
     .catch(a.handleErrors(serverErrors)) as Promise<DestinationType>;
@@ -47,7 +50,7 @@ function updateDestination(
 function deleteDestination(
   id: string,
   serverErrors: Ref<MobilettoOrmValidationErrors>,
-  purge?: boolean,
+  purge?: boolean
 ): Promise<MobilettoOrmObject | MobilettoOrmPurgeResults> {
   return $fetch(`/api/model/destination/${id}/${purge ? `?purge=${purge}` : ""}`, a.authDelete())
     .then(a.handleJsonResponse<MobilettoOrmObject | MobilettoOrmPurgeResults>)

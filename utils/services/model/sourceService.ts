@@ -18,20 +18,29 @@ function searchSource(query?: MobilettoOrmFindApiOpts): Promise<SourceType[]> {
   return $fetch("/api/model/source", a.authPostJson(query)).then(a.handleJsonResponse<SourceType[]>);
 }
 
-function findSource(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+function findSource(
+  id: string,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<SourceType> {
   return $fetch(`/api/model/source/${id}`, a.authGet())
     .then(a.handleJsonResponse<SourceType>)
     .catch(a.handleErrors(serverErrors)) as Promise<SourceType>;
 }
 
-function createSource(source: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+function createSource(
+  source: SourceType,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<SourceType> {
   const id = SourceTypeDef.id(source);
   return $fetch(`/api/model/source/${id}`, a.authPutJson(source))
     .then(a.handleJsonResponse<SourceType>)
     .catch(a.handleErrors(serverErrors)) as Promise<SourceType>;
 }
 
-function updateSource(source: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+function updateSource(
+  source: SourceType,
+  serverErrors: Ref<MobilettoOrmValidationErrors>,
+): Promise<SourceType> {
   const id = SourceTypeDef.id(source);
   return $fetch(`/api/model/source/${id}`, a.authPatchJson(source))
     .then(a.handleJsonResponse<SourceType>)
@@ -41,7 +50,7 @@ function updateSource(source: SourceType, serverErrors: Ref<MobilettoOrmValidati
 function deleteSource(
   id: string,
   serverErrors: Ref<MobilettoOrmValidationErrors>,
-  purge?: boolean,
+  purge?: boolean
 ): Promise<MobilettoOrmObject | MobilettoOrmPurgeResults> {
   return $fetch(`/api/model/source/${id}/${purge ? `?purge=${purge}` : ""}`, a.authDelete())
     .then(a.handleJsonResponse<MobilettoOrmObject | MobilettoOrmPurgeResults>)

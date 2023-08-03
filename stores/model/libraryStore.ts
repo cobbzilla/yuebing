@@ -44,11 +44,7 @@ export const useLibraryStore = defineStore("library", {
       updateList(this.libraryList, LibraryTypeDef.id(this.library), { library: this.library });
       return this.library;
     },
-    async libraryDelete(
-      library: string,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-      purge?: boolean,
-    ): Promise<boolean> {
+    async libraryDelete(library: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
       const deleteResult = await libraryService.deleteLibrary(library, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.libraryList, library, serverErrors, { remove: true });

@@ -44,11 +44,7 @@ export const useAccountStore = defineStore("account", {
       updateList(this.accountList, AccountTypeDef.id(this.account), { account: this.account });
       return this.account;
     },
-    async accountDelete(
-      account: string,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-      purge?: boolean,
-    ): Promise<boolean> {
+    async accountDelete(account: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
       const deleteResult = await accountService.deleteAccount(account, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.accountList, account, serverErrors, { remove: true });

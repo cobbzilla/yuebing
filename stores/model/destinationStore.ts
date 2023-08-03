@@ -6,11 +6,7 @@ import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { destinationService } from "~/utils/services/model/destinationService";
 
-const updateList = (
-  list: DestinationType[] | null,
-  id: string,
-  opts?: { destination?: DestinationType; remove?: boolean },
-) => {
+const updateList = (list: DestinationType[] | null, id: string, opts?: { destination?: DestinationType; remove?: boolean }) => {
   if (!opts) return;
   if (list) {
     const foundIndex = list.findIndex((e) => DestinationTypeDef.id(e) === id);
@@ -39,26 +35,16 @@ export const useDestinationStore = defineStore("destination", {
       this.destinationList = await destinationService.searchDestination(query);
       return this.destinationList || [];
     },
-    async destinationCreate(
-      destination: DestinationType,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-    ): Promise<DestinationType> {
+    async destinationCreate(destination: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
       this.destination = await destinationService.createDestination(destination, serverErrors);
       return this.destination;
     },
-    async destinationUpdate(
-      destination: DestinationType,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-    ): Promise<DestinationType> {
+    async destinationUpdate(destination: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
       this.destination = await destinationService.updateDestination(destination, serverErrors);
       updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
       return this.destination;
     },
-    async destinationDelete(
-      destination: string,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-      purge?: boolean,
-    ): Promise<boolean> {
+    async destinationDelete(destination: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
       const deleteResult = await destinationService.deleteDestination(destination, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.destinationList, destination, serverErrors, { remove: true });

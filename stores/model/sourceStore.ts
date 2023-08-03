@@ -44,11 +44,7 @@ export const useSourceStore = defineStore("source", {
       updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
       return this.source;
     },
-    async sourceDelete(
-      source: string,
-      serverErrors: Ref<MobilettoOrmValidationErrors>,
-      purge?: boolean,
-    ): Promise<boolean> {
+    async sourceDelete(source: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
       const deleteResult = await sourceService.deleteSource(source, serverErrors, !!purge);
       if (deleteResult) {
         updateList(this.sourceList, source, serverErrors, { remove: true });
