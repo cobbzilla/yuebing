@@ -129,7 +129,9 @@ const onFormUpdated = (update: { field: string; value: any }) => {
 const onFormSubmitted = (lib: MobilettoOrmObject) => {
   lib.sources = typeDefSources.value.values
   lib.destinations = typeDefDestinations.value.values
-  return libraryStore.libraryCreate(lib as LibraryType, createLibraryServerErrors);
+  return libraryStore
+    .libraryCreate(lib as LibraryType, createLibraryServerErrors)
+    .then(() => libraryStore.librarySearch());
 }
 
 watch(libraryList, (newList, oldList) => {
@@ -140,6 +142,10 @@ watch(libraryList, (newList, oldList) => {
   }
 });
 
-sourceStore.sourceSearch();
-destinationStore.destinationSearch();
+libraryStore.librarySearch().then((libs) => {
+  if (libs.length === 0) {
+    sourceStore.sourceSearch();
+    destinationStore.destinationSearch();
+  }
+});
 </script>
