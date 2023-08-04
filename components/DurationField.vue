@@ -12,6 +12,8 @@
           :label="messages.label_duration_days"
           :items="[...Array(365).keys()]"
           :full-width="false"
+          :hint="hint"
+          persistent-hint
           name="days"
           class="form-control"
           @update:model-value="sendUpdate"
@@ -59,11 +61,13 @@ const props = withDefaults(
       fieldLabel: string;
       fieldValue: number;
       fieldErrorMessage: string;
+      hint?: string;
       labelPrefixes: string[];
     }>(),
     {
       fieldValue: () => 0,
       labelPrefixes: () => ["label_", ""],
+      hint: () => "",
     },
 );
 

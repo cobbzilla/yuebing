@@ -77,11 +77,10 @@ const { destinationList } = storeToRefs(destinationStore);
 const initLibTypeDef = () => {
   const typeDef = LibraryTypeDef.extend({
     fields: {
-      sources: typeDefSources.value,
-      destinations: typeDefDestinations.value
+      sources: { ...typeDefSources.value, control: "hidden" },
+      destinations: { ...typeDefDestinations.value, control: "hidden" }
     }
   });
-  console.log(`initLibTypeDef: setting libTypeDef.value with sources=${JSON.stringify(typeDefSources.value)}`)
   libTypeDefFields.value = typeDef.tabIndexedFields();
   libTypeDef.value = typeDef;
 }
@@ -98,7 +97,6 @@ watch(sourceList, (newSources) => {
       title: s.name,
       rawLabel: true,
     }));
-    console.log("sourcesLoaded!");
     sourcesLoaded.value = true;
     if (destinationsLoaded.value) {
       initLibTypeDef()
@@ -117,7 +115,6 @@ watch(destinationList, (newDestinations) => {
       title: s.name,
       rawLabel: true,
     }));
-    console.log(`destinationsLoaded: ${JSON.stringify(typeDefDestinations.value.values)}`);
     destinationsLoaded.value = true;
     if (sourcesLoaded.value) {
       initLibTypeDef()
@@ -129,8 +126,12 @@ const onFormUpdated = (update: { field: string; value: any }) => {
   libraryObject.value[update.field] = update.value;
 };
 
-const onFormSubmitted = (lib: MobilettoOrmObject) =>
-  libraryStore.libraryCreate(lib as LibraryType, createLibraryServerErrors);
+const onFormSubmitted = (lib: MobilettoOrmObject) => {
+  lib.sources = typeDefSources.value.values
+  lib.destinations = typeDefDestinations.value.values
+  console.log(`onFormSubmitted: creating library: ${JSON.stringify(lib)}`);
+  return libraryStore.libraryCreate(lib as LibraryType, createLibraryServerErrors);
+}
 
 watch(libraryList, (newList, oldList) => {
   if (newList && Array.isArray(newList)) {

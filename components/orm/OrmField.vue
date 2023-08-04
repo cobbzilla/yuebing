@@ -26,6 +26,8 @@
             :full-width="false"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -44,6 +46,8 @@
             :v-bind="localValue"
             :type="'text'"
             :label="labelForField()"
+            :hint="hintForField()"
+            persistent-hint
             :full-width="false"
             :name="field.name"
             class="form-control"
@@ -57,6 +61,8 @@
             :full-width="true"
             :name="field.name"
             :value="value ? value : field.default ? field.default : null"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -76,6 +82,7 @@
               :field-value="value ? value : field.default ? field.default : null"
               :field-error-message="fieldError(objPath)"
               :label-prefixes="labelPrefixes"
+              :hint="hintForField()"
               @update="sendUpdate"
           />
         </div>
@@ -85,6 +92,8 @@
             :v-bind="localValue"
             :full-width="true"
             :name="field.name"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -129,6 +138,8 @@
             :full-width="false"
             :name="field.name"
             :value="valueOrDefault()"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -150,6 +161,8 @@
             :min="field.minValue"
             :max="field.maxValue"
             :value="valueOrDefault()"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -171,6 +184,8 @@
             :full-width="false"
             :name="field.name"
             :value="valueOrDefault()"
+            :hint="hintForField()"
+            persistent-hint
             class="form-control"
             :error="submitted && hasError(objPath)"
             :error-messages="fieldError(objPath)"
@@ -195,7 +210,7 @@ import {
   MobilettoOrmObject,
   MobilettoOrmValidationErrors
 } from "mobiletto-orm-typedef";
-import { findMessage } from "yuebing-messages";
+import { findMessage, findMessageKey, messageExists, HINT_MESSAGE_SUFFIX } from "yuebing-messages";
 import { useSessionStore } from "~/stores/session";
 import DurationField from "~/components/DurationField.vue";
 
@@ -283,6 +298,19 @@ const labelForField = () => {
   return findMessage(fieldName, messages.value, props.labelPrefixes);
 };
 
+const hintForField = () => {
+  const field = props.field
+  const msgKey = field.label
+    ? findMessageKey(field.label, messages.value, ["", ...props.labelPrefixes])
+    : findMessageKey(field.name || "empty", messages.value, props.labelPrefixes);
+  if (msgKey) {
+    const hintKey = msgKey + HINT_MESSAGE_SUFFIX;
+    if (messageExists(hintKey, messages.value)) {
+      return messages.value[hintKey];
+    }
+  }
+};
+
 const hintForListItem = () => {
   const field = props.field
   if (field.control && field.control === "select" && field.items && localValue.value) {
@@ -291,7 +319,8 @@ const hintForListItem = () => {
       return item.hint ? messages.value[item.hint] : undefined;
     }
   }
-}
+  return hintForField();
+};
 
 const fieldError = (field: string | string[]) =>
   ormFieldErrorMessage(
