@@ -54,7 +54,8 @@ export const ormFieldErrorMessage = (
     }
     if (errMsg) {
       errMsg = normalizeMsg(errMsg);
-      return fieldErrorMessage(normalizeMsg(fieldName), errMsg, messages, labelPrefixes);
+      const labelPfx = labelPrefixes.includes("") ? labelPrefixes : [...labelPrefixes, ""];
+      return fieldErrorMessage(normalizeMsg(fieldName), errMsg, messages, labelPfx);
     }
   }
   return "";

@@ -77,6 +77,7 @@ export function handleJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) => (e) => {
+  if (!e.statusCode) throw e;
   if (e.statusCode === 403) {
     serverErrors.value.global = ["forbidden"];
   } else if (e.statusCode === 404) {
@@ -84,7 +85,9 @@ export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) =>
       serverErrors.value[e.data.data] = ["notFound"];
     }
   } else if (e.statusCode === 422) {
-    serverErrors.value = e.data as MobilettoOrmValidationErrors;
+    if (typeof e.data?.data === "string" && e.data.data.length > 0) {
+      serverErrors.value = JSON.parse(e.data.data) as MobilettoOrmValidationErrors;
+    }
   } else {
     throw e;
   }

@@ -43,7 +43,7 @@ import {
   MobilettoOrmFieldDefConfig,
   MobilettoOrmObject,
   MobilettoOrmTypeDef,
-  MobilettoOrmValidationErrors
+  MobilettoOrmValidationErrors,
 } from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useLibraryStore } from "~/stores/model/libraryStore";
@@ -129,7 +129,6 @@ const onFormUpdated = (update: { field: string; value: any }) => {
 const onFormSubmitted = (lib: MobilettoOrmObject) => {
   lib.sources = typeDefSources.value.values
   lib.destinations = typeDefDestinations.value.values
-  console.log(`onFormSubmitted: creating library: ${JSON.stringify(lib)}`);
   return libraryStore.libraryCreate(lib as LibraryType, createLibraryServerErrors);
 }
 

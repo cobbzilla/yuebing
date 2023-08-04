@@ -51,11 +51,11 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.2.1
-    version: 2.2.1
+    specifier: ^2.2.2
+    version: 2.2.2
   mobiletto-orm-typedef:
-    specifier: ^2.3.4
-    version: 2.3.4
+    specifier: ^2.3.5
+    version: 2.3.5
   pinia:
     specifier: ^2.1.4
     version: 2.1.4(typescript@5.1.6)(vue@3.3.4)
@@ -75,11 +75,11 @@ dependencies:
     specifier: ^3.10.0
     version: 3.10.0
   yuebing-messages:
-    specifier: ^2.0.30
-    version: 2.0.30
+    specifier: ^2.0.32
+    version: 2.0.32
   yuebing-model:
-    specifier: ^2.3.54
-    version: 2.3.54
+    specifier: ^2.3.55
+    version: 2.3.55
 
 devDependencies:
   '@nuxt/devtools':
@@ -2072,7 +2072,7 @@ packages:
       scule: 1.0.0
       semver: 7.5.4
       unctx: 2.3.1
-      unimport: 3.1.0(rollup@3.26.0)
+      unimport: 3.1.3
       untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
@@ -2116,7 +2116,7 @@ packages:
       postcss-import-resolver: 2.0.0
       std-env: 3.3.3
       ufo: 1.2.0
-      unimport: 3.1.0(rollup@3.26.0)
+      unimport: 3.1.3
       untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
@@ -6795,7 +6795,7 @@ packages:
       acorn: 8.10.0
       pathe: 1.1.1
       pkg-types: 1.0.3
-      ufo: 1.1.2
+      ufo: 1.2.0
 
   /mobiletto-base@2.0.31:
     resolution: {integrity: sha512-xh5MRHKTfI86DyPif45I8HxgkDrrsqU46FuqPrGFR0/xxIq7Yf0/WSwhrpkZTMU0NED1hMW22WAsiE52RGeN5A==}
@@ -6844,15 +6844,15 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-typedef@2.3.4:
-    resolution: {integrity: sha512-4xVBowA0KuPxOAnXMO4wmgLtHC2J15dP7Fyx7Sl9biv0WFK0+a0f3OnskLs1taYhKLcwos48eFH6T84wqhQYow==}
+  /mobiletto-orm-typedef@2.3.5:
+    resolution: {integrity: sha512-U10ZtgLUieKWMx92eBNaOqbfSN6+weTyHLOddlPk9ilfwTV8ckf0LcMCCC/YCekoPuQ0YV1JVamHXOxdKi0U0g==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.2.1:
-    resolution: {integrity: sha512-CLGHoi/tzZkMF9j8Dv79fuddaAAGPV3Xgtt78R7LESNE4R5U/QVeAjbRxb+85f0scGuA54GYaXzk3yZ3ZQ3BGA==}
+  /mobiletto-orm@2.2.2:
+    resolution: {integrity: sha512-FtG6E+oWMR2vOiNkIVaUNowsxe30c9tqQ+7adRduC3k6nwl5wna5Py29PT5vRtapYT03cZN5rCVbPi8jldmijA==}
     dev: false
 
   /mri@1.2.0:
@@ -8318,8 +8318,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rollup@3.27.1:
-    resolution: {integrity: sha512-tXNDFwOkN6C2w5Blj1g6ForKeFw6c1mDu5jxoeDO3/pmYjgt+8yvIFjKzH5FQUq70OKZBkOt0zzv0THXL7vwzQ==}
+  /rollup@3.27.2:
+    resolution: {integrity: sha512-YGwmHf7h2oUHkVBT248x0yt6vZkYQ3/rvE5iQuVBh3WO8GcJ6BNeOkpoX1yMHIiBm18EMLjBPIoUDkhgnyxGOQ==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -8775,12 +8775,12 @@ packages:
     resolution: {integrity: sha512-QZTsipNpa2Ppr6v1AmJHESqJ3Uz247MUS0OjrnnZjFAvEoWqxuyFuXn2xLgMtRnijJShAa1HL0gtJyUs7u7n3Q==}
     dependencies:
       acorn: 8.10.0
+    dev: true
 
   /strip-literal@1.3.0:
     resolution: {integrity: sha512-PugKzOsyXpArk0yWmUwqOZecSO0GH0bPoctLcqNDH9J04pVW3lflYE0ujElBGTloevcxF5MofAOZ7C5l2b+wLg==}
     dependencies:
       acorn: 8.10.0
-    dev: true
 
   /strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
@@ -9098,6 +9098,7 @@ packages:
 
   /ufo@1.1.2:
     resolution: {integrity: sha512-TrY6DsjTQQgyS3E3dBaOXf0TpPD8u9FVrVYmKVegJuFw51n/YB9XPt+U6ydzFG5ZIN7+DIjPbNmXoBj9esYhgQ==}
+    dev: true
 
   /ufo@1.2.0:
     resolution: {integrity: sha512-RsPyTbqORDNDxqAdQPQBpgqhWle1VcTSou/FraClYlHf6TZnQcGslpLcAphNR+sQW4q5lLWLbOsRlh9j24baQg==}
@@ -9175,6 +9176,7 @@ packages:
       unplugin: 1.4.0
     transitivePeerDependencies:
       - rollup
+    dev: true
 
   /unimport@3.1.3:
     resolution: {integrity: sha512-up4TE2yA+nMyyErGTjbYGVw95MriGa2hVRXQ3/JRp7984cwwqULcnBjHaovVpsO8tZc2j0fvgGu9yiBKOyxvYw==}
@@ -9192,7 +9194,6 @@ packages:
       unplugin: 1.4.0
     transitivePeerDependencies:
       - rollup
-    dev: true
 
   /unique-filename@3.0.0:
     resolution: {integrity: sha512-afXhuC55wkAmZ0P18QsVE6kp8JaxrEokN2HGIoIVv2ijHQd419H0+6EigAFcIzXeMIkcIkNBpB3L/DXB3cTS/g==}
@@ -9573,7 +9574,7 @@ packages:
       '@types/node': 18.0.0
       esbuild: 0.18.17
       postcss: 8.4.27
-      rollup: 3.27.1
+      rollup: 3.27.2
       sass: 1.63.6
     optionalDependencies:
       fsevents: 2.3.2
@@ -9916,12 +9917,12 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yuebing-messages@2.0.30:
-    resolution: {integrity: sha512-QIZoNubyxJWIiwBEv0UENZRIKac4gQVTHluQTEl7GD0O5HOjtDKt5m7aOnzgpwd/TlHU3MsErGAgLl0bpASVJg==}
+  /yuebing-messages@2.0.32:
+    resolution: {integrity: sha512-Y7VwA6Ptvzll0hhG5Kh11+/JCdmJ0WQDhHSRhKV5p/ILZd/HJEZt1SKXWFdjRJaQvF51fneqZpVlQlAPK4oq8A==}
     dev: false
 
-  /yuebing-model@2.3.54:
-    resolution: {integrity: sha512-nFIeqOC+8qQEWi+YwPOrHB9WbeV2Ah/24MQkOc2bHqTRgES/CHk7WoPEruZHHu8uVn8Cmz2aqXmEcCR+gKhUUw==}
+  /yuebing-model@2.3.55:
+    resolution: {integrity: sha512-kzh7jbCFJmqc3cKwNAdGmQsA0Jc7Lsy/CuuO7vBEQXFYKsJUdRv99xlaRTzFy8qGbvEOhP5S2HXbTydVLn+LSw==}
     dev: false
 
   /zhead@2.0.10:

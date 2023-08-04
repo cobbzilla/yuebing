@@ -71,7 +71,6 @@ const props = withDefaults(
     cancelButtonMessage: "button_cancel",
     fields: () => [],
     create: () => false,
-    serverErrors: () => ({}),
     labelPrefixes: () => ["", "label_"],
   },
 );
@@ -88,7 +87,6 @@ const newThing = ref(JSON.parse(JSON.stringify(props.thing)));
 const submitted = ref(false);
 const saving = ref(false);
 const clientErrors = ref({} as MobilettoOrmValidationErrors);
-const serverErrors = ref(props.serverErrors);
 
 const onFieldUpdate = (update: { field: string; value: any }) => {
   if (update) {
@@ -130,5 +128,5 @@ const handleCancel = () => {
   emit("cancel");
 };
 
-console.log(`OrmForm setup finishing with typeDef.fields.sources=${JSON.stringify(props.typeDef.fields.sources)}`)
+// console.log(`OrmForm setup finishing with typeDef.fields.sources=${JSON.stringify(props.typeDef.fields.sources)}`)
 </script>
