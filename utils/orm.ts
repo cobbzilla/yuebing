@@ -1,5 +1,8 @@
-import { MobilettoOrmFieldDefConfig, MobilettoOrmTypeDef, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { MobilettoOrmFieldDefConfig, MobilettoOrmTypeDef, MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { fieldErrorMessage } from "yuebing-messages";
+import {Ref} from "vue/dist/vue";
+import {accountService} from "~/utils/services/model/accountService";
+import {MobilettoOrmFindApiOpts} from "~/utils/search";
 
 export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): MobilettoOrmTypeDef => {
   const hidden: Record<string, MobilettoOrmFieldDefConfig> = {};
@@ -9,7 +12,7 @@ export const hideOrmFields = (typeDef: MobilettoOrmTypeDef, fields: string[]): M
   return typeDef.extend({ typeName: typeDef.typeName, fields: hidden });
 };
 
-const normalizeMsg = (errMsg: string) => errMsg.replace(/\./g, "_");
+export const normalizeMsg = (errMsg: string) => errMsg.replace(/\./g, "_");
 
 const errMatch = (f: string) => (e: string) => normalizeMsg(e) === normalizeMsg(f);
 
@@ -60,3 +63,36 @@ export const ormFieldErrorMessage = (
   }
   return "";
 };
+
+export const updateOrmList = <T extends MobilettoOrmObject>(
+  typeDef: MobilettoOrmTypeDef,
+  list: ((T[]) | null),
+  id: string,
+  opts?: { object?: T; remove?: boolean }
+) => {
+  if (!opts) return;
+  if (list) {
+    const foundIndex = list.findIndex((e) => typeDef.id(e) === id);
+    if (foundIndex && foundIndex >= 0) {
+      if (opts && opts.remove === true) {
+        list.splice(foundIndex, 1);
+      } else if (opts && opts.object) {
+        list.splice(foundIndex, 1, opts.object);
+      }
+    }
+  }
+};
+
+export interface MobilettoOrmStore<T extends MobilettoOrmObject> {
+  found: T | null,
+  created: T | null,
+  updated: T | null,
+  deleted: boolean | null,
+  objectList: T[] | null,
+
+  lookup: (id: string, serverErrors: Ref<MobilettoOrmValidationErrors>) => Promise<T>;
+  search: (query?: MobilettoOrmFindApiOpts) => Promise<T[]>;
+  create: (object: T, serverErrors: Ref<MobilettoOrmValidationErrors>) => Promise<T>;
+  update: (object: T, serverErrors: Ref<MobilettoOrmValidationErrors>) => Promise<T>;
+  delete: (id: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean) => Promise<boolean>;
+}

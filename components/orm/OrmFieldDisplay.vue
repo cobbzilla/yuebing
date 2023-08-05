@@ -18,12 +18,12 @@
         </div>
         <div v-else-if="field.control === 'flag'">
           <div v-if="typeof field.render === 'function'">
-            <v-icon v-if="!!renderField()"> mdi-check </v-icon>
-            <v-icon v-else> mdi-close </v-icon>
+            <Icon v-if="!!renderField()" name="material-symbols:check-circle-outline-rounded" />
+            <Icon v-else name="material-symbols:close" />
           </div>
           <div v-else>
-            <v-icon v-if="value"> mdi-check </v-icon>
-            <v-icon v-else> mdi-close </v-icon>
+            <Icon v-if="value" name="material-symbols:check-circle-outline-rounded" />
+            <Icon v-else name="material-symbols:close" />
           </div>
         </div>
         <div v-else-if="field.control === 'multi' && Array.isArray(value)">
@@ -93,7 +93,7 @@ const props = withDefaults(
 );
 
 const dateMessage = (msg: string, val: number | string | Date): string => {
-  return parseDateMessage(msg, val, messages.value);
+  return parseDateMessage(messages.value[msg], val, messages.value);
 };
 
 const renderField = () =>

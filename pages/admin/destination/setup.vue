@@ -59,12 +59,12 @@ const destTypeDef = DestinationTypeDef.extend({
 const destFields = () => destTypeDef.tabIndexedFields().filter((f) => f.name !== "system");
 
 const sessionStore = useSessionStore();
-const { account, localeMessages } = storeToRefs(sessionStore);
+const { localeMessages } = storeToRefs(sessionStore);
 const messages = localeMessages;
 
 const destinationStore = useDestinationStore();
 const { destinationList } = storeToRefs(destinationStore);
-destinationStore.destinationSearch();
+destinationStore.search();
 watch(destinationList, (newDestinations) => {
   if (newDestinations && newDestinations.length > 0) {
     navigateTo("/admin/library/setup");
@@ -81,7 +81,7 @@ const onFormUpdated = (update: { field: string; value: any }) => {
 const onFormSubmitted = (dest: DestinationType) => {
   dest.system = true;
   return destinationStore
-    .destinationCreate(dest, createDestinationServerErrors)
-    .then(() => destinationStore.destinationSearch());
+    .create(dest, createDestinationServerErrors)
+    .then(() => destinationStore.search());
 };
 </script>

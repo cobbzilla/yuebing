@@ -12,10 +12,10 @@ import { useLibraryStore } from "~/stores/model/libraryStore";
 
 const libraryStore = useLibraryStore();
 const { libraryList } = storeToRefs(libraryStore);
-libraryStore.librarySearch();
+libraryStore.search();
 
 watch(libraryList, (libraries) => {
-  if (libraries.length === 0) {
+  if (libraries && libraries.length === 0) {
     navigateTo("/admin/source/setup");
   }
 });

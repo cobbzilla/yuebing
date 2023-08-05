@@ -5,52 +5,86 @@ import { defineStore } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { SourceType, SourceTypeDef } from "yuebing-model";
 import { sourceService } from "~/utils/services/model/sourceService";
+import { MobilettoOrmFindApiOpts } from "~/utils/search";
+import { updateOrmList } from "~/utils/orm";
 
-const updateList = (list: SourceType[] | null, id: string, opts?: { source?: SourceType; remove?: boolean }) => {
-  if (!opts) return;
-  if (list) {
-    const foundIndex = list.findIndex((e) => SourceTypeDef.id(e) === id);
-    if (foundIndex && foundIndex >= 0) {
-      if (opts && opts.remove === true) {
-        list.splice(foundIndex, 1);
-      } else if (opts && opts.source) {
-        list.splice(foundIndex, 1, opts.source);
-      }
-    }
-  }
+const updateList = (list: SourceType[] | null, id: string, opts?: { object?: SourceType; remove?: boolean }) => {
+  return updateOrmList<SourceType>(SourceTypeDef, list, id, opts);
 };
 
 export const useSourceStore = defineStore("source", {
   state: () => ({
-    source: null as SourceType | null,
+    finding: false,
+    found: null as SourceType | null,
+    creating: false,
+    created: null as SourceType | null,
+    updating: false,
+    updated: null as SourceType | null,
+    deleting: false,
+    deleted: null as boolean | null,
+    searching: false,
     sourceList: null as SourceType[] | null,
   }),
+  getters: {
+      sourceBusy: (state) => state.finding || state.creating || state.updating || state.deleting || state.searching,
+  },
   actions: {
-    async sourceLookup(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
-      this.source = await sourceService.findSource(id, serverErrors);
-      updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
-      return this.source;
-    },
-    async sourceSearch(query?: MobilettoOrmFindApiOpts): Promise<SourceType[]> {
-      this.sourceList = await sourceService.searchSource(query);
-      return this.sourceList || [];
-    },
-    async sourceCreate(source: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
-      this.source = await sourceService.createSource(source, serverErrors);
-      return this.source;
-    },
-    async sourceUpdate(source: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
-      this.source = await sourceService.updateSource(source, serverErrors);
-      updateList(this.sourceList, SourceTypeDef.id(this.source), { source: this.source });
-      return this.source;
-    },
-    async sourceDelete(source: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
-      const deleteResult = await sourceService.deleteSource(source, serverErrors, !!purge);
-      if (deleteResult) {
-        updateList(this.sourceList, source, serverErrors, { remove: true });
-        return true;
+    async lookup(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+      this.found = null;
+      this.finding = true;
+      try {
+        this.found = await sourceService.findSource(id, serverErrors);
+        updateList(this.sourceList, SourceTypeDef.id(this.found), {object: this.found});
+        return this.found;
+      } finally {
+        this.finding = false;
       }
-      return false;
+    },
+    async search(query?: MobilettoOrmFindApiOpts): Promise<SourceType[]> {
+      try {
+        this.searching = true;
+        this.sourceList = await sourceService.searchSource(query);
+        return this.sourceList || [];
+      } finally {
+        this.searching = false;
+      }
+    },
+    async create(object: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+      try {
+        this.created = null;
+        this.creating = true;
+        this.created = await sourceService.createSource(object, serverErrors);
+        return this.created;
+      } finally {
+        this.creating = false;
+      }
+    },
+    async update(object: SourceType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<SourceType> {
+      try {
+        this.updated = null;
+        this.updating = true;
+        this.updated = await sourceService.updateSource(object, serverErrors);
+        updateList(this.sourceList, SourceTypeDef.id(this.updated), {object: this.updated});
+        return this.updated;
+      } finally {
+        this.updating = false;
+      }
+    },
+    async delete(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
+      try {
+        this.deleted = null;
+        this.deleting = true;
+        const deleteResult = await sourceService.deleteSource(id, serverErrors, !!purge);
+        if (deleteResult) {
+          updateList(this.sourceList, id, {remove: true});
+          this.deleted = true;
+        } else {
+          this.deleted = false;
+        }
+        return this.deleted;
+      } finally {
+        this.deleting = false;
+      }
     },
   },
 });

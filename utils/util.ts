@@ -140,6 +140,18 @@ export const deepUpdate = (obj: any, fieldPath: string, value: any) => {
   thing[parts[parts.length - 1]] = value;
 };
 
+export const deepGet = (obj: any, fieldPath: string) => {
+  let thing = obj;
+  const parts = fieldPath.split(".");
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (typeof thing[parts[i]] === "undefined") {
+      thing[parts[i]] = {};
+    }
+    thing = thing[parts[i]];
+  }
+  return thing[parts[parts.length - 1]];
+}
+
 export type ClockType = { now: () => number };
 
 export const DEFAULT_CLOCK: ClockType = {

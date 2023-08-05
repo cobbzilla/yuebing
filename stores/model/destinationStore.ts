@@ -5,52 +5,86 @@ import { defineStore } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { destinationService } from "~/utils/services/model/destinationService";
+import { MobilettoOrmFindApiOpts } from "~/utils/search";
+import { updateOrmList } from "~/utils/orm";
 
-const updateList = (list: DestinationType[] | null, id: string, opts?: { destination?: DestinationType; remove?: boolean }) => {
-  if (!opts) return;
-  if (list) {
-    const foundIndex = list.findIndex((e) => DestinationTypeDef.id(e) === id);
-    if (foundIndex && foundIndex >= 0) {
-      if (opts && opts.remove === true) {
-        list.splice(foundIndex, 1);
-      } else if (opts && opts.destination) {
-        list.splice(foundIndex, 1, opts.destination);
-      }
-    }
-  }
+const updateList = (list: DestinationType[] | null, id: string, opts?: { object?: DestinationType; remove?: boolean }) => {
+  return updateOrmList<DestinationType>(DestinationTypeDef, list, id, opts);
 };
 
 export const useDestinationStore = defineStore("destination", {
   state: () => ({
-    destination: null as DestinationType | null,
+    finding: false,
+    found: null as DestinationType | null,
+    creating: false,
+    created: null as DestinationType | null,
+    updating: false,
+    updated: null as DestinationType | null,
+    deleting: false,
+    deleted: null as boolean | null,
+    searching: false,
     destinationList: null as DestinationType[] | null,
   }),
+  getters: {
+      destinationBusy: (state) => state.finding || state.creating || state.updating || state.deleting || state.searching,
+  },
   actions: {
-    async destinationLookup(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
-      this.destination = await destinationService.findDestination(id, serverErrors);
-      updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
-      return this.destination;
-    },
-    async destinationSearch(query?: MobilettoOrmFindApiOpts): Promise<DestinationType[]> {
-      this.destinationList = await destinationService.searchDestination(query);
-      return this.destinationList || [];
-    },
-    async destinationCreate(destination: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
-      this.destination = await destinationService.createDestination(destination, serverErrors);
-      return this.destination;
-    },
-    async destinationUpdate(destination: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
-      this.destination = await destinationService.updateDestination(destination, serverErrors);
-      updateList(this.destinationList, DestinationTypeDef.id(this.destination), { destination: this.destination });
-      return this.destination;
-    },
-    async destinationDelete(destination: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
-      const deleteResult = await destinationService.deleteDestination(destination, serverErrors, !!purge);
-      if (deleteResult) {
-        updateList(this.destinationList, destination, serverErrors, { remove: true });
-        return true;
+    async lookup(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
+      this.found = null;
+      this.finding = true;
+      try {
+        this.found = await destinationService.findDestination(id, serverErrors);
+        updateList(this.destinationList, DestinationTypeDef.id(this.found), {object: this.found});
+        return this.found;
+      } finally {
+        this.finding = false;
       }
-      return false;
+    },
+    async search(query?: MobilettoOrmFindApiOpts): Promise<DestinationType[]> {
+      try {
+        this.searching = true;
+        this.destinationList = await destinationService.searchDestination(query);
+        return this.destinationList || [];
+      } finally {
+        this.searching = false;
+      }
+    },
+    async create(object: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
+      try {
+        this.created = null;
+        this.creating = true;
+        this.created = await destinationService.createDestination(object, serverErrors);
+        return this.created;
+      } finally {
+        this.creating = false;
+      }
+    },
+    async update(object: DestinationType, serverErrors: Ref<MobilettoOrmValidationErrors>): Promise<DestinationType> {
+      try {
+        this.updated = null;
+        this.updating = true;
+        this.updated = await destinationService.updateDestination(object, serverErrors);
+        updateList(this.destinationList, DestinationTypeDef.id(this.updated), {object: this.updated});
+        return this.updated;
+      } finally {
+        this.updating = false;
+      }
+    },
+    async delete(id: string, serverErrors: Ref<MobilettoOrmValidationErrors>, purge?: boolean): Promise<boolean> {
+      try {
+        this.deleted = null;
+        this.deleting = true;
+        const deleteResult = await destinationService.deleteDestination(id, serverErrors, !!purge);
+        if (deleteResult) {
+          updateList(this.destinationList, id, {remove: true});
+          this.deleted = true;
+        } else {
+          this.deleted = false;
+        }
+        return this.deleted;
+      } finally {
+        this.deleting = false;
+      }
     },
   },
 });

@@ -7,7 +7,7 @@
     </v-row>
     <v-row v-if="addingObject">
       <v-col>
-        <OrmAdd
+        <OrmForm v-if="refsLoaded"
           :type-def="typeDef"
           :type-name-message="typeNameMessage"
           :label-prefixes="labelPrefixes"
@@ -24,7 +24,7 @@
       </v-col>
     </v-row>
     <v-row v-else-if="editingObject">
-      <OrmEdit
+      <OrmForm
         :type-def="typeDef"
         :type-name-message="typeNameMessage"
         :label-prefixes="labelPrefixes"
@@ -139,6 +139,7 @@ import { MobilettoOrmObject, MobilettoOrmTypeDef, MobilettoOrmValidationErrors }
 import { fieldErrorMessage, findMessage, parseMessage } from "yuebing-messages";
 import { storeToRefs } from "pinia";
 import { useSessionStore } from "~/stores/session";
+import { MobilettoOrmStore } from "~/utils/orm";
 
 const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3;
 
@@ -149,12 +150,11 @@ type ActionConfig = {
 const props = withDefaults(
   defineProps<{
     typeDef: MobilettoOrmTypeDef;
+    store: MobilettoOrmStore<MobilettoOrmObject>;
     typeAdminMessage: string;
     typeNameMessage: string;
     labelPrefixes: string[];
-    objectList: MobilettoOrmObject[];
     actionConfigs: Record<string, ActionConfig>;
-    totalObjectCount: number;
     addObjectObject: MobilettoOrmObject;
     addObjectMessage: string;
     addObjectError: MobilettoOrmValidationErrors;
@@ -177,9 +177,7 @@ const props = withDefaults(
   }>(),
   {
     labelPrefixes: () => ["label_"],
-    objectList: () => [],
     actionConfigs: () => ({}),
-    totalObjectCount: () => 0,
     addObjectMessage: () => "admin_button_add",
     addObjectSuccessMessage: () => "admin_info_added",
     addObjectErrorMessage: () => "admin_info_add_error",
@@ -211,6 +209,13 @@ const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 const msg = (key: string, ctx: Record<string, unknown>) => parseMessage(messages.value[key], messages.value, ctx);
 
+const refsLoaded = ref(false);
+for (const fieldName of Object.keys(props.typeDef.fields)) {
+  if (props.typeDef.fields[fieldName].ref) {
+
+  }
+}
+
 const pageNumber = ref(1);
 const pageSize = ref(20);
 const searchTerms = ref("");
@@ -219,6 +224,7 @@ const deleteConfirmCount = ref(0);
 const addingObject = ref(false);
 const findingObjects = ref(false);
 const editingObject = ref({});
+const totalObjectCount = ref(0);
 
 // const addFormName = () => `add${props.typeDef.typeName}Form`;
 // const objectFields = () => props.typeDef.tabIndexedFields();
@@ -329,7 +335,7 @@ const delObject = (obj: MobilettoOrmObject) => {
   }
 };
 
-const objectList = ref(props.objectList);
+const objectList = ref(repo);
 watch(objectList, (newList) => {
   if (newList && Array.isArray(newList)) {
     findingObjects.value = false;

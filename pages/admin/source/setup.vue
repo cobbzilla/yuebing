@@ -55,12 +55,12 @@ const srcTypeDef = SourceTypeDef.extend({
 });
 
 const sessionStore = useSessionStore();
-const { account, localeMessages } = storeToRefs(sessionStore);
+const { localeMessages } = storeToRefs(sessionStore);
 const messages = localeMessages;
 
 const sourceStore = useSourceStore();
 const { sourceList } = storeToRefs(sourceStore);
-sourceStore.sourceSearch();
+sourceStore.search();
 watch(sourceList, (newSources) => {
   if (newSources && newSources.length > 0) {
     navigateTo("/admin/destination/setup");
@@ -75,5 +75,5 @@ const onFormUpdated = (update: { field: string; value: any }) => {
 };
 
 const onFormSubmitted = (src: SourceType) =>
-  sourceStore.sourceCreate(src, createSourceServerErrors).then(() => sourceStore.sourceSearch());
+  sourceStore.create(src, createSourceServerErrors).then(() => sourceStore.search());
 </script>

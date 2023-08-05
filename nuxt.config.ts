@@ -7,7 +7,7 @@ const loginFile = resolve(__dirname, "./pages/auth/login.vue");
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: true,
-  modules: ["@pinia/nuxt"],
+  modules: ["@pinia/nuxt","nuxt-icon"],
   build: {
     transpile: ["vuetify"],
   },

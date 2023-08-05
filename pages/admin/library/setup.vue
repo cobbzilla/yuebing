@@ -144,8 +144,8 @@ watch(libraryList, (newList, oldList) => {
 
 libraryStore.librarySearch().then((libs) => {
   if (libs.length === 0) {
-    sourceStore.sourceSearch();
-    destinationStore.destinationSearch();
+    sourceStore.search();
+    destinationStore.search();
   }
 });
 </script>
