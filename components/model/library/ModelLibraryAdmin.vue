@@ -152,7 +152,7 @@
     metaField
   } from "mobiletto-orm-typedef";
   import { LibraryType, LibraryTypeDef } from "yuebing-model";
-  import { fieldErrorMessage, findMessage, messageExists, parseMessage } from "yuebing-messages";
+  import { findMessage, messageExists, parseMessage } from "yuebing-messages";
   import { deepUpdate, deepGet } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
@@ -229,10 +229,6 @@
       // console.log(`searchObjects: emitting query: ${JSON.stringify(query)}`);
       // emit("query", query);
     }
-  };
-
-  const fieldError = (field: string, error: any, labelPrefix = "label_") => {
-    return field && error ? fieldErrorMessage(field, error, messages.value, labelPrefix) : "(no message)";
   };
 
   const libraryStore = useLibraryStore();
@@ -324,11 +320,13 @@
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
-  const onAddSubmitted = (obj: MobilettoOrmObject) => {
-    return libraryStore
-      .create(obj as LibraryType, createLibraryServerErrors)
-      .then(() => libraryStore.search());
+  const onAddSubmitted = async (obj: MobilettoOrmObject) => {
+    await libraryStore
+      .create(obj as LibraryType, createLibraryServerErrors);
+    addingObject.value = false;
+    return await libraryStore.search();
   }
+
   const showAddOrm = () => {
     addingObject.value = true;
   };
@@ -342,10 +340,11 @@
     }
   };
 
-  const onEditSubmitted = (obj: MobilettoOrmObject) => {
-    return libraryStore
-      .update(obj as LibraryType, editLibraryServerErrors)
-      .then(() => libraryStore.search());
+  const onEditSubmitted = async (obj: MobilettoOrmObject) => {
+    await libraryStore
+      .update(obj as LibraryType, editLibraryServerErrors);
+    editingObject.value = {} as LibraryType;
+    return await libraryStore.search();
   }
 
   const showEditOrm = (obj: MobilettoOrmObject) => {

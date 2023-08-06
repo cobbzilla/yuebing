@@ -34,7 +34,9 @@ export const useDestinationStore = defineStore("destination", {
       this.finding = true;
       try {
         this.found = await destinationService.findDestination(id, serverErrors);
-        updateList(this.destinationList, DestinationTypeDef.id(this.found), {object: this.found});
+        if (this.found) {
+          updateList(this.destinationList, DestinationTypeDef.id(this.found), {object: this.found});
+        }
         return this.found;
       } finally {
         this.finding = false;
@@ -64,7 +66,9 @@ export const useDestinationStore = defineStore("destination", {
         this.updated = null;
         this.updating = true;
         this.updated = await destinationService.updateDestination(object, serverErrors);
-        updateList(this.destinationList, DestinationTypeDef.id(this.updated), {object: this.updated});
+        if (this.updated) {
+          updateList(this.destinationList, DestinationTypeDef.id(this.updated), {object: this.updated});
+        }
         return this.updated;
       } finally {
         this.updating = false;
@@ -76,7 +80,7 @@ export const useDestinationStore = defineStore("destination", {
         this.deleting = true;
         const deleteResult = await destinationService.deleteDestination(id, serverErrors, !!purge);
         if (deleteResult) {
-          updateList(this.destinationList, id, {remove: true});
+          updateList(this.destinationList, id, { remove: true });
           this.deleted = true;
         } else {
           this.deleted = false;

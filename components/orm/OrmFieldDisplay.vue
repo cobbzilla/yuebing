@@ -96,8 +96,10 @@ const dateMessage = (msg: string, val: number | string | Date): string => {
   return parseDateMessage(messages.value[msg], val, messages.value);
 };
 
-const renderField = () =>
-  publicConfig?.value?.title && typeof props.field.render === "function"
-    ? props.field.render(props.value, messages.value, publicConfig?.value?.title)
-    : props.value;
+const renderField = () => {
+  const rendered = publicConfig?.value?.title && typeof props.field.render === "function"
+      ? props.field.render(props.value, messages.value, publicConfig?.value?.title)
+      : props.value;
+  console.log(`renderField: returning rendered=${rendered}`);
+}
 </script>

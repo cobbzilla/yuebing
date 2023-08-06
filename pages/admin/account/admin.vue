@@ -5,6 +5,7 @@
         <ModelAccountAdmin
             delete-confirmation-message="admin_label_confirm_account_delete"
             :can-delete="checkCannotDeleteSelf"
+            :filter-object="setUpdatableFalseIfSelf"
         />
       </v-col>
     </v-row>
@@ -21,5 +22,7 @@ import ModelAccountAdmin from "~/components/model/account/ModelAccountAdmin.vue"
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);
 
-const checkCannotDeleteSelf = (obj: MobilettoOrmObject) => account && AccountTypeDef.id(obj) !== AccountTypeDef.id(account)
+const isSelf = (obj: MobilettoOrmObject) => account && account.value && AccountTypeDef.id(obj) === AccountTypeDef.id(account.value);
+
+const checkCannotDeleteSelf = (obj: MobilettoOrmObject) => !isSelf(obj);
 </script>

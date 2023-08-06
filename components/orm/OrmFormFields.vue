@@ -149,7 +149,7 @@ const fieldVisible = (field: MobilettoOrmFieldDefConfig) => {
       return false;
     }
   }
-  return props.create || field.updatable === true;
+  return true;
 };
 const isObject = (field: MobilettoOrmFieldDefConfig) => {
   const fieldName: string = field.name as string;

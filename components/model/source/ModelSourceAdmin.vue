@@ -152,7 +152,7 @@
     metaField
   } from "mobiletto-orm-typedef";
   import { SourceType, SourceTypeDef } from "yuebing-model";
-  import { fieldErrorMessage, findMessage, messageExists, parseMessage } from "yuebing-messages";
+  import { findMessage, messageExists, parseMessage } from "yuebing-messages";
   import { deepUpdate, deepGet } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
@@ -229,10 +229,6 @@
     }
   };
 
-  const fieldError = (field: string, error: any, labelPrefix = "label_") => {
-    return field && error ? fieldErrorMessage(field, error, messages.value, labelPrefix) : "(no message)";
-  };
-
   const sourceStore = useSourceStore();
   const { sourceList  } = storeToRefs(sourceStore);
 
@@ -253,11 +249,13 @@
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
-  const onAddSubmitted = (obj: MobilettoOrmObject) => {
-    return sourceStore
-      .create(obj as SourceType, createSourceServerErrors)
-      .then(() => sourceStore.search());
+  const onAddSubmitted = async (obj: MobilettoOrmObject) => {
+    await sourceStore
+      .create(obj as SourceType, createSourceServerErrors);
+    addingObject.value = false;
+    return await sourceStore.search();
   }
+
   const showAddOrm = () => {
     addingObject.value = true;
   };
@@ -271,10 +269,11 @@
     }
   };
 
-  const onEditSubmitted = (obj: MobilettoOrmObject) => {
-    return sourceStore
-      .update(obj as SourceType, editSourceServerErrors)
-      .then(() => sourceStore.search());
+  const onEditSubmitted = async (obj: MobilettoOrmObject) => {
+    await sourceStore
+      .update(obj as SourceType, editSourceServerErrors);
+    editingObject.value = {} as SourceType;
+    return await sourceStore.search();
   }
 
   const showEditOrm = (obj: MobilettoOrmObject) => {

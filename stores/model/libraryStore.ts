@@ -34,7 +34,9 @@ export const useLibraryStore = defineStore("library", {
       this.finding = true;
       try {
         this.found = await libraryService.findLibrary(id, serverErrors);
-        updateList(this.libraryList, LibraryTypeDef.id(this.found), {object: this.found});
+        if (this.found) {
+          updateList(this.libraryList, LibraryTypeDef.id(this.found), {object: this.found});
+        }
         return this.found;
       } finally {
         this.finding = false;
@@ -64,7 +66,9 @@ export const useLibraryStore = defineStore("library", {
         this.updated = null;
         this.updating = true;
         this.updated = await libraryService.updateLibrary(object, serverErrors);
-        updateList(this.libraryList, LibraryTypeDef.id(this.updated), {object: this.updated});
+        if (this.updated) {
+          updateList(this.libraryList, LibraryTypeDef.id(this.updated), {object: this.updated});
+        }
         return this.updated;
       } finally {
         this.updating = false;
@@ -76,7 +80,7 @@ export const useLibraryStore = defineStore("library", {
         this.deleting = true;
         const deleteResult = await libraryService.deleteLibrary(id, serverErrors, !!purge);
         if (deleteResult) {
-          updateList(this.libraryList, id, {remove: true});
+          updateList(this.libraryList, id, { remove: true });
           this.deleted = true;
         } else {
           this.deleted = false;

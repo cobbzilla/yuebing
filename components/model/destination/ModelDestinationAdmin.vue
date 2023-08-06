@@ -152,7 +152,7 @@
     metaField
   } from "mobiletto-orm-typedef";
   import { DestinationType, DestinationTypeDef } from "yuebing-model";
-  import { fieldErrorMessage, findMessage, messageExists, parseMessage } from "yuebing-messages";
+  import { findMessage, messageExists, parseMessage } from "yuebing-messages";
   import { deepUpdate, deepGet } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
@@ -229,10 +229,6 @@
     }
   };
 
-  const fieldError = (field: string, error: any, labelPrefix = "label_") => {
-    return field && error ? fieldErrorMessage(field, error, messages.value, labelPrefix) : "(no message)";
-  };
-
   const destinationStore = useDestinationStore();
   const { destinationList  } = storeToRefs(destinationStore);
 
@@ -253,11 +249,13 @@
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
-  const onAddSubmitted = (obj: MobilettoOrmObject) => {
-    return destinationStore
-      .create(obj as DestinationType, createDestinationServerErrors)
-      .then(() => destinationStore.search());
+  const onAddSubmitted = async (obj: MobilettoOrmObject) => {
+    await destinationStore
+      .create(obj as DestinationType, createDestinationServerErrors);
+    addingObject.value = false;
+    return await destinationStore.search();
   }
+
   const showAddOrm = () => {
     addingObject.value = true;
   };
@@ -271,10 +269,11 @@
     }
   };
 
-  const onEditSubmitted = (obj: MobilettoOrmObject) => {
-    return destinationStore
-      .update(obj as DestinationType, editDestinationServerErrors)
-      .then(() => destinationStore.search());
+  const onEditSubmitted = async (obj: MobilettoOrmObject) => {
+    await destinationStore
+      .update(obj as DestinationType, editDestinationServerErrors);
+    editingObject.value = {} as DestinationType;
+    return await destinationStore.search();
   }
 
   const showEditOrm = (obj: MobilettoOrmObject) => {

@@ -34,7 +34,9 @@ export const useSourceStore = defineStore("source", {
       this.finding = true;
       try {
         this.found = await sourceService.findSource(id, serverErrors);
-        updateList(this.sourceList, SourceTypeDef.id(this.found), {object: this.found});
+        if (this.found) {
+          updateList(this.sourceList, SourceTypeDef.id(this.found), {object: this.found});
+        }
         return this.found;
       } finally {
         this.finding = false;
@@ -64,7 +66,9 @@ export const useSourceStore = defineStore("source", {
         this.updated = null;
         this.updating = true;
         this.updated = await sourceService.updateSource(object, serverErrors);
-        updateList(this.sourceList, SourceTypeDef.id(this.updated), {object: this.updated});
+        if (this.updated) {
+          updateList(this.sourceList, SourceTypeDef.id(this.updated), {object: this.updated});
+        }
         return this.updated;
       } finally {
         this.updating = false;
@@ -76,7 +80,7 @@ export const useSourceStore = defineStore("source", {
         this.deleting = true;
         const deleteResult = await sourceService.deleteSource(id, serverErrors, !!purge);
         if (deleteResult) {
-          updateList(this.sourceList, id, {remove: true});
+          updateList(this.sourceList, id, { remove: true });
           this.deleted = true;
         } else {
           this.deleted = false;

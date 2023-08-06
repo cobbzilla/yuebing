@@ -152,7 +152,7 @@
     metaField
   } from "mobiletto-orm-typedef";
   import { AccountType, AccountTypeDef } from "yuebing-model";
-  import { fieldErrorMessage, findMessage, messageExists, parseMessage } from "yuebing-messages";
+  import { findMessage, messageExists, parseMessage } from "yuebing-messages";
   import { deepUpdate, deepGet } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
@@ -228,6 +228,7 @@
       // emit("query", query);
     }
   };
+
   const accountStore = useAccountStore();
   const { accountList  } = storeToRefs(accountStore);
 
@@ -248,11 +249,13 @@
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
-  const onAddSubmitted = (obj: MobilettoOrmObject) => {
-    return accountStore
-      .create(obj as AccountType, createAccountServerErrors)
-      .then(() => accountStore.search());
+  const onAddSubmitted = async (obj: MobilettoOrmObject) => {
+    await accountStore
+      .create(obj as AccountType, createAccountServerErrors);
+    addingObject.value = false;
+    return await accountStore.search();
   }
+
   const showAddOrm = () => {
     addingObject.value = true;
   };
@@ -266,10 +269,11 @@
     }
   };
 
-  const onEditSubmitted = (obj: MobilettoOrmObject) => {
-    return accountStore
-      .update(obj as AccountType, editAccountServerErrors)
-      .then(() => accountStore.search());
+  const onEditSubmitted = async (obj: MobilettoOrmObject) => {
+    await accountStore
+      .update(obj as AccountType, editAccountServerErrors);
+    editingObject.value = {} as AccountType;
+    return await accountStore.search();
   }
 
   const showEditOrm = (obj: MobilettoOrmObject) => {

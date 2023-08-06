@@ -34,7 +34,9 @@ export const useAccountStore = defineStore("account", {
       this.finding = true;
       try {
         this.found = await accountService.findAccount(id, serverErrors);
-        updateList(this.accountList, AccountTypeDef.id(this.found), {object: this.found});
+        if (this.found) {
+          updateList(this.accountList, AccountTypeDef.id(this.found), {object: this.found});
+        }
         return this.found;
       } finally {
         this.finding = false;
@@ -64,7 +66,9 @@ export const useAccountStore = defineStore("account", {
         this.updated = null;
         this.updating = true;
         this.updated = await accountService.updateAccount(object, serverErrors);
-        updateList(this.accountList, AccountTypeDef.id(this.updated), {object: this.updated});
+        if (this.updated) {
+          updateList(this.accountList, AccountTypeDef.id(this.updated), {object: this.updated});
+        }
         return this.updated;
       } finally {
         this.updating = false;
@@ -76,7 +80,7 @@ export const useAccountStore = defineStore("account", {
         this.deleting = true;
         const deleteResult = await accountService.deleteAccount(id, serverErrors, !!purge);
         if (deleteResult) {
-          updateList(this.accountList, id, {remove: true});
+          updateList(this.accountList, id, { remove: true });
           this.deleted = true;
         } else {
           this.deleted = false;

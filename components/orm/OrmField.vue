@@ -40,19 +40,19 @@
           </v-text-field>
         </div>
         <div v-else-if="field.control === 'label'" class="ma-0 pa-0">
-          <v-text-field
-            v-if="!create"
-            v-model="localValue"
-            :v-bind="localValue"
-            :type="'text'"
-            :label="labelForField()"
-            :hint="hintForField()"
-            persistent-hint
-            :full-width="false"
-            :name="field.name"
-            class="form-control"
-            :readonly="true"
-          />
+          <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
+<!--          <v-text-field-->
+<!--            v-model="localValue"-->
+<!--            :v-bind="localValue"-->
+<!--            :type="'text'"-->
+<!--            :label="labelForField()"-->
+<!--            :hint="hintForField()"-->
+<!--            persistent-hint-->
+<!--            :full-width="false"-->
+<!--            :name="field.name"-->
+<!--            class="form-control"-->
+<!--            :readonly="true"-->
+<!--          />-->
         </div>
         <div v-else-if="field.control === 'textarea'" class="ma-0 pa-0">
           <v-textarea

@@ -3,24 +3,22 @@
     <v-container class="ma-0 pa-0">
       <v-row>
         <v-col>
-          <v-container class="ma-0 pa-0">
-            <OrmFormFields
-              :fields="fields"
-              :thing="newThing"
-              :read-only-object="readOnlyObject"
-              :root-thing="newThing"
-              :obj-path="''"
-              :field-header="''"
-              :client-errors="clientErrors"
-              :server-errors="serverErrors"
-              :label-prefixes="labelPrefixes"
-              :submitted="submitted"
-              :saving="saving"
-              :create="create"
-              :form-level="0"
-              @update="onFieldUpdate"
-            />
-          </v-container>
+          <OrmFormFields
+            :fields="fields"
+            :thing="newThing"
+            :read-only-object="readOnlyObject"
+            :root-thing="newThing"
+            :obj-path="''"
+            :field-header="''"
+            :client-errors="clientErrors"
+            :server-errors="serverErrors"
+            :label-prefixes="labelPrefixes"
+            :submitted="submitted"
+            :saving="saving"
+            :create="create"
+            :form-level="0"
+            @update="onFieldUpdate"
+          />
         </v-col>
       </v-row>
       <v-row>
