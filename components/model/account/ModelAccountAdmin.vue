@@ -184,7 +184,6 @@
   const sessionStore = useSessionStore();
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
-  const msg = (key: string, ctx: Record<string, unknown>) => parseMessage(messages.value[key], messages.value, ctx);
 
   const adminTitle = () => messageExists("admin_title_account_administration", messages.value)
     ? messages.value.admin_title_account_administration
@@ -196,6 +195,7 @@
 
   const editingObject = ref({} as AccountType);
   const editAccountServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteAccountServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -310,18 +310,21 @@
 
   const deleteConfirmCount = ref(0);
   const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3;
-  const delObject = (obj: MobilettoOrmObject) => {
+
+  const delObject = async (obj: MobilettoOrmObject) => {
     if (!accountTypeDef.value) return;
     if (
       deleteConfirmCount.value > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
       confirm(
-        msg(props.deleteConfirmationMessage, {
+        parseMessage(props.deleteConfirmationMessage, messages.value, {
           id: obj ? deepGet(obj, accountTypeDef.value.idField(obj) as string) : null,
         }),
       )
     ) {
       deleteConfirmCount.value++;
-      // emit("deleteObject", obj);
+      await accountStore
+        .delete(accountTypeDef.value.id(obj), deleteAccountServerErrors);
+      return await accountStore.search();
     } else {
       deleteConfirmCount.value = 0;
     }

@@ -186,7 +186,6 @@
   const sessionStore = useSessionStore();
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
-  const msg = (key: string, ctx: Record<string, unknown>) => parseMessage(messages.value[key], messages.value, ctx);
 
   const adminTitle = () => messageExists("admin_title_library_administration", messages.value)
     ? messages.value.admin_title_library_administration
@@ -198,6 +197,7 @@
 
   const editingObject = ref({} as LibraryType);
   const editLibraryServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteLibraryServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -381,18 +381,21 @@
 
   const deleteConfirmCount = ref(0);
   const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3;
-  const delObject = (obj: MobilettoOrmObject) => {
+
+  const delObject = async (obj: MobilettoOrmObject) => {
     if (!libraryTypeDef.value) return;
     if (
       deleteConfirmCount.value > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
       confirm(
-        msg(props.deleteConfirmationMessage, {
+        parseMessage(props.deleteConfirmationMessage, messages.value, {
           id: obj ? deepGet(obj, libraryTypeDef.value.idField(obj) as string) : null,
         }),
       )
     ) {
       deleteConfirmCount.value++;
-      // emit("deleteObject", obj);
+      await libraryStore
+        .delete(libraryTypeDef.value.id(obj), deleteLibraryServerErrors);
+      return await libraryStore.search();
     } else {
       deleteConfirmCount.value = 0;
     }
