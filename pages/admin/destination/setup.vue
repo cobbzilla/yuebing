@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import {MobilettoOrmObject, MobilettoOrmValidationErrors} from "mobiletto-orm-typedef";
 import { useSessionStore } from "~/stores/session";
 import { useConfigStore } from "~/stores/config";
 import { useDestinationStore } from "~/stores/model/destinationStore";
@@ -67,7 +67,7 @@ const { destinationList } = storeToRefs(destinationStore);
 destinationStore.search();
 watch(destinationList, (newDestinations) => {
   if (newDestinations && newDestinations.length > 0) {
-    navigateTo("/admin/library/setup");
+    navigateTo("/admin/library/admin");
   }
 });
 
@@ -78,10 +78,10 @@ const onFormUpdated = (update: { field: string; value: any }) => {
   deepUpdate(destinationObject.value, update.field, update.value);
 };
 
-const onFormSubmitted = (dest: DestinationType) => {
+const onFormSubmitted = (dest: MobilettoOrmObject) => {
   dest.system = true;
   return destinationStore
-    .create(dest, createDestinationServerErrors)
+    .create(dest as DestinationType, createDestinationServerErrors)
     .then(() => destinationStore.search());
 };
 </script>

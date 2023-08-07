@@ -5,7 +5,6 @@
         <ModelAccountAdmin
             delete-confirmation-message="admin_label_confirm_account_delete"
             :can-delete="checkCannotDeleteSelf"
-            :filter-object="setUpdatableFalseIfSelf"
         />
       </v-col>
     </v-row>

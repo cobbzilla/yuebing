@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "keywords": [
     "video",
     "private",
@@ -81,7 +81,7 @@
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
-    "yuebing-messages": "^2.0.35",
-    "yuebing-model": "^2.3.72"
+    "yuebing-messages": "^2.0.37",
+    "yuebing-model": "^2.3.75"
   }
 }

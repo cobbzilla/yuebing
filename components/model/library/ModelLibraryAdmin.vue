@@ -23,7 +23,7 @@
             :create="true"
             :read-only-object="() => false"
             :server-errors="createLibraryServerErrors"
-            :label-prefixes="['admin_label_library_', 'label_']"
+            :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onAddSubmitted"
             @update="onAddUpdated"
@@ -43,7 +43,7 @@
             :create="false"
             :read-only-object="() => false"
             :server-errors="editLibraryServerErrors"
-            :label-prefixes="['admin_label_library_', 'label_']"
+            :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onEditSubmitted"
             @update="onEditUpdated"
@@ -58,10 +58,11 @@
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
-                    <div class="form-group">
+                    <div class="form-group" style="flex-wrap: nowrap;">
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
+                        :disabled="libraryStore.libraryBusy"
                         type="text"
                         name="searchTerms"
                         class="form-control"
@@ -108,12 +109,12 @@
                       </div>
                     </td>
                     <td>
-                      <v-btn v-if="canEdit(obj)" :disabled="libraryStore.libraryBusy" @click.stop="showEditOrm(obj)">
+                      <v-btn v-if="canEdit(obj, libraryList)" :disabled="libraryStore.libraryBusy" @click.stop="showEditOrm(obj)">
                         <Icon name="material-symbols:edit" />
                       </v-btn>
                     </td>
                     <td>
-                      <v-btn v-if="canDelete(obj)" :disabled="libraryStore.libraryBusy" @click.stop="delObject(obj)">
+                      <v-btn v-if="canDelete(obj, libraryList)" :disabled="libraryStore.libraryBusy" @click.stop="delObject(obj)">
                         <Icon name="material-symbols:delete" />
                       </v-btn>
                     </td>
@@ -171,8 +172,8 @@
       labelPrefixes: string[];
       typeNameMessage: string,
       actionConfigs: Record<string, ActionConfig>;
-      canEdit: (obj: MobilettoOrmObject) => boolean;
-      canDelete: (obj: MobilettoOrmObject) => boolean;
+      canEdit: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
+      canDelete: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       deleteConfirmationMessage: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
@@ -182,6 +183,13 @@
       canDelete: () => true,
     },
   );
+
+  const labelPfx: Ref<string[]> = ref(["admin_label_library_", "label_", ""]);
+  if (props.labelPrefixes) {
+    props.labelPrefixes.forEach((p: string) => {
+      if (!labelPfx.value.includes(p)) labelPfx.value.unshift(p);
+    });
+  }
 
   const sessionStore = useSessionStore();
   const { localeMessages } = storeToRefs(sessionStore);
@@ -397,18 +405,16 @@
     }
   };
 
-  watch(libraryList, (newList, _oldList) => {
-    if (newList && Array.isArray(newList)) {
-      // if ((!oldList && newList.length > 0) || (oldList && oldList.length && oldList.length < newList.length)) {
-      //   navigateTo("/admin/library/setup");
-      // }
+  watch(libraryList, (newList) => {
+    if (newList && Array.isArray(newList) && newList.length === 0) {
+      if (navigating.value) return;
+      navigating.value = true;
+      navigateTo("/admin/library/setup");
     }
   });
 
-  libraryStore.search().then((objs) => {
-    if (objs.length === 0) { 
-      sourceStore.search();
-      destinationStore.search();
-    }
+  libraryStore.search().then(() => {
+    sourceStore.search();
+    destinationStore.search();
   });
 </script>

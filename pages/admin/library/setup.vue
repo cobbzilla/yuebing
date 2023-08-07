@@ -130,19 +130,17 @@ const onFormSubmitted = (lib: MobilettoOrmObject) => {
   lib.sources = typeDefSources.value.values
   lib.destinations = typeDefDestinations.value.values
   return libraryStore
-    .libraryCreate(lib as LibraryType, createLibraryServerErrors)
-    .then(() => libraryStore.librarySearch());
+    .create(lib as LibraryType, createLibraryServerErrors)
+    .then(() => libraryStore.search());
 }
 
-watch(libraryList, (newList, oldList) => {
-  if (newList && Array.isArray(newList)) {
-    if ((!oldList && newList.length > 0) || (oldList && oldList.length && oldList.length < newList.length)) {
-      navigateTo("/admin/account/setup");
-    }
+watch(libraryList, (newList) => {
+  if (newList && Array.isArray(newList) && newList.length > 0) {
+    navigateTo("/admin/library/admin");
   }
 });
 
-libraryStore.librarySearch().then((libs) => {
+libraryStore.search().then((libs) => {
   if (libs.length === 0) {
     sourceStore.search();
     destinationStore.search();

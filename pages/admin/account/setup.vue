@@ -1,9 +1,15 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>SETUP accounts!</v-col>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+// We should never get here, because an admin cannot delete themselves, but just in case.
+// If we do get here, this means we have no admins, so go back to initial setup
+navigateTo("/setup");
+</script>
