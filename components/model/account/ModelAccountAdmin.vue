@@ -202,12 +202,6 @@
   const searchTerms = ref("");
   const lastQuery = ref({});
 
-  const searchQuery = () => ({
-    pageNumber: pageNumber.value,
-    pageSize: pageSize.value,
-    searchTerms: searchTerms.value,
-  });
-
   const tableFields: Ref<string[]> = ref([]);
 
   const tableFieldMessages: Ref<Record<string, string>> = ref({});
@@ -218,22 +212,24 @@
       });
       tableFieldMessages.value = defaultTableFieldMessages;
   };
-  const searchObjects = () => {
-    if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(searchQuery())) {
-      // console.log("not sending duplicate search");
-    } else {
-      const query = searchQuery();
-      lastQuery.value = Object.assign({}, query);
-      // console.log(`searchObjects: emitting query: ${JSON.stringify(query)}`);
-      // emit("query", query);
-    }
-  };
 
   const accountStore = useAccountStore();
   const { accountList  } = storeToRefs(accountStore);
 
   const accountTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const accountTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+
+  const searchQuery = () => ({ textSearch: searchTerms.value });
+
+  const searchObjects = () => {
+    const query = searchQuery();
+    if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(query)) {
+      // not sending duplicate search
+    } else {
+      lastQuery.value = Object.assign({}, query);
+      accountStore.search(query);
+    }
+  };
 
 
   const allRefsLoaded = () => true;
