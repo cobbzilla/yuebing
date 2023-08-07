@@ -54,11 +54,11 @@
       <v-row v-else-if="allRefsLoaded() && accountTypeDef">
         <v-col>
           <v-container>
-            <v-row v-if="accountList && accountList.length > 0">
+            <v-row v-if="(accountList && accountList.length > 0) || searched">
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
-                    <div class="form-group" style="flex-wrap: nowrap;">
+                    <div class="form-group">
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
@@ -208,6 +208,7 @@
   const pageNumber = ref(1);
   const pageSize = ref(20);
   const searchTerms = ref("");
+  const searched = ref(false);
   const lastQuery = ref({});
 
   const tableFields: Ref<string[]> = ref([]);
@@ -234,6 +235,7 @@
     if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(query)) {
       // not sending duplicate search
     } else {
+      searched.value = true;
       lastQuery.value = Object.assign({}, query);
       accountStore.search(query);
     }
@@ -337,7 +339,7 @@
   };
 
   watch(accountList, (newList) => {
-    if (newList && Array.isArray(newList) && newList.length === 0) {
+    if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
       navigateTo("/admin/account/setup");
