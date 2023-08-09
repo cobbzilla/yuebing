@@ -25,12 +25,15 @@ export const DEFAULT_PRIVATE_CONFIG: PrivateConfigType = {
     sessionTimeout: process.env.YB_AUTH_SESSION_TIMEOUT
       ? parseInt(process.env.YB_AUTH_SESSION_TIMEOUT)
       : 1000 * 60 * 60 * 24 * 90, // 90 days
+    bcryptTimeTarget: process.env.YB_AUTH_BCRYPT_TIME_TARGET
+      ? parseInt(process.env.YB_AUTH_BCRYPT_TIME_TARGET)
+      : 1000, // 1000 ms (1s), just in case this particular instance is very slow
   },
   emailEnabled: process.env.YB_EMAIL_ENABLED ? !!process.env.YB_EMAIL_ENABLED : false,
   email: {
     host: process.env.YB_EMAIL_HOST ? process.env.YB_EMAIL_HOST : "127.0.0.1",
     port: process.env.YB_EMAIL_PORT ? parseInt(process.env.YB_EMAIL_PORT) : 25,
-    account: process.env.YB_EMAIL_USER ? process.env.YB_EMAIL_USER : "smtp_user",
+    user: process.env.YB_EMAIL_USER ? process.env.YB_EMAIL_USER : "smtp_user",
     password: process.env.YB_EMAIL_PASSWORD ? process.env.YB_EMAIL_PASSWORD : "",
     secure: process.env.YB_EMAIL_SECURE ? !!process.env.YB_EMAIL_SECURE : false,
     fromEmail: process.env.YB_EMAIL_FROM_EMAIL ? process.env.YB_EMAIL_FROM_EMAIL : "nobody@localhost.example",

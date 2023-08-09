@@ -1,4 +1,4 @@
-import { EventHandler, H3Event } from "h3";
+import { H3Event } from "h3";
 import { AccountType, SessionType } from "yuebing-model";
 import { SESSION_HEADER, SESSION_COOKIE_NAME } from "~/utils/auth";
 import { forbidden } from "~/server/utils/filter/errorFilter";
@@ -28,7 +28,7 @@ export const requireAccountObject = async (
   logPrefix: string,
   fn: (event: H3Event, session: SessionType, account: AccountType) => Promise<unknown>,
 ) => {
-  return requireAccount(event, logPrefix, async (event, session) => {
+  return await requireAccount(event, logPrefix, async (event, session) => {
     const account: AccountType | null = await accountRepository().safeFindById(session.account);
     if (!account) throw forbidden();
     return await fn(event, session, account);

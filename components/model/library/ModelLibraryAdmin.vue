@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, Ref } from "vue";
+  import { ref, watch, Ref } from "vue";
   import { storeToRefs } from "pinia";
   import {
     MobilettoOrmFieldDefConfig,
@@ -154,7 +154,7 @@
   } from "mobiletto-orm-typedef";
   import { LibraryType, LibraryTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage } from "yuebing-messages";
-  import { deepUpdate, deepGet } from "~/utils/util";
+  import { deepUpdate } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
   import { useLibraryStore } from "~/stores/model/libraryStore";
@@ -166,7 +166,6 @@
     message: string;
     when: (obj: MobilettoOrmObject) => boolean;
   };
-
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
@@ -226,10 +225,8 @@
 
   const libraryStore = useLibraryStore();
   const { libraryList  } = storeToRefs(libraryStore);
-
   const libraryTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const libraryTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
-
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -244,7 +241,6 @@
   };
 
   const navigating = ref(false);
-
   const initTypeDef = () => {
     const typeDef = LibraryTypeDef.extend({
       fields: {
@@ -349,9 +345,9 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await libraryStore
       .update(obj as LibraryType, editLibraryServerErrors);
-    editingObject.value = {} as LibraryType;
-    return await libraryStore.search();
-  }
+        editingObject.value = {} as LibraryType;
+        return await libraryStore.search();
+  };
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -362,7 +358,6 @@
       const id = LibraryTypeDef.id(obj);
       if (id && id.length > 0) {
         editingObject.value = JSON.parse(JSON.stringify(obj)) as LibraryType;
-        // emit("editObjectStart", editingObject.value);
       }
     }
   };
@@ -384,29 +379,6 @@
     }
     return true;
   };
-
-  const deleteConfirmCount = ref(0);
-  const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3;
-
-  const delObject = async (obj: MobilettoOrmObject) => {
-    if (!libraryTypeDef.value) return;
-    if (
-      deleteConfirmCount.value > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
-      confirm(
-        parseMessage(props.deleteConfirmationMessage, messages.value, {
-          id: obj ? deepGet(obj, libraryTypeDef.value.idField(obj) as string) : null,
-        }),
-      )
-    ) {
-      deleteConfirmCount.value++;
-      await libraryStore
-        .delete(libraryTypeDef.value.id(obj), deleteLibraryServerErrors);
-      return await libraryStore.search();
-    } else {
-      deleteConfirmCount.value = 0;
-    }
-  };
-
   watch(libraryList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
@@ -414,7 +386,6 @@
       navigateTo("/admin/library/setup");
     }
   });
-
   libraryStore.search().then(() => {
     sourceStore.search();
     destinationStore.search();

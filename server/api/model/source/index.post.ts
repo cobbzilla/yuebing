@@ -9,6 +9,16 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "source.search", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "source.search", async (event: H3Event, session, account) => {
       const opts: MobilettoOrmFindApiOpts = (await readBody(event)) || {};
+      if (typeof SourceTypeDef.apiConfig.search?.validate === "function") {
+        const validated = await SourceTypeDef.apiConfig.search.validate(account, null, opts);
+        if (validated === true || (typeof validated === "object" && Object.keys(validated).length === 0)) {
+          // successfully validated
+        } else if (typeof validated === "object" && Object.keys(validated).length > 0) {
+          throw validationError(validated);
+        } else {
+          throw validationError({global: ["validation"]});
+        }
+      }
       const sourceRepo = sourceRepository();
       if (opts.field && opts.value) {
         return await sourceRepo.safeFindBy(opts.field, opts.value, opts.opts || {});

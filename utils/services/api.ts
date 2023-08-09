@@ -1,9 +1,8 @@
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { SESSION_HEADER, sessionCookie } from "../auth";
-import { isSecure } from "~/utils/config";
 
 export function authHeader() {
-  const session = sessionCookie(isSecure());
+  const session = sessionCookie();
   if (session) {
     const headers: Record<string, string> = {};
     headers[SESSION_HEADER] = session.value;
@@ -76,8 +75,8 @@ export function handleJsonResponse<T>(response: Response): Promise<T> {
   }
 }
 
-export const handleErrors = (serverErrors: Ref<MobilettoOrmValidationErrors>) => (e) => {
-  if (!e.statusCode) throw e;
+export const handleErrors = (serverErrors?: Ref<MobilettoOrmValidationErrors>) => (e) => {
+  if (!e.statusCode || !serverErrors) throw e;
   if (e.statusCode === 403) {
     serverErrors.value.global = ["forbidden"];
   } else if (e.statusCode === 404) {

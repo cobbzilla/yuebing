@@ -1,6 +1,7 @@
 import { CookieSerializeOptions } from "cookie-es";
 import { AuthAccountType, RegistrationTypeDef } from "yuebing-model";
-import { hideOrmFields } from "~/utils/orm";
+import { hideFields } from "~/utils/orm";
+import { isSecure } from "~/utils/config";
 
 export const VERIFY_EMAIL_PARAM = "e";
 export const VERIFY_TOKEN_PARAM = "t";
@@ -26,7 +27,7 @@ export function sessionParams(user?: AuthAccountType, status?: UserStatus) {
   return `?${SESSION_QUERY_PARAM}=${user.session}`;
 }
 
-export const RegistrationFormTypeDef = hideOrmFields(RegistrationTypeDef, ["flags"]);
+export const RegistrationFormTypeDef = hideFields(RegistrationTypeDef, ["flags"]);
 
 const COOKIE_SAME_SITE = "strict";
 const COOKIE_PATH = "/";
@@ -36,4 +37,5 @@ export const cookieOpts = (secure: boolean): CookieSerializeOptions => {
   return { secure, sameSite, path };
 };
 
-export const sessionCookie = (secure: boolean) => useCookie(SESSION_COOKIE_NAME, cookieOpts(secure));
+
+export const sessionCookie = () => useCookie(SESSION_COOKIE_NAME, cookieOpts(isSecure()));

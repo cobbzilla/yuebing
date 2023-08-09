@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, Ref } from "vue";
+  import { ref, watch, Ref } from "vue";
   import { storeToRefs } from "pinia";
   import {
     MobilettoOrmFieldDefConfig,
@@ -154,7 +154,7 @@
   } from "mobiletto-orm-typedef";
   import { DestinationType, DestinationTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage } from "yuebing-messages";
-  import { deepUpdate, deepGet } from "~/utils/util";
+  import { deepUpdate } from "~/utils/util";
   import { normalizeMsg } from "~/utils/orm";
   import { useSessionStore } from "~/stores/session";
   import { useDestinationStore } from "~/stores/model/destinationStore";
@@ -164,7 +164,6 @@
     message: string;
     when: (obj: MobilettoOrmObject) => boolean;
   };
-
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
@@ -224,10 +223,8 @@
 
   const destinationStore = useDestinationStore();
   const { destinationList  } = storeToRefs(destinationStore);
-
   const destinationTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const destinationTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
-
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -242,7 +239,6 @@
   };
 
   const navigating = ref(false);
-
 
   const allRefsLoaded = () => true;
   destinationTypeDef.value = DestinationTypeDef;
@@ -280,9 +276,9 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await destinationStore
       .update(obj as DestinationType, editDestinationServerErrors);
-    editingObject.value = {} as DestinationType;
-    return await destinationStore.search();
-  }
+        editingObject.value = {} as DestinationType;
+        return await destinationStore.search();
+  };
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -293,7 +289,6 @@
       const id = DestinationTypeDef.id(obj);
       if (id && id.length > 0) {
         editingObject.value = JSON.parse(JSON.stringify(obj)) as DestinationType;
-        // emit("editObjectStart", editingObject.value);
       }
     }
   };
@@ -315,29 +310,6 @@
     }
     return true;
   };
-
-  const deleteConfirmCount = ref(0);
-  const JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION = 3;
-
-  const delObject = async (obj: MobilettoOrmObject) => {
-    if (!destinationTypeDef.value) return;
-    if (
-      deleteConfirmCount.value > JUST_STOP_ASKING_ABOUT_CONFIRMING_DELETION ||
-      confirm(
-        parseMessage(props.deleteConfirmationMessage, messages.value, {
-          id: obj ? deepGet(obj, destinationTypeDef.value.idField(obj) as string) : null,
-        }),
-      )
-    ) {
-      deleteConfirmCount.value++;
-      await destinationStore
-        .delete(destinationTypeDef.value.id(obj), deleteDestinationServerErrors);
-      return await destinationStore.search();
-    } else {
-      deleteConfirmCount.value = 0;
-    }
-  };
-
   watch(destinationList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
@@ -345,6 +317,5 @@
       navigateTo("/admin/destination/setup");
     }
   });
-
   destinationStore.search();
 </script>
