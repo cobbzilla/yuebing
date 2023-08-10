@@ -377,6 +377,11 @@
     }
     return true;
   };
+  const delObject = (obj: MobilettoOrmObject) => {
+      const id = LibraryTypeDef.id(obj);
+      libraryStore.delete(id, deleteLibraryServerErrors)
+          .then(() => libraryStore.search());
+  };
   watch(libraryList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;

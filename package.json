@@ -83,6 +83,6 @@
     "vuetify": "^3.3.6",
     "winston": "^3.10.0",
     "yuebing-messages": "^2.1.1",
-    "yuebing-model": "^2.4.4"
+    "yuebing-model": "^2.4.6"
   }
 }

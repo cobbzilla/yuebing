@@ -308,6 +308,11 @@
     }
     return true;
   };
+  const delObject = (obj: MobilettoOrmObject) => {
+      const id = SourceTypeDef.id(obj);
+      sourceStore.delete(id, deleteSourceServerErrors)
+          .then(() => sourceStore.search());
+  };
   watch(sourceList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;

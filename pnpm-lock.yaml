@@ -81,8 +81,8 @@ dependencies:
     specifier: ^2.1.1
     version: 2.1.1
   yuebing-model:
-    specifier: ^2.4.4
-    version: 2.4.4
+    specifier: ^2.4.6
+    version: 2.4.6
 
 devDependencies:
   '@nuxt/devtools':
@@ -2093,7 +2093,7 @@ packages:
       scule: 1.0.0
       semver: 7.5.4
       unctx: 2.3.1
-      unimport: 3.1.3
+      unimport: 3.1.0(rollup@3.26.0)
       untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
@@ -2129,7 +2129,7 @@ packages:
       std-env: 3.3.3
       ufo: 1.2.0
       unimport: 3.1.0(rollup@3.26.0)
-      untyped: 1.3.2
+      untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -3754,7 +3754,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001519
-      electron-to-chromium: 1.4.489
+      electron-to-chromium: 1.4.490
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11(browserslist@4.21.10)
 
@@ -4523,8 +4523,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: true
 
-  /electron-to-chromium@1.4.489:
-    resolution: {integrity: sha512-QNx+cirm4ENixfdSk9rp/3HKpjlxHFsmDoHtU1IiXdkJcpkKrd/o20LT5h1f3Qz+yfTMb4Ji3YDT/IvJkNfEkA==}
+  /electron-to-chromium@1.4.490:
+    resolution: {integrity: sha512-6s7NVJz+sATdYnIwhdshx/N/9O6rvMxmhVoDSDFdj6iA45gHR8EQje70+RYsF4GeB+k0IeNSBnP7yG9ZXJFr7A==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -9324,6 +9324,7 @@ packages:
       scule: 1.0.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /untyped@1.4.0:
     resolution: {integrity: sha512-Egkr/s4zcMTEuulcIb7dgURS6QpN7DyqQYdf+jBtiaJvQ+eRsrtWUoX84SbvQWuLkXsOjM+8sJC9u6KoMK/U7Q==}
@@ -9923,8 +9924,8 @@ packages:
       hokey-runtime: 1.0.4
     dev: false
 
-  /yuebing-model@2.4.4:
-    resolution: {integrity: sha512-ZQm+3pPsClRTDsP672fBwnESjc2PqBLM79Ons2ivz0Ud0r356NP6TmpNrC/27tDmYqq4ib1PrlQfW7gmunaF+A==}
+  /yuebing-model@2.4.6:
+    resolution: {integrity: sha512-tg7ncnkH/OIBTJdmSNGScl2gVw8SLUZ2CZeISh2LTcIzNgQ+JeHgA9S4wTfhX/L6LOoJQf1qUvDPyJ9LjYeVeg==}
     dev: false
 
   /zhead@2.0.10:

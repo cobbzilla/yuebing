@@ -308,6 +308,11 @@
     }
     return true;
   };
+  const delObject = (obj: MobilettoOrmObject) => {
+      const id = AccountTypeDef.id(obj);
+      accountStore.delete(id, deleteAccountServerErrors)
+          .then(() => accountStore.search());
+  };
   watch(accountList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;

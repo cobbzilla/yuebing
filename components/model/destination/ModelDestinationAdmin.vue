@@ -308,6 +308,11 @@
     }
     return true;
   };
+  const delObject = (obj: MobilettoOrmObject) => {
+      const id = DestinationTypeDef.id(obj);
+      destinationStore.delete(id, deleteDestinationServerErrors)
+          .then(() => destinationStore.search());
+  };
   watch(destinationList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
