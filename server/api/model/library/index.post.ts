@@ -3,7 +3,7 @@
 
 import { H3Event } from "h3";
 import { LibraryTypeDef } from "yuebing-model";
-import { MobilettoOrmFindApiOpts } from "~/utils/search";
+import { MobilettoOrmFindApiOpts } from "/storeHelper.ts";
 
 export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "library.search", async (event: H3Event) => {

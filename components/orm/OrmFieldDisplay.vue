@@ -70,9 +70,9 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
-import { parseDateMessage } from "yuebing-messages";
-import { useConfigStore } from "~/stores/config";
-import { useSessionStore } from "~/stores/session";
+import { parseDateMessage } from "hokey-runtime";
+import { useConfigStore } from "~/stores/configStore";
+import { useSessionStore } from "~/stores/sessionStore";
 
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);

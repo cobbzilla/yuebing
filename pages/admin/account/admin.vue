@@ -15,7 +15,7 @@
 import { storeToRefs } from "pinia";
 import { MobilettoOrmObject } from "mobiletto-orm-typedef";
 import { AccountTypeDef } from "yuebing-model";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import ModelAccountAdmin from "~/components/model/account/ModelAccountAdmin.vue";
 
 const sessionStore = useSessionStore();

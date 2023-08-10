@@ -5,8 +5,7 @@ import { defineStore } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { AccountType, AccountTypeDef } from "yuebing-model";
 import { accountService } from "~/utils/services/model/accountService";
-import { MobilettoOrmFindApiOpts } from "~/utils/search";
-import { updateOrmList } from "~/utils/orm";
+import { MobilettoOrmFindApiOpts, updateOrmList } from "~/utils/model/storeHelper.js";
 
 const updateList = (list: AccountType[] | null, id: string, opts?: { object?: AccountType; remove?: boolean }) => {
   return updateOrmList<AccountType>(AccountTypeDef, list, id, opts);

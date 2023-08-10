@@ -210,9 +210,11 @@ import {
   MobilettoOrmObject,
   MobilettoOrmValidationErrors
 } from "mobiletto-orm-typedef";
-import { findMessage, findMessageKey, messageExists, HINT_MESSAGE_SUFFIX } from "yuebing-messages";
-import { useSessionStore } from "~/stores/session";
+import { HINT_MESSAGE_SUFFIX } from "yuebing-messages";
+import { findMessage, findMessageKey, messageExists } from "hokey-runtime";
+import { useSessionStore } from "~/stores/sessionStore";
 import DurationField from "~/components/DurationField.vue";
+import { typeDefFieldErrorMessage } from "~/utils/model/adminHelper";
 
 const props = withDefaults(
   defineProps<{
@@ -323,7 +325,7 @@ const hintForListItem = () => {
 };
 
 const fieldError = (field: string | string[]) =>
-  ormFieldErrorMessage(
+  typeDefFieldErrorMessage(
     field,
     messages.value,
     props.labelPrefixes,

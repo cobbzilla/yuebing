@@ -77,9 +77,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { localesList, localeEmoji } from "yuebing-messages";
-import { useConfigStore } from "~/stores/config";
-import { useSessionStore } from "~/stores/session";
+import { HOKEY, localeEmoji } from "yuebing-messages";
+import { useConfigStore } from "~/stores/configStore";
+import { useSessionStore } from "~/stores/sessionStore";
 import { gravatarUrl } from "~/utils/gravatar";
 import { configRegistrationEnabled, configTitle } from "~/utils/config";
 
@@ -96,14 +96,14 @@ const signInUrl = "/signIn";
 const sessionStore = useSessionStore();
 const { account, admin, loggedIn, browserLocale, anonLocale, currentLocale } = storeToRefs(sessionStore);
 
-const supportedLocales = ref(localesList(account.value, browserLocale.value, anonLocale.value));
+const supportedLocales = ref(HOKEY.localesList(account.value, browserLocale.value, anonLocale.value));
 
 const messages = ref(sessionStore.localeMessages);
 const selectLocale = (loc: string) => {
   currentLocale.value = loc;
   sessionStore.setLocale(loc);
   messages.value = sessionStore.localeMessages;
-  supportedLocales.value = localesList(account.value, browserLocale.value, anonLocale.value);
+  supportedLocales.value = HOKEY.localesList(account.value, browserLocale.value, anonLocale.value);
 };
 const localeIcon = (loc: string) => localeEmoji(loc);
 const showNav = () => !publicConfig.value?.needsAdmin;

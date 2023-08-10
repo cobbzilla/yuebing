@@ -1,7 +1,7 @@
 import { CookieSerializeOptions } from "cookie-es";
 import { AuthAccountType, RegistrationTypeDef } from "yuebing-model";
-import { hideFields } from "~/utils/orm";
 import { isSecure } from "~/utils/config";
+import {MobilettoOrmTypeDef} from "mobiletto-orm-typedef";
 
 export const VERIFY_EMAIL_PARAM = "e";
 export const VERIFY_TOKEN_PARAM = "t";
@@ -27,7 +27,7 @@ export function sessionParams(user?: AuthAccountType, status?: UserStatus) {
   return `?${SESSION_QUERY_PARAM}=${user.session}`;
 }
 
-export const RegistrationFormTypeDef = hideFields(RegistrationTypeDef, ["flags"]);
+export const RegistrationFormTypeDef = RegistrationTypeDef.hideFields(["flags"]);
 
 const COOKIE_SAME_SITE = "strict";
 const COOKIE_PATH = "/";

@@ -11,8 +11,6 @@ export default defineEventHandler(async (event: H3Event) => {
       if (!id) throw notFound(libraryRepo.typeDef.idFieldName());
       const library_by_id = await libraryRepo.safeFindById(id);
       if (library_by_id) return library_by_id;
-      const library_by_name = await libraryRepo.safeFindFirstBy("name", id);
-      if (library_by_name) return library_by_name;
       throw notFound(id);
     });
   });

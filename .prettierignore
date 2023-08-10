@@ -1,0 +1,9 @@
+*.vue
+components/model
+server/api/model
+server/utils/filter/errorFilter.ts
+server/utils/filter/sessionFilter.ts
+stores/model
+utils/model
+utils/services/model
+pages/admin/**/admin.vue

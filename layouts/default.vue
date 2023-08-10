@@ -16,9 +16,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useConfigStore } from "~/stores/config";
+import { useConfigStore } from "~/stores/configStore";
 import { DEFAULT_META } from "~/utils/meta";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import { isHome, isSetup, isSignIn } from "~/utils/config";
 
 const configStore = useConfigStore();

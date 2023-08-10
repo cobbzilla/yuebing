@@ -46,7 +46,7 @@ import {
   MobilettoOrmValidationError,
   MobilettoOrmValidationErrors,
 } from "mobiletto-orm-typedef";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 
 const props = withDefaults(
   defineProps<{

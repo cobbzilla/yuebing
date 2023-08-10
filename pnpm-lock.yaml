@@ -29,6 +29,9 @@ dependencies:
   bcrypt:
     specifier: ^5.1.0
     version: 5.1.0
+  hokey-runtime:
+    specifier: ^1.0.4
+    version: 1.0.4
   md5:
     specifier: ^2.3.0
     version: 2.3.0
@@ -48,11 +51,11 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.2.19
-    version: 2.2.19
+    specifier: ^2.2.20
+    version: 2.2.20
   mobiletto-orm-typedef:
-    specifier: ^2.3.21
-    version: 2.3.21
+    specifier: ^2.3.22
+    version: 2.3.22
   nuxt-icon:
     specifier: ^0.4.2
     version: 0.4.2(vue@3.3.4)
@@ -78,8 +81,8 @@ dependencies:
     specifier: ^2.1.1
     version: 2.1.1
   yuebing-model:
-    specifier: ^2.3.76
-    version: 2.3.76
+    specifier: ^2.4.4
+    version: 2.4.4
 
 devDependencies:
   '@nuxt/devtools':
@@ -929,13 +932,6 @@ packages:
     dependencies:
       '@babel/types': 7.22.10
 
-  /@babel/parser@7.22.7:
-    resolution: {integrity: sha512-7NF8pOkHP5o2vpmGgNGcfAeCvOYhGLyA3Z4eBQkT1RJlWu47n63bCs93QfJ2hIAFCil7L5P2IWhs1oToVgrL0Q==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-    dependencies:
-      '@babel/types': 7.22.10
-
   /@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.22.10):
     resolution: {integrity: sha512-Yqfm+XDx0+Prh3VSeEQCPU81yC+JWZ2pDPFSS4ZdpfZhp4MkFMaDC1UqseovEKwSUpnIL7+vK+Clp7bfh0iD7g==}
     peerDependencies:
@@ -988,11 +984,6 @@ packages:
   /@babel/standalone@7.22.10:
     resolution: {integrity: sha512-VmK2sWxUTfDDh9mPfCtFJPIehZToteqK+Zpwq8oJUjJ+WeeKIFTTQIrDzH7jEdom+cAaaguU7FI/FBsBWFkIeQ==}
     engines: {node: '>=6.9.0'}
-
-  /@babel/standalone@7.22.9:
-    resolution: {integrity: sha512-RRUFpN2WiHaczMqIhmy7VoruvSw+c3NSq6BczondQ6elJXtKzr9cAWWsWWZvtZ/rYFQpoQlch5VxQe4aWTt8LA==}
-    engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/template@7.22.5:
     resolution: {integrity: sha512-X7yV7eiwAxdj9k94NEylvbVHLiVG1nvzCV2EAowhxLTwODV1jl9UzZ48leOC0sH7OnuHrIkllaBgneUykIcZaw==}
@@ -2138,7 +2129,7 @@ packages:
       std-env: 3.3.3
       ufo: 1.2.0
       unimport: 3.1.0(rollup@3.26.0)
-      untyped: 1.4.0
+      untyped: 1.3.2
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -3279,7 +3270,7 @@ packages:
   /@vue/compiler-sfc@3.3.4:
     resolution: {integrity: sha512-6y/d8uw+5TkCuzBkgLS0v3lSM3hJDntFEiUORM11pQ/hKvkhSKZrXW6i69UyXlJQisJxuUEJKAWEqWbWsLeNKQ==}
     dependencies:
-      '@babel/parser': 7.22.7
+      '@babel/parser': 7.22.10
       '@vue/compiler-core': 3.3.4
       '@vue/compiler-dom': 3.3.4
       '@vue/compiler-ssr': 3.3.4
@@ -3302,7 +3293,7 @@ packages:
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
     dependencies:
-      '@babel/parser': 7.22.7
+      '@babel/parser': 7.22.10
       '@vue/compiler-core': 3.3.4
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
@@ -6846,15 +6837,15 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-typedef@2.3.21:
-    resolution: {integrity: sha512-cLQuBgU0YaaOy28OGJgcH4t5xw4yLk+s5kLI9NlNqa9nM9hkk7IeMqi0ATXnuVW19+Q6rNRro62lqF4XyzaiQw==}
+  /mobiletto-orm-typedef@2.3.22:
+    resolution: {integrity: sha512-NyG2KYqyGs8a1nikQdX3dMW1TDm68UO8oVtNzwJ7Z/fAx9WrlRcvqxP8ytGAd8LlSGARTH4JgbulYXFKbcbLeg==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.2.19:
-    resolution: {integrity: sha512-qin9o3fKNknw2mhsAUc6L3/OhY7smj59AMAxEWoZNPx3FlQCdcAMY/puLqs8q1fvHw7SmvH9FoH64iVdebPSsw==}
+  /mobiletto-orm@2.2.20:
+    resolution: {integrity: sha512-5DhM9Q2e7FHU3z+n0qEyg/MCgfQthBJEYTVpNSlJrUvM9He8oExtBJV5pCR3VG4qcoob3WHeyMpR1jWeNGr/AQ==}
     dev: false
 
   /mri@1.2.0:
@@ -9325,7 +9316,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/core': 7.22.10
-      '@babel/standalone': 7.22.9
+      '@babel/standalone': 7.22.10
       '@babel/types': 7.22.10
       defu: 6.1.2
       jiti: 1.19.1
@@ -9333,7 +9324,6 @@ packages:
       scule: 1.0.0
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /untyped@1.4.0:
     resolution: {integrity: sha512-Egkr/s4zcMTEuulcIb7dgURS6QpN7DyqQYdf+jBtiaJvQ+eRsrtWUoX84SbvQWuLkXsOjM+8sJC9u6KoMK/U7Q==}
@@ -9933,8 +9923,8 @@ packages:
       hokey-runtime: 1.0.4
     dev: false
 
-  /yuebing-model@2.3.76:
-    resolution: {integrity: sha512-kNay15I6gQ3tLqdmPFpUPGJN13q/aTTiRNffQI8fXsDKnxKCoLIshN+dHjgyDyppmwJrjaI/0+gkTxqWpoey4w==}
+  /yuebing-model@2.4.4:
+    resolution: {integrity: sha512-ZQm+3pPsClRTDsP672fBwnESjc2PqBLM79Ons2ivz0Ud0r356NP6TmpNrC/27tDmYqq4ib1PrlQfW7gmunaF+A==}
     dev: false
 
   /zhead@2.0.10:

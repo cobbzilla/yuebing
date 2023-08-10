@@ -1,5 +1,5 @@
 import { DEFAULT_ENCRYPTION_ALGO, PublicConfigType } from "yuebing-model";
-import { useConfigStore } from "~/stores/config";
+import { useConfigStore } from "~/stores/configStore";
 
 export const configTitle = (): string => useConfigStore().publicConfig?.title || "⌛🥮";
 

@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 
 const MINUTES_MILLIS = 1000 * 60
 const HOURS_MILLIS = MINUTES_MILLIS * 60

@@ -45,7 +45,7 @@ import {
   MobilettoOrmTypeDef,
   MobilettoOrmValidationErrors,
 } from "mobiletto-orm-typedef";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import { useLibraryStore } from "~/stores/model/libraryStore";
 import { useSourceStore } from "~/stores/model/sourceStore";
 import { useDestinationStore } from "~/stores/model/destinationStore";

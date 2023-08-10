@@ -5,8 +5,7 @@ import { defineStore } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { destinationService } from "~/utils/services/model/destinationService";
-import { MobilettoOrmFindApiOpts } from "~/utils/search";
-import { updateOrmList } from "~/utils/orm";
+import { MobilettoOrmFindApiOpts, updateOrmList } from "~/utils/model/storeHelper.js";
 
 const updateList = (list: DestinationType[] | null, id: string, opts?: { object?: DestinationType; remove?: boolean }) => {
   return updateOrmList<DestinationType>(DestinationTypeDef, list, id, opts);

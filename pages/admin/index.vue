@@ -22,10 +22,10 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { parseMessage } from "yuebing-messages";
+import { parseMessage } from "hokey-runtime";
 import { configTitle } from "~/utils/config";
 import { useLibraryStore } from "~/stores/model/libraryStore";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 
 const libraryStore = useLibraryStore();
 const { libraryList } = storeToRefs(libraryStore);

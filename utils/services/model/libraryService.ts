@@ -4,7 +4,7 @@ import { Ref } from "vue";
 import { MobilettoOrmObject, MobilettoOrmPurgeResults } from "mobiletto-orm-typedef";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm";
 import { LibraryType, LibraryTypeDef } from "yuebing-model";
-import * as a from "~/utils/services/api";
+import * as a from "~/utils/model/serviceHelper.js";
 
 export const libraryService = {
   searchLibrary,

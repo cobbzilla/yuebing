@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import ModelPrivateConfigAdmin from "~/components/model/privateConfig/ModelPrivateConfigAdmin.vue";
 
 const sessionStore = useSessionStore();

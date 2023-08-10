@@ -5,7 +5,7 @@ import { currentLocaleForAccount, FALLBACK_DEFAULT_LANG, localeMessagesForAccoun
 import { authService } from "~/utils/services/authService";
 import { accountService } from "~/utils/services/model/accountService";
 import { sessionService } from "~/utils/services/sessionService";
-import { useConfigStore } from "~/stores/config";
+import { useConfigStore } from "~/stores/configStore";
 import { sessionCookie } from "~/utils/auth";
 import { isSecure } from "~/utils/config";
 

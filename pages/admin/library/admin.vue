@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import ModelLibraryAdmin from "~/components/model/library/ModelLibraryAdmin.vue";
 
 const sessionStore = useSessionStore();

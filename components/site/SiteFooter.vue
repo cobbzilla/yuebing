@@ -19,7 +19,7 @@
 
 <script setup>
 import { storeToRefs } from "pinia";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 
 const messages = ref(storeToRefs(useSessionStore()).localeMessages);
 </script>

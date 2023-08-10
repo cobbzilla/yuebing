@@ -11,8 +11,6 @@ export default defineEventHandler(async (event: H3Event) => {
       if (!id) throw notFound(accountRepo.typeDef.idFieldName());
       const account_by_id = await accountRepo.safeFindById(id);
       if (account_by_id) return account_by_id;
-      const account_by_username = await accountRepo.safeFindFirstBy("username", id);
-      if (account_by_username) return account_by_username;
       const account_by_email = await accountRepo.safeFindFirstBy("email", id);
       if (account_by_email) return account_by_email;
       throw notFound(id);

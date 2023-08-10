@@ -35,8 +35,8 @@
 import { storeToRefs } from "pinia";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import {MobilettoOrmObject, MobilettoOrmValidationErrors} from "mobiletto-orm-typedef";
-import { useSessionStore } from "~/stores/session";
-import { useConfigStore } from "~/stores/config";
+import { useSessionStore } from "~/stores/sessionStore";
+import { useConfigStore } from "~/stores/configStore";
 import { useDestinationStore } from "~/stores/model/destinationStore";
 
 const configStore = useConfigStore();

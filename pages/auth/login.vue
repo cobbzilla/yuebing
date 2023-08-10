@@ -41,7 +41,7 @@
 import { storeToRefs } from "pinia";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { UsernameAndPasswordType, UsernameAndPasswordTypeDef } from "yuebing-model";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import { configRegistrationEnabled } from "~/utils/config";
 
 const sessionStore = useSessionStore();

@@ -71,10 +71,11 @@
     metaField
   } from "mobiletto-orm-typedef";
   import { PublicConfigType, PublicConfigTypeDef } from "yuebing-model";
-  import { findMessage, messageExists, parseMessage } from "yuebing-messages";
-  import { deepUpdate } from "~/utils/util";
-  import { useSessionStore } from "~/stores/session";
+  import { findMessage, messageExists, parseMessage } from "hokey-runtime";
+  import { useSessionStore } from "~/stores/sessionStore";
   import { usePublicConfigStore } from "~/stores/model/publicConfigStore";
+  import { deepUpdate } from "~/utils/model/adminHelper";
+
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];

@@ -39,12 +39,12 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmObject, MobilettoOrmValidationError, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
+import { parseMessage } from "hokey-runtime";
 import { RegistrationType } from "yuebing-model";
-import { parseMessage } from "yuebing-messages";
-import { useSessionStore } from "~/stores/session";
+import { useSessionStore } from "~/stores/sessionStore";
 import { RegistrationFormTypeDef } from "~/utils/auth";
 import { isSetup, configTitle, configRegistrationEnabled } from "~/utils/config";
-import { useConfigStore } from "~/stores/config";
+import { useConfigStore } from "~/stores/configStore";
 
 const configStore = useConfigStore();
 const { publicConfig } = storeToRefs(configStore);
