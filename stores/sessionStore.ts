@@ -17,12 +17,17 @@ const initialAccountObject = (): AuthAccountType => {
   return { session: null } as AuthAccountType;
 };
 
+const defaultLang = () => {
+    const defaultLocale = useConfigStore().publicConfig?.defaultLocale;
+    return defaultLocale || FALLBACK_DEFAULT_LANG;
+};
+
 export const useSessionStore = defineStore("session", {
   state: () => ({
     account: initialAccountObject(),
-    currentLocale: FALLBACK_DEFAULT_LANG,
-    browserLocale: FALLBACK_DEFAULT_LANG,
-    anonLocale: FALLBACK_DEFAULT_LANG,
+    currentLocale: defaultLang(),
+    browserLocale: defaultLang(),
+    anonLocale: defaultLang(),
   }),
   getters: {
     loggedIn: (state) => state.account && state.account.username && state.account.session,
