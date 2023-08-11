@@ -2,6 +2,12 @@
 
 <template>
   <v-container>
+    <v-row v-if="successSnackbar && successSnackbar.length > 0">
+      <KitSnackbarSuccess :text="successSnackbar" />
+    </v-row>
+    <v-row v-else-if="errorSnackbar && errorSnackbar.length > 0">
+      <KitSnackbarError :text="errorSnackbar" />
+    </v-row>
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
@@ -159,6 +165,8 @@
   import { useSourceStore } from "~/stores/model/sourceStore";
   import { useDestinationStore } from "~/stores/model/destinationStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  const successSnackbar = ref("");
+  const errorSnackbar = ref("");
   type ActionConfig = {
     path: string;
     message: string;
@@ -167,7 +175,13 @@
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
-      typeNameMessage: string,
+      typeNameMessage: string;
+      msgAddSuccess: string;
+      msgAddError: string;
+      msgEditSuccess: string;
+      msgEditError: string;
+      msgDeleteSuccess: string;
+      msgDeleteError: string;
       actionConfigs: Record<string, ActionConfig>;
       canEdit: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       canDelete: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
@@ -175,11 +189,25 @@
     }>(),{
       labelPrefixes: () => ["label_", ""],
       typeNameMessage: () => "typename_library",
+      msgAddSuccess: () => "admin_info_added",
+      msgAddError: () => "admin_info_add_error",
+      msgEditSuccess: () => "admin_info_edited",
+      msgEditError: () => "admin_info_edit_error",
+      msgDeleteSuccess: () => "admin_info_deleted",
+      msgDeleteError: () => "admin_info_delete_error",
       actionConfigs: () => ({}),
       canEdit: () => true,
       canDelete: () => true,
     },
   );
+
+  const emit = defineEmits<{
+    added: [obj: LibraryType];
+    addCanceled: [];
+    edited: [obj: LibraryType];
+    editCanceled: [obj: LibraryType];
+    deleted: [obj: LibraryType];
+  }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_library_", "label_", ""]);
   if (props.labelPrefixes) {
@@ -261,6 +289,7 @@
 
   const allRefs: Ref<Boolean>[] = [];
   const allRefsLoaded = () => allRefs.length === 2 && allRefs.filter(r => r.value === true).length === 2;
+
   const refSource = ref({} as MobilettoOrmFieldDefConfig);
   const refSourceLoaded = ref(false);
   allRefs.push(refSourceLoaded);
@@ -287,9 +316,7 @@
         initTypeDef()
       }
     }
-  });
-  
-  const refDestination = ref({} as MobilettoOrmFieldDefConfig);
+  });const refDestination = ref({} as MobilettoOrmFieldDefConfig);
   const refDestinationLoaded = ref(false);
   allRefs.push(refDestinationLoaded);
   const destinationStore = useDestinationStore();
@@ -316,7 +343,6 @@
       }
     }
   });
-  
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
@@ -324,14 +350,29 @@
     await libraryStore
       .create(obj as LibraryType, createLibraryServerErrors);
     addingObject.value = false;
+    successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
+        type: messages.value.typename_library,
+        id: LibraryTypeDef.id(obj),
+    });
+    emit("added", obj);
+    addObject.value = {} as LibraryType;
     return await libraryStore.search();
   }
+  watch(createLibraryServerErrors, () => {
+    if (createLibraryServerErrors.value && Object.keys(createLibraryServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
+        type: messages.value.typename_library,
+        error: JSON.stringify(createLibraryServerErrors),
+      });
+    }
+  });
 
   const showAddOrm = () => {
     addingObject.value = true;
   };
   const onAddCancel = () => {
     addingObject.value = false;
+    emit("addCanceled");
   };
 
   const onEditUpdated = (update: { field: string; value: any }) => {
@@ -343,9 +384,23 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await libraryStore
       .update(obj as LibraryType, editLibraryServerErrors);
-        editingObject.value = {} as LibraryType;
-        return await libraryStore.search();
+    editingObject.value = {} as LibraryType;
+    successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
+      type: messages.value.typename_library,
+      id: LibraryTypeDef.id(obj),
+    });
+    emit("edited", obj);
+    return await libraryStore.search();
   };
+  watch(editLibraryServerErrors, () => {
+    if (editLibraryServerErrors.value && Object.keys(editLibraryServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
+        type: messages.value.typename_library,
+        id: LibraryTypeDef.id(editingObject.value),
+        error: JSON.stringify(editLibraryServerErrors),
+      });
+    }
+  });
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -355,11 +410,13 @@
     if (obj) {
       const id = LibraryTypeDef.id(obj);
       if (id && id.length > 0) {
+        addingObject.value = false; // ensure add form is closed
         editingObject.value = JSON.parse(JSON.stringify(obj)) as LibraryType;
       }
     }
   };
   const onEditCancel = () => {
+    emit("editCanceled", editingObject.value);
     editingObject.value = {} as LibraryType;
   };
 
@@ -380,8 +437,24 @@
   const delObject = (obj: MobilettoOrmObject) => {
       const id = LibraryTypeDef.id(obj);
       libraryStore.delete(id, deleteLibraryServerErrors)
-          .then(() => libraryStore.search());
+          .then(() => {
+              successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
+                  type: messages.value.typename_library,
+                  id: LibraryTypeDef.id(obj),
+              });
+              emit("deleted", obj);
+              return libraryStore.search();
+          });
   };
+  watch(deleteLibraryServerErrors, () => {
+    if (deleteLibraryServerErrors.value && Object.keys(deleteLibraryServerErrors.value).length > 0) {
+        errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
+            type: messages.value.typename_library,
+            id: LibraryTypeDef.id(obj),
+            error: JSON.stringify(deleteLibraryServerErrors),
+        });
+    }
+  });
   watch(libraryList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
@@ -389,8 +462,15 @@
       navigateTo("/admin/library/setup");
     }
   });
+
+  const initRefs = async () => {
+    const refSearches: Promise<[]>[] = [];
+    refSearches.push(sourceStore.search());
+    refSearches.push(destinationStore.search());
+    await Promise.all(refSearches);
+    
+  };
   libraryStore.search().then(() => {
-    sourceStore.search();
-    destinationStore.search();
+    initRefs();
   });
 </script>

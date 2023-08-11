@@ -2,7 +2,12 @@
   <v-container>
     <v-row>
       <v-col v-if="account">
-        <ModelPublicConfigAdmin />
+        <ModelPublicConfigAdmin
+          @add-canceled="close"
+          @added="close"
+          @edit-canceled="close"
+          @edited="close"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -15,4 +20,6 @@ import ModelPublicConfigAdmin from "~/components/model/publicConfig/ModelPublicC
 
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);
+
+const close = () => navigateTo("/admin");
 </script>

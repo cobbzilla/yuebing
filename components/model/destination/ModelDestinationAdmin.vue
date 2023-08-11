@@ -2,6 +2,12 @@
 
 <template>
   <v-container>
+    <v-row v-if="successSnackbar && successSnackbar.length > 0">
+      <KitSnackbarSuccess :text="successSnackbar" />
+    </v-row>
+    <v-row v-else-if="errorSnackbar && errorSnackbar.length > 0">
+      <KitSnackbarError :text="errorSnackbar" />
+    </v-row>
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
@@ -157,6 +163,8 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { useDestinationStore } from "~/stores/model/destinationStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  const successSnackbar = ref("");
+  const errorSnackbar = ref("");
   type ActionConfig = {
     path: string;
     message: string;
@@ -165,7 +173,13 @@
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
-      typeNameMessage: string,
+      typeNameMessage: string;
+      msgAddSuccess: string;
+      msgAddError: string;
+      msgEditSuccess: string;
+      msgEditError: string;
+      msgDeleteSuccess: string;
+      msgDeleteError: string;
       actionConfigs: Record<string, ActionConfig>;
       canEdit: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       canDelete: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
@@ -173,11 +187,25 @@
     }>(),{
       labelPrefixes: () => ["label_", ""],
       typeNameMessage: () => "typename_destination",
+      msgAddSuccess: () => "admin_info_added",
+      msgAddError: () => "admin_info_add_error",
+      msgEditSuccess: () => "admin_info_edited",
+      msgEditError: () => "admin_info_edit_error",
+      msgDeleteSuccess: () => "admin_info_deleted",
+      msgDeleteError: () => "admin_info_delete_error",
       actionConfigs: () => ({}),
       canEdit: () => true,
       canDelete: () => true,
     },
   );
+
+  const emit = defineEmits<{
+    added: [obj: DestinationType];
+    addCanceled: [];
+    edited: [obj: DestinationType];
+    editCanceled: [obj: DestinationType];
+    deleted: [obj: DestinationType];
+  }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_destination_", "label_", ""]);
   if (props.labelPrefixes) {
@@ -255,14 +283,29 @@
     await destinationStore
       .create(obj as DestinationType, createDestinationServerErrors);
     addingObject.value = false;
+    successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
+        type: messages.value.typename_destination,
+        id: DestinationTypeDef.id(obj),
+    });
+    emit("added", obj);
+    addObject.value = {} as DestinationType;
     return await destinationStore.search();
   }
+  watch(createDestinationServerErrors, () => {
+    if (createDestinationServerErrors.value && Object.keys(createDestinationServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
+        type: messages.value.typename_destination,
+        error: JSON.stringify(createDestinationServerErrors),
+      });
+    }
+  });
 
   const showAddOrm = () => {
     addingObject.value = true;
   };
   const onAddCancel = () => {
     addingObject.value = false;
+    emit("addCanceled");
   };
 
   const onEditUpdated = (update: { field: string; value: any }) => {
@@ -274,9 +317,23 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await destinationStore
       .update(obj as DestinationType, editDestinationServerErrors);
-        editingObject.value = {} as DestinationType;
-        return await destinationStore.search();
+    editingObject.value = {} as DestinationType;
+    successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
+      type: messages.value.typename_destination,
+      id: DestinationTypeDef.id(obj),
+    });
+    emit("edited", obj);
+    return await destinationStore.search();
   };
+  watch(editDestinationServerErrors, () => {
+    if (editDestinationServerErrors.value && Object.keys(editDestinationServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
+        type: messages.value.typename_destination,
+        id: DestinationTypeDef.id(editingObject.value),
+        error: JSON.stringify(editDestinationServerErrors),
+      });
+    }
+  });
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -286,11 +343,13 @@
     if (obj) {
       const id = DestinationTypeDef.id(obj);
       if (id && id.length > 0) {
+        addingObject.value = false; // ensure add form is closed
         editingObject.value = JSON.parse(JSON.stringify(obj)) as DestinationType;
       }
     }
   };
   const onEditCancel = () => {
+    emit("editCanceled", editingObject.value);
     editingObject.value = {} as DestinationType;
   };
 
@@ -311,8 +370,24 @@
   const delObject = (obj: MobilettoOrmObject) => {
       const id = DestinationTypeDef.id(obj);
       destinationStore.delete(id, deleteDestinationServerErrors)
-          .then(() => destinationStore.search());
+          .then(() => {
+              successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
+                  type: messages.value.typename_destination,
+                  id: DestinationTypeDef.id(obj),
+              });
+              emit("deleted", obj);
+              return destinationStore.search();
+          });
   };
+  watch(deleteDestinationServerErrors, () => {
+    if (deleteDestinationServerErrors.value && Object.keys(deleteDestinationServerErrors.value).length > 0) {
+        errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
+            type: messages.value.typename_destination,
+            id: DestinationTypeDef.id(obj),
+            error: JSON.stringify(deleteDestinationServerErrors),
+        });
+    }
+  });
   watch(destinationList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
@@ -320,5 +395,9 @@
       navigateTo("/admin/destination/setup");
     }
   });
+
+  const initRefs = async () => {
+    
+  };
   destinationStore.search();
 </script>

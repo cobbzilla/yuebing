@@ -75,7 +75,7 @@
           </v-textarea>
         </div>
         <div v-else-if="field.control === 'duration'" class="ma-0 pa-0">
-          <DurationField
+          <KitFieldDuration
               class="form-control"
               :full-width="true"
               :field-label="labelForField()"
@@ -213,7 +213,6 @@ import {
 import { HINT_MESSAGE_SUFFIX } from "yuebing-messages";
 import { findMessage, findMessageKey, messageExists } from "hokey-runtime";
 import { useSessionStore } from "~/stores/sessionStore";
-import DurationField from "~/components/DurationField.vue";
 import { typeDefFieldErrorMessage } from "~/utils/model/adminHelper";
 
 const props = withDefaults(

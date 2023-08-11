@@ -2,6 +2,12 @@
 
 <template>
   <v-container>
+    <v-row v-if="successSnackbar && successSnackbar.length > 0">
+      <KitSnackbarSuccess :text="successSnackbar" />
+    </v-row>
+    <v-row v-else-if="errorSnackbar && errorSnackbar.length > 0">
+      <KitSnackbarError :text="errorSnackbar" />
+    </v-row>
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
@@ -25,9 +31,9 @@
             :server-errors="createPublicConfigServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
-            cancel-button-message=""
             @submitted="onAddSubmitted"
             @update="onAddUpdated"
+            @cancel="onAddCancel"
           />
         </v-col>
       </v-row>
@@ -75,16 +81,35 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { usePublicConfigStore } from "~/stores/model/publicConfigStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  const successSnackbar = ref("");
+  const errorSnackbar = ref("");
 
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
-      typeNameMessage: string,
+      typeNameMessage: string;
+      msgAddSuccess: string;
+      msgAddError: string;
+      msgEditSuccess: string;
+      msgEditError: string;
+      msgFindSingletonError: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
       typeNameMessage: () => "typename_publicConfig",
+      msgAddSuccess: () => "admin_info_added",
+      msgAddError: () => "admin_info_add_error",
+      msgEditSuccess: () => "admin_info_edited",
+      msgEditError: () => "admin_info_edit_error",
+      msgFindSingletonError: () => "admin_info_findSingleton_error",
     },
   );
+
+  const emit = defineEmits<{
+    added: [obj: PublicConfigType];
+    addCanceled: [];
+    edited: [obj: PublicConfigType];
+    editCanceled: [obj: PublicConfigType];
+  }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_publicConfig_", "label_", ""]);
   if (props.labelPrefixes) {
@@ -114,7 +139,7 @@
   const publicConfigTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const publicConfigTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const findSingletonPublicConfigServerErrors = ref({} as MobilettoOrmValidationErrors);
-
+  
 
   const allRefsLoaded = () => true;
   publicConfigTypeDef.value = PublicConfigTypeDef;
@@ -127,11 +152,28 @@
     await publicConfigStore
       .create(obj as PublicConfigType, createPublicConfigServerErrors);
     addingObject.value = false;
+    successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
+        type: messages.value.typename_publicConfig,
+        id: PublicConfigTypeDef.id(obj),
+    });
+    emit("added", obj);
     return await publicConfigStore.lookup(findSingletonPublicConfigServerErrors);
   }
+  watch(createPublicConfigServerErrors, () => {
+    if (createPublicConfigServerErrors.value && Object.keys(createPublicConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
+        type: messages.value.typename_publicConfig,
+        error: JSON.stringify(createPublicConfigServerErrors),
+      });
+    }
+  });
 
   const showAddOrm = () => {
     addingObject.value = true;
+  };
+  const onAddCancel = () => {
+    addingObject.value = false;
+    emit("addCanceled");
   };
 
   const onEditUpdated = (update: { field: string; value: any }) => {
@@ -143,9 +185,23 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await publicConfigStore
       .update(obj as PublicConfigType, editPublicConfigServerErrors);
-        editingObject.value = {} as PublicConfigType;
-        return await publicConfigStore.lookup(findSingletonPublicConfigServerErrors);
+    
+    successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
+      type: messages.value.typename_publicConfig,
+      id: PublicConfigTypeDef.id(obj),
+    });
+    emit("edited", obj);
+    return await publicConfigStore.lookup(findSingletonPublicConfigServerErrors);
   };
+  watch(editPublicConfigServerErrors, () => {
+    if (editPublicConfigServerErrors.value && Object.keys(editPublicConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
+        type: messages.value.typename_publicConfig,
+        id: PublicConfigTypeDef.id(editingObject.value),
+        error: JSON.stringify(editPublicConfigServerErrors),
+      });
+    }
+  });
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -155,22 +211,35 @@
     if (obj) {
       const id = PublicConfigTypeDef.id(obj);
       if (id && id.length > 0) {
+        addingObject.value = false; // ensure add form is closed
         editingObject.value = JSON.parse(JSON.stringify(obj)) as PublicConfigType;
       }
     }
   };
   const onEditCancel = () => {
-    editingObject.value = JSON.parse(JSON.stringify(found)) as PublicConfigType;
+    emit("editCanceled", editingObject.value);
+    editingObject.value = JSON.parse(JSON.stringify(found.value)) as PublicConfigType;
   };
-  watch(found, (newFound: MobilettoOrmObject) => {
-    if (newFound && PublicConfigTypeDef.id(newFound)) {
-      showEditOrm(newFound)
+  watch(found, () => {
+    if (found.value && PublicConfigTypeDef.id(found.value)) {
+      showEditOrm(JSON.parse(JSON.stringify(found.value)));
     } else {
       showAddOrm();
     }
   });
-  watch(findSingletonPublicConfigServerErrors, (newErrors) => {
-    console.log(`findSingleton errors: ${JSON.stringify(newErrors)}`);
+  watch(findSingletonPublicConfigServerErrors, () => {
+    if (findSingletonPublicConfigServerErrors.value && Object.keys(findSingletonPublicConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgFindSingletonError, messages.value, {
+        type: messages.value.typename_publicConfig,
+        error: JSON.stringify(findSingletonPublicConfigServerErrors),
+      });
+    }
   });
-  publicConfigStore.lookup(findSingletonPublicConfigServerErrors);
+
+  const initRefs = async () => {
+    return await publicConfigStore.lookup(findSingletonPublicConfigServerErrors);
+  };
+  initRefs()
+      .then(obj => showEditOrm(obj))
+      .catch(_e => showAddOrm());
 </script>

@@ -2,14 +2,11 @@ import * as bcrypt from "bcrypt";
 import {
   MobilettoOrmError,
   MobilettoOrmFindOpts,
-  MobilettoOrmIdArg,
-  MobilettoOrmObject,
   MobilettoOrmRepository
 } from "mobiletto-orm";
 import { AccountType, AccountTypeDef } from "yuebing-model";
 import { ybRepo } from "~/server/utils/system";
 import { bcryptRounds } from "~/server/utils/config";
-import {MobilettoOrmPurgeOpts, MobilettoOrmPurgeResults} from "mobiletto-orm-typedef";
 
 export type AccountRepositoryType = MobilettoOrmRepository<AccountType> & {
   findByUsernameOrEmail: (usernameOrEmail: string, opts?: MobilettoOrmFindOpts) => Promise<AccountType | null>;

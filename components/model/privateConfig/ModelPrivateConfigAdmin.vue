@@ -2,6 +2,12 @@
 
 <template>
   <v-container>
+    <v-row v-if="successSnackbar && successSnackbar.length > 0">
+      <KitSnackbarSuccess :text="successSnackbar" />
+    </v-row>
+    <v-row v-else-if="errorSnackbar && errorSnackbar.length > 0">
+      <KitSnackbarError :text="errorSnackbar" />
+    </v-row>
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
@@ -25,9 +31,9 @@
             :server-errors="createPrivateConfigServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
-            cancel-button-message=""
             @submitted="onAddSubmitted"
             @update="onAddUpdated"
+            @cancel="onAddCancel"
           />
         </v-col>
       </v-row>
@@ -75,16 +81,35 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { usePrivateConfigStore } from "~/stores/model/privateConfigStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  const successSnackbar = ref("");
+  const errorSnackbar = ref("");
 
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
-      typeNameMessage: string,
+      typeNameMessage: string;
+      msgAddSuccess: string;
+      msgAddError: string;
+      msgEditSuccess: string;
+      msgEditError: string;
+      msgFindSingletonError: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
       typeNameMessage: () => "typename_privateConfig",
+      msgAddSuccess: () => "admin_info_added",
+      msgAddError: () => "admin_info_add_error",
+      msgEditSuccess: () => "admin_info_edited",
+      msgEditError: () => "admin_info_edit_error",
+      msgFindSingletonError: () => "admin_info_findSingleton_error",
     },
   );
+
+  const emit = defineEmits<{
+    added: [obj: PrivateConfigType];
+    addCanceled: [];
+    edited: [obj: PrivateConfigType];
+    editCanceled: [obj: PrivateConfigType];
+  }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_privateConfig_", "label_", ""]);
   if (props.labelPrefixes) {
@@ -114,7 +139,7 @@
   const privateConfigTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const privateConfigTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const findSingletonPrivateConfigServerErrors = ref({} as MobilettoOrmValidationErrors);
-
+  
 
   const allRefsLoaded = () => true;
   privateConfigTypeDef.value = PrivateConfigTypeDef;
@@ -127,11 +152,28 @@
     await privateConfigStore
       .create(obj as PrivateConfigType, createPrivateConfigServerErrors);
     addingObject.value = false;
+    successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
+        type: messages.value.typename_privateConfig,
+        id: PrivateConfigTypeDef.id(obj),
+    });
+    emit("added", obj);
     return await privateConfigStore.lookup(findSingletonPrivateConfigServerErrors);
   }
+  watch(createPrivateConfigServerErrors, () => {
+    if (createPrivateConfigServerErrors.value && Object.keys(createPrivateConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
+        type: messages.value.typename_privateConfig,
+        error: JSON.stringify(createPrivateConfigServerErrors),
+      });
+    }
+  });
 
   const showAddOrm = () => {
     addingObject.value = true;
+  };
+  const onAddCancel = () => {
+    addingObject.value = false;
+    emit("addCanceled");
   };
 
   const onEditUpdated = (update: { field: string; value: any }) => {
@@ -143,9 +185,23 @@
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
     await privateConfigStore
       .update(obj as PrivateConfigType, editPrivateConfigServerErrors);
-        editingObject.value = {} as PrivateConfigType;
-        return await privateConfigStore.lookup(findSingletonPrivateConfigServerErrors);
+    
+    successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
+      type: messages.value.typename_privateConfig,
+      id: PrivateConfigTypeDef.id(obj),
+    });
+    emit("edited", obj);
+    return await privateConfigStore.lookup(findSingletonPrivateConfigServerErrors);
   };
+  watch(editPrivateConfigServerErrors, () => {
+    if (editPrivateConfigServerErrors.value && Object.keys(editPrivateConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
+        type: messages.value.typename_privateConfig,
+        id: PrivateConfigTypeDef.id(editingObject.value),
+        error: JSON.stringify(editPrivateConfigServerErrors),
+      });
+    }
+  });
 
   const showEditOrm = (obj: MobilettoOrmObject) => {
     if (Object.keys(editingObject.value).length > 0) {
@@ -155,22 +211,35 @@
     if (obj) {
       const id = PrivateConfigTypeDef.id(obj);
       if (id && id.length > 0) {
+        addingObject.value = false; // ensure add form is closed
         editingObject.value = JSON.parse(JSON.stringify(obj)) as PrivateConfigType;
       }
     }
   };
   const onEditCancel = () => {
-    editingObject.value = JSON.parse(JSON.stringify(found)) as PrivateConfigType;
+    emit("editCanceled", editingObject.value);
+    editingObject.value = JSON.parse(JSON.stringify(found.value)) as PrivateConfigType;
   };
-  watch(found, (newFound: MobilettoOrmObject) => {
-    if (newFound && PrivateConfigTypeDef.id(newFound)) {
-      showEditOrm(newFound)
+  watch(found, () => {
+    if (found.value && PrivateConfigTypeDef.id(found.value)) {
+      showEditOrm(JSON.parse(JSON.stringify(found.value)));
     } else {
       showAddOrm();
     }
   });
-  watch(findSingletonPrivateConfigServerErrors, (newErrors) => {
-    console.log(`findSingleton errors: ${JSON.stringify(newErrors)}`);
+  watch(findSingletonPrivateConfigServerErrors, () => {
+    if (findSingletonPrivateConfigServerErrors.value && Object.keys(findSingletonPrivateConfigServerErrors.value).length > 0) {
+      errorSnackbar.value = parseMessage(props.msgFindSingletonError, messages.value, {
+        type: messages.value.typename_privateConfig,
+        error: JSON.stringify(findSingletonPrivateConfigServerErrors),
+      });
+    }
   });
-  privateConfigStore.lookup(findSingletonPrivateConfigServerErrors);
+
+  const initRefs = async () => {
+    return await privateConfigStore.lookup(findSingletonPrivateConfigServerErrors);
+  };
+  initRefs()
+      .then(obj => showEditOrm(obj))
+      .catch(_e => showAddOrm());
 </script>

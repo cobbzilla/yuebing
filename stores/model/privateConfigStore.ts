@@ -25,7 +25,8 @@ export const usePrivateConfigStore = defineStore("privateConfig", {
       this.found = null;
       this.finding = true;
       try {
-        return await privateConfigService.findPrivateConfig(serverErrors);
+        this.found = await privateConfigService.findPrivateConfig(serverErrors);
+        return this.found
       } finally {
         this.finding = false;
       }

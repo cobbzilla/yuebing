@@ -2,7 +2,13 @@
   <v-container>
     <v-row>
       <v-col v-if="account">
-        <ModelPrivateConfigAdmin />
+        <ModelPrivateConfigAdmin
+          :label-prefixes="labelPrefixes"
+          @add-canceled="close"
+          @added="close"
+          @edit-canceled="close"
+          @edited="close"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -15,4 +21,15 @@ import ModelPrivateConfigAdmin from "~/components/model/privateConfig/ModelPriva
 
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);
+
+const close = () => navigateTo("/admin");
+
+const labelPrefixes = [
+  'admin_label_privateConfig_',
+  'admin_label_privateConfig_auth_',
+  'admin_label_privateConfig_email_',
+  'admin_label_privateConfig_autoscan_',
+  'label_',
+  ''
+];
 </script>

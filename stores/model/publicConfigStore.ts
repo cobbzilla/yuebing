@@ -25,7 +25,8 @@ export const usePublicConfigStore = defineStore("publicConfig", {
       this.found = null;
       this.finding = true;
       try {
-        return await publicConfigService.findPublicConfig(serverErrors);
+        this.found = await publicConfigService.findPublicConfig(serverErrors);
+        return this.found
       } finally {
         this.finding = false;
       }

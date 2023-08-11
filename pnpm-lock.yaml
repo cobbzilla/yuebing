@@ -51,11 +51,11 @@ dependencies:
     specifier: ^2.0.8
     version: 2.0.8
   mobiletto-orm:
-    specifier: ^2.2.20
-    version: 2.2.20
+    specifier: ^2.2.24
+    version: 2.2.24
   mobiletto-orm-typedef:
-    specifier: ^2.3.22
-    version: 2.3.22
+    specifier: ^2.3.26
+    version: 2.3.26
   nuxt-icon:
     specifier: ^0.4.2
     version: 0.4.2(vue@3.3.4)
@@ -78,16 +78,16 @@ dependencies:
     specifier: ^3.10.0
     version: 3.10.0
   yuebing-messages:
-    specifier: ^2.1.1
-    version: 2.1.1
+    specifier: ^2.1.6
+    version: 2.1.6
   yuebing-model:
-    specifier: ^2.4.6
-    version: 2.4.6
+    specifier: ^2.4.17
+    version: 2.4.17
 
 devDependencies:
   '@nuxt/devtools':
     specifier: latest
-    version: 0.7.6(nuxt@3.6.5)(vite@4.4.9)
+    version: 0.8.0(nuxt@3.6.5)(vite@4.4.9)
   '@nuxtjs/eslint-config-typescript':
     specifier: ^12.0.0
     version: 12.0.0(eslint@8.44.0)(typescript@5.1.6)
@@ -1041,7 +1041,7 @@ packages:
     resolution: {integrity: sha512-BDXFbYOJzT/NBEtp71cvsrGPwGAMGRB/349rwKuoxNSiKjPraNNnlK6MIIabViCjqZugu6j+xeMDlEkWdHHJSg==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
     dev: true
 
   /@esbuild-kit/core-utils@3.1.0:
@@ -1055,7 +1055,7 @@ packages:
     resolution: {integrity: sha512-Qwfvj/qoPbClxCRNuac1Du01r9gvNOT+pMYtJDapfB1eoGN1YlJ1BixLyL9WVENRx5RXgNLdfYdx/CuswlGhMw==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
     dev: true
 
   /@esbuild/android-arm64@0.17.19:
@@ -1963,8 +1963,8 @@ packages:
     resolution: {integrity: sha512-GBzP8zOc7CGWyFQS6dv1lQz8VVpz5C2yRszbXufwG/9zhStTIH50EtD87NmWbTMwXDvZLNg8GIpb1UFdH93JCA==}
     dev: true
 
-  /@nuxt/devtools-kit@0.7.6(nuxt@3.6.5)(vite@4.4.9):
-    resolution: {integrity: sha512-2jSQ1rgStZifRHtfsdqmmvq/O5NskLCwg34JPchBRAx9Kv5IadABlBIWz1jLuaGarI/jsEEAmA5EpfxI5z/PJQ==}
+  /@nuxt/devtools-kit@0.8.0(nuxt@3.6.5)(vite@4.4.9):
+    resolution: {integrity: sha512-zHwotLFwmYPFDg0JHyInn0L3i2gZK24JYDfgOzqBuvCD/Q3ytQVyAMrX2Mp4iIrHjwToZBJ0dlyV+UYXCiWwSg==}
     peerDependencies:
       nuxt: ^3.6.5
       vite: '*'
@@ -1979,8 +1979,8 @@ packages:
       - supports-color
     dev: true
 
-  /@nuxt/devtools-wizard@0.7.6:
-    resolution: {integrity: sha512-XCznlUTk66ApYJygGc+6FVborAp2F4PAIvY4b6dVSUf1f47Hs3CPe6eEdatarmEqiTmFMInaX4y8z1hDXrFF0Q==}
+  /@nuxt/devtools-wizard@0.8.0:
+    resolution: {integrity: sha512-nxYAB4TQgeaoYY3xBEzrYVpXzXUAwoeCui0vqu1oTeeuKnl62uXFGsY4vXMHQtnibvbQVZzNFVFoXggKM3MBGw==}
     hasBin: true
     dependencies:
       consola: 3.2.3
@@ -1996,22 +1996,22 @@ packages:
       semver: 7.5.4
     dev: true
 
-  /@nuxt/devtools@0.7.6(nuxt@3.6.5)(vite@4.4.9):
-    resolution: {integrity: sha512-2x/eS0KbzTCK4+OozSZTcbjndM2ySy84MltF/suwLP7Wp/ehY8vzRp+yMTksxLjsf0sbiAa4K8WJCzKd8wLXxA==}
+  /@nuxt/devtools@0.8.0(nuxt@3.6.5)(vite@4.4.9):
+    resolution: {integrity: sha512-w48eqZ52NLVB8C0Q1E/eY0xsokMr9diOaxUptO08UYNhyj+MKKBrhIBTePYO7GlxabXOaHM62zi+iN8AT1qXoA==}
     hasBin: true
     peerDependencies:
       nuxt: ^3.6.5
       vite: '*'
     dependencies:
-      '@nuxt/devtools-kit': 0.7.6(nuxt@3.6.5)(vite@4.4.9)
-      '@nuxt/devtools-wizard': 0.7.6
+      '@nuxt/devtools-kit': 0.8.0(nuxt@3.6.5)(vite@4.4.9)
+      '@nuxt/devtools-wizard': 0.8.0
       '@nuxt/kit': 3.6.5
       birpc: 0.2.12
       boxen: 7.1.1
       consola: 3.2.3
       error-stack-parser-es: 0.1.0
       execa: 7.2.0
-      fast-folder-size: 2.1.0
+      fast-folder-size: 2.2.0
       fast-glob: 3.3.1
       get-port-please: 3.0.1
       global-dirs: 3.0.1
@@ -2093,7 +2093,7 @@ packages:
       scule: 1.0.0
       semver: 7.5.4
       unctx: 2.3.1
-      unimport: 3.1.0(rollup@3.26.0)
+      unimport: 3.1.3
       untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
@@ -2129,7 +2129,7 @@ packages:
       std-env: 3.3.3
       ufo: 1.2.0
       unimport: 3.1.0(rollup@3.26.0)
-      untyped: 1.4.0
+      untyped: 1.3.2
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -2470,8 +2470,8 @@ packages:
     resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
     dev: true
 
-  /@sigstore/bundle@1.0.0:
-    resolution: {integrity: sha512-yLvrWDOh6uMOUlFCTJIZEnwOT9Xte7NPXUqVexEKGSF5XtBAuSg5du0kn3dRR0p47a4ah10Y0mNt8+uyeQXrBQ==}
+  /@sigstore/bundle@1.1.0:
+    resolution: {integrity: sha512-PFutXEy0SmQxYI4texPw3dd2KewuNqv7OuK1ZFtY2fM754yhvG2KdgwIhRnoEE2uHdtdGNQ8s0lb94dW9sELog==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
       '@sigstore/protobuf-specs': 0.2.0
@@ -2480,6 +2480,17 @@ packages:
   /@sigstore/protobuf-specs@0.2.0:
     resolution: {integrity: sha512-8ZhZKAVfXjIspDWwm3D3Kvj0ddbJ0HqDZ/pOs5cx88HpT8mVsotFrg7H1UMnXOuDHz6Zykwxn4mxG3QLuN+RUg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dev: true
+
+  /@sigstore/sign@1.0.0:
+    resolution: {integrity: sha512-INxFVNQteLtcfGmcoldzV6Je0sbbfh9I16DM4yJPw3j5+TFP8X6uIiA18mvpEa9yyeycAKgPmOA3X9hVdVTPUA==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dependencies:
+      '@sigstore/bundle': 1.1.0
+      '@sigstore/protobuf-specs': 0.2.0
+      make-fetch-happen: 11.1.1
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@sigstore/tuf@1.0.3:
@@ -3806,8 +3817,8 @@ packages:
       semver: 7.5.4
     dev: true
 
-  /bullmq@4.7.0:
-    resolution: {integrity: sha512-xs6P4CWdYK5zb7Z1v95eLYtD3sOAARYmo860Zpk8mZgcrPXVjR4qT2sXdUU+uSoAVPB8t1OXr1OVoAkX0HgFKA==}
+  /bullmq@4.7.1:
+    resolution: {integrity: sha512-f6ScRQG69kFT4IOOADcEM0fJSQh+gDYQggyWTyAMVuhL4xteLupeiu0JliIx7A1dIVyWuhJXzJgA7GmFN3xr+w==}
     dependencies:
       cron-parser: 4.8.1
       glob: 8.1.0
@@ -3844,7 +3855,7 @@ packages:
       giget: 1.1.2
       jiti: 1.19.1
       mlly: 1.4.0
-      ohash: 1.1.2
+      ohash: 1.1.3
       pathe: 1.1.1
       perfect-debounce: 1.0.0
       pkg-types: 1.0.3
@@ -4866,7 +4877,7 @@ packages:
       eslint: 8.44.0
       eslint-module-utils: 2.8.0(@typescript-eslint/parser@5.61.0)(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.44.0)
       eslint-plugin-import: 2.27.5(@typescript-eslint/parser@5.61.0)(eslint-import-resolver-typescript@3.5.5)(eslint@8.44.0)
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
       globby: 13.2.2
       is-core-module: 2.13.0
       is-glob: 4.0.3
@@ -5274,8 +5285,8 @@ packages:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
     dev: true
 
-  /fast-folder-size@2.1.0:
-    resolution: {integrity: sha512-3h+e4YJJ6fze5RMaByScrfRdHE+DnM/as8r/jbjmIGhgty6v2yBRNbtOiItqhRitv4kBv8WAOQvbPtnyYK3gHw==}
+  /fast-folder-size@2.2.0:
+    resolution: {integrity: sha512-7VsTlT/ELl5OQ4fnckM3idvaUkdJxf6VaYn0sC43GWoRmKqvbGfpoyC4BC/imTd9CEZtlfNsEf8/ZqdfoU4Nwg==}
     hasBin: true
     requiresBuild: true
     dependencies:
@@ -5572,8 +5583,8 @@ packages:
       get-intrinsic: 1.2.1
     dev: true
 
-  /get-tsconfig@4.6.2:
-    resolution: {integrity: sha512-E5XrT4CbbXcXWy+1jChlZmrmCwd5KGx502kDCXJJ7y898TtWW9FwoG5HfOLVRKmlmDGkWN2HM9Ho+/Y8F0sJDg==}
+  /get-tsconfig@4.7.0:
+    resolution: {integrity: sha512-pmjiZ7xtB8URYm74PlGJozDNyhvsVLUcpBa8DZBG3bWHwaHa9bPiRpiSfovw+fjhwONSCWKRyk+JQHEGZmMrzw==}
     dependencies:
       resolve-pkg-maps: 1.0.0
     dev: true
@@ -6495,8 +6506,8 @@ packages:
       triple-beam: 1.4.1
     dev: false
 
-  /lru-cache@10.0.0:
-    resolution: {integrity: sha512-svTf/fzsKHffP42sujkO/Rjs37BCIsQVRCeNYIm9WN8rgT7ffoUnRtZCqU+6BqcSBdv8gwJeTz8knJpgACeQMw==}
+  /lru-cache@10.0.1:
+    resolution: {integrity: sha512-IJ4uwUTi2qCccrioU6g9g/5rvvVl13bsdczUUcqbciD9iLr095yj8DQKdObriEvuNSx325N1rV1O0sJFszx75g==}
     engines: {node: 14 || >=16.14}
 
   /lru-cache@5.1.1:
@@ -6551,7 +6562,7 @@ packages:
     dependencies:
       '@babel/parser': 7.22.10
       '@babel/types': 7.22.10
-      recast: 0.23.3
+      recast: 0.23.4
     dev: true
 
   /make-dir@1.3.0:
@@ -6788,14 +6799,14 @@ packages:
       acorn: 8.10.0
       pathe: 1.1.1
       pkg-types: 1.0.3
-      ufo: 1.1.2
+      ufo: 1.2.0
 
   /mobiletto-base@2.0.31:
     resolution: {integrity: sha512-xh5MRHKTfI86DyPif45I8HxgkDrrsqU46FuqPrGFR0/xxIq7Yf0/WSwhrpkZTMU0NED1hMW22WAsiE52RGeN5A==}
     dependencies:
-      bullmq: 4.7.0
+      bullmq: 4.7.1
       ioredis: 5.3.2
-      lru-cache: 10.0.0
+      lru-cache: 10.0.1
       mobiletto-common: 2.0.17
       node-fetch-commonjs: 3.3.1
       node-redis-scan: 1.3.6
@@ -6837,15 +6848,15 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-typedef@2.3.22:
-    resolution: {integrity: sha512-NyG2KYqyGs8a1nikQdX3dMW1TDm68UO8oVtNzwJ7Z/fAx9WrlRcvqxP8ytGAd8LlSGARTH4JgbulYXFKbcbLeg==}
+  /mobiletto-orm-typedef@2.3.26:
+    resolution: {integrity: sha512-8U4MBTzP2O4yEsKiCoDx0Ng0iHPxQnVaDeaVp2AtPJvAw3baHigScU5Ge/Hmo+ncsprmKMke6T3B0h/030IT/Q==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.2.20:
-    resolution: {integrity: sha512-5DhM9Q2e7FHU3z+n0qEyg/MCgfQthBJEYTVpNSlJrUvM9He8oExtBJV5pCR3VG4qcoob3WHeyMpR1jWeNGr/AQ==}
+  /mobiletto-orm@2.2.24:
+    resolution: {integrity: sha512-SAjWQd3znXBrOqQI9jbU6sUeEL/J2vYFQ5sfP+pTTHq6FBBs/g31PtCSrTFNq80b7bsN2cQ6GejEinhNf5sLVw==}
     dev: false
 
   /mri@1.2.0:
@@ -7395,6 +7406,10 @@ packages:
 
   /ohash@1.1.2:
     resolution: {integrity: sha512-9CIOSq5945rI045GFtcO3uudyOkYVY1nyfFxVQp+9BRgslr8jPNiSSrsFGg/BNTUFOLqx0P5tng6G32brIPw0w==}
+    dev: true
+
+  /ohash@1.1.3:
+    resolution: {integrity: sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==}
 
   /on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -7539,7 +7554,7 @@ packages:
       promise-retry: 2.0.1
       read-package-json: 6.0.4
       read-package-json-fast: 3.0.2
-      sigstore: 1.8.0
+      sigstore: 1.9.0
       ssri: 10.0.4
       tar: 6.1.15
     transitivePeerDependencies:
@@ -7616,7 +7631,7 @@ packages:
     resolution: {integrity: sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
-      lru-cache: 10.0.0
+      lru-cache: 10.0.1
       minipass: 5.0.0
     dev: true
 
@@ -8194,8 +8209,8 @@ packages:
     dependencies:
       picomatch: 2.3.1
 
-  /recast@0.23.3:
-    resolution: {integrity: sha512-HbCVFh2ANP6a09nzD4lx7XthsxMOJWKX5pIcUwtLrmeEIl3I0DwjCoVXDE0Aobk+7k/mS3H50FK4iuYArpcT6Q==}
+  /recast@0.23.4:
+    resolution: {integrity: sha512-qtEDqIZGVcSZCHniWwZWbRy79Dc6Wp3kT/UmDA2RJKBPg7+7k51aQBZirHmUGn5uvHf2rg8DkjizrN26k61ATw==}
     engines: {node: '>= 4'}
     dependencies:
       assert: 2.0.0
@@ -8531,13 +8546,14 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /sigstore@1.8.0:
-    resolution: {integrity: sha512-ogU8qtQ3VFBawRJ8wjsBEX/vIFeHuGs1fm4jZtjWQwjo8pfAt7T/rh+udlAN4+QUe0IzA8qRSc/YZ7dHP6kh+w==}
+  /sigstore@1.9.0:
+    resolution: {integrity: sha512-0Zjz0oe37d08VeOtBIuB6cRriqXse2e8w+7yIy2XSXjshRKxbc2KkhXjL229jXSxEm7UbcjS76wcJDGQddVI9A==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     hasBin: true
     dependencies:
-      '@sigstore/bundle': 1.0.0
+      '@sigstore/bundle': 1.1.0
       '@sigstore/protobuf-specs': 0.2.0
+      '@sigstore/sign': 1.0.0
       '@sigstore/tuf': 1.0.3
       make-fetch-happen: 11.1.1
     transitivePeerDependencies:
@@ -9101,6 +9117,7 @@ packages:
 
   /ufo@1.1.2:
     resolution: {integrity: sha512-TrY6DsjTQQgyS3E3dBaOXf0TpPD8u9FVrVYmKVegJuFw51n/YB9XPt+U6ydzFG5ZIN7+DIjPbNmXoBj9esYhgQ==}
+    dev: true
 
   /ufo@1.2.0:
     resolution: {integrity: sha512-RsPyTbqORDNDxqAdQPQBpgqhWle1VcTSou/FraClYlHf6TZnQcGslpLcAphNR+sQW4q5lLWLbOsRlh9j24baQg==}
@@ -9297,7 +9314,7 @@ packages:
       h3: 1.7.1
       ioredis: 5.3.2
       listhen: 1.0.4
-      lru-cache: 10.0.0
+      lru-cache: 10.0.1
       mri: 1.2.0
       node-fetch-native: 1.2.0
       ofetch: 1.1.1
@@ -9324,7 +9341,6 @@ packages:
       scule: 1.0.0
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /untyped@1.4.0:
     resolution: {integrity: sha512-Egkr/s4zcMTEuulcIb7dgURS6QpN7DyqQYdf+jBtiaJvQ+eRsrtWUoX84SbvQWuLkXsOjM+8sJC9u6KoMK/U7Q==}
@@ -9918,14 +9934,14 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yuebing-messages@2.1.1:
-    resolution: {integrity: sha512-EAvp3UKG7UC17V7G5NSTYOblHFeMIoCH56rd/KHIPPLZWRDmXjqE0QKQxuWk/Rb+k5vd4oZDmq77XgUKN6opTw==}
+  /yuebing-messages@2.1.6:
+    resolution: {integrity: sha512-00qyJ3+XgAX2/BGsYeXbKFju1BSFTAeG+Rl72HgqOqwBpw5yyNoi1mm+TQdVW5GYJ+mdvPppijzDzrLiUhmSiA==}
     dependencies:
       hokey-runtime: 1.0.4
     dev: false
 
-  /yuebing-model@2.4.6:
-    resolution: {integrity: sha512-tg7ncnkH/OIBTJdmSNGScl2gVw8SLUZ2CZeISh2LTcIzNgQ+JeHgA9S4wTfhX/L6LOoJQf1qUvDPyJ9LjYeVeg==}
+  /yuebing-model@2.4.17:
+    resolution: {integrity: sha512-muG7bExQekkKX97wIPcRZPMp4ahC6/CWGquSuQ2vRdOPJ7173pwv6+t7nDtsEoqJ88ZkdpGCIPqGA9svbiIz1A==}
     dev: false
 
   /zhead@2.0.10:
