@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col v-if="account">
-        <ModelPrivateConfigAdmin
+        <ModelLocalConfigAdmin
           :label-prefixes="labelPrefixes"
           @add-canceled="close"
           @added="close"
@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useSessionStore } from "~/stores/sessionStore";
-import ModelPrivateConfigAdmin from "~/components/model/privateConfig/ModelPrivateConfigAdmin.vue";
+import ModelLocalConfigAdmin from "~/components/model/localConfig/ModelLocalConfigAdmin.vue";
 
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);
@@ -26,8 +26,7 @@ const close = () => navigateTo("/admin");
 
 const labelPrefixes = [
   'admin_label_privateConfig_',
-  'admin_label_privateConfig_auth_',
-  'admin_label_privateConfig_email_',
+  'admin_label_privateConfig_autoscan_',
   'label_',
   ''
 ];

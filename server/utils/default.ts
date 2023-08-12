@@ -1,5 +1,7 @@
+import * as os from "os";
 import { PrivateConfigType, PublicConfigType } from "yuebing-model";
 import { FALLBACK_DEFAULT_LANG } from "yuebing-messages";
+import { sha } from "mobiletto-orm-typedef";
 
 export const DEFAULT_PUBLIC_CONFIG: PublicConfigType = {
   isDefault: true,
@@ -38,23 +40,22 @@ export const DEFAULT_PRIVATE_CONFIG: PrivateConfigType = {
     secure: process.env.YB_EMAIL_SECURE ? !!process.env.YB_EMAIL_SECURE : false,
     fromEmail: process.env.YB_EMAIL_FROM_EMAIL ? process.env.YB_EMAIL_FROM_EMAIL : "nobody@localhost.example",
   },
+};
+
+const macs = () => sha(Object.values(os.networkInterfaces())
+  .map(n => n.mac && !n.internal ? `${n.mac}` : "")
+  .filter(m => m.length > 0)
+  .join(":"));
+
+export const systemName = () => `h~${os.hostname()}_p~${os.platform()}_a~${os.arch()}_m~${macs()}`;
+
+export const DEFAULT_LOCAL_CONFIG: LocalConfigType = {
+  isDefault: true,
+  systemName: systemName(),
   autoscanEnabled: process.env.YB_AUTOSCAN_ENABLED ? !!process.env.YB_AUTOSCAN_ENABLED : false,
   autoscan: {
     initialDelay: process.env.YB_AUTOSCAN_INITIAL_DELAY
       ? parseInt(process.env.YB_AUTOSCAN_INITIAL_DELAY)
-      : 1000 * 60 * 10, // 10 minutes,
-    interval: process.env.YB_AUTOSCAN_INTERVAL ? parseInt(process.env.YB_AUTOSCAN_INTERVAL) : 1000 * 60 * 60 * 24, // default 24 hours
-    showTransformOutput: process.env.YB_AUTOSCAN_SHOW_TRANSFORM_OUTPUT
-      ? !!process.env.YB_AUTOSCAN_SHOW_TRANSFORM_OUTPUT
-      : false,
-    cleanupTemporaryAssets: process.env.YB_AUTOSCAN_CLEANUP_TEMPORARY_ASSETS
-      ? !!process.env.YB_AUTOSCAN_CLEANUP_TEMPORARY_ASSETS
-      : true,
-    deleteIncompleteUploads: process.env.YB_AUTOSCAN_DELETE_INCOMPLETE_UPLOADS
-      ? !!process.env.YB_AUTOSCAN_DELETE_INCOMPLETE_UPLOADS
-      : true,
-    transformConcurrency: process.env.YB_AUTOSCAN_TRANSFORM_CONCURRENCY
-      ? parseInt(process.env.YB_AUTOSCAN_TRANSFORM_CONCURRENCY)
-      : 1,
+      : 1000 * 60 * 10, // 10 minutes
   },
-};
+}
