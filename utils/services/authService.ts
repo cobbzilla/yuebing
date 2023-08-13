@@ -1,7 +1,7 @@
 import { AccountType, AuthAccountType, RegistrationType, UsernameAndPasswordType } from "yuebing-model";
 
 import { Ref } from "vue";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import * as auth from "../auth.js";
 import * as a from "./api.js";
 

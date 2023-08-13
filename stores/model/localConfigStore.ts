@@ -2,7 +2,7 @@
 
 import { Ref } from "vue";
 import { defineStore } from "pinia";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { LocalConfigType } from "yuebing-model";
 import { localConfigService } from "~/utils/services/model/localConfigService";
 

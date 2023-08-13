@@ -2,7 +2,7 @@
 
 import { Ref } from "vue";
 import { defineStore } from "pinia";
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { AnalyzedAssetType, AnalyzedAssetTypeDef } from "yuebing-model";
 import { analyzedAssetService } from "~/utils/services/model/analyzedAssetService";
 import { MobilettoOrmFindApiOpts, updateOrmList } from "~/utils/model/storeHelper.js";

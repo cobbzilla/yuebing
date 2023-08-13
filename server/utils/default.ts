@@ -1,5 +1,5 @@
 import * as os from "os";
-import { PrivateConfigType, PublicConfigType } from "yuebing-model";
+import { PrivateConfigType, PublicConfigType, LocalConfigType } from "yuebing-model";
 import { FALLBACK_DEFAULT_LANG } from "yuebing-messages";
 import { sha } from "mobiletto-orm-typedef";
 
@@ -43,7 +43,10 @@ export const DEFAULT_PRIVATE_CONFIG: PrivateConfigType = {
 };
 
 const macs = () => sha(Object.values(os.networkInterfaces())
-  .map(n => n.mac && !n.internal ? `${n.mac}` : "")
+  .map(na => na && na.length > 0
+    ? (na.map(ni => ni.mac && !ni.internal ? `${ni.mac}` : "")).join("+")
+    : ""
+  )
   .filter(m => m.length > 0)
   .join(":"));
 

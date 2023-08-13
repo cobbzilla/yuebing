@@ -120,9 +120,6 @@ export const UI_CONFIG = {
   snackbarSuccessTimeout: 6000,
 };
 
-export const DEFAULT_VOLUME_PREFIX = "~ default ~";
-export const DEFAULT_TEMP_VOLUME = DEFAULT_VOLUME_PREFIX + ":tmpdir";
-
 export const isDefaultVolume = (volume: string | VolumeType) =>
   volume &&
   ((typeof volume === "string" && volume.startsWith(DEFAULT_VOLUME_PREFIX)) ||

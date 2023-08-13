@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as os from "os";
 import { MobilettoConnection, mobiletto, registerDriver, MobilettoDriverParameter } from "mobiletto-base";
 import { storageClient as localDriver } from "mobiletto-driver-local";
 import { storageClient as s3Driver } from "mobiletto-driver-s3";
@@ -15,7 +16,6 @@ import {
 import { DestinationType, DestinationTypeDef, VolumeType } from "yuebing-model";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
-import { DEFAULT_TEMP_VOLUME, DEFAULT_VOLUME_PREFIX } from "~/utils/util";
 
 const MOBILETTO_INIT = new Cached<boolean>(
   (): Promise<boolean> => {
@@ -49,25 +49,19 @@ const initializeStorage = async (): Promise<YuebingConnection> => {
   // register mobiletto drivers
   await MOBILETTO_INIT.get();
 
-  // check environment for initial storage config
-  if (process.env.YUEBING_STORAGE_DRIVER && process.env.YUEBING_STORAGE_KEY) {
-    const driverPath = process.env.YUEBING_STORAGE_DRIVER;
-    const key = process.env.YUEBING_STORAGE_KEY;
-    const secret = process.env.YUEBING_STORAGE_SECRET || null;
-    const opts = JSON.parse(process.env.YUEBING_STORAGE_OPTS || "{}");
-    return {
-      name: `${DEFAULT_VOLUME_PREFIX} env:${driverPath}`,
-      type: driverPath,
-      connection: await mobiletto(driverPath, key, secret, opts),
-    };
-  } else {
-    // create new storage on local filesystem
-    return {
-      name: DEFAULT_TEMP_VOLUME,
-      type: "local",
-      connection: await mobiletto("local", fs.mkdtempSync("yuebing_storage_")),
-    };
+  // create new storage on local filesystem
+  const ybDir = os.homedir() + "/.yuebing_storage_local";
+  const fstat = fs.statSync(ybDir, { throwIfNoEntry: false });
+  if (!fstat) {
+    fs.mkdirSync(ybDir);
+  } else if (!fstat.isDirectory()) {
+    throw new Error(`initializeStorage: default storage location already exists and is not a directory: ${ybDir}`);
   }
+  return {
+    name: "~default~",
+    type: "local",
+    connection: await mobiletto("local", ybDir),
+  };
 };
 
 type VolumeConnectResult = {

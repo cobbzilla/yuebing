@@ -1,4 +1,4 @@
-import { MobilettoOrmValidationErrors } from "mobiletto-orm";
+import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { SESSION_HEADER, sessionCookie } from "../auth";
 
 export function authHeader() {
