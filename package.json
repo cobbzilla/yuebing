@@ -83,7 +83,7 @@
     "vue-json-pretty": "^2.2.4",
     "vue-router": "^4.2.4",
     "vuetify": "^3.3.6",
-    "yuebing-messages": "^2.1.6",
-    "yuebing-model": "^2.5.5"
+    "yuebing-messages": "^2.1.7",
+    "yuebing-model": "^2.5.6"
   }
 }
