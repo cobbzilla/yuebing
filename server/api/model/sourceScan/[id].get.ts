@@ -11,8 +11,6 @@ export default defineEventHandler(async (event: H3Event) => {
       if (!id) throw notFound(sourceScanRepo.typeDef.idFieldName());
       const sourceScan_by_id = await sourceScanRepo.safeFindById(id);
       if (sourceScan_by_id) return sourceScan_by_id;
-      const sourceScan_by_source = await sourceScanRepo.safeFindFirstBy("source", id);
-      if (sourceScan_by_source) return sourceScan_by_source;
       throw notFound(id);
     });
   });

@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_downloadedAsset_admin_details', messages)">
-          {{ messages.title_downloadedAsset_admin_details }}
+        <b v-if="messageExists('title_profileJob_admin_details', messages)">
+          {{ messages.title_profileJob_admin_details }}
         </b>
       </v-col>
     </v-row>
@@ -20,15 +20,15 @@
       <v-row v-if="addingObject">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && downloadedAssetTypeDef"
-            form-name="add_downloadedAsset_form"
-            :type-def="downloadedAssetTypeDef"
+            v-if="allRefsLoaded() && profileJobTypeDef"
+            form-name="add_profileJob_form"
+            :type-def="profileJobTypeDef"
             :type-name-message="typeNameMessage"
             :thing="addObject"
-            :fields="downloadedAssetTypeDefFields"
+            :fields="profileJobTypeDefFields"
             :create="true"
             :read-only-object="() => false"
-            :server-errors="createDownloadedAssetServerErrors"
+            :server-errors="createProfileJobServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onAddSubmitted"
@@ -40,15 +40,15 @@
       <v-row v-else-if="Object.keys(editingObject).length > 0">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && downloadedAssetTypeDef"
-            form-name="edit_downloadedAsset_form"
-            :type-def="downloadedAssetTypeDef"
+            v-if="allRefsLoaded() && profileJobTypeDef"
+            form-name="edit_profileJob_form"
+            :type-def="profileJobTypeDef"
             type-name-message="typeNameMessage"
             :thing="editingObject"
-            :fields="downloadedAssetTypeDefFields"
+            :fields="profileJobTypeDefFields"
             :create="false"
             :read-only-object="() => false"
-            :server-errors="editDownloadedAssetServerErrors"
+            :server-errors="editProfileJobServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onEditSubmitted"
@@ -57,10 +57,10 @@
           />
         </v-col>
       </v-row>
-      <v-row v-else-if="allRefsLoaded() && downloadedAssetTypeDef">
+      <v-row v-else-if="allRefsLoaded() && profileJobTypeDef">
         <v-col>
           <v-container>
-            <v-row v-if="(downloadedAssetList && downloadedAssetList.length > 0) || searched">
+            <v-row v-if="(profileJobList && profileJobList.length > 0) || searched">
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
@@ -68,13 +68,13 @@
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
-                        :disabled="downloadedAssetStore.downloadedAssetBusy"
+                        :disabled="profileJobStore.profileJobBusy"
                         type="text"
                         name="searchTerms"
                         class="form-control"
                         @keyup.enter="searchObjects"
                       />
-                      <v-btn class="btn btn-primary" :disabled="downloadedAssetStore.downloadedAssetBusy" @click.stop="searchObjects">
+                      <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="searchObjects">
                         <Icon name="material-symbols:search" />
                       </v-btn>
                     </div>
@@ -84,7 +84,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="downloadedAssetList && downloadedAssetList.length > 0">
+                <table v-if="profileJobList && profileJobList.length > 0">
                   <thead>
                   <tr>
                     <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
@@ -98,15 +98,15 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr v-for="(obj, objIndex) in downloadedAssetList" :key="objIndex">
+                  <tr v-for="(obj, objIndex) in profileJobList" :key="objIndex">
                     <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="downloadedAssetTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : downloadedAssetTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                      <OrmFieldDisplay v-if="profileJobTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : profileJobTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                     </td>
                     <td v-if="Object.keys(actionConfigs).length > 0">
                       <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
                         <NuxtLink
                           v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, downloadedAssetTypeDef.idField(obj) as string)}` }"
+                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, profileJobTypeDef.idField(obj) as string)}` }"
                         >
                           <v-btn>
                             {{ messages[actionConfig(action).message] }}
@@ -115,12 +115,12 @@
                       </div>
                     </td>
                     <td>
-                      <v-btn v-if="canEdit(obj, downloadedAssetList)" :disabled="downloadedAssetStore.downloadedAssetBusy" @click.stop="showEditOrm(obj)">
+                      <v-btn v-if="canEdit(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="showEditOrm(obj)">
                         <Icon name="material-symbols:edit" />
                       </v-btn>
                     </td>
                     <td>
-                      <v-btn v-if="canDelete(obj, downloadedAssetList)" :disabled="downloadedAssetStore.downloadedAssetBusy" @click.stop="delObject(obj)">
+                      <v-btn v-if="canDelete(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="delObject(obj)">
                         <Icon name="material-symbols:delete" />
                       </v-btn>
                     </td>
@@ -131,7 +131,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <v-btn class="btn btn-primary" :disabled="downloadedAssetStore.downloadedAssetBusy" @click.stop="showAddOrm">
+                <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="showAddOrm">
                   <Icon name="material-symbols:add" />
                 </v-btn>
               </v-col>
@@ -158,11 +158,11 @@
     MobilettoOrmValidationErrors,
     metaField
   } from "mobiletto-orm-typedef";
-  import { DownloadedAssetType, DownloadedAssetTypeDef } from "yuebing-model";
+  import { ProfileJobType, ProfileJobTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
-  import { useDownloadedAssetStore } from "~/stores/model/downloadedAssetStore";
-  import { useSourceStore } from "~/stores/model/sourceStore";
+  import { useProfileJobStore } from "~/stores/model/profileJobStore";
+  import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -187,7 +187,7 @@
       deleteConfirmationMessage: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
-      typeNameMessage: () => "typename_downloadedAsset",
+      typeNameMessage: () => "typename_profileJob",
       msgAddSuccess: () => "admin_info_added",
       msgAddError: () => "admin_info_add_error",
       msgEditSuccess: () => "admin_info_edited",
@@ -201,14 +201,14 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: DownloadedAssetType];
+    added: [obj: ProfileJobType];
     addCanceled: [];
-    edited: [obj: DownloadedAssetType];
-    editCanceled: [obj: DownloadedAssetType];
-    deleted: [obj: DownloadedAssetType];
+    edited: [obj: ProfileJobType];
+    editCanceled: [obj: ProfileJobType];
+    deleted: [obj: ProfileJobType];
   }>();
 
-  const labelPfx: Ref<string[]> = ref(["admin_label_downloadedAsset_", "label_", ""]);
+  const labelPfx: Ref<string[]> = ref(["admin_label_profileJob_", "label_", ""]);
   if (props.labelPrefixes) {
     props.labelPrefixes.forEach((p: string) => {
       if (!labelPfx.value.includes(p)) labelPfx.value.unshift(p);
@@ -219,17 +219,17 @@
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
 
-  const adminTitle = () => messageExists("admin_title_downloadedAsset_administration", messages.value)
-    ? messages.value.admin_title_downloadedAsset_administration
+  const adminTitle = () => messageExists("admin_title_profileJob_administration", messages.value)
+    ? messages.value.admin_title_profileJob_administration
     : parseMessage("admin_title_site_administration", messages.value, { title: findMessage(props.typeNameMessage, messages.value, [""])});
 
   const addingObject = ref(false);
-  const addObject = ref({} as DownloadedAssetType);
-  const createDownloadedAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const addObject = ref({} as ProfileJobType);
+  const createProfileJobServerErrors = ref({} as MobilettoOrmValidationErrors);
 
-  const editingObject = ref({} as DownloadedAssetType);
-  const editDownloadedAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
-  const deleteDownloadedAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const editingObject = ref({} as ProfileJobType);
+  const editProfileJobServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteProfileJobServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -248,10 +248,10 @@
       tableFieldMessages.value = defaultTableFieldMessages;
   };
 
-  const downloadedAssetStore = useDownloadedAssetStore();
-  const { downloadedAssetList  } = storeToRefs(downloadedAssetStore);
-  const downloadedAssetTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
-  const downloadedAssetTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+  const profileJobStore = useProfileJobStore();
+  const { profileJobList  } = storeToRefs(profileJobStore);
+  const profileJobTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
+  const profileJobTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -261,25 +261,25 @@
     } else {
       searched.value = true;
       lastQuery.value = Object.assign({}, query);
-      downloadedAssetStore.search(query);
+      profileJobStore.search(query);
     }
   };
 
   const navigating = ref(false);
   const initTypeDef = () => {
-    const typeDef = DownloadedAssetTypeDef.extend({
+    const typeDef = ProfileJobTypeDef.extend({
       fields: {
       
-        source: { ...refSource.value },
+        profile: { ...refMediaProfile.value },
       
       }
     });
-    downloadedAssetTypeDefFields.value = typeDef.tabIndexedFields();
-    downloadedAssetTypeDef.value = typeDef;
-    tableFields.value = downloadedAssetTypeDef.value.tableFields && Array.isArray(downloadedAssetTypeDef.value.tableFields)
-      ? downloadedAssetTypeDef.value.tableFields
-      : downloadedAssetTypeDef.value.primary
-        ? [downloadedAssetTypeDef.value.primary, "ctime", "mtime"]
+    profileJobTypeDefFields.value = typeDef.tabIndexedFields();
+    profileJobTypeDef.value = typeDef;
+    tableFields.value = profileJobTypeDef.value.tableFields && Array.isArray(profileJobTypeDef.value.tableFields)
+      ? profileJobTypeDef.value.tableFields
+      : profileJobTypeDef.value.primary
+        ? [profileJobTypeDef.value.primary, "ctime", "mtime"]
         : ["id", "ctime", "mtime"];
     initTableFieldMessages(tableFields.value);
   }
@@ -287,28 +287,28 @@
   const allRefs: Ref<Boolean>[] = [];
   const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
 
-  const refSource = ref({} as MobilettoOrmFieldDefConfig);
-  const refSourceLoaded = ref(false);
-  allRefs.push(refSourceLoaded);
-  const sourceStore = useSourceStore();
-  const { sourceList } = storeToRefs(sourceStore);
+  const refMediaProfile = ref({} as MobilettoOrmFieldDefConfig);
+  const refMediaProfileLoaded = ref(false);
+  allRefs.push(refMediaProfileLoaded);
+  const mediaProfileStore = useMediaProfileStore();
+  const { mediaProfileList } = storeToRefs(mediaProfileStore);
 
-  watch(sourceList, (newList) => {
+  watch(mediaProfileList, (newList) => {
     if (newList && newList.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/source/setup");
+      navigateTo("/admin/mediaProfile/setup");
     } else if (newList && newList.length > 0) {
-      refSource.value.values = newList.map((s) => s.name);
-      refSource.value.labels = newList.map((s) => s.name);
-      refSource.value.items = newList.map((s) => ({
+      refMediaProfile.value.values = newList.map((s) => s.name);
+      refMediaProfile.value.labels = newList.map((s) => s.name);
+      refMediaProfile.value.items = newList.map((s) => ({
         label: s.name,
         value: s.name,
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.source = refSource.value.values as any;
-      refSourceLoaded.value = true;
+      addObject.value.profile = refMediaProfile.value.values as any;
+      refMediaProfileLoaded.value = true;
       if (allRefsLoaded()) {
         initTypeDef()
       }
@@ -318,22 +318,22 @@
     deepUpdate(addObject.value, update.field, update.value);
   };
   const onAddSubmitted = async (obj: MobilettoOrmObject) => {
-    await downloadedAssetStore
-      .create(obj as DownloadedAssetType, createDownloadedAssetServerErrors);
+    await profileJobStore
+      .create(obj as ProfileJobType, createProfileJobServerErrors);
     addingObject.value = false;
     successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
-        type: messages.value.typename_downloadedAsset,
-        id: DownloadedAssetTypeDef.id(obj),
+        type: messages.value.typename_profileJob,
+        id: ProfileJobTypeDef.id(obj),
     });
     emit("added", obj);
-    addObject.value = {} as DownloadedAssetType;
-    return await downloadedAssetStore.search();
+    addObject.value = {} as ProfileJobType;
+    return await profileJobStore.search();
   }
-  watch(createDownloadedAssetServerErrors, () => {
-    if (createDownloadedAssetServerErrors.value && Object.keys(createDownloadedAssetServerErrors.value).length > 0) {
+  watch(createProfileJobServerErrors, () => {
+    if (createProfileJobServerErrors.value && Object.keys(createProfileJobServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
-        type: messages.value.typename_downloadedAsset,
-        error: JSON.stringify(createDownloadedAssetServerErrors),
+        type: messages.value.typename_profileJob,
+        error: JSON.stringify(createProfileJobServerErrors),
       });
     }
   });
@@ -353,22 +353,22 @@
   };
 
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
-    await downloadedAssetStore
-      .update(obj as DownloadedAssetType, editDownloadedAssetServerErrors);
-    editingObject.value = {} as DownloadedAssetType;
+    await profileJobStore
+      .update(obj as ProfileJobType, editProfileJobServerErrors);
+    editingObject.value = {} as ProfileJobType;
     successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
-      type: messages.value.typename_downloadedAsset,
-      id: DownloadedAssetTypeDef.id(obj),
+      type: messages.value.typename_profileJob,
+      id: ProfileJobTypeDef.id(obj),
     });
     emit("edited", obj);
-    return await downloadedAssetStore.search();
+    return await profileJobStore.search();
   };
-  watch(editDownloadedAssetServerErrors, () => {
-    if (editDownloadedAssetServerErrors.value && Object.keys(editDownloadedAssetServerErrors.value).length > 0) {
+  watch(editProfileJobServerErrors, () => {
+    if (editProfileJobServerErrors.value && Object.keys(editProfileJobServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
-        type: messages.value.typename_downloadedAsset,
-        id: DownloadedAssetTypeDef.id(editingObject.value),
-        error: JSON.stringify(editDownloadedAssetServerErrors),
+        type: messages.value.typename_profileJob,
+        id: ProfileJobTypeDef.id(editingObject.value),
+        error: JSON.stringify(editProfileJobServerErrors),
       });
     }
   });
@@ -379,16 +379,16 @@
       return;
     }
     if (obj) {
-      const id = DownloadedAssetTypeDef.id(obj);
+      const id = ProfileJobTypeDef.id(obj);
       if (id && id.length > 0) {
         addingObject.value = false; // ensure add form is closed
-        editingObject.value = JSON.parse(JSON.stringify(obj)) as DownloadedAssetType;
+        editingObject.value = JSON.parse(JSON.stringify(obj)) as ProfileJobType;
       }
     }
   };
   const onEditCancel = () => {
     emit("editCanceled", editingObject.value);
-    editingObject.value = {} as DownloadedAssetType;
+    editingObject.value = {} as ProfileJobType;
   };
 
   const actionConfig = (action: string) => {
@@ -406,41 +406,41 @@
     return true;
   };
   const delObject = (obj: MobilettoOrmObject) => {
-      const id = DownloadedAssetTypeDef.id(obj);
-      downloadedAssetStore.delete(id, deleteDownloadedAssetServerErrors)
+      const id = ProfileJobTypeDef.id(obj);
+      profileJobStore.delete(id, deleteProfileJobServerErrors)
           .then(() => {
               successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
-                  type: messages.value.typename_downloadedAsset,
-                  id: DownloadedAssetTypeDef.id(obj),
+                  type: messages.value.typename_profileJob,
+                  id: ProfileJobTypeDef.id(obj),
               });
               emit("deleted", obj);
-              return downloadedAssetStore.search();
+              return profileJobStore.search();
           });
   };
-  watch(deleteDownloadedAssetServerErrors, () => {
-    if (deleteDownloadedAssetServerErrors.value && Object.keys(deleteDownloadedAssetServerErrors.value).length > 0) {
+  watch(deleteProfileJobServerErrors, () => {
+    if (deleteProfileJobServerErrors.value && Object.keys(deleteProfileJobServerErrors.value).length > 0) {
         errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
-            type: messages.value.typename_downloadedAsset,
-            id: DownloadedAssetTypeDef.id(obj),
-            error: JSON.stringify(deleteDownloadedAssetServerErrors),
+            type: messages.value.typename_profileJob,
+            id: ProfileJobTypeDef.id(obj),
+            error: JSON.stringify(deleteProfileJobServerErrors),
         });
     }
   });
-  watch(downloadedAssetList, (newList) => {
+  watch(profileJobList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/downloadedAsset/setup");
+      navigateTo("/admin/profileJob/setup");
     }
   });
 
   const initRefs = async () => {
     const refSearches: Promise<[]>[] = [];
-    refSearches.push(sourceStore.search());
+    refSearches.push(mediaProfileStore.search());
     await Promise.all(refSearches);
     
   };
-  downloadedAssetStore.search().then(() => {
+  profileJobStore.search().then(() => {
     initRefs();
   });
 </script>

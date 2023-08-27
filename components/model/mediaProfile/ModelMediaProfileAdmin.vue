@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_mediaOperation_admin_details', messages)">
-          {{ messages.title_mediaOperation_admin_details }}
+        <b v-if="messageExists('title_mediaProfile_admin_details', messages)">
+          {{ messages.title_mediaProfile_admin_details }}
         </b>
       </v-col>
     </v-row>
@@ -20,15 +20,15 @@
       <v-row v-if="addingObject">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && mediaOperationTypeDef"
-            form-name="add_mediaOperation_form"
-            :type-def="mediaOperationTypeDef"
+            v-if="allRefsLoaded() && mediaProfileTypeDef"
+            form-name="add_mediaProfile_form"
+            :type-def="mediaProfileTypeDef"
             :type-name-message="typeNameMessage"
             :thing="addObject"
-            :fields="mediaOperationTypeDefFields"
+            :fields="mediaProfileTypeDefFields"
             :create="true"
             :read-only-object="() => false"
-            :server-errors="createMediaOperationServerErrors"
+            :server-errors="createMediaProfileServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onAddSubmitted"
@@ -40,15 +40,15 @@
       <v-row v-else-if="Object.keys(editingObject).length > 0">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && mediaOperationTypeDef"
-            form-name="edit_mediaOperation_form"
-            :type-def="mediaOperationTypeDef"
+            v-if="allRefsLoaded() && mediaProfileTypeDef"
+            form-name="edit_mediaProfile_form"
+            :type-def="mediaProfileTypeDef"
             type-name-message="typeNameMessage"
             :thing="editingObject"
-            :fields="mediaOperationTypeDefFields"
+            :fields="mediaProfileTypeDefFields"
             :create="false"
             :read-only-object="() => false"
-            :server-errors="editMediaOperationServerErrors"
+            :server-errors="editMediaProfileServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onEditSubmitted"
@@ -57,10 +57,10 @@
           />
         </v-col>
       </v-row>
-      <v-row v-else-if="allRefsLoaded() && mediaOperationTypeDef">
+      <v-row v-else-if="allRefsLoaded() && mediaProfileTypeDef">
         <v-col>
           <v-container>
-            <v-row v-if="(mediaOperationList && mediaOperationList.length > 0) || searched">
+            <v-row v-if="(mediaProfileList && mediaProfileList.length > 0) || searched">
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
@@ -68,13 +68,13 @@
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
-                        :disabled="mediaOperationStore.mediaOperationBusy"
+                        :disabled="mediaProfileStore.mediaProfileBusy"
                         type="text"
                         name="searchTerms"
                         class="form-control"
                         @keyup.enter="searchObjects"
                       />
-                      <v-btn class="btn btn-primary" :disabled="mediaOperationStore.mediaOperationBusy" @click.stop="searchObjects">
+                      <v-btn class="btn btn-primary" :disabled="mediaProfileStore.mediaProfileBusy" @click.stop="searchObjects">
                         <Icon name="material-symbols:search" />
                       </v-btn>
                     </div>
@@ -84,7 +84,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="mediaOperationList && mediaOperationList.length > 0">
+                <table v-if="mediaProfileList && mediaProfileList.length > 0">
                   <thead>
                   <tr>
                     <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
@@ -98,15 +98,15 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr v-for="(obj, objIndex) in mediaOperationList" :key="objIndex">
+                  <tr v-for="(obj, objIndex) in mediaProfileList" :key="objIndex">
                     <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="mediaOperationTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaOperationTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                      <OrmFieldDisplay v-if="mediaProfileTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaProfileTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                     </td>
                     <td v-if="Object.keys(actionConfigs).length > 0">
                       <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
                         <NuxtLink
                           v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaOperationTypeDef.idField(obj) as string)}` }"
+                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaProfileTypeDef.idField(obj) as string)}` }"
                         >
                           <v-btn>
                             {{ messages[actionConfig(action).message] }}
@@ -115,12 +115,12 @@
                       </div>
                     </td>
                     <td>
-                      <v-btn v-if="canEdit(obj, mediaOperationList)" :disabled="mediaOperationStore.mediaOperationBusy" @click.stop="showEditOrm(obj)">
+                      <v-btn v-if="canEdit(obj, mediaProfileList)" :disabled="mediaProfileStore.mediaProfileBusy" @click.stop="showEditOrm(obj)">
                         <Icon name="material-symbols:edit" />
                       </v-btn>
                     </td>
                     <td>
-                      <v-btn v-if="canDelete(obj, mediaOperationList)" :disabled="mediaOperationStore.mediaOperationBusy" @click.stop="delObject(obj)">
+                      <v-btn v-if="canDelete(obj, mediaProfileList)" :disabled="mediaProfileStore.mediaProfileBusy" @click.stop="delObject(obj)">
                         <Icon name="material-symbols:delete" />
                       </v-btn>
                     </td>
@@ -131,7 +131,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <v-btn class="btn btn-primary" :disabled="mediaOperationStore.mediaOperationBusy" @click.stop="showAddOrm">
+                <v-btn class="btn btn-primary" :disabled="mediaProfileStore.mediaProfileBusy" @click.stop="showAddOrm">
                   <Icon name="material-symbols:add" />
                 </v-btn>
               </v-col>
@@ -158,10 +158,12 @@
     MobilettoOrmValidationErrors,
     metaField
   } from "mobiletto-orm-typedef";
-  import { MediaOperationType, MediaOperationTypeDef } from "yuebing-model";
+  import { MediaProfileType, MediaProfileTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
-  import { useMediaOperationStore } from "~/stores/model/mediaOperationStore";
+  import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
+  import { useMediaStore } from "~/stores/model/mediaStore";
+  import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -186,7 +188,7 @@
       deleteConfirmationMessage: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
-      typeNameMessage: () => "typename_mediaOperation",
+      typeNameMessage: () => "typename_mediaProfile",
       msgAddSuccess: () => "admin_info_added",
       msgAddError: () => "admin_info_add_error",
       msgEditSuccess: () => "admin_info_edited",
@@ -200,14 +202,14 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: MediaOperationType];
+    added: [obj: MediaProfileType];
     addCanceled: [];
-    edited: [obj: MediaOperationType];
-    editCanceled: [obj: MediaOperationType];
-    deleted: [obj: MediaOperationType];
+    edited: [obj: MediaProfileType];
+    editCanceled: [obj: MediaProfileType];
+    deleted: [obj: MediaProfileType];
   }>();
 
-  const labelPfx: Ref<string[]> = ref(["admin_label_mediaOperation_", "label_", ""]);
+  const labelPfx: Ref<string[]> = ref(["admin_label_mediaProfile_", "label_", ""]);
   if (props.labelPrefixes) {
     props.labelPrefixes.forEach((p: string) => {
       if (!labelPfx.value.includes(p)) labelPfx.value.unshift(p);
@@ -218,17 +220,17 @@
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
 
-  const adminTitle = () => messageExists("admin_title_mediaOperation_administration", messages.value)
-    ? messages.value.admin_title_mediaOperation_administration
+  const adminTitle = () => messageExists("admin_title_mediaProfile_administration", messages.value)
+    ? messages.value.admin_title_mediaProfile_administration
     : parseMessage("admin_title_site_administration", messages.value, { title: findMessage(props.typeNameMessage, messages.value, [""])});
 
   const addingObject = ref(false);
-  const addObject = ref({} as MediaOperationType);
-  const createMediaOperationServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const addObject = ref({} as MediaProfileType);
+  const createMediaProfileServerErrors = ref({} as MobilettoOrmValidationErrors);
 
-  const editingObject = ref({} as MediaOperationType);
-  const editMediaOperationServerErrors = ref({} as MobilettoOrmValidationErrors);
-  const deleteMediaOperationServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const editingObject = ref({} as MediaProfileType);
+  const editMediaProfileServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteMediaProfileServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -247,10 +249,10 @@
       tableFieldMessages.value = defaultTableFieldMessages;
   };
 
-  const mediaOperationStore = useMediaOperationStore();
-  const { mediaOperationList  } = storeToRefs(mediaOperationStore);
-  const mediaOperationTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
-  const mediaOperationTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+  const mediaProfileStore = useMediaProfileStore();
+  const { mediaProfileList  } = storeToRefs(mediaProfileStore);
+  const mediaProfileTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
+  const mediaProfileTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -260,42 +262,110 @@
     } else {
       searched.value = true;
       lastQuery.value = Object.assign({}, query);
-      mediaOperationStore.search(query);
+      mediaProfileStore.search(query);
     }
   };
 
   const navigating = ref(false);
+  const initTypeDef = () => {
+    const typeDef = MediaProfileTypeDef.extend({
+      fields: {
+      
+        media: { ...refMedia.value },
+      
+        from: { ...refMediaProfile.value },
+      
+        subProfiles: { ...refMediaProfile.value },
+      
+      }
+    });
+    mediaProfileTypeDefFields.value = typeDef.tabIndexedFields();
+    mediaProfileTypeDef.value = typeDef;
+    tableFields.value = mediaProfileTypeDef.value.tableFields && Array.isArray(mediaProfileTypeDef.value.tableFields)
+      ? mediaProfileTypeDef.value.tableFields
+      : mediaProfileTypeDef.value.primary
+        ? [mediaProfileTypeDef.value.primary, "ctime", "mtime"]
+        : ["id", "ctime", "mtime"];
+    initTableFieldMessages(tableFields.value);
+  }
 
-  const allRefsLoaded = () => true;
-  mediaOperationTypeDef.value = MediaOperationTypeDef;
-  mediaOperationTypeDefFields.value = MediaOperationTypeDef.tabIndexedFields();
-  tableFields.value = mediaOperationTypeDef.value.tableFields && Array.isArray(mediaOperationTypeDef.value.tableFields)
-    ? mediaOperationTypeDef.value.tableFields
-    : mediaOperationTypeDef.value.primary
-      ? [mediaOperationTypeDef.value.primary, "ctime", "mtime"]
-      : ["id", "ctime", "mtime"];
-  initTableFieldMessages(tableFields.value);
+  const allRefs: Ref<Boolean>[] = [];
+  const allRefsLoaded = () => allRefs.length === 2 && allRefs.filter(r => r.value === true).length === 2;
 
+  const refMedia = ref({} as MobilettoOrmFieldDefConfig);
+  const refMediaLoaded = ref(false);
+  allRefs.push(refMediaLoaded);
+  const mediaStore = useMediaStore();
+  const { mediaList } = storeToRefs(mediaStore);
+
+  watch(mediaList, (newList) => {
+    if (newList && newList.length === 0) {
+      if (navigating.value) return;
+      navigating.value = true;
+      navigateTo("/admin/media/setup");
+    } else if (newList && newList.length > 0) {
+      refMedia.value.values = newList.map((s) => s.name);
+      refMedia.value.labels = newList.map((s) => s.name);
+      refMedia.value.items = newList.map((s) => ({
+        label: s.name,
+        value: s.name,
+        title: s.name,
+        rawLabel: true,
+      }));
+      addObject.value.media = refMedia.value.values as any;
+      refMediaLoaded.value = true;
+      if (allRefsLoaded()) {
+        initTypeDef()
+      }
+    }
+  });const refMediaProfile = ref({} as MobilettoOrmFieldDefConfig);
+  const refMediaProfileLoaded = ref(false);
+  allRefs.push(refMediaProfileLoaded);
+  const mediaProfileStore = useMediaProfileStore();
+  const { mediaProfileList } = storeToRefs(mediaProfileStore);
+
+  watch(mediaProfileList, (newList) => {
+    if (newList && newList.length === 0) {
+      if (navigating.value) return;
+      navigating.value = true;
+      navigateTo("/admin/mediaProfile/setup");
+    } else if (newList && newList.length > 0) {
+      refMediaProfile.value.values = newList.map((s) => s.name);
+      refMediaProfile.value.labels = newList.map((s) => s.name);
+      refMediaProfile.value.items = newList.map((s) => ({
+        label: s.name,
+        value: s.name,
+        title: s.name,
+        rawLabel: true,
+      }));
+      addObject.value.from = refMediaProfile.value.values as any;
+      addObject.value.subProfiles = refMediaProfile.value.values as any;
+      refMediaProfileLoaded.value = true;
+      if (allRefsLoaded()) {
+        initTypeDef()
+      }
+    }
+  });
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
   const onAddSubmitted = async (obj: MobilettoOrmObject) => {
-    await mediaOperationStore
-      .create(obj as MediaOperationType, createMediaOperationServerErrors);
+    await mediaProfileStore
+      .create(obj as MediaProfileType, createMediaProfileServerErrors);
     addingObject.value = false;
     successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
-        type: messages.value.typename_mediaOperation,
-        id: MediaOperationTypeDef.id(obj),
+        type: messages.value.typename_mediaProfile,
+        id: MediaProfileTypeDef.id(obj),
     });
     emit("added", obj);
-    addObject.value = {} as MediaOperationType;
-    return await mediaOperationStore.search();
+    addObject.value = {} as MediaProfileType;
+    return await mediaProfileStore.search();
   }
-  watch(createMediaOperationServerErrors, () => {
-    if (createMediaOperationServerErrors.value && Object.keys(createMediaOperationServerErrors.value).length > 0) {
+  watch(createMediaProfileServerErrors, () => {
+    if (createMediaProfileServerErrors.value && Object.keys(createMediaProfileServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
-        type: messages.value.typename_mediaOperation,
-        error: JSON.stringify(createMediaOperationServerErrors),
+        type: messages.value.typename_mediaProfile,
+        error: JSON.stringify(createMediaProfileServerErrors),
       });
     }
   });
@@ -315,22 +385,22 @@
   };
 
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
-    await mediaOperationStore
-      .update(obj as MediaOperationType, editMediaOperationServerErrors);
-    editingObject.value = {} as MediaOperationType;
+    await mediaProfileStore
+      .update(obj as MediaProfileType, editMediaProfileServerErrors);
+    editingObject.value = {} as MediaProfileType;
     successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
-      type: messages.value.typename_mediaOperation,
-      id: MediaOperationTypeDef.id(obj),
+      type: messages.value.typename_mediaProfile,
+      id: MediaProfileTypeDef.id(obj),
     });
     emit("edited", obj);
-    return await mediaOperationStore.search();
+    return await mediaProfileStore.search();
   };
-  watch(editMediaOperationServerErrors, () => {
-    if (editMediaOperationServerErrors.value && Object.keys(editMediaOperationServerErrors.value).length > 0) {
+  watch(editMediaProfileServerErrors, () => {
+    if (editMediaProfileServerErrors.value && Object.keys(editMediaProfileServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
-        type: messages.value.typename_mediaOperation,
-        id: MediaOperationTypeDef.id(editingObject.value),
-        error: JSON.stringify(editMediaOperationServerErrors),
+        type: messages.value.typename_mediaProfile,
+        id: MediaProfileTypeDef.id(editingObject.value),
+        error: JSON.stringify(editMediaProfileServerErrors),
       });
     }
   });
@@ -341,16 +411,16 @@
       return;
     }
     if (obj) {
-      const id = MediaOperationTypeDef.id(obj);
+      const id = MediaProfileTypeDef.id(obj);
       if (id && id.length > 0) {
         addingObject.value = false; // ensure add form is closed
-        editingObject.value = JSON.parse(JSON.stringify(obj)) as MediaOperationType;
+        editingObject.value = JSON.parse(JSON.stringify(obj)) as MediaProfileType;
       }
     }
   };
   const onEditCancel = () => {
     emit("editCanceled", editingObject.value);
-    editingObject.value = {} as MediaOperationType;
+    editingObject.value = {} as MediaProfileType;
   };
 
   const actionConfig = (action: string) => {
@@ -368,36 +438,42 @@
     return true;
   };
   const delObject = (obj: MobilettoOrmObject) => {
-      const id = MediaOperationTypeDef.id(obj);
-      mediaOperationStore.delete(id, deleteMediaOperationServerErrors)
+      const id = MediaProfileTypeDef.id(obj);
+      mediaProfileStore.delete(id, deleteMediaProfileServerErrors)
           .then(() => {
               successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
-                  type: messages.value.typename_mediaOperation,
-                  id: MediaOperationTypeDef.id(obj),
+                  type: messages.value.typename_mediaProfile,
+                  id: MediaProfileTypeDef.id(obj),
               });
               emit("deleted", obj);
-              return mediaOperationStore.search();
+              return mediaProfileStore.search();
           });
   };
-  watch(deleteMediaOperationServerErrors, () => {
-    if (deleteMediaOperationServerErrors.value && Object.keys(deleteMediaOperationServerErrors.value).length > 0) {
+  watch(deleteMediaProfileServerErrors, () => {
+    if (deleteMediaProfileServerErrors.value && Object.keys(deleteMediaProfileServerErrors.value).length > 0) {
         errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
-            type: messages.value.typename_mediaOperation,
-            id: MediaOperationTypeDef.id(obj),
-            error: JSON.stringify(deleteMediaOperationServerErrors),
+            type: messages.value.typename_mediaProfile,
+            id: MediaProfileTypeDef.id(obj),
+            error: JSON.stringify(deleteMediaProfileServerErrors),
         });
     }
   });
-  watch(mediaOperationList, (newList) => {
+  watch(mediaProfileList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/mediaOperation/setup");
+      navigateTo("/admin/mediaProfile/setup");
     }
   });
 
   const initRefs = async () => {
+    const refSearches: Promise<[]>[] = [];
+    refSearches.push(mediaStore.search());
+    refSearches.push(mediaProfileStore.search());
+    await Promise.all(refSearches);
     
   };
-  mediaOperationStore.search();
+  mediaProfileStore.search().then(() => {
+    initRefs();
+  });
 </script>

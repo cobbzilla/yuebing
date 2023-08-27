@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_mediaProperty_admin_details', messages)">
-          {{ messages.title_mediaProperty_admin_details }}
+        <b v-if="messageExists('title_sourceAsset_admin_details', messages)">
+          {{ messages.title_sourceAsset_admin_details }}
         </b>
       </v-col>
     </v-row>
@@ -20,15 +20,15 @@
       <v-row v-if="addingObject">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && mediaPropertyTypeDef"
-            form-name="add_mediaProperty_form"
-            :type-def="mediaPropertyTypeDef"
+            v-if="allRefsLoaded() && sourceAssetTypeDef"
+            form-name="add_sourceAsset_form"
+            :type-def="sourceAssetTypeDef"
             :type-name-message="typeNameMessage"
             :thing="addObject"
-            :fields="mediaPropertyTypeDefFields"
+            :fields="sourceAssetTypeDefFields"
             :create="true"
             :read-only-object="() => false"
-            :server-errors="createMediaPropertyServerErrors"
+            :server-errors="createSourceAssetServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onAddSubmitted"
@@ -40,15 +40,15 @@
       <v-row v-else-if="Object.keys(editingObject).length > 0">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && mediaPropertyTypeDef"
-            form-name="edit_mediaProperty_form"
-            :type-def="mediaPropertyTypeDef"
+            v-if="allRefsLoaded() && sourceAssetTypeDef"
+            form-name="edit_sourceAsset_form"
+            :type-def="sourceAssetTypeDef"
             type-name-message="typeNameMessage"
             :thing="editingObject"
-            :fields="mediaPropertyTypeDefFields"
+            :fields="sourceAssetTypeDefFields"
             :create="false"
             :read-only-object="() => false"
-            :server-errors="editMediaPropertyServerErrors"
+            :server-errors="editSourceAssetServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onEditSubmitted"
@@ -57,10 +57,10 @@
           />
         </v-col>
       </v-row>
-      <v-row v-else-if="allRefsLoaded() && mediaPropertyTypeDef">
+      <v-row v-else-if="allRefsLoaded() && sourceAssetTypeDef">
         <v-col>
           <v-container>
-            <v-row v-if="(mediaPropertyList && mediaPropertyList.length > 0) || searched">
+            <v-row v-if="(sourceAssetList && sourceAssetList.length > 0) || searched">
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
@@ -68,13 +68,13 @@
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
-                        :disabled="mediaPropertyStore.mediaPropertyBusy"
+                        :disabled="sourceAssetStore.sourceAssetBusy"
                         type="text"
                         name="searchTerms"
                         class="form-control"
                         @keyup.enter="searchObjects"
                       />
-                      <v-btn class="btn btn-primary" :disabled="mediaPropertyStore.mediaPropertyBusy" @click.stop="searchObjects">
+                      <v-btn class="btn btn-primary" :disabled="sourceAssetStore.sourceAssetBusy" @click.stop="searchObjects">
                         <Icon name="material-symbols:search" />
                       </v-btn>
                     </div>
@@ -84,7 +84,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="mediaPropertyList && mediaPropertyList.length > 0">
+                <table v-if="sourceAssetList && sourceAssetList.length > 0">
                   <thead>
                   <tr>
                     <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
@@ -98,15 +98,15 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr v-for="(obj, objIndex) in mediaPropertyList" :key="objIndex">
+                  <tr v-for="(obj, objIndex) in sourceAssetList" :key="objIndex">
                     <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="mediaPropertyTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaPropertyTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                      <OrmFieldDisplay v-if="sourceAssetTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : sourceAssetTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                     </td>
                     <td v-if="Object.keys(actionConfigs).length > 0">
                       <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
                         <NuxtLink
                           v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaPropertyTypeDef.idField(obj) as string)}` }"
+                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, sourceAssetTypeDef.idField(obj) as string)}` }"
                         >
                           <v-btn>
                             {{ messages[actionConfig(action).message] }}
@@ -115,12 +115,12 @@
                       </div>
                     </td>
                     <td>
-                      <v-btn v-if="canEdit(obj, mediaPropertyList)" :disabled="mediaPropertyStore.mediaPropertyBusy" @click.stop="showEditOrm(obj)">
+                      <v-btn v-if="canEdit(obj, sourceAssetList)" :disabled="sourceAssetStore.sourceAssetBusy" @click.stop="showEditOrm(obj)">
                         <Icon name="material-symbols:edit" />
                       </v-btn>
                     </td>
                     <td>
-                      <v-btn v-if="canDelete(obj, mediaPropertyList)" :disabled="mediaPropertyStore.mediaPropertyBusy" @click.stop="delObject(obj)">
+                      <v-btn v-if="canDelete(obj, sourceAssetList)" :disabled="sourceAssetStore.sourceAssetBusy" @click.stop="delObject(obj)">
                         <Icon name="material-symbols:delete" />
                       </v-btn>
                     </td>
@@ -131,7 +131,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <v-btn class="btn btn-primary" :disabled="mediaPropertyStore.mediaPropertyBusy" @click.stop="showAddOrm">
+                <v-btn class="btn btn-primary" :disabled="sourceAssetStore.sourceAssetBusy" @click.stop="showAddOrm">
                   <Icon name="material-symbols:add" />
                 </v-btn>
               </v-col>
@@ -158,11 +158,11 @@
     MobilettoOrmValidationErrors,
     metaField
   } from "mobiletto-orm-typedef";
-  import { MediaPropertyType, MediaPropertyTypeDef } from "yuebing-model";
+  import { SourceAssetType, SourceAssetTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
-  import { useMediaPropertyStore } from "~/stores/model/mediaPropertyStore";
-  import { useMediaStore } from "~/stores/model/mediaStore";
+  import { useSourceAssetStore } from "~/stores/model/sourceAssetStore";
+  import { useSourceStore } from "~/stores/model/sourceStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -187,7 +187,7 @@
       deleteConfirmationMessage: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
-      typeNameMessage: () => "typename_mediaProperty",
+      typeNameMessage: () => "typename_sourceAsset",
       msgAddSuccess: () => "admin_info_added",
       msgAddError: () => "admin_info_add_error",
       msgEditSuccess: () => "admin_info_edited",
@@ -201,14 +201,14 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: MediaPropertyType];
+    added: [obj: SourceAssetType];
     addCanceled: [];
-    edited: [obj: MediaPropertyType];
-    editCanceled: [obj: MediaPropertyType];
-    deleted: [obj: MediaPropertyType];
+    edited: [obj: SourceAssetType];
+    editCanceled: [obj: SourceAssetType];
+    deleted: [obj: SourceAssetType];
   }>();
 
-  const labelPfx: Ref<string[]> = ref(["admin_label_mediaProperty_", "label_", ""]);
+  const labelPfx: Ref<string[]> = ref(["admin_label_sourceAsset_", "label_", ""]);
   if (props.labelPrefixes) {
     props.labelPrefixes.forEach((p: string) => {
       if (!labelPfx.value.includes(p)) labelPfx.value.unshift(p);
@@ -219,17 +219,17 @@
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
 
-  const adminTitle = () => messageExists("admin_title_mediaProperty_administration", messages.value)
-    ? messages.value.admin_title_mediaProperty_administration
+  const adminTitle = () => messageExists("admin_title_sourceAsset_administration", messages.value)
+    ? messages.value.admin_title_sourceAsset_administration
     : parseMessage("admin_title_site_administration", messages.value, { title: findMessage(props.typeNameMessage, messages.value, [""])});
 
   const addingObject = ref(false);
-  const addObject = ref({} as MediaPropertyType);
-  const createMediaPropertyServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const addObject = ref({} as SourceAssetType);
+  const createSourceAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
 
-  const editingObject = ref({} as MediaPropertyType);
-  const editMediaPropertyServerErrors = ref({} as MobilettoOrmValidationErrors);
-  const deleteMediaPropertyServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const editingObject = ref({} as SourceAssetType);
+  const editSourceAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteSourceAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -248,10 +248,10 @@
       tableFieldMessages.value = defaultTableFieldMessages;
   };
 
-  const mediaPropertyStore = useMediaPropertyStore();
-  const { mediaPropertyList  } = storeToRefs(mediaPropertyStore);
-  const mediaPropertyTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
-  const mediaPropertyTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+  const sourceAssetStore = useSourceAssetStore();
+  const { sourceAssetList  } = storeToRefs(sourceAssetStore);
+  const sourceAssetTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
+  const sourceAssetTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -261,25 +261,25 @@
     } else {
       searched.value = true;
       lastQuery.value = Object.assign({}, query);
-      mediaPropertyStore.search(query);
+      sourceAssetStore.search(query);
     }
   };
 
   const navigating = ref(false);
   const initTypeDef = () => {
-    const typeDef = MediaPropertyTypeDef.extend({
+    const typeDef = SourceAssetTypeDef.extend({
       fields: {
       
-        media: { ...refMedia.value },
+        source: { ...refSource.value },
       
       }
     });
-    mediaPropertyTypeDefFields.value = typeDef.tabIndexedFields();
-    mediaPropertyTypeDef.value = typeDef;
-    tableFields.value = mediaPropertyTypeDef.value.tableFields && Array.isArray(mediaPropertyTypeDef.value.tableFields)
-      ? mediaPropertyTypeDef.value.tableFields
-      : mediaPropertyTypeDef.value.primary
-        ? [mediaPropertyTypeDef.value.primary, "ctime", "mtime"]
+    sourceAssetTypeDefFields.value = typeDef.tabIndexedFields();
+    sourceAssetTypeDef.value = typeDef;
+    tableFields.value = sourceAssetTypeDef.value.tableFields && Array.isArray(sourceAssetTypeDef.value.tableFields)
+      ? sourceAssetTypeDef.value.tableFields
+      : sourceAssetTypeDef.value.primary
+        ? [sourceAssetTypeDef.value.primary, "ctime", "mtime"]
         : ["id", "ctime", "mtime"];
     initTableFieldMessages(tableFields.value);
   }
@@ -287,28 +287,28 @@
   const allRefs: Ref<Boolean>[] = [];
   const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
 
-  const refMedia = ref({} as MobilettoOrmFieldDefConfig);
-  const refMediaLoaded = ref(false);
-  allRefs.push(refMediaLoaded);
-  const mediaStore = useMediaStore();
-  const { mediaList } = storeToRefs(mediaStore);
+  const refSource = ref({} as MobilettoOrmFieldDefConfig);
+  const refSourceLoaded = ref(false);
+  allRefs.push(refSourceLoaded);
+  const sourceStore = useSourceStore();
+  const { sourceList } = storeToRefs(sourceStore);
 
-  watch(mediaList, (newList) => {
+  watch(sourceList, (newList) => {
     if (newList && newList.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/media/setup");
+      navigateTo("/admin/source/setup");
     } else if (newList && newList.length > 0) {
-      refMedia.value.values = newList.map((s) => s.name);
-      refMedia.value.labels = newList.map((s) => s.name);
-      refMedia.value.items = newList.map((s) => ({
+      refSource.value.values = newList.map((s) => s.name);
+      refSource.value.labels = newList.map((s) => s.name);
+      refSource.value.items = newList.map((s) => ({
         label: s.name,
         value: s.name,
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.media = refMedia.value.values as any;
-      refMediaLoaded.value = true;
+      addObject.value.source = refSource.value.values as any;
+      refSourceLoaded.value = true;
       if (allRefsLoaded()) {
         initTypeDef()
       }
@@ -318,22 +318,22 @@
     deepUpdate(addObject.value, update.field, update.value);
   };
   const onAddSubmitted = async (obj: MobilettoOrmObject) => {
-    await mediaPropertyStore
-      .create(obj as MediaPropertyType, createMediaPropertyServerErrors);
+    await sourceAssetStore
+      .create(obj as SourceAssetType, createSourceAssetServerErrors);
     addingObject.value = false;
     successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
-        type: messages.value.typename_mediaProperty,
-        id: MediaPropertyTypeDef.id(obj),
+        type: messages.value.typename_sourceAsset,
+        id: SourceAssetTypeDef.id(obj),
     });
     emit("added", obj);
-    addObject.value = {} as MediaPropertyType;
-    return await mediaPropertyStore.search();
+    addObject.value = {} as SourceAssetType;
+    return await sourceAssetStore.search();
   }
-  watch(createMediaPropertyServerErrors, () => {
-    if (createMediaPropertyServerErrors.value && Object.keys(createMediaPropertyServerErrors.value).length > 0) {
+  watch(createSourceAssetServerErrors, () => {
+    if (createSourceAssetServerErrors.value && Object.keys(createSourceAssetServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
-        type: messages.value.typename_mediaProperty,
-        error: JSON.stringify(createMediaPropertyServerErrors),
+        type: messages.value.typename_sourceAsset,
+        error: JSON.stringify(createSourceAssetServerErrors),
       });
     }
   });
@@ -353,22 +353,22 @@
   };
 
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
-    await mediaPropertyStore
-      .update(obj as MediaPropertyType, editMediaPropertyServerErrors);
-    editingObject.value = {} as MediaPropertyType;
+    await sourceAssetStore
+      .update(obj as SourceAssetType, editSourceAssetServerErrors);
+    editingObject.value = {} as SourceAssetType;
     successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
-      type: messages.value.typename_mediaProperty,
-      id: MediaPropertyTypeDef.id(obj),
+      type: messages.value.typename_sourceAsset,
+      id: SourceAssetTypeDef.id(obj),
     });
     emit("edited", obj);
-    return await mediaPropertyStore.search();
+    return await sourceAssetStore.search();
   };
-  watch(editMediaPropertyServerErrors, () => {
-    if (editMediaPropertyServerErrors.value && Object.keys(editMediaPropertyServerErrors.value).length > 0) {
+  watch(editSourceAssetServerErrors, () => {
+    if (editSourceAssetServerErrors.value && Object.keys(editSourceAssetServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
-        type: messages.value.typename_mediaProperty,
-        id: MediaPropertyTypeDef.id(editingObject.value),
-        error: JSON.stringify(editMediaPropertyServerErrors),
+        type: messages.value.typename_sourceAsset,
+        id: SourceAssetTypeDef.id(editingObject.value),
+        error: JSON.stringify(editSourceAssetServerErrors),
       });
     }
   });
@@ -379,16 +379,16 @@
       return;
     }
     if (obj) {
-      const id = MediaPropertyTypeDef.id(obj);
+      const id = SourceAssetTypeDef.id(obj);
       if (id && id.length > 0) {
         addingObject.value = false; // ensure add form is closed
-        editingObject.value = JSON.parse(JSON.stringify(obj)) as MediaPropertyType;
+        editingObject.value = JSON.parse(JSON.stringify(obj)) as SourceAssetType;
       }
     }
   };
   const onEditCancel = () => {
     emit("editCanceled", editingObject.value);
-    editingObject.value = {} as MediaPropertyType;
+    editingObject.value = {} as SourceAssetType;
   };
 
   const actionConfig = (action: string) => {
@@ -406,41 +406,41 @@
     return true;
   };
   const delObject = (obj: MobilettoOrmObject) => {
-      const id = MediaPropertyTypeDef.id(obj);
-      mediaPropertyStore.delete(id, deleteMediaPropertyServerErrors)
+      const id = SourceAssetTypeDef.id(obj);
+      sourceAssetStore.delete(id, deleteSourceAssetServerErrors)
           .then(() => {
               successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
-                  type: messages.value.typename_mediaProperty,
-                  id: MediaPropertyTypeDef.id(obj),
+                  type: messages.value.typename_sourceAsset,
+                  id: SourceAssetTypeDef.id(obj),
               });
               emit("deleted", obj);
-              return mediaPropertyStore.search();
+              return sourceAssetStore.search();
           });
   };
-  watch(deleteMediaPropertyServerErrors, () => {
-    if (deleteMediaPropertyServerErrors.value && Object.keys(deleteMediaPropertyServerErrors.value).length > 0) {
+  watch(deleteSourceAssetServerErrors, () => {
+    if (deleteSourceAssetServerErrors.value && Object.keys(deleteSourceAssetServerErrors.value).length > 0) {
         errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
-            type: messages.value.typename_mediaProperty,
-            id: MediaPropertyTypeDef.id(obj),
-            error: JSON.stringify(deleteMediaPropertyServerErrors),
+            type: messages.value.typename_sourceAsset,
+            id: SourceAssetTypeDef.id(obj),
+            error: JSON.stringify(deleteSourceAssetServerErrors),
         });
     }
   });
-  watch(mediaPropertyList, (newList) => {
+  watch(sourceAssetList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/mediaProperty/setup");
+      navigateTo("/admin/sourceAsset/setup");
     }
   });
 
   const initRefs = async () => {
     const refSearches: Promise<[]>[] = [];
-    refSearches.push(mediaStore.search());
+    refSearches.push(sourceStore.search());
     await Promise.all(refSearches);
     
   };
-  mediaPropertyStore.search().then(() => {
+  sourceAssetStore.search().then(() => {
     initRefs();
   });
 </script>

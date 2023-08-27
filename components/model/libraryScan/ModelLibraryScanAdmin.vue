@@ -162,7 +162,6 @@
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
   import { useLibraryScanStore } from "~/stores/model/libraryScanStore";
-  import { useLibraryStore } from "~/stores/model/libraryStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -266,54 +265,17 @@
   };
 
   const navigating = ref(false);
-  const initTypeDef = () => {
-    const typeDef = LibraryScanTypeDef.extend({
-      fields: {
-      
-        library: { ...refLibrary.value },
-      
-      }
-    });
-    libraryScanTypeDefFields.value = typeDef.tabIndexedFields();
-    libraryScanTypeDef.value = typeDef;
-    tableFields.value = libraryScanTypeDef.value.tableFields && Array.isArray(libraryScanTypeDef.value.tableFields)
-      ? libraryScanTypeDef.value.tableFields
-      : libraryScanTypeDef.value.primary
-        ? [libraryScanTypeDef.value.primary, "ctime", "mtime"]
-        : ["id", "ctime", "mtime"];
-    initTableFieldMessages(tableFields.value);
-  }
 
-  const allRefs: Ref<Boolean>[] = [];
-  const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
+  const allRefsLoaded = () => true;
+  libraryScanTypeDef.value = LibraryScanTypeDef;
+  libraryScanTypeDefFields.value = LibraryScanTypeDef.tabIndexedFields();
+  tableFields.value = libraryScanTypeDef.value.tableFields && Array.isArray(libraryScanTypeDef.value.tableFields)
+    ? libraryScanTypeDef.value.tableFields
+    : libraryScanTypeDef.value.primary
+      ? [libraryScanTypeDef.value.primary, "ctime", "mtime"]
+      : ["id", "ctime", "mtime"];
+  initTableFieldMessages(tableFields.value);
 
-  const refLibrary = ref({} as MobilettoOrmFieldDefConfig);
-  const refLibraryLoaded = ref(false);
-  allRefs.push(refLibraryLoaded);
-  const libraryStore = useLibraryStore();
-  const { libraryList } = storeToRefs(libraryStore);
-
-  watch(libraryList, (newList) => {
-    if (newList && newList.length === 0) {
-      if (navigating.value) return;
-      navigating.value = true;
-      navigateTo("/admin/library/setup");
-    } else if (newList && newList.length > 0) {
-      refLibrary.value.values = newList.map((s) => s.name);
-      refLibrary.value.labels = newList.map((s) => s.name);
-      refLibrary.value.items = newList.map((s) => ({
-        label: s.name,
-        value: s.name,
-        title: s.name,
-        rawLabel: true,
-      }));
-      addObject.value.library = refLibrary.value.values as any;
-      refLibraryLoaded.value = true;
-      if (allRefsLoaded()) {
-        initTypeDef()
-      }
-    }
-  });
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
@@ -435,12 +397,7 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
-    refSearches.push(libraryStore.search());
-    await Promise.all(refSearches);
     
   };
-  libraryScanStore.search().then(() => {
-    initRefs();
-  });
+  libraryScanStore.search();
 </script>

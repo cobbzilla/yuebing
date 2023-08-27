@@ -162,6 +162,7 @@
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
   import { useLibraryStore } from "~/stores/model/libraryStore";
+  import { useMediaStore } from "~/stores/model/mediaStore";
   import { useSourceStore } from "~/stores/model/sourceStore";
   import { useDestinationStore } from "~/stores/model/destinationStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
@@ -271,6 +272,8 @@
     const typeDef = LibraryTypeDef.extend({
       fields: {
       
+        media: { ...refMedia.value },
+      
         sources: { ...refSource.value },
       
         destinations: { ...refDestination.value },
@@ -288,9 +291,35 @@
   }
 
   const allRefs: Ref<Boolean>[] = [];
-  const allRefsLoaded = () => allRefs.length === 2 && allRefs.filter(r => r.value === true).length === 2;
+  const allRefsLoaded = () => allRefs.length === 3 && allRefs.filter(r => r.value === true).length === 3;
 
-  const refSource = ref({} as MobilettoOrmFieldDefConfig);
+  const refMedia = ref({} as MobilettoOrmFieldDefConfig);
+  const refMediaLoaded = ref(false);
+  allRefs.push(refMediaLoaded);
+  const mediaStore = useMediaStore();
+  const { mediaList } = storeToRefs(mediaStore);
+
+  watch(mediaList, (newList) => {
+    if (newList && newList.length === 0) {
+      if (navigating.value) return;
+      navigating.value = true;
+      navigateTo("/admin/media/setup");
+    } else if (newList && newList.length > 0) {
+      refMedia.value.values = newList.map((s) => s.name);
+      refMedia.value.labels = newList.map((s) => s.name);
+      refMedia.value.items = newList.map((s) => ({
+        label: s.name,
+        value: s.name,
+        title: s.name,
+        rawLabel: true,
+      }));
+      addObject.value.media = refMedia.value.values as any;
+      refMediaLoaded.value = true;
+      if (allRefsLoaded()) {
+        initTypeDef()
+      }
+    }
+  });const refSource = ref({} as MobilettoOrmFieldDefConfig);
   const refSourceLoaded = ref(false);
   allRefs.push(refSourceLoaded);
   const sourceStore = useSourceStore();
@@ -465,6 +494,7 @@
 
   const initRefs = async () => {
     const refSearches: Promise<[]>[] = [];
+    refSearches.push(mediaStore.search());
     refSearches.push(sourceStore.search());
     refSearches.push(destinationStore.search());
     await Promise.all(refSearches);

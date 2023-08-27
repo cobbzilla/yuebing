@@ -11,8 +11,6 @@ export default defineEventHandler(async (event: H3Event) => {
       if (!id) throw notFound(libraryScanRepo.typeDef.idFieldName());
       const libraryScan_by_id = await libraryScanRepo.safeFindById(id);
       if (libraryScan_by_id) return libraryScan_by_id;
-      const libraryScan_by_library = await libraryScanRepo.safeFindFirstBy("library", id);
-      if (libraryScan_by_library) return libraryScan_by_library;
       throw notFound(id);
     });
   });

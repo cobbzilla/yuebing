@@ -162,7 +162,6 @@
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
   import { useMediaStore } from "~/stores/model/mediaStore";
-  import { useMediaStore } from "~/stores/model/mediaStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -266,54 +265,17 @@
   };
 
   const navigating = ref(false);
-  const initTypeDef = () => {
-    const typeDef = MediaTypeDef.extend({
-      fields: {
-      
-        from: { ...refMedia.value },
-      
-      }
-    });
-    mediaTypeDefFields.value = typeDef.tabIndexedFields();
-    mediaTypeDef.value = typeDef;
-    tableFields.value = mediaTypeDef.value.tableFields && Array.isArray(mediaTypeDef.value.tableFields)
-      ? mediaTypeDef.value.tableFields
-      : mediaTypeDef.value.primary
-        ? [mediaTypeDef.value.primary, "ctime", "mtime"]
-        : ["id", "ctime", "mtime"];
-    initTableFieldMessages(tableFields.value);
-  }
 
-  const allRefs: Ref<Boolean>[] = [];
-  const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
+  const allRefsLoaded = () => true;
+  mediaTypeDef.value = MediaTypeDef;
+  mediaTypeDefFields.value = MediaTypeDef.tabIndexedFields();
+  tableFields.value = mediaTypeDef.value.tableFields && Array.isArray(mediaTypeDef.value.tableFields)
+    ? mediaTypeDef.value.tableFields
+    : mediaTypeDef.value.primary
+      ? [mediaTypeDef.value.primary, "ctime", "mtime"]
+      : ["id", "ctime", "mtime"];
+  initTableFieldMessages(tableFields.value);
 
-  const refMedia = ref({} as MobilettoOrmFieldDefConfig);
-  const refMediaLoaded = ref(false);
-  allRefs.push(refMediaLoaded);
-  const mediaStore = useMediaStore();
-  const { mediaList } = storeToRefs(mediaStore);
-
-  watch(mediaList, (newList) => {
-    if (newList && newList.length === 0) {
-      if (navigating.value) return;
-      navigating.value = true;
-      navigateTo("/admin/media/setup");
-    } else if (newList && newList.length > 0) {
-      refMedia.value.values = newList.map((s) => s.name);
-      refMedia.value.labels = newList.map((s) => s.name);
-      refMedia.value.items = newList.map((s) => ({
-        label: s.name,
-        value: s.name,
-        title: s.name,
-        rawLabel: true,
-      }));
-      addObject.value.from = refMedia.value.values as any;
-      refMediaLoaded.value = true;
-      if (allRefsLoaded()) {
-        initTypeDef()
-      }
-    }
-  });
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
@@ -435,12 +397,7 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
-    refSearches.push(mediaStore.search());
-    await Promise.all(refSearches);
     
   };
-  mediaStore.search().then(() => {
-    initRefs();
-  });
+  mediaStore.search();
 </script>

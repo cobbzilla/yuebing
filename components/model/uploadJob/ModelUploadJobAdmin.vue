@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_discoveredAsset_admin_details', messages)">
-          {{ messages.title_discoveredAsset_admin_details }}
+        <b v-if="messageExists('title_uploadJob_admin_details', messages)">
+          {{ messages.title_uploadJob_admin_details }}
         </b>
       </v-col>
     </v-row>
@@ -20,15 +20,15 @@
       <v-row v-if="addingObject">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && discoveredAssetTypeDef"
-            form-name="add_discoveredAsset_form"
-            :type-def="discoveredAssetTypeDef"
+            v-if="allRefsLoaded() && uploadJobTypeDef"
+            form-name="add_uploadJob_form"
+            :type-def="uploadJobTypeDef"
             :type-name-message="typeNameMessage"
             :thing="addObject"
-            :fields="discoveredAssetTypeDefFields"
+            :fields="uploadJobTypeDefFields"
             :create="true"
             :read-only-object="() => false"
-            :server-errors="createDiscoveredAssetServerErrors"
+            :server-errors="createUploadJobServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onAddSubmitted"
@@ -40,15 +40,15 @@
       <v-row v-else-if="Object.keys(editingObject).length > 0">
         <v-col>
           <OrmForm
-            v-if="allRefsLoaded() && discoveredAssetTypeDef"
-            form-name="edit_discoveredAsset_form"
-            :type-def="discoveredAssetTypeDef"
+            v-if="allRefsLoaded() && uploadJobTypeDef"
+            form-name="edit_uploadJob_form"
+            :type-def="uploadJobTypeDef"
             type-name-message="typeNameMessage"
             :thing="editingObject"
-            :fields="discoveredAssetTypeDefFields"
+            :fields="uploadJobTypeDefFields"
             :create="false"
             :read-only-object="() => false"
-            :server-errors="editDiscoveredAssetServerErrors"
+            :server-errors="editUploadJobServerErrors"
             :label-prefixes="labelPfx"
             :hint-suffixes="['_description']"
             @submitted="onEditSubmitted"
@@ -57,10 +57,10 @@
           />
         </v-col>
       </v-row>
-      <v-row v-else-if="allRefsLoaded() && discoveredAssetTypeDef">
+      <v-row v-else-if="allRefsLoaded() && uploadJobTypeDef">
         <v-col>
           <v-container>
-            <v-row v-if="(discoveredAssetList && discoveredAssetList.length > 0) || searched">
+            <v-row v-if="(uploadJobList && uploadJobList.length > 0) || searched">
               <v-col>
                 <div>
                   <v-form @submit.prevent="searchObjects">
@@ -68,13 +68,13 @@
                       <v-text-field
                         v-model="searchTerms"
                         :label="messages.label_search"
-                        :disabled="discoveredAssetStore.discoveredAssetBusy"
+                        :disabled="uploadJobStore.uploadJobBusy"
                         type="text"
                         name="searchTerms"
                         class="form-control"
                         @keyup.enter="searchObjects"
                       />
-                      <v-btn class="btn btn-primary" :disabled="discoveredAssetStore.discoveredAssetBusy" @click.stop="searchObjects">
+                      <v-btn class="btn btn-primary" :disabled="uploadJobStore.uploadJobBusy" @click.stop="searchObjects">
                         <Icon name="material-symbols:search" />
                       </v-btn>
                     </div>
@@ -84,7 +84,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="discoveredAssetList && discoveredAssetList.length > 0">
+                <table v-if="uploadJobList && uploadJobList.length > 0">
                   <thead>
                   <tr>
                     <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
@@ -98,15 +98,15 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr v-for="(obj, objIndex) in discoveredAssetList" :key="objIndex">
+                  <tr v-for="(obj, objIndex) in uploadJobList" :key="objIndex">
                     <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="discoveredAssetTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : discoveredAssetTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                      <OrmFieldDisplay v-if="uploadJobTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : uploadJobTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                     </td>
                     <td v-if="Object.keys(actionConfigs).length > 0">
                       <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
                         <NuxtLink
                           v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, discoveredAssetTypeDef.idField(obj) as string)}` }"
+                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, uploadJobTypeDef.idField(obj) as string)}` }"
                         >
                           <v-btn>
                             {{ messages[actionConfig(action).message] }}
@@ -115,12 +115,12 @@
                       </div>
                     </td>
                     <td>
-                      <v-btn v-if="canEdit(obj, discoveredAssetList)" :disabled="discoveredAssetStore.discoveredAssetBusy" @click.stop="showEditOrm(obj)">
+                      <v-btn v-if="canEdit(obj, uploadJobList)" :disabled="uploadJobStore.uploadJobBusy" @click.stop="showEditOrm(obj)">
                         <Icon name="material-symbols:edit" />
                       </v-btn>
                     </td>
                     <td>
-                      <v-btn v-if="canDelete(obj, discoveredAssetList)" :disabled="discoveredAssetStore.discoveredAssetBusy" @click.stop="delObject(obj)">
+                      <v-btn v-if="canDelete(obj, uploadJobList)" :disabled="uploadJobStore.uploadJobBusy" @click.stop="delObject(obj)">
                         <Icon name="material-symbols:delete" />
                       </v-btn>
                     </td>
@@ -131,7 +131,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <v-btn class="btn btn-primary" :disabled="discoveredAssetStore.discoveredAssetBusy" @click.stop="showAddOrm">
+                <v-btn class="btn btn-primary" :disabled="uploadJobStore.uploadJobBusy" @click.stop="showAddOrm">
                   <Icon name="material-symbols:add" />
                 </v-btn>
               </v-col>
@@ -158,11 +158,10 @@
     MobilettoOrmValidationErrors,
     metaField
   } from "mobiletto-orm-typedef";
-  import { DiscoveredAssetType, DiscoveredAssetTypeDef } from "yuebing-model";
+  import { UploadJobType, UploadJobTypeDef } from "yuebing-model";
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
-  import { useDiscoveredAssetStore } from "~/stores/model/discoveredAssetStore";
-  import { useSourceStore } from "~/stores/model/sourceStore";
+  import { useUploadJobStore } from "~/stores/model/uploadJobStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
@@ -187,7 +186,7 @@
       deleteConfirmationMessage: string;
     }>(),{
       labelPrefixes: () => ["label_", ""],
-      typeNameMessage: () => "typename_discoveredAsset",
+      typeNameMessage: () => "typename_uploadJob",
       msgAddSuccess: () => "admin_info_added",
       msgAddError: () => "admin_info_add_error",
       msgEditSuccess: () => "admin_info_edited",
@@ -201,14 +200,14 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: DiscoveredAssetType];
+    added: [obj: UploadJobType];
     addCanceled: [];
-    edited: [obj: DiscoveredAssetType];
-    editCanceled: [obj: DiscoveredAssetType];
-    deleted: [obj: DiscoveredAssetType];
+    edited: [obj: UploadJobType];
+    editCanceled: [obj: UploadJobType];
+    deleted: [obj: UploadJobType];
   }>();
 
-  const labelPfx: Ref<string[]> = ref(["admin_label_discoveredAsset_", "label_", ""]);
+  const labelPfx: Ref<string[]> = ref(["admin_label_uploadJob_", "label_", ""]);
   if (props.labelPrefixes) {
     props.labelPrefixes.forEach((p: string) => {
       if (!labelPfx.value.includes(p)) labelPfx.value.unshift(p);
@@ -219,17 +218,17 @@
   const { localeMessages } = storeToRefs(sessionStore);
   const messages = localeMessages;
 
-  const adminTitle = () => messageExists("admin_title_discoveredAsset_administration", messages.value)
-    ? messages.value.admin_title_discoveredAsset_administration
+  const adminTitle = () => messageExists("admin_title_uploadJob_administration", messages.value)
+    ? messages.value.admin_title_uploadJob_administration
     : parseMessage("admin_title_site_administration", messages.value, { title: findMessage(props.typeNameMessage, messages.value, [""])});
 
   const addingObject = ref(false);
-  const addObject = ref({} as DiscoveredAssetType);
-  const createDiscoveredAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const addObject = ref({} as UploadJobType);
+  const createUploadJobServerErrors = ref({} as MobilettoOrmValidationErrors);
 
-  const editingObject = ref({} as DiscoveredAssetType);
-  const editDiscoveredAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
-  const deleteDiscoveredAssetServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const editingObject = ref({} as UploadJobType);
+  const editUploadJobServerErrors = ref({} as MobilettoOrmValidationErrors);
+  const deleteUploadJobServerErrors = ref({} as MobilettoOrmValidationErrors);
 
   const pageNumber = ref(1);
   const pageSize = ref(20);
@@ -248,10 +247,10 @@
       tableFieldMessages.value = defaultTableFieldMessages;
   };
 
-  const discoveredAssetStore = useDiscoveredAssetStore();
-  const { discoveredAssetList  } = storeToRefs(discoveredAssetStore);
-  const discoveredAssetTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
-  const discoveredAssetTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
+  const uploadJobStore = useUploadJobStore();
+  const { uploadJobList  } = storeToRefs(uploadJobStore);
+  const uploadJobTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
+  const uploadJobTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
   const searchQuery = () => ({ textSearch: searchTerms.value });
 
   const searchObjects = () => {
@@ -261,79 +260,42 @@
     } else {
       searched.value = true;
       lastQuery.value = Object.assign({}, query);
-      discoveredAssetStore.search(query);
+      uploadJobStore.search(query);
     }
   };
 
   const navigating = ref(false);
-  const initTypeDef = () => {
-    const typeDef = DiscoveredAssetTypeDef.extend({
-      fields: {
-      
-        source: { ...refSource.value },
-      
-      }
-    });
-    discoveredAssetTypeDefFields.value = typeDef.tabIndexedFields();
-    discoveredAssetTypeDef.value = typeDef;
-    tableFields.value = discoveredAssetTypeDef.value.tableFields && Array.isArray(discoveredAssetTypeDef.value.tableFields)
-      ? discoveredAssetTypeDef.value.tableFields
-      : discoveredAssetTypeDef.value.primary
-        ? [discoveredAssetTypeDef.value.primary, "ctime", "mtime"]
-        : ["id", "ctime", "mtime"];
-    initTableFieldMessages(tableFields.value);
-  }
 
-  const allRefs: Ref<Boolean>[] = [];
-  const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
+  const allRefsLoaded = () => true;
+  uploadJobTypeDef.value = UploadJobTypeDef;
+  uploadJobTypeDefFields.value = UploadJobTypeDef.tabIndexedFields();
+  tableFields.value = uploadJobTypeDef.value.tableFields && Array.isArray(uploadJobTypeDef.value.tableFields)
+    ? uploadJobTypeDef.value.tableFields
+    : uploadJobTypeDef.value.primary
+      ? [uploadJobTypeDef.value.primary, "ctime", "mtime"]
+      : ["id", "ctime", "mtime"];
+  initTableFieldMessages(tableFields.value);
 
-  const refSource = ref({} as MobilettoOrmFieldDefConfig);
-  const refSourceLoaded = ref(false);
-  allRefs.push(refSourceLoaded);
-  const sourceStore = useSourceStore();
-  const { sourceList } = storeToRefs(sourceStore);
-
-  watch(sourceList, (newList) => {
-    if (newList && newList.length === 0) {
-      if (navigating.value) return;
-      navigating.value = true;
-      navigateTo("/admin/source/setup");
-    } else if (newList && newList.length > 0) {
-      refSource.value.values = newList.map((s) => s.name);
-      refSource.value.labels = newList.map((s) => s.name);
-      refSource.value.items = newList.map((s) => ({
-        label: s.name,
-        value: s.name,
-        title: s.name,
-        rawLabel: true,
-      }));
-      addObject.value.source = refSource.value.values as any;
-      refSourceLoaded.value = true;
-      if (allRefsLoaded()) {
-        initTypeDef()
-      }
-    }
-  });
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
   const onAddSubmitted = async (obj: MobilettoOrmObject) => {
-    await discoveredAssetStore
-      .create(obj as DiscoveredAssetType, createDiscoveredAssetServerErrors);
+    await uploadJobStore
+      .create(obj as UploadJobType, createUploadJobServerErrors);
     addingObject.value = false;
     successSnackbar.value = parseMessage(props.msgAddSuccess, messages.value, {
-        type: messages.value.typename_discoveredAsset,
-        id: DiscoveredAssetTypeDef.id(obj),
+        type: messages.value.typename_uploadJob,
+        id: UploadJobTypeDef.id(obj),
     });
     emit("added", obj);
-    addObject.value = {} as DiscoveredAssetType;
-    return await discoveredAssetStore.search();
+    addObject.value = {} as UploadJobType;
+    return await uploadJobStore.search();
   }
-  watch(createDiscoveredAssetServerErrors, () => {
-    if (createDiscoveredAssetServerErrors.value && Object.keys(createDiscoveredAssetServerErrors.value).length > 0) {
+  watch(createUploadJobServerErrors, () => {
+    if (createUploadJobServerErrors.value && Object.keys(createUploadJobServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgAddError, messages.value, {
-        type: messages.value.typename_discoveredAsset,
-        error: JSON.stringify(createDiscoveredAssetServerErrors),
+        type: messages.value.typename_uploadJob,
+        error: JSON.stringify(createUploadJobServerErrors),
       });
     }
   });
@@ -353,22 +315,22 @@
   };
 
   const onEditSubmitted = async (obj: MobilettoOrmObject) => {
-    await discoveredAssetStore
-      .update(obj as DiscoveredAssetType, editDiscoveredAssetServerErrors);
-    editingObject.value = {} as DiscoveredAssetType;
+    await uploadJobStore
+      .update(obj as UploadJobType, editUploadJobServerErrors);
+    editingObject.value = {} as UploadJobType;
     successSnackbar.value = parseMessage(props.msgEditSuccess, messages.value, {
-      type: messages.value.typename_discoveredAsset,
-      id: DiscoveredAssetTypeDef.id(obj),
+      type: messages.value.typename_uploadJob,
+      id: UploadJobTypeDef.id(obj),
     });
     emit("edited", obj);
-    return await discoveredAssetStore.search();
+    return await uploadJobStore.search();
   };
-  watch(editDiscoveredAssetServerErrors, () => {
-    if (editDiscoveredAssetServerErrors.value && Object.keys(editDiscoveredAssetServerErrors.value).length > 0) {
+  watch(editUploadJobServerErrors, () => {
+    if (editUploadJobServerErrors.value && Object.keys(editUploadJobServerErrors.value).length > 0) {
       errorSnackbar.value = parseMessage(props.msgEditError, messages.value, {
-        type: messages.value.typename_discoveredAsset,
-        id: DiscoveredAssetTypeDef.id(editingObject.value),
-        error: JSON.stringify(editDiscoveredAssetServerErrors),
+        type: messages.value.typename_uploadJob,
+        id: UploadJobTypeDef.id(editingObject.value),
+        error: JSON.stringify(editUploadJobServerErrors),
       });
     }
   });
@@ -379,16 +341,16 @@
       return;
     }
     if (obj) {
-      const id = DiscoveredAssetTypeDef.id(obj);
+      const id = UploadJobTypeDef.id(obj);
       if (id && id.length > 0) {
         addingObject.value = false; // ensure add form is closed
-        editingObject.value = JSON.parse(JSON.stringify(obj)) as DiscoveredAssetType;
+        editingObject.value = JSON.parse(JSON.stringify(obj)) as UploadJobType;
       }
     }
   };
   const onEditCancel = () => {
     emit("editCanceled", editingObject.value);
-    editingObject.value = {} as DiscoveredAssetType;
+    editingObject.value = {} as UploadJobType;
   };
 
   const actionConfig = (action: string) => {
@@ -406,41 +368,36 @@
     return true;
   };
   const delObject = (obj: MobilettoOrmObject) => {
-      const id = DiscoveredAssetTypeDef.id(obj);
-      discoveredAssetStore.delete(id, deleteDiscoveredAssetServerErrors)
+      const id = UploadJobTypeDef.id(obj);
+      uploadJobStore.delete(id, deleteUploadJobServerErrors)
           .then(() => {
               successSnackbar.value = parseMessage(props.msgDeleteSuccess, messages.value, {
-                  type: messages.value.typename_discoveredAsset,
-                  id: DiscoveredAssetTypeDef.id(obj),
+                  type: messages.value.typename_uploadJob,
+                  id: UploadJobTypeDef.id(obj),
               });
               emit("deleted", obj);
-              return discoveredAssetStore.search();
+              return uploadJobStore.search();
           });
   };
-  watch(deleteDiscoveredAssetServerErrors, () => {
-    if (deleteDiscoveredAssetServerErrors.value && Object.keys(deleteDiscoveredAssetServerErrors.value).length > 0) {
+  watch(deleteUploadJobServerErrors, () => {
+    if (deleteUploadJobServerErrors.value && Object.keys(deleteUploadJobServerErrors.value).length > 0) {
         errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
-            type: messages.value.typename_discoveredAsset,
-            id: DiscoveredAssetTypeDef.id(obj),
-            error: JSON.stringify(deleteDiscoveredAssetServerErrors),
+            type: messages.value.typename_uploadJob,
+            id: UploadJobTypeDef.id(obj),
+            error: JSON.stringify(deleteUploadJobServerErrors),
         });
     }
   });
-  watch(discoveredAssetList, (newList) => {
+  watch(uploadJobList, (newList) => {
     if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
       if (navigating.value) return;
       navigating.value = true;
-      navigateTo("/admin/discoveredAsset/setup");
+      navigateTo("/admin/uploadJob/setup");
     }
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
-    refSearches.push(sourceStore.search());
-    await Promise.all(refSearches);
     
   };
-  discoveredAssetStore.search().then(() => {
-    initRefs();
-  });
+  uploadJobStore.search();
 </script>
