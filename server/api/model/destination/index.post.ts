@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const destinationRepo = destinationRepository();
+      if (destinationRepo.initialize) await destinationRepo.initialize();
       if (opts.field && opts.value) {
         return await destinationRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && DestinationTypeDef.textSearchFields.length > 0) {

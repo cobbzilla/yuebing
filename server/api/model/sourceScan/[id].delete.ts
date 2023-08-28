@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "sourceScan.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "sourceScan.delete", async (event: H3Event, session, account) => {
       const sourceScanRepo = sourceScanRepository();
+      if (sourceScanRepo.initialize) await sourceScanRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(sourceScanRepo.typeDef.idFieldName());
       try {

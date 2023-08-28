@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const accountRepo = accountRepository();
+      if (accountRepo.initialize) await accountRepo.initialize();
       if (opts.field && opts.value) {
         return await accountRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && AccountTypeDef.textSearchFields.length > 0) {

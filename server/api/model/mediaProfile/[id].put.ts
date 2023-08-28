@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "mediaProfile.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "mediaProfile.create", async (event: H3Event, session, account) => {
       const mediaProfileRepo = mediaProfileRepository();
+      if (mediaProfileRepo.initialize) await mediaProfileRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(mediaProfileRepo.typeDef.idFieldName());
       const obj: MediaProfileType = await readBody(event);

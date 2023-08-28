@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "sourceScan.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "sourceScan.lookup", async (event: H3Event, session, account) => {
       const sourceScanRepo = sourceScanRepository();
-      const id =event?.context?.params?.id;
+      if (sourceScanRepo.initialize) await sourceScanRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(sourceScanRepo.typeDef.idFieldName());
       const sourceScan_by_id = await sourceScanRepo.safeFindById(id);
       if (sourceScan_by_id) return sourceScan_by_id;

@@ -181,9 +181,11 @@
       msgDeleteSuccess: string;
       msgDeleteError: string;
       actionConfigs: Record<string, ActionConfig>;
+      canAdd: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       canEdit: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       canDelete: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       deleteConfirmationMessage: string;
+      maxDeleteConfirmations: number;
     }>(),{
       labelPrefixes: () => ["label_", ""],
       typeNameMessage: () => "typename_source",
@@ -194,8 +196,10 @@
       msgDeleteSuccess: () => "admin_info_deleted",
       msgDeleteError: () => "admin_info_delete_error",
       actionConfigs: () => ({}),
+      canAdd: () => true,
       canEdit: () => true,
       canDelete: () => true,
+      maxDeleteConfirmations: () => 3,
     },
   );
 
@@ -367,7 +371,18 @@
     }
     return true;
   };
+  const delConfirmCount = ref(0);
+  const deletingObject = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
+      if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < maxDeleteConfirmations) {
+          if (confirm(props.deleteConfirmationMessage)) {
+              delConfirmCount.value = delConfirmCount.value + 1;
+          } else {
+              delConfirmCount.value = 0;
+              return;
+          }
+      }
+      deletingObject.value = obj;
       const id = SourceTypeDef.id(obj);
       sourceStore.delete(id, deleteSourceServerErrors)
           .then(() => {
@@ -383,7 +398,7 @@
     if (deleteSourceServerErrors.value && Object.keys(deleteSourceServerErrors.value).length > 0) {
         errorSnackbar.value = parseMessage(props.msgDeleteError, messages.value, {
             type: messages.value.typename_source,
-            id: SourceTypeDef.id(obj),
+            id: deletingObject.value ? SourceTypeDef.id(deletingObject.value) : "null",
             error: JSON.stringify(deleteSourceServerErrors),
         });
     }

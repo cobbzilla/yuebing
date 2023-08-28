@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "privateConfig.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "privateConfig.delete", async (event: H3Event, session, account) => {
       const privateConfigRepo = privateConfigRepository();
+      if (privateConfigRepo.initialize) await privateConfigRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(privateConfigRepo.typeDef.idFieldName());
       try {

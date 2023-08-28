@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <v-container>
+    <v-container v-if="initialized">
       <SiteHeader />
     </v-container>
     <v-main>
@@ -40,24 +40,28 @@ const { account } = storeToRefs(sessionStore);
 const loggedIn = () => account.value?.username && account.value?.session;
 const hasSession = () => account.value?.session;
 const refreshingAccount = ref(false);
-const route = useRoute();
 
-if (!isSetup()) {
-  if (needsAdmin()) {
-    navigateTo("/setup");
-  } else if (!isSignIn()) {
-    if (account.value.invalidSession) {
-      navigateTo("/signIn");
-    } else if (hasSession() && !loggedIn()) {
+const initialized = ref(false);
+const init = () => {
+  if (!isSetup()) {
+    if (needsAdmin()) {
+      return navigateTo("/setup");
+    } else if (!isSignIn()) {
+      if (account.value.invalidSession) {
+        return navigateTo("/signIn");
+      } else if (hasSession() && !loggedIn()) {
         refreshingAccount.value = true;
-        sessionStore.getAccount(route.path);
+        sessionStore.getAccount();
       } else if (isHome() && !loggedIn()) {
         if (!isSignIn()) {
-          navigateTo("/signIn");
+          return navigateTo("/signIn");
         }
+      }
     }
   }
-}
+  initialized.value = true;
+};
+init();
 
 watch(account, (newAccount, oldAccount) => {
   if (
@@ -68,7 +72,7 @@ watch(account, (newAccount, oldAccount) => {
   ) {
     if (!isHome()) {
       // console.log("default.watch(account): ===> /home");
-      navigateTo("/home");
+      return navigateTo("/home");
     }
   }
 });

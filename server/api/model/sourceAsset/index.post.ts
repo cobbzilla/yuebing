@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const sourceAssetRepo = sourceAssetRepository();
+      if (sourceAssetRepo.initialize) await sourceAssetRepo.initialize();
       if (opts.field && opts.value) {
         return await sourceAssetRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && SourceAssetTypeDef.textSearchFields.length > 0) {

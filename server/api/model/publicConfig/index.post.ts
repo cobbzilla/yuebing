@@ -10,6 +10,7 @@ export default defineEventHandler(async (event: H3Event) => {
     return await requireAdminAccountObject(event, "publicConfig.search", async (event: H3Event, session, account) => {
       const opts: MobilettoOrmFindApiOpts = {}; // publicConfig is a singleton, options make no sense
       const publicConfigRepo = publicConfigRepository();
+      if (publicConfigRepo.initialize) await publicConfigRepo.initialize();
       const singleton = await publicConfigRepo.safeFindById("public");
       return singleton ? [ singleton ] : [];
     });

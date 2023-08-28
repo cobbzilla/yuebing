@@ -114,7 +114,7 @@ const rightDrawer = ref(true);
 watch(loggedIn, (nowLoggedIn, oldLoggedIn) => {
   if (oldLoggedIn && !nowLoggedIn) {
     if (useRoute().path !== "/") {
-      navigateTo("/");
+      return navigateTo("/");
     }
   }
 });

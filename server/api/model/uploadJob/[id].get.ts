@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "uploadJob.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "uploadJob.lookup", async (event: H3Event, session, account) => {
       const uploadJobRepo = uploadJobRepository();
-      const id =event?.context?.params?.id;
+      if (uploadJobRepo.initialize) await uploadJobRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(uploadJobRepo.typeDef.idFieldName());
       const uploadJob_by_id = await uploadJobRepo.safeFindById(id);
       if (uploadJob_by_id) return uploadJob_by_id;

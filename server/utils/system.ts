@@ -13,7 +13,8 @@ import {
   MobilettoOrmTypeDef,
   MobilettoOrmRepository,
 } from "mobiletto-orm";
-import { DestinationType, DestinationTypeDef, VolumeType } from "yuebing-model";
+import { DestinationType, DestinationTypeDef } from "yuebing-model";
+import { connectVolume, VolumeConnectResult } from "yuebing-server-util";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
 
@@ -62,27 +63,6 @@ const initializeStorage = async (): Promise<YuebingConnection> => {
     type: "local",
     connection: await mobiletto("local", ybDir),
   };
-};
-
-type VolumeConnectResult = {
-  name: string;
-  type: string;
-  connection?: MobilettoConnection;
-  error?: Error;
-};
-
-const connectVolume = async (vol: VolumeType): Promise<VolumeConnectResult> => {
-  const result: VolumeConnectResult = { name: vol.name, type: vol.type };
-  try {
-    result.connection = await mobiletto(vol.type, "", "");
-  } catch (e) {
-    if (e instanceof Error) {
-      result.error = e;
-    } else {
-      result.error = new Error(`connectVolume: unexpected error ${e}`);
-    }
-  }
-  return result;
 };
 
 const currentConnections = (): MobilettoConnection[] => SYSTEM_STORAGE.storages.map((s) => s.connection);

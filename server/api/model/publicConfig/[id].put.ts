@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "publicConfig.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "publicConfig.create", async (event: H3Event, session, account) => {
       const publicConfigRepo = publicConfigRepository();
+      if (publicConfigRepo.initialize) await publicConfigRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(publicConfigRepo.typeDef.idFieldName());
       const obj: PublicConfigType = await readBody(event);

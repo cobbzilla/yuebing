@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "profileJob.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "profileJob.create", async (event: H3Event, session, account) => {
       const profileJobRepo = profileJobRepository();
+      if (profileJobRepo.initialize) await profileJobRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(profileJobRepo.typeDef.idFieldName());
       const obj: ProfileJobType = await readBody(event);

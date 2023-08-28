@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "sourceAsset.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "sourceAsset.delete", async (event: H3Event, session, account) => {
       const sourceAssetRepo = sourceAssetRepository();
+      if (sourceAssetRepo.initialize) await sourceAssetRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(sourceAssetRepo.typeDef.idFieldName());
       try {

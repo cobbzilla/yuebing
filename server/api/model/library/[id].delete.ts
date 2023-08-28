@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "library.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "library.delete", async (event: H3Event, session, account) => {
       const libraryRepo = libraryRepository();
+      if (libraryRepo.initialize) await libraryRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(libraryRepo.typeDef.idFieldName());
       try {

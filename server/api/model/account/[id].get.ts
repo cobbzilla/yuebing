@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "account.lookup", async (event: H3Event) => {
     return await requireAccountObject(event, "account.lookup", async (event: H3Event, session, account) => {
       const accountRepo = accountRepository();
-      const id =event?.context?.params?.id;
+      if (accountRepo.initialize) await accountRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(accountRepo.typeDef.idFieldName());
       const account_by_id = await accountRepo.safeFindById(id);
       if (account_by_id) return account_by_id;

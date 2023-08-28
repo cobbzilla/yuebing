@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const profileJobRepo = profileJobRepository();
+      if (profileJobRepo.initialize) await profileJobRepo.initialize();
       if (opts.field && opts.value) {
         return await profileJobRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && ProfileJobTypeDef.textSearchFields.length > 0) {

@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "media.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "media.delete", async (event: H3Event, session, account) => {
       const mediaRepo = mediaRepository();
+      if (mediaRepo.initialize) await mediaRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(mediaRepo.typeDef.idFieldName());
       try {

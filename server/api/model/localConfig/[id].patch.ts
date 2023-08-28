@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "localConfig.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "localConfig.update", async (event: H3Event, session, account) => {
       const localConfigRepo = localConfigRepository();
+      if (localConfigRepo.initialize) await localConfigRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(localConfigRepo.typeDef.idFieldName());
       const obj: LocalConfigType = await readBody(event);

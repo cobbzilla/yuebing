@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "account.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "account.create", async (event: H3Event, session, account) => {
       const accountRepo = accountRepository();
+      if (accountRepo.initialize) await accountRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(accountRepo.typeDef.idFieldName());
       const obj: AccountType = await readBody(event);

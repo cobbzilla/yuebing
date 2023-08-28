@@ -10,6 +10,7 @@ export default defineEventHandler(async (event: H3Event) => {
     return await requireAdminAccountObject(event, "localConfig.search", async (event: H3Event, session, account) => {
       const opts: MobilettoOrmFindApiOpts = {}; // localConfig is a singleton, options make no sense
       const localConfigRepo = localConfigRepository();
+      if (localConfigRepo.initialize) await localConfigRepo.initialize();
       const singleton = await localConfigRepo.safeFindById("local");
       return singleton ? [ singleton ] : [];
     });

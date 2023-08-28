@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "library.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "library.lookup", async (event: H3Event, session, account) => {
       const libraryRepo = libraryRepository();
-      const id =event?.context?.params?.id;
+      if (libraryRepo.initialize) await libraryRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(libraryRepo.typeDef.idFieldName());
       const library_by_id = await libraryRepo.safeFindById(id);
       if (library_by_id) return library_by_id;

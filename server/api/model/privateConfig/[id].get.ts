@@ -8,7 +8,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "privateConfig.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "privateConfig.lookup", async (event: H3Event, session, account) => {
       const privateConfigRepo = privateConfigRepository();
-      const id = "private"; // privateConfig is a singleton: there can be only one, with id "private"
+      if (privateConfigRepo.initialize) await privateConfigRepo.initialize();
+      const id =  "private"; // privateConfig is a singleton: there can be only one, with id "private"
       if (!id) throw notFound(privateConfigRepo.typeDef.idFieldName());
       const privateConfig_by_id = await privateConfigRepo.safeFindById(id);
       if (privateConfig_by_id) return privateConfig_by_id;

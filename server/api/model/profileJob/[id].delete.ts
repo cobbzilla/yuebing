@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "profileJob.delete", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "profileJob.delete", async (event: H3Event, session, account) => {
       const profileJobRepo = profileJobRepository();
+      if (profileJobRepo.initialize) await profileJobRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(profileJobRepo.typeDef.idFieldName());
       try {

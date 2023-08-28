@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "source.create", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "source.create", async (event: H3Event, session, account) => {
       const sourceRepo = sourceRepository();
+      if (sourceRepo.initialize) await sourceRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(sourceRepo.typeDef.idFieldName());
       const obj: SourceType = await readBody(event);

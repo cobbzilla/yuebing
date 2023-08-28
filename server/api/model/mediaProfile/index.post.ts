@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const mediaProfileRepo = mediaProfileRepository();
+      if (mediaProfileRepo.initialize) await mediaProfileRepo.initialize();
       if (opts.field && opts.value) {
         return await mediaProfileRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && MediaProfileTypeDef.textSearchFields.length > 0) {

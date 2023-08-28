@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const sourceScanRepo = sourceScanRepository();
+      if (sourceScanRepo.initialize) await sourceScanRepo.initialize();
       if (opts.field && opts.value) {
         return await sourceScanRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && SourceScanTypeDef.textSearchFields.length > 0) {

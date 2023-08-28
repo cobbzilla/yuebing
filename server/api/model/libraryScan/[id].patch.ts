@@ -9,6 +9,7 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "libraryScan.update", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "libraryScan.update", async (event: H3Event, session, account) => {
       const libraryScanRepo = libraryScanRepository();
+      if (libraryScanRepo.initialize) await libraryScanRepo.initialize();
       const id = event?.context?.params?.id;
       if (!id) throw notFound(libraryScanRepo.typeDef.idFieldName());
       const obj: LibraryScanType = await readBody(event);

@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "mediaProfile.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "mediaProfile.lookup", async (event: H3Event, session, account) => {
       const mediaProfileRepo = mediaProfileRepository();
-      const id =event?.context?.params?.id;
+      if (mediaProfileRepo.initialize) await mediaProfileRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(mediaProfileRepo.typeDef.idFieldName());
       const mediaProfile_by_id = await mediaProfileRepo.safeFindById(id);
       if (mediaProfile_by_id) return mediaProfile_by_id;

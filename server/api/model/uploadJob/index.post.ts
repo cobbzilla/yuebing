@@ -20,6 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
         }
       }
       const uploadJobRepo = uploadJobRepository();
+      if (uploadJobRepo.initialize) await uploadJobRepo.initialize();
       if (opts.field && opts.value) {
         return await uploadJobRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
       } else if (opts.textSearch && UploadJobTypeDef.textSearchFields.length > 0) {

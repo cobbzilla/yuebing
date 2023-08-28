@@ -7,7 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await filterErrors(event, "media.lookup", async (event: H3Event) => {
     return await requireAdminAccountObject(event, "media.lookup", async (event: H3Event, session, account) => {
       const mediaRepo = mediaRepository();
-      const id =event?.context?.params?.id;
+      if (mediaRepo.initialize) await mediaRepo.initialize();
+      const id = event?.context?.params?.id;
       if (!id) throw notFound(mediaRepo.typeDef.idFieldName());
       const media_by_id = await mediaRepo.safeFindById(id);
       if (media_by_id) return media_by_id;
