@@ -90,11 +90,11 @@ dependencies:
     specifier: ^1.1.8
     version: 1.1.8
   yuebing-messages:
-    specifier: ^2.1.10
-    version: 2.1.10
+    specifier: ^2.1.13
+    version: 2.1.13
   yuebing-model:
-    specifier: ^2.7.37
-    version: 2.7.37
+    specifier: ^2.7.41
+    version: 2.7.41
   yuebing-server-util:
     specifier: ^1.0.2
     version: 1.0.2
@@ -10154,14 +10154,14 @@ packages:
     resolution: {integrity: sha512-zTxGJ2BDlnJXSRZmmn+mv8E0KLXrjI7w/uCSy+ipDXxzipNL5gpIUqmrntDl1gX8IKlnu4ObwL0KtMAndfiyPg==}
     dev: false
 
-  /yuebing-messages@2.1.10:
-    resolution: {integrity: sha512-Ei0ICEm6o3/r19hSh8sDQJMGnNWWnPVR3VwB7Rav4fi/DIA5Ax3w67NYEXkLsFXMpd2jzYk1cNneDzgcvKwAHw==}
+  /yuebing-messages@2.1.13:
+    resolution: {integrity: sha512-JHkQ+4fpk0rUVHZgUIfhRxEIsNFd6l5TrXjVUpr6wzx+mUK8XP1LhhRtl/T+ATwA0ucxHyXqHdme6CRoO2BWJQ==}
     dependencies:
       hokey-runtime: 1.0.8
     dev: false
 
-  /yuebing-model@2.7.37:
-    resolution: {integrity: sha512-4uJV5y0n9Lm1iMmen9u86ZaoDh8/z+MGDT/+5TLtJVqldPKIg9YBUmZ5x2p+WbCs2ciGP9KtNY3Nqm4QAgffcg==}
+  /yuebing-model@2.7.41:
+    resolution: {integrity: sha512-At2aW94Y8FcwnQruUBAMQnrQZDxXn1o7Ffhct9dFE0bkzugCRoO6r7IS3/8kE1j88Y2rEknSCSoync6iFsihCQ==}
     dev: false
 
   /yuebing-server-util@1.0.2:

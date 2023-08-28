@@ -67,7 +67,7 @@ const { destinationList } = storeToRefs(destinationStore);
 destinationStore.search();
 watch(destinationList, (newDestinations) => {
   if (newDestinations && newDestinations.length > 0) {
-    navigateTo("/admin/library/admin");
+    navigateTo("/admin/library/setup");
   }
 });
 

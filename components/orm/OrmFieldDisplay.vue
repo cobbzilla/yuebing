@@ -26,7 +26,7 @@
             <Icon v-else name="material-symbols:close" />
           </div>
         </div>
-        <div v-else-if="field.control === 'multi' && Array.isArray(value)">
+        <div v-else-if="Array.isArray(value)">
           <div v-if="typeof field.render === 'function'">
             <div v-if="label">
               <v-text-field :value="renderField()" disabled readonly />

@@ -15,10 +15,10 @@
             :readonly="true"
           />
         </div>
-        <div v-else-if="(field.updatable === false && !create) || isReadOnly()" class="ma-0 pa-0">
+        <div v-else-if="(field.updatable === false && !create) || isReadOnly() || field.control === 'label'" class="ma-0 pa-0">
           <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
         </div>
-        <div v-else-if="field.control === 'text' || field.control === 'password'" class="ma-0 pa-0">
+        <div v-else-if="field.control === 'password'" class="ma-0 pa-0">
           <v-text-field
             v-model="localValue"
             :v-bind="localValue"
@@ -38,21 +38,6 @@
               >{{ labelForField() }}
             </template>
           </v-text-field>
-        </div>
-        <div v-else-if="field.control === 'label'" class="ma-0 pa-0">
-          <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
-<!--          <v-text-field-->
-<!--            v-model="localValue"-->
-<!--            :v-bind="localValue"-->
-<!--            :type="'text'"-->
-<!--            :label="labelForField()"-->
-<!--            :hint="hintForField()"-->
-<!--            persistent-hint-->
-<!--            :full-width="false"-->
-<!--            :name="field.name"-->
-<!--            class="form-control"-->
-<!--            :readonly="true"-->
-<!--          />-->
         </div>
         <div v-else-if="field.control === 'textarea'" class="ma-0 pa-0">
           <v-textarea
@@ -176,6 +161,49 @@
             </template>
           </v-slider>
         </div>
+        <div v-else-if="Array.isArray(localValue)">
+          <v-list v-if="localValue && localValue.length > 0">
+            <v-list-subheader>{{ labelForField() }}</v-list-subheader>
+            <v-list-item
+                v-for="(item, i) in localValue"
+                :key="i"
+                :value="item"
+                color="primary"
+                rounded="shaped"
+            >
+              <template v-slot:append>
+                <v-btn icon @click.stop="removeItemFromArray(item)">
+                  <Icon name="material-symbols:delete" />
+                </v-btn>
+              </template>
+              <v-list-item-title>{{ item }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <v-text-field
+              v-model="itemToAddToArray"
+              :v-bind="itemToAddToArray"
+              type="text"
+              :full-width="false"
+              :name="field.name"
+              :value="itemToAddToArray"
+              :hint="hintForField()"
+              persistent-hint
+              class="form-control"
+              :error="submitted && hasError(objPath)"
+              :error-messages="fieldError(objPath)"
+              @keyup.enter="addItemToArray"
+          >
+            <template #label>
+              <span v-if="field.required" style="color: #ff0000"><strong>*&nbsp;</strong></span
+              >{{ labelForField() }}
+            </template>
+            <template #append-inner>
+              <v-btn class="btn btn-primary" :disabled="!itemToAddToArray || itemToAddToArray.length === 0" @click.stop="addItemToArray">
+                <Icon name="material-symbols:add" />
+              </v-btn>
+            </template>
+          </v-text-field>
+        </div>
         <div v-else class="ma-0 pa-0">
           <v-text-field
             v-model="localValue"
@@ -289,6 +317,27 @@ const fieldItems = () => {
         };
       });
 };
+
+const itemToAddToArray = ref("");
+
+const removeItemFromArray = (item: string | number | boolean) => {
+  if (localValue.value && localValue.value.length > 0) {
+    const idx = localValue.value.indexOf(item);
+    if (idx !== -1) {
+      localValue.value.splice(idx, 1);
+      sendUpdate(localValue.value);
+    }
+  }
+}
+
+const addItemToArray = () => {
+  const idx = localValue.value.indexOf(itemToAddToArray.value);
+  if (idx === -1) {
+    localValue.value.push(itemToAddToArray.value);
+    itemToAddToArray.value = "";
+    sendUpdate(localValue.value);
+  }
+}
 
 const labelForField = () => {
   const field = props.field;

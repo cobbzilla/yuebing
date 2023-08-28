@@ -1,6 +1,6 @@
 {
   "name": "yuebing",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "keywords": [
     "video",
     "private",
@@ -86,8 +86,8 @@
     "yuebing-media": "^1.1.43",
     "yuebing-media-info": "^1.0.33",
     "yuebing-media-video": "^1.1.8",
-    "yuebing-messages": "^2.1.10",
-    "yuebing-model": "^2.7.37",
+    "yuebing-messages": "^2.1.13",
+    "yuebing-model": "^2.7.41",
     "yuebing-server-util": "^1.0.2",
     "zilla-util": "^1.0.1"
   }

@@ -129,7 +129,7 @@
                 </table>
               </v-col>
             </v-row>
-            <v-row>
+            <v-row v-if="canAdd()">
               <v-col>
                 <v-btn class="btn btn-primary" :disabled="libraryScanStore.libraryScanBusy" @click.stop="showAddOrm">
                   <Icon name="material-symbols:add" />
@@ -181,7 +181,7 @@
       msgDeleteSuccess: string;
       msgDeleteError: string;
       actionConfigs: Record<string, ActionConfig>;
-      canAdd: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
+      canAdd: () => boolean;
       canEdit: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       canDelete: (obj: MobilettoOrmObject, objList: MobilettoOrmObject[]) => boolean;
       deleteConfirmationMessage: string;
@@ -374,8 +374,11 @@
   const delConfirmCount = ref(0);
   const deletingObject = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
-      if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < maxDeleteConfirmations) {
-          if (confirm(props.deleteConfirmationMessage)) {
+      if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
+          const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {
+              id: LibraryScanTypeDef.id(obj)
+          });
+          if (confirm(confirmationMessage)) {
               delConfirmCount.value = delConfirmCount.value + 1;
           } else {
               delConfirmCount.value = 0;

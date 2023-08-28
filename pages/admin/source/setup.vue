@@ -63,7 +63,7 @@ const { sourceList } = storeToRefs(sourceStore);
 sourceStore.search();
 watch(sourceList, (newSources) => {
   if (newSources && newSources.length > 0) {
-    navigateTo("/admin/destination/admin");
+    navigateTo("/admin/destination/setup");
   }
 });
 
