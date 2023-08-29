@@ -21,12 +21,15 @@ export default defineEventHandler(async (event: H3Event) => {
       }
       const sourceScanRepo = sourceScanRepository();
       if (sourceScanRepo.initialize) await sourceScanRepo.initialize();
+      const predicate = opts.textSearch && opts.textSearch.trim().length > 0
+        ? (obj) => SourceScanTypeDef.textMatch(obj, opts.textSearch || "")
+        : undefined;
+      const requestedOpts = opts.opts || {};
+      const searchOpts = predicate ? Object.assign({}, requestedOpts, { predicate }) : requestedOpts;
       if (opts.field && opts.value) {
-        return await sourceScanRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
-      } else if (opts.textSearch && SourceScanTypeDef.textSearchFields.length > 0) {
-        return await sourceScanRepo.find({ predicate: (obj) => SourceScanTypeDef.textMatch(obj, opts.textSearch || "") });
+        return await sourceScanRepo.safeFindBy(opts.field, opts.value, searchOpts);
       } else {
-        return await sourceScanRepo.find(opts.opts || {});
+        return await sourceScanRepo.find(searchOpts);
       }
     });
   });

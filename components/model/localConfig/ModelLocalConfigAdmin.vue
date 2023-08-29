@@ -16,53 +16,51 @@
         </b>
       </v-col>
     </v-row>
-    <div>
-      <v-row v-if="addingObject">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && localConfigTypeDef"
-            form-name="add_localConfig_form"
-            :type-def="localConfigTypeDef"
-            :type-name-message="typeNameMessage"
-            :thing="addObject"
-            :fields="localConfigTypeDefFields"
-            :create="true"
-            :read-only-object="() => false"
-            :server-errors="createLocalConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onAddSubmitted"
-            @update="onAddUpdated"
-            @cancel="onAddCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="Object.keys(editingObject).length > 0">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && localConfigTypeDef"
-            form-name="edit_localConfig_form"
-            :type-def="localConfigTypeDef"
-            type-name-message="typeNameMessage"
-            :thing="editingObject"
-            :fields="localConfigTypeDefFields"
-            :create="false"
-            :read-only-object="() => false"
-            :server-errors="editLocalConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onEditSubmitted"
-            @update="onEditUpdated"
-            @cancel="onEditCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col>
-          <Icon name="material-symbols:clock-outline" />
-        </v-col>
-      </v-row>
-    </div>
+    <v-row v-if="addingObject">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && localConfigTypeDef"
+          form-name="add_localConfig_form"
+          :type-def="localConfigTypeDef"
+          :type-name-message="typeNameMessage"
+          :thing="addObject"
+          :fields="localConfigTypeDefFields"
+          :create="true"
+          :read-only-object="() => false"
+          :server-errors="createLocalConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onAddSubmitted"
+          @update="onAddUpdated"
+          @cancel="onAddCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="Object.keys(editingObject).length > 0">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && localConfigTypeDef"
+          form-name="edit_localConfig_form"
+          :type-def="localConfigTypeDef"
+          type-name-message="typeNameMessage"
+          :thing="editingObject"
+          :fields="localConfigTypeDefFields"
+          :create="false"
+          :read-only-object="() => false"
+          :server-errors="editLocalConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onEditSubmitted"
+          @update="onEditUpdated"
+          @cancel="onEditCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -81,6 +79,7 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { useLocalConfigStore } from "~/stores/model/localConfigStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
 

@@ -16,53 +16,51 @@
         </b>
       </v-col>
     </v-row>
-    <div>
-      <v-row v-if="addingObject">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && publicConfigTypeDef"
-            form-name="add_publicConfig_form"
-            :type-def="publicConfigTypeDef"
-            :type-name-message="typeNameMessage"
-            :thing="addObject"
-            :fields="publicConfigTypeDefFields"
-            :create="true"
-            :read-only-object="() => false"
-            :server-errors="createPublicConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onAddSubmitted"
-            @update="onAddUpdated"
-            @cancel="onAddCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="Object.keys(editingObject).length > 0">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && publicConfigTypeDef"
-            form-name="edit_publicConfig_form"
-            :type-def="publicConfigTypeDef"
-            type-name-message="typeNameMessage"
-            :thing="editingObject"
-            :fields="publicConfigTypeDefFields"
-            :create="false"
-            :read-only-object="() => false"
-            :server-errors="editPublicConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onEditSubmitted"
-            @update="onEditUpdated"
-            @cancel="onEditCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col>
-          <Icon name="material-symbols:clock-outline" />
-        </v-col>
-      </v-row>
-    </div>
+    <v-row v-if="addingObject">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && publicConfigTypeDef"
+          form-name="add_publicConfig_form"
+          :type-def="publicConfigTypeDef"
+          :type-name-message="typeNameMessage"
+          :thing="addObject"
+          :fields="publicConfigTypeDefFields"
+          :create="true"
+          :read-only-object="() => false"
+          :server-errors="createPublicConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onAddSubmitted"
+          @update="onAddUpdated"
+          @cancel="onAddCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="Object.keys(editingObject).length > 0">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && publicConfigTypeDef"
+          form-name="edit_publicConfig_form"
+          :type-def="publicConfigTypeDef"
+          type-name-message="typeNameMessage"
+          :thing="editingObject"
+          :fields="publicConfigTypeDefFields"
+          :create="false"
+          :read-only-object="() => false"
+          :server-errors="editPublicConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onEditSubmitted"
+          @update="onEditUpdated"
+          @cancel="onEditCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -81,6 +79,7 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { usePublicConfigStore } from "~/stores/model/publicConfigStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
 

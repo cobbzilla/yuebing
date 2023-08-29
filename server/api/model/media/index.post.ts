@@ -21,12 +21,15 @@ export default defineEventHandler(async (event: H3Event) => {
       }
       const mediaRepo = mediaRepository();
       if (mediaRepo.initialize) await mediaRepo.initialize();
+      const predicate = opts.textSearch && opts.textSearch.trim().length > 0
+        ? (obj) => MediaTypeDef.textMatch(obj, opts.textSearch || "")
+        : undefined;
+      const requestedOpts = opts.opts || {};
+      const searchOpts = predicate ? Object.assign({}, requestedOpts, { predicate }) : requestedOpts;
       if (opts.field && opts.value) {
-        return await mediaRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
-      } else if (opts.textSearch && MediaTypeDef.textSearchFields.length > 0) {
-        return await mediaRepo.find({ predicate: (obj) => MediaTypeDef.textMatch(obj, opts.textSearch || "") });
+        return await mediaRepo.safeFindBy(opts.field, opts.value, searchOpts);
       } else {
-        return await mediaRepo.find(opts.opts || {});
+        return await mediaRepo.find(searchOpts);
       }
     });
   });

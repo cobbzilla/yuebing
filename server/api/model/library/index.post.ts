@@ -21,12 +21,15 @@ export default defineEventHandler(async (event: H3Event) => {
       }
       const libraryRepo = libraryRepository();
       if (libraryRepo.initialize) await libraryRepo.initialize();
+      const predicate = opts.textSearch && opts.textSearch.trim().length > 0
+        ? (obj) => LibraryTypeDef.textMatch(obj, opts.textSearch || "")
+        : undefined;
+      const requestedOpts = opts.opts || {};
+      const searchOpts = predicate ? Object.assign({}, requestedOpts, { predicate }) : requestedOpts;
       if (opts.field && opts.value) {
-        return await libraryRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
-      } else if (opts.textSearch && LibraryTypeDef.textSearchFields.length > 0) {
-        return await libraryRepo.find({ predicate: (obj) => LibraryTypeDef.textMatch(obj, opts.textSearch || "") });
+        return await libraryRepo.safeFindBy(opts.field, opts.value, searchOpts);
       } else {
-        return await libraryRepo.find(opts.opts || {});
+        return await libraryRepo.find(searchOpts);
       }
     });
   });

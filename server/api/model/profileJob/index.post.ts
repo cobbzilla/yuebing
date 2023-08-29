@@ -21,12 +21,15 @@ export default defineEventHandler(async (event: H3Event) => {
       }
       const profileJobRepo = profileJobRepository();
       if (profileJobRepo.initialize) await profileJobRepo.initialize();
+      const predicate = opts.textSearch && opts.textSearch.trim().length > 0
+        ? (obj) => ProfileJobTypeDef.textMatch(obj, opts.textSearch || "")
+        : undefined;
+      const requestedOpts = opts.opts || {};
+      const searchOpts = predicate ? Object.assign({}, requestedOpts, { predicate }) : requestedOpts;
       if (opts.field && opts.value) {
-        return await profileJobRepo.safeFindBy(opts.field, opts.value, opts.opts || {});
-      } else if (opts.textSearch && ProfileJobTypeDef.textSearchFields.length > 0) {
-        return await profileJobRepo.find({ predicate: (obj) => ProfileJobTypeDef.textMatch(obj, opts.textSearch || "") });
+        return await profileJobRepo.safeFindBy(opts.field, opts.value, searchOpts);
       } else {
-        return await profileJobRepo.find(opts.opts || {});
+        return await profileJobRepo.find(searchOpts);
       }
     });
   });

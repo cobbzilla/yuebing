@@ -16,53 +16,51 @@
         </b>
       </v-col>
     </v-row>
-    <div>
-      <v-row v-if="addingObject">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && privateConfigTypeDef"
-            form-name="add_privateConfig_form"
-            :type-def="privateConfigTypeDef"
-            :type-name-message="typeNameMessage"
-            :thing="addObject"
-            :fields="privateConfigTypeDefFields"
-            :create="true"
-            :read-only-object="() => false"
-            :server-errors="createPrivateConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onAddSubmitted"
-            @update="onAddUpdated"
-            @cancel="onAddCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="Object.keys(editingObject).length > 0">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && privateConfigTypeDef"
-            form-name="edit_privateConfig_form"
-            :type-def="privateConfigTypeDef"
-            type-name-message="typeNameMessage"
-            :thing="editingObject"
-            :fields="privateConfigTypeDefFields"
-            :create="false"
-            :read-only-object="() => false"
-            :server-errors="editPrivateConfigServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onEditSubmitted"
-            @update="onEditUpdated"
-            @cancel="onEditCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col>
-          <Icon name="material-symbols:clock-outline" />
-        </v-col>
-      </v-row>
-    </div>
+    <v-row v-if="addingObject">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && privateConfigTypeDef"
+          form-name="add_privateConfig_form"
+          :type-def="privateConfigTypeDef"
+          :type-name-message="typeNameMessage"
+          :thing="addObject"
+          :fields="privateConfigTypeDefFields"
+          :create="true"
+          :read-only-object="() => false"
+          :server-errors="createPrivateConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onAddSubmitted"
+          @update="onAddUpdated"
+          @cancel="onAddCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="Object.keys(editingObject).length > 0">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && privateConfigTypeDef"
+          form-name="edit_privateConfig_form"
+          :type-def="privateConfigTypeDef"
+          type-name-message="typeNameMessage"
+          :thing="editingObject"
+          :fields="privateConfigTypeDefFields"
+          :create="false"
+          :read-only-object="() => false"
+          :server-errors="editPrivateConfigServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onEditSubmitted"
+          @update="onEditUpdated"
+          @cancel="onEditCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -81,6 +79,7 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { usePrivateConfigStore } from "~/stores/model/privateConfigStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
 

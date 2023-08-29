@@ -16,135 +16,133 @@
         </b>
       </v-col>
     </v-row>
-    <div>
-      <v-row v-if="addingObject">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && mediaTypeDef"
-            form-name="add_media_form"
-            :type-def="mediaTypeDef"
-            :type-name-message="typeNameMessage"
-            :thing="addObject"
-            :fields="mediaTypeDefFields"
-            :create="true"
-            :read-only-object="() => false"
-            :server-errors="createMediaServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onAddSubmitted"
-            @update="onAddUpdated"
-            @cancel="onAddCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="Object.keys(editingObject).length > 0">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && mediaTypeDef"
-            form-name="edit_media_form"
-            :type-def="mediaTypeDef"
-            type-name-message="typeNameMessage"
-            :thing="editingObject"
-            :fields="mediaTypeDefFields"
-            :create="false"
-            :read-only-object="() => false"
-            :server-errors="editMediaServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onEditSubmitted"
-            @update="onEditUpdated"
-            @cancel="onEditCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="allRefsLoaded() && mediaTypeDef">
-        <v-col>
-          <v-container>
+    <v-row v-if="addingObject">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && mediaTypeDef"
+          form-name="add_media_form"
+          :type-def="mediaTypeDef"
+          :type-name-message="typeNameMessage"
+          :thing="addObject"
+          :fields="mediaTypeDefFields"
+          :create="true"
+          :read-only-object="() => false"
+          :server-errors="createMediaServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onAddSubmitted"
+          @update="onAddUpdated"
+          @cancel="onAddCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="Object.keys(editingObject).length > 0">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && mediaTypeDef"
+          form-name="edit_media_form"
+          :type-def="mediaTypeDef"
+          type-name-message="typeNameMessage"
+          :thing="editingObject"
+          :fields="mediaTypeDefFields"
+          :create="false"
+          :read-only-object="() => false"
+          :server-errors="editMediaServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onEditSubmitted"
+          @update="onEditUpdated"
+          @cancel="onEditCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="allRefsLoaded() && mediaTypeDef">
+      <v-col>
+        <v-container>
+          <v-form @submit.prevent="searchObjects">
             <v-row v-if="(mediaList && mediaList.length > 0) || searched">
               <v-col>
-                <div>
-                  <v-form @submit.prevent="searchObjects">
-                    <div class="form-group">
-                      <v-text-field
-                        v-model="searchTerms"
-                        :label="messages.label_search"
-                        :disabled="mediaStore.mediaBusy"
-                        type="text"
-                        name="searchTerms"
-                        class="form-control"
-                        @keyup.enter="searchObjects"
-                      />
-                      <v-btn class="btn btn-primary" :disabled="mediaStore.mediaBusy" @click.stop="searchObjects">
-                        <Icon name="material-symbols:search" />
-                      </v-btn>
-                    </div>
-                  </v-form>
-                </div>
+                  <v-text-field
+                    v-model="searchTerms"
+                    :label="messages.label_search"
+                    :disabled="mediaStore.mediaBusy"
+                    type="text"
+                    name="searchTerms"
+                    class="form-control"
+                    @keyup.enter="searchObjects"
+                  />
               </v-col>
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="mediaList && mediaList.length > 0">
-                  <thead>
-                  <tr>
-                    <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
-                      {{ tableFieldMessages[tableField] }}
-                    </th>
-                    <th v-if="Object.keys(actionConfigs).length > 0">
-                      <Icon name="material-symbols:target" />
-                    </th>
-                    <th></th>
-                    <th></th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(obj, objIndex) in mediaList" :key="objIndex">
-                    <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="mediaTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
-                    </td>
-                    <td v-if="Object.keys(actionConfigs).length > 0">
-                      <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
-                        <NuxtLink
-                          v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaTypeDef.idField(obj) as string)}` }"
-                        >
-                          <v-btn>
-                            {{ messages[actionConfig(action).message] }}
-                          </v-btn>
-                        </NuxtLink>
-                      </div>
-                    </td>
-                    <td>
-                      <v-btn v-if="canEdit(obj, mediaList)" :disabled="mediaStore.mediaBusy" @click.stop="showEditOrm(obj)">
-                        <Icon name="material-symbols:edit" />
-                      </v-btn>
-                    </td>
-                    <td>
-                      <v-btn v-if="canDelete(obj, mediaList)" :disabled="mediaStore.mediaBusy" @click.stop="delObject(obj)">
-                        <Icon name="material-symbols:delete" />
-                      </v-btn>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </v-col>
-            </v-row>
-            <v-row v-if="canAdd()">
-              <v-col>
-                <v-btn class="btn btn-primary" :disabled="mediaStore.mediaBusy" @click.stop="showAddOrm">
-                  <Icon name="material-symbols:add" />
+                <v-btn class="btn btn-primary" :disabled="mediaStore.mediaBusy" @click.stop="searchObjects">
+                  <Icon name="material-symbols:search" />
                 </v-btn>
               </v-col>
             </v-row>
-          </v-container>
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col>
-          <Icon name="material-symbols:clock-outline" />
-        </v-col>
-      </v-row>
-    </div>
+          </v-form>
+          <v-row>
+            <v-col>
+              <table v-if="mediaList && mediaList.length > 0">
+                <thead>
+                <tr>
+                  <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
+                  {{ fieldMessages[tableField] }}
+                  </th>
+                  <th v-if="Object.keys(actionConfigs).length > 0">
+                  <Icon name="material-symbols:target" />
+                  </th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(obj, objIndex) in mediaList" :key="objIndex">
+                  <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
+                  <OrmFieldDisplay v-if="mediaTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                  </td>
+                  <td v-if="Object.keys(actionConfigs).length > 0">
+                  <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
+                  <NuxtLink
+                    v-if="actionEnabled(obj, action)"
+                    :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaTypeDef.idField(obj) as string)}` }"
+                    >
+                      <v-btn>
+                          {{ messages[actionConfig(action).message] }}
+                        </v-btn>
+                      </NuxtLink>
+                    </div>
+                  </td>
+                  <td>
+                    <v-btn v-if="canEdit(obj, mediaList)" :disabled="mediaStore.mediaBusy" @click.stop="showEditOrm(obj)">
+                      <Icon name="material-symbols:edit" />
+                    </v-btn>
+                  </td>
+                  <td>
+                    <v-btn v-if="canDelete(obj, mediaList)" :disabled="mediaStore.mediaBusy" @click.stop="delObject(obj)">
+                      <Icon name="material-symbols:delete" />
+                    </v-btn>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </v-col>
+          </v-row>
+          <v-row v-if="canAdd()">
+            <v-col>
+              <v-btn class="btn btn-primary" :disabled="mediaStore.mediaBusy" @click.stop="showAddOrm">
+                <Icon name="material-symbols:add" />
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -163,6 +161,7 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { useMediaStore } from "~/stores/model/mediaStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
   type ActionConfig = {
@@ -242,23 +241,27 @@
 
   const tableFields: Ref<string[]> = ref([]);
 
-  const tableFieldMessages: Ref<Record<string, string>> = ref({});
-  const initTableFieldMessages = (tableFields: string[]) => {
-      const defaultTableFieldMessages: Record<string, string> = {};
+  const fieldMessages: Ref<Record<string, string>> = ref({});
+  const initFieldMessages = (tableFields: string[]) => {
+      const defaultFieldMessages: Record<string, string> = {};
       tableFields.forEach((f: string) => {
-        defaultTableFieldMessages[f] = findMessage(normalizeMsg(f), messages.value, props.labelPrefixes);
-      });
-      tableFieldMessages.value = defaultTableFieldMessages;
+        defaultFieldMessages[f] = findMessage(normalizeMsg(f), messages.value, props.labelPrefixes);
+      });      fieldMessages.value = defaultFieldMessages;
   };
 
   const mediaStore = useMediaStore();
   const { mediaList  } = storeToRefs(mediaStore);
   const mediaTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const mediaTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
-  const searchQuery = () => ({ textSearch: searchTerms.value });
+  const searchQuery = () => {
+      const q: MobilettoOrmFindApiOpts = {};
+      if (searchTerms.value && searchTerms.value.trim().length > 0) q.textSearch = searchTerms.value;
+            return Object.keys(q).length > 0 ? q : undefined;
+  };
 
   const searchObjects = () => {
     const query = searchQuery();
+    if (!query) return; // something was wrong, don't send the query
     if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(query)) {
       // not sending duplicate search
     } else {
@@ -278,7 +281,7 @@
     : mediaTypeDef.value.primary
       ? [mediaTypeDef.value.primary, "ctime", "mtime"]
       : ["id", "ctime", "mtime"];
-  initTableFieldMessages(tableFields.value);
+  initFieldMessages(tableFields.value);
 
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);

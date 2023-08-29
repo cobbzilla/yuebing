@@ -16,135 +16,162 @@
         </b>
       </v-col>
     </v-row>
-    <div>
-      <v-row v-if="addingObject">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && profileJobTypeDef"
-            form-name="add_profileJob_form"
-            :type-def="profileJobTypeDef"
-            :type-name-message="typeNameMessage"
-            :thing="addObject"
-            :fields="profileJobTypeDefFields"
-            :create="true"
-            :read-only-object="() => false"
-            :server-errors="createProfileJobServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onAddSubmitted"
-            @update="onAddUpdated"
-            @cancel="onAddCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="Object.keys(editingObject).length > 0">
-        <v-col>
-          <OrmForm
-            v-if="allRefsLoaded() && profileJobTypeDef"
-            form-name="edit_profileJob_form"
-            :type-def="profileJobTypeDef"
-            type-name-message="typeNameMessage"
-            :thing="editingObject"
-            :fields="profileJobTypeDefFields"
-            :create="false"
-            :read-only-object="() => false"
-            :server-errors="editProfileJobServerErrors"
-            :label-prefixes="labelPfx"
-            :hint-suffixes="['_description']"
-            @submitted="onEditSubmitted"
-            @update="onEditUpdated"
-            @cancel="onEditCancel"
-          />
-        </v-col>
-      </v-row>
-      <v-row v-else-if="allRefsLoaded() && profileJobTypeDef">
-        <v-col>
-          <v-container>
+    <v-row v-if="addingObject">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && profileJobTypeDef"
+          form-name="add_profileJob_form"
+          :type-def="profileJobTypeDef"
+          :type-name-message="typeNameMessage"
+          :thing="addObject"
+          :fields="profileJobTypeDefFields"
+          :create="true"
+          :read-only-object="() => false"
+          :server-errors="createProfileJobServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onAddSubmitted"
+          @update="onAddUpdated"
+          @cancel="onAddCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="Object.keys(editingObject).length > 0">
+      <v-col>
+        <OrmForm
+          v-if="allRefsLoaded() && profileJobTypeDef"
+          form-name="edit_profileJob_form"
+          :type-def="profileJobTypeDef"
+          type-name-message="typeNameMessage"
+          :thing="editingObject"
+          :fields="profileJobTypeDefFields"
+          :create="false"
+          :read-only-object="() => false"
+          :server-errors="editProfileJobServerErrors"
+          :label-prefixes="labelPfx"
+          :hint-suffixes="['_description']"
+          @submitted="onEditSubmitted"
+          @update="onEditUpdated"
+          @cancel="onEditCancel"
+        />
+      </v-col>
+    </v-row>
+    <v-row v-else-if="allRefsLoaded() && profileJobTypeDef">
+      <v-col>
+        <v-container>
+          <v-form @submit.prevent="searchObjects">
             <v-row v-if="(profileJobList && profileJobList.length > 0) || searched">
               <v-col>
-                <div>
-                  <v-form @submit.prevent="searchObjects">
-                    <div class="form-group">
-                      <v-text-field
-                        v-model="searchTerms"
-                        :label="messages.label_search"
-                        :disabled="profileJobStore.profileJobBusy"
-                        type="text"
-                        name="searchTerms"
-                        class="form-control"
-                        @keyup.enter="searchObjects"
-                      />
-                      <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="searchObjects">
-                        <Icon name="material-symbols:search" />
-                      </v-btn>
-                    </div>
-                  </v-form>
-                </div>
+                  <v-text-field
+                    v-model="searchTerms"
+                    :label="messages.label_search"
+                    :disabled="profileJobStore.profileJobBusy"
+                    type="text"
+                    name="searchTerms"
+                    class="form-control"
+                    @keyup.enter="searchObjects"
+                  />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col v-if="singleRefSearchField">
+                  {{ refSearchFields[0].title }}
+              </v-col>
+              <v-col v-else>
+                <v-select
+                  v-model="selectedRef"
+                  :v-bind="selectedRef"
+                  :items="refSearchFields"
+                  :full-width="false"
+                  name="selectedRef"
+                  class="form-control"
+                />
+              </v-col>
+              <v-col v-show="selectedRef === 'profile'">
+                  <v-select
+                      v-model="searchRef.profile"
+                      :v-bind="searchRef.profile"
+                      :label="fieldMessages.profile"
+                      :items="refMediaProfile.items"
+                      item-value="value"
+                      item-title="label"
+                      :full-width="false"
+                      name="searchRef_profile"
+                      class="form-control"
+                      @update:model-value="searchObjects"
+                  />
               </v-col>
             </v-row>
             <v-row>
               <v-col>
-                <table v-if="profileJobList && profileJobList.length > 0">
-                  <thead>
-                  <tr>
-                    <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
-                      {{ tableFieldMessages[tableField] }}
-                    </th>
-                    <th v-if="Object.keys(actionConfigs).length > 0">
-                      <Icon name="material-symbols:target" />
-                    </th>
-                    <th></th>
-                    <th></th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(obj, objIndex) in profileJobList" :key="objIndex">
-                    <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                      <OrmFieldDisplay v-if="profileJobTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : profileJobTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
-                    </td>
-                    <td v-if="Object.keys(actionConfigs).length > 0">
-                      <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
-                        <NuxtLink
-                          v-if="actionEnabled(obj, action)"
-                          :to="{ path: `${actionConfig(action).path}/${deepGet(obj, profileJobTypeDef.idField(obj) as string)}` }"
-                        >
-                          <v-btn>
-                            {{ messages[actionConfig(action).message] }}
-                          </v-btn>
-                        </NuxtLink>
-                      </div>
-                    </td>
-                    <td>
-                      <v-btn v-if="canEdit(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="showEditOrm(obj)">
-                        <Icon name="material-symbols:edit" />
-                      </v-btn>
-                    </td>
-                    <td>
-                      <v-btn v-if="canDelete(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="delObject(obj)">
-                        <Icon name="material-symbols:delete" />
-                      </v-btn>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </v-col>
-            </v-row>
-            <v-row v-if="canAdd()">
-              <v-col>
-                <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="showAddOrm">
-                  <Icon name="material-symbols:add" />
+                <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="searchObjects">
+                  <Icon name="material-symbols:search" />
                 </v-btn>
               </v-col>
             </v-row>
-          </v-container>
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col>
-          <Icon name="material-symbols:clock-outline" />
-        </v-col>
-      </v-row>
-    </div>
+          </v-form>
+          <v-row>
+            <v-col>
+              <table v-if="profileJobList && profileJobList.length > 0">
+                <thead>
+                <tr>
+                  <th v-for="(tableField, tableFieldIndex) in tableFields" :key="tableFieldIndex">
+                  {{ fieldMessages[tableField] }}
+                  </th>
+                  <th v-if="Object.keys(actionConfigs).length > 0">
+                  <Icon name="material-symbols:target" />
+                  </th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(obj, objIndex) in profileJobList" :key="objIndex">
+                  <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
+                  <OrmFieldDisplay v-if="profileJobTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : profileJobTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                  </td>
+                  <td v-if="Object.keys(actionConfigs).length > 0">
+                  <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
+                  <NuxtLink
+                    v-if="actionEnabled(obj, action)"
+                    :to="{ path: `${actionConfig(action).path}/${deepGet(obj, profileJobTypeDef.idField(obj) as string)}` }"
+                    >
+                      <v-btn>
+                          {{ messages[actionConfig(action).message] }}
+                        </v-btn>
+                      </NuxtLink>
+                    </div>
+                  </td>
+                  <td>
+                    <v-btn v-if="canEdit(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="showEditOrm(obj)">
+                      <Icon name="material-symbols:edit" />
+                    </v-btn>
+                  </td>
+                  <td>
+                    <v-btn v-if="canDelete(obj, profileJobList)" :disabled="profileJobStore.profileJobBusy" @click.stop="delObject(obj)">
+                      <Icon name="material-symbols:delete" />
+                    </v-btn>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </v-col>
+          </v-row>
+          <v-row v-if="canAdd()">
+            <v-col>
+              <v-btn class="btn btn-primary" :disabled="profileJobStore.profileJobBusy" @click.stop="showAddOrm">
+                <Icon name="material-symbols:add" />
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col>
+        <Icon name="material-symbols:clock-outline" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -164,6 +191,7 @@
   import { useProfileJobStore } from "~/stores/model/profileJobStore";
   import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
+  import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
   type ActionConfig = {
@@ -243,23 +271,32 @@
 
   const tableFields: Ref<string[]> = ref([]);
 
-  const tableFieldMessages: Ref<Record<string, string>> = ref({});
-  const initTableFieldMessages = (tableFields: string[]) => {
-      const defaultTableFieldMessages: Record<string, string> = {};
+  const fieldMessages: Ref<Record<string, string>> = ref({});
+  const initFieldMessages = (tableFields: string[]) => {
+      const defaultFieldMessages: Record<string, string> = {};
       tableFields.forEach((f: string) => {
-        defaultTableFieldMessages[f] = findMessage(normalizeMsg(f), messages.value, props.labelPrefixes);
-      });
-      tableFieldMessages.value = defaultTableFieldMessages;
+        defaultFieldMessages[f] = findMessage(normalizeMsg(f), messages.value, props.labelPrefixes);
+      });      fieldMessages.value = defaultFieldMessages;
   };
 
   const profileJobStore = useProfileJobStore();
   const { profileJobList  } = storeToRefs(profileJobStore);
   const profileJobTypeDef: Ref<MobilettoOrmTypeDef | null> = ref(null);
   const profileJobTypeDefFields: Ref<MobilettoOrmFieldDefConfig[] | undefined> = ref(undefined);
-  const searchQuery = () => ({ textSearch: searchTerms.value });
+  const searchQuery = () => {
+      const q: MobilettoOrmFindApiOpts = {};
+      if (searchTerms.value && searchTerms.value.trim().length > 0) q.textSearch = searchTerms.value;
+      const val = searchRef.value[selectedRef.value as string];
+      if (val && val.length > 0) {
+        q.field = selectedRef.value;
+        q.value = val;
+      }
+      return Object.keys(q).length > 0 ? q : undefined;
+  };
 
   const searchObjects = () => {
     const query = searchQuery();
+    if (!query) return; // something was wrong, don't send the query
     if (lastQuery.value && JSON.stringify(lastQuery.value) === JSON.stringify(query)) {
       // not sending duplicate search
     } else {
@@ -285,12 +322,17 @@
       : profileJobTypeDef.value.primary
         ? [profileJobTypeDef.value.primary, "ctime", "mtime"]
         : ["id", "ctime", "mtime"];
-    initTableFieldMessages(tableFields.value);
+    initFieldMessages(tableFields.value);
   }
 
   const allRefs: Ref<Boolean>[] = [];
   const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
-
+  const refSearchFields = ref([] as { value: string, title: string }[]);
+  const selectedRef = ref("profile");
+  const searchRef: Ref<Record<string, string>> = ref({});
+  searchRef.value.profile = "";
+  refSearchFields.value.push({ value: "profile", title: findMessage("profile", messages.value, ["typename_", ...props.labelPrefixes]) });
+  const singleRefSearchField = ref(refSearchFields.value.length === 1);
   const refMediaProfile = ref({} as MobilettoOrmFieldDefConfig);
   const refMediaProfileLoaded = ref(false);
   allRefs.push(refMediaProfileLoaded);
