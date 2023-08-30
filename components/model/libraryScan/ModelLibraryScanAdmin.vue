@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_libraryScan_admin_details', messages)">
-          {{ messages.title_libraryScan_admin_details }}
+        <b v-if="messageExists('admin_title_libraryScan_administration_details', messages)">
+          {{ messages.admin_title_libraryScan_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -203,11 +203,11 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: LibraryScanType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: LibraryScanType];
-    editCanceled: [obj: LibraryScanType];
-    deleted: [obj: LibraryScanType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
+    deleted: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_libraryScan_", "label_", ""]);
@@ -375,7 +375,7 @@
     return true;
   };
   const delConfirmCount = ref(0);
-  const deletingObject = ref(null);
+  const deletingObject: Ref<MobilettoOrmObject | null> = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
       if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
           const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {

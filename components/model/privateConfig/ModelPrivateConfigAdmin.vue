@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_privateConfig_admin_details', messages)">
-          {{ messages.title_privateConfig_admin_details }}
+        <b v-if="messageExists('admin_title_privateConfig_administration_details', messages)">
+          {{ messages.admin_title_privateConfig_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -104,10 +104,10 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: PrivateConfigType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: PrivateConfigType];
-    editCanceled: [obj: PrivateConfigType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_privateConfig_", "label_", ""]);

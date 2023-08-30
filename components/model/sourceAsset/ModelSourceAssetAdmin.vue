@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_sourceAsset_admin_details', messages)">
-          {{ messages.title_sourceAsset_admin_details }}
+        <b v-if="messageExists('admin_title_sourceAsset_administration_details', messages)">
+          {{ messages.admin_title_sourceAsset_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -233,11 +233,11 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: SourceAssetType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: SourceAssetType];
-    editCanceled: [obj: SourceAssetType];
-    deleted: [obj: SourceAssetType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
+    deleted: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_sourceAsset_", "label_", ""]);
@@ -353,10 +353,10 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.source = refSource.value.values as any;
+      SourceAssetTypeDef.fields.source.items = refSource.value.items;
       refSourceLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });
@@ -452,7 +452,7 @@
     return true;
   };
   const delConfirmCount = ref(0);
-  const deletingObject = ref(null);
+  const deletingObject: Ref<MobilettoOrmObject | null> = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
       if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
           const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {
@@ -495,7 +495,7 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
+    const refSearches: Promise<MobilettoOrmObject[]>[] = [];
     refSearches.push(sourceStore.search());
     await Promise.all(refSearches);
     

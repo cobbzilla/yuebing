@@ -3,7 +3,7 @@
     <v-row>
       <v-col><h3>{{ adminTitle() }}</h3></v-col>
     </v-row>
-    <v-row v-for="(typeDefName, idx) in ['account','source','destination','library','publicConfig','privateConfig','localConfig','media']" :key="idx">
+    <v-row v-for="(typeDefName, idx) in adminTypes" :key="idx">
       <v-col>
         <NuxtLink :to="`/admin/${typeDefName}/admin`" style="text-decoration: none">
           <b>{{ messages[`admin_title_${typeDefName}_administration`] }}</b>
@@ -36,7 +36,19 @@ const { localeMessages } = storeToRefs(sessionStore);
 const messages = localeMessages;
 
 const title = configTitle;
-const adminTitle = () => parseMessage(messages.value.admin_title_site_administration, messages.value, { title: title() })
+const adminTitle = () => parseMessage(messages.value.admin_title_site_administration, messages.value, { title: title() });
+
+const adminTypes = [
+  'account',
+  'source',
+  'destination',
+  'library',
+  'publicConfig',
+  'privateConfig',
+  'localConfig',
+  'media',
+  'mediaProfile'
+];
 
 const hasLibraries = ref(false);
 

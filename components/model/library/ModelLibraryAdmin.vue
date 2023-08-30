@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_library_admin_details', messages)">
-          {{ messages.title_library_admin_details }}
+        <b v-if="messageExists('admin_title_library_administration_details', messages)">
+          {{ messages.admin_title_library_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -263,11 +263,11 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: LibraryType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: LibraryType];
-    editCanceled: [obj: LibraryType];
-    deleted: [obj: LibraryType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
+    deleted: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_library_", "label_", ""]);
@@ -368,10 +368,10 @@
   refSearchFields.value.push({ value: "media", title: findMessage("media", messages.value, ["typename_", ...props.labelPrefixes]) });
 
   searchRef.value.sources = "";
-  refSearchFields.value.push({ value: "sources", title: findMessage("sources", messages.value, ["typename_", ...props.labelPrefixes]) });
+  refSearchFields.value.push({ value: "sources", title: findMessage("source", messages.value, ["typename_", ...props.labelPrefixes]) });
 
   searchRef.value.destinations = "";
-  refSearchFields.value.push({ value: "destinations", title: findMessage("destinations", messages.value, ["typename_", ...props.labelPrefixes]) });
+  refSearchFields.value.push({ value: "destinations", title: findMessage("destination", messages.value, ["typename_", ...props.labelPrefixes]) });
   const singleRefSearchField = ref(refSearchFields.value.length === 1);
   const refMedia = ref({} as MobilettoOrmFieldDefConfig);
   const refMediaLoaded = ref(false);
@@ -393,10 +393,10 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.media = refMedia.value.values as any;
+      LibraryTypeDef.fields.media.items = refMedia.value.items;
       refMediaLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });const refSource = ref({} as MobilettoOrmFieldDefConfig);
@@ -419,10 +419,10 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.sources = refSource.value.values as any;
+      LibraryTypeDef.fields.sources.items = refSource.value.items;
       refSourceLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });const refDestination = ref({} as MobilettoOrmFieldDefConfig);
@@ -445,10 +445,10 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.destinations = refDestination.value.values as any;
+      LibraryTypeDef.fields.destinations.items = refDestination.value.items;
       refDestinationLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });
@@ -544,7 +544,7 @@
     return true;
   };
   const delConfirmCount = ref(0);
-  const deletingObject = ref(null);
+  const deletingObject: Ref<MobilettoOrmObject | null> = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
       if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
           const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {
@@ -587,7 +587,7 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
+    const refSearches: Promise<MobilettoOrmObject[]>[] = [];
     refSearches.push(mediaStore.search());
     refSearches.push(sourceStore.search());
     refSearches.push(destinationStore.search());

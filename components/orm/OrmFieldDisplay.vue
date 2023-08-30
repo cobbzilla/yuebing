@@ -20,10 +20,12 @@
           <div v-if="typeof field.render === 'function'">
             <Icon v-if="!!renderField()" name="material-symbols:check-circle-outline-rounded" />
             <Icon v-else name="material-symbols:close" />
+            {{ label ? labelForField() : "" }}
           </div>
           <div v-else>
             <Icon v-if="value" name="material-symbols:check-circle-outline-rounded" />
             <Icon v-else name="material-symbols:close" />
+            {{ label ? labelForField() : "" }}
           </div>
         </div>
         <div v-else-if="Array.isArray(value)">
@@ -70,7 +72,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { MobilettoOrmFieldDefConfig } from "mobiletto-orm-typedef";
-import { parseDateMessage } from "hokey-runtime";
+import { parseDateMessage, findMessage } from "hokey-runtime";
 import { useConfigStore } from "~/stores/configStore";
 import { useSessionStore } from "~/stores/sessionStore";
 
@@ -85,15 +87,26 @@ const props = withDefaults(
     field: MobilettoOrmFieldDefConfig;
     value: any;
     label: boolean;
+    labelPrefixes: string[];
   }>(),
   {
     value: () => null,
     label: () => false,
+    labelPrefixes: () => ["label_"],
   },
 );
 
 const dateMessage = (msg: string, val: number | string | Date): string => {
   return parseDateMessage(messages.value[msg], val, messages.value);
+};
+
+const labelForField = () => {
+  const field = props.field;
+  if (field.label && typeof field.label === "string" && field.label.length > 0) {
+    return findMessage(field.label, messages.value, ["", ...props.labelPrefixes]);
+  }
+  const fieldName = field.name as string;
+  return findMessage(fieldName, messages.value, props.labelPrefixes);
 };
 
 const renderField = () => {

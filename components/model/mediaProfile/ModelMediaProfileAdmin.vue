@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_mediaProfile_admin_details', messages)">
-          {{ messages.title_mediaProfile_admin_details }}
+        <b v-if="messageExists('admin_title_mediaProfile_administration_details', messages)">
+          {{ messages.admin_title_mediaProfile_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -190,7 +190,6 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { useMediaStore } from "~/stores/model/mediaStore";
-  import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { deepUpdate } from "~/utils/model/adminHelper";
   import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
@@ -234,11 +233,11 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: MediaProfileType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: MediaProfileType];
-    editCanceled: [obj: MediaProfileType];
-    deleted: [obj: MediaProfileType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
+    deleted: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_mediaProfile_", "label_", ""]);
@@ -358,17 +357,15 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.media = refMedia.value.values as any;
+      MediaProfileTypeDef.fields.media.items = refMedia.value.items;
       refMediaLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });const refMediaProfile = ref({} as MobilettoOrmFieldDefConfig);
   const refMediaProfileLoaded = ref(false);
   allRefs.push(refMediaProfileLoaded);
-  const mediaProfileStore = useMediaProfileStore();
-  const { mediaProfileList } = storeToRefs(mediaProfileStore);
 
   watch(mediaProfileList, (newList) => {
     if (newList && newList.length === 0) {
@@ -384,11 +381,11 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.from = refMediaProfile.value.values as any;
-      addObject.value.subProfiles = refMediaProfile.value.values as any;
+      MediaProfileTypeDef.fields.from.items = refMediaProfile.value.items;
+      MediaProfileTypeDef.fields.subProfiles.items = refMediaProfile.value.items;
       refMediaProfileLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });
@@ -484,7 +481,7 @@
     return true;
   };
   const delConfirmCount = ref(0);
-  const deletingObject = ref(null);
+  const deletingObject: Ref<MobilettoOrmObject | null> = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
       if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
           const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {
@@ -527,9 +524,8 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
+    const refSearches: Promise<MobilettoOrmObject[]>[] = [];
     refSearches.push(mediaStore.search());
-    refSearches.push(mediaProfileStore.search());
     await Promise.all(refSearches);
     
   };

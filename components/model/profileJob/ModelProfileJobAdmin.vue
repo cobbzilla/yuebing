@@ -11,8 +11,8 @@
     <v-row>
       <v-col>
         <h2>{{ adminTitle() }}</h2>
-        <b v-if="messageExists('title_profileJob_admin_details', messages)">
-          {{ messages.title_profileJob_admin_details }}
+        <b v-if="messageExists('admin_title_profileJob_administration_details', messages)">
+          {{ messages.admin_title_profileJob_administration_details }}
         </b>
       </v-col>
     </v-row>
@@ -233,11 +233,11 @@
   );
 
   const emit = defineEmits<{
-    added: [obj: ProfileJobType];
+    added: [obj: MobilettoOrmObject];
     addCanceled: [];
-    edited: [obj: ProfileJobType];
-    editCanceled: [obj: ProfileJobType];
-    deleted: [obj: ProfileJobType];
+    edited: [obj: MobilettoOrmObject];
+    editCanceled: [obj: MobilettoOrmObject];
+    deleted: [obj: MobilettoOrmObject];
   }>();
 
   const labelPfx: Ref<string[]> = ref(["admin_label_profileJob_", "label_", ""]);
@@ -331,7 +331,7 @@
   const selectedRef = ref("profile");
   const searchRef: Ref<Record<string, string>> = ref({});
   searchRef.value.profile = "";
-  refSearchFields.value.push({ value: "profile", title: findMessage("profile", messages.value, ["typename_", ...props.labelPrefixes]) });
+  refSearchFields.value.push({ value: "profile", title: findMessage("mediaProfile", messages.value, ["typename_", ...props.labelPrefixes]) });
   const singleRefSearchField = ref(refSearchFields.value.length === 1);
   const refMediaProfile = ref({} as MobilettoOrmFieldDefConfig);
   const refMediaProfileLoaded = ref(false);
@@ -353,10 +353,10 @@
         title: s.name,
         rawLabel: true,
       }));
-      addObject.value.profile = refMediaProfile.value.values as any;
+      ProfileJobTypeDef.fields.profile.items = refMediaProfile.value.items;
       refMediaProfileLoaded.value = true;
       if (allRefsLoaded()) {
-        initTypeDef()
+        initTypeDef();
       }
     }
   });
@@ -452,7 +452,7 @@
     return true;
   };
   const delConfirmCount = ref(0);
-  const deletingObject = ref(null);
+  const deletingObject: Ref<MobilettoOrmObject | null> = ref(null);
   const delObject = (obj: MobilettoOrmObject) => {
       if (props.deleteConfirmationMessage && props.deleteConfirmationMessage.length > 0 && delConfirmCount.value < props.maxDeleteConfirmations) {
           const confirmationMessage = parseMessage(props.deleteConfirmationMessage, messages.value, {
@@ -495,7 +495,7 @@
   });
 
   const initRefs = async () => {
-    const refSearches: Promise<[]>[] = [];
+    const refSearches: Promise<MobilettoOrmObject[]>[] = [];
     refSearches.push(mediaProfileStore.search());
     await Promise.all(refSearches);
     

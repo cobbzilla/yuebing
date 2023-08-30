@@ -16,7 +16,12 @@
           />
         </div>
         <div v-else-if="(field.updatable === false && !create) || isReadOnly() || field.control === 'label'" class="ma-0 pa-0">
-          <OrmFieldDisplay :field="field" :value="value ? value : field.default ? field.default : null" :label="true" />
+          <OrmFieldDisplay
+            :field="field"
+            :value="value ? value : field.default ? field.default : null"
+            :label="true"
+            :label-prefixes="labelPrefixes"
+          />
         </div>
         <div v-else-if="field.control === 'password'" class="ma-0 pa-0">
           <v-text-field
@@ -161,7 +166,7 @@
             </template>
           </v-slider>
         </div>
-        <div v-else-if="Array.isArray(localValue)">
+        <div v-else-if="field.type && field.type.endsWith('[]')">
           <v-list v-if="localValue && localValue.length > 0">
             <v-list-subheader>{{ labelForField() }}</v-list-subheader>
             <v-list-item
@@ -264,7 +269,7 @@ const props = withDefaults(
     submitted: () => false,
     saving: () => false,
     value: () => "",
-    labelPrefixes: () => ["label_"]
+    labelPrefixes: () => ["label_"],
   },
 );
 
@@ -275,7 +280,13 @@ const emit = defineEmits<{
 const session = storeToRefs(useSessionStore());
 const messages = ref(session.localeMessages);
 
-const localValue = ref(props.thing[props.field.name as string] || "");
+const localValue = ref(
+  props.thing[props.field.name as string]
+    ? props.thing[props.field.name as string]
+    : (props.field.control && props.field.control === "multi") || (props.field.type && props.field.type.endsWith("[]"))
+      ? []
+      : ""
+);
 
 const isReadOnly = () => {
   return typeof props.readOnlyObject === "function" && props.readOnlyObject(props.rootThing) === true;
@@ -305,17 +316,29 @@ const valueOrDefault = () => {
 
 const fieldItems = () => {
   const field = props.field;
-  return !field.items
-    ? []
-    : field.items.map((item) => {
-        return {
-          value: `${item.value}`,
-          label:
-            typeof item.rawLabel === "boolean" && item.rawLabel === true
-              ? item.label
-              : messages.value[item.label as string],
-        };
-      });
+  if (!field.items) return [];
+  const items = field.items.map((item) => {
+    const label = typeof item.rawLabel === "boolean" && item.rawLabel === true
+      ? item.label
+      : messages.value[item.label as string];
+    return {
+      value: `${item.value}`,
+      label,
+      title: label,
+    };
+  });
+  if (
+    !(field.control && field.control === "multi") &&
+    !(field.type && field.type.endsWith("[]")) &&
+    (typeof field.required === "undefined" || !field.required)
+  ) {
+    items.unshift({
+      title: messages.value.hint_empty,
+      label: messages.value.hint_empty,
+      value: ""
+    });
+  }
+  return items;
 };
 
 const itemToAddToArray = ref("");
