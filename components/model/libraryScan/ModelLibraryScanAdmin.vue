@@ -99,15 +99,18 @@
                 <tbody>
                 <tr v-for="(obj, objIndex) in libraryScanList" :key="objIndex">
                   <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                  <OrmFieldDisplay v-if="libraryScanTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : libraryScanTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                    <OrmFieldDisplay v-if="libraryScanTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : libraryScanTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                   </td>
                   <td v-if="Object.keys(actionConfigs).length > 0">
-                  <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
-                  <NuxtLink
-                    v-if="actionEnabled(obj, action)"
-                    :to="{ path: `${actionConfig(action).path}/${deepGet(obj, libraryScanTypeDef.idField(obj) as string)}` }"
-                    >
-                      <v-btn>
+                    <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
+                      <NuxtLink
+                        v-if="actionEnabled(obj, action)"
+                        :to="{ path: `${actionConfig(action).path}/${deepGet(obj, libraryScanTypeDef.idField(obj) as string)}` }"
+                        >
+                        <v-btn v-if="actionConfig(action).icon">
+                          <Icon :name="actionConfig(action).icon" :tooltip="messages[actionConfig(action).message]" />
+                        </v-btn>
+                        <v-btn v-else>
                           {{ messages[actionConfig(action).message] }}
                         </v-btn>
                       </NuxtLink>
@@ -140,7 +143,7 @@
     </v-row>
     <v-row v-else>
       <v-col>
-        <Icon name="material-symbols:clock-outline" />
+        <Icon name="LoadingIcon" />
       </v-col>
     </v-row>
   </v-container>
@@ -160,15 +163,11 @@
   import { findMessage, messageExists, parseMessage, normalizeMsg } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
   import { useLibraryScanStore } from "~/stores/model/libraryScanStore";
-  import { deepUpdate } from "~/utils/model/adminHelper";
+  import { useLibraryStore } from "~/stores/model/libraryStore";
+  import { ActionConfig, deepUpdate } from "~/utils/model/adminHelper";
   import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
-  type ActionConfig = {
-    path: string;
-    message: string;
-    when: (obj: MobilettoOrmObject) => boolean;
-  };
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
@@ -272,17 +271,54 @@
   };
 
   const navigating = ref(false);
+  const initTypeDef = () => {
+    const typeDef = LibraryScanTypeDef.extend({
+      fields: {
+      
+        library: { ...refLibrary.value },
+      
+      }
+    });
+    libraryScanTypeDefFields.value = typeDef.tabIndexedFields();
+    libraryScanTypeDef.value = typeDef;
+    tableFields.value = libraryScanTypeDef.value.tableFields && Array.isArray(libraryScanTypeDef.value.tableFields)
+      ? libraryScanTypeDef.value.tableFields
+      : libraryScanTypeDef.value.primary
+        ? [libraryScanTypeDef.value.primary, "ctime", "mtime"]
+        : ["id", "ctime", "mtime"];
+    initFieldMessages(tableFields.value);
+  }
 
-  const allRefsLoaded = () => true;
-  libraryScanTypeDef.value = LibraryScanTypeDef;
-  libraryScanTypeDefFields.value = LibraryScanTypeDef.tabIndexedFields();
-  tableFields.value = libraryScanTypeDef.value.tableFields && Array.isArray(libraryScanTypeDef.value.tableFields)
-    ? libraryScanTypeDef.value.tableFields
-    : libraryScanTypeDef.value.primary
-      ? [libraryScanTypeDef.value.primary, "ctime", "mtime"]
-      : ["id", "ctime", "mtime"];
-  initFieldMessages(tableFields.value);
+  const allRefs: Ref<Boolean>[] = [];
+  const allRefsLoaded = () => allRefs.length === 1 && allRefs.filter(r => r.value === true).length === 1;
 
+  const refLibrary = ref({} as MobilettoOrmFieldDefConfig);
+  const refLibraryLoaded = ref(false);
+  allRefs.push(refLibraryLoaded);
+  const libraryStore = useLibraryStore();
+  const { libraryList } = storeToRefs(libraryStore);
+
+  watch(libraryList, (newList) => {
+    if (newList && newList.length === 0) {
+      if (navigating.value) return;
+      navigating.value = true;
+      navigateTo("/admin/library/setup");
+    } else if (newList && newList.length > 0) {
+      refLibrary.value.values = newList.map((s) => s.name);
+      refLibrary.value.labels = newList.map((s) => s.name);
+      refLibrary.value.items = newList.map((s) => ({
+        label: s.name,
+        value: s.name,
+        title: s.name,
+        rawLabel: true,
+      }));
+      LibraryScanTypeDef.fields.library.items = refLibrary.value.items;
+      refLibraryLoaded.value = true;
+      if (allRefsLoaded()) {
+        initTypeDef();
+      }
+    }
+  });
   const onAddUpdated = (update: { field: string; value: any }) => {
     deepUpdate(addObject.value, update.field, update.value);
   };
@@ -418,7 +454,12 @@
   });
 
   const initRefs = async () => {
+    const refSearches: Promise<MobilettoOrmObject[]>[] = [];
+    refSearches.push(libraryStore.search());
+    await Promise.all(refSearches);
     
   };
-  libraryScanStore.search();
+  libraryScanStore.search().then(() => {
+    initRefs();
+  });
 </script>

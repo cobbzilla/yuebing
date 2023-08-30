@@ -2,11 +2,11 @@
   <v-container>
     <v-row>
       <v-col v-if="account">
-        <ModelMediaAdmin
+        <ModelSourceScanAdmin
           :can-add="() => false"
           :can-delete="() => false"
           delete-confirmation-message=""
-          :label-prefixes="['admin_label_media_', 'label_media_', 'label_']"
+          :label-prefixes="['admin_label_sourceScan_', 'label_sourceScan_', 'label_scan_', 'label_']"
         />
       </v-col>
     </v-row>
@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useSessionStore } from "~/stores/sessionStore";
-import ModelMediaAdmin from "~/components/model/media/ModelMediaAdmin.vue";
+import ModelSourceScanAdmin from "~/components/model/SourceScan/ModelSourceScanAdmin.vue";
 
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);

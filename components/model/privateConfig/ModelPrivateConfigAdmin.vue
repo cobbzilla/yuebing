@@ -58,7 +58,7 @@
     </v-row>
     <v-row v-else>
       <v-col>
-        <Icon name="material-symbols:clock-outline" />
+        <Icon name="LoadingIcon" />
       </v-col>
     </v-row>
   </v-container>
@@ -78,11 +78,10 @@
   import { findMessage, messageExists, parseMessage } from "hokey-runtime";
   import { useSessionStore } from "~/stores/sessionStore";
   import { usePrivateConfigStore } from "~/stores/model/privateConfigStore";
-  import { deepUpdate } from "~/utils/model/adminHelper";
+  import { ActionConfig, deepUpdate } from "~/utils/model/adminHelper";
   import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
-
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];

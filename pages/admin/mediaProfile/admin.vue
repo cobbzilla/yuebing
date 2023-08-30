@@ -3,8 +3,8 @@
     <v-row>
       <v-col v-if="account">
         <ModelMediaProfileAdmin
-            delete-confirmation-message="admin_label_mediaProfile_confirm_delete"
-            :label-prefixes="['admin_label_mediaProfile_', 'label_mediaProfile_', 'label_']"
+          delete-confirmation-message="admin_label_mediaProfile_confirm_delete"
+          :label-prefixes="['admin_label_mediaProfile_', 'label_mediaProfile_', 'label_']"
         />
       </v-col>
     </v-row>

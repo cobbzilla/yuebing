@@ -51,17 +51,17 @@ dependencies:
     specifier: ^2.0.15
     version: 2.0.15
   mobiletto-orm:
-    specifier: ^2.2.50
-    version: 2.2.50
+    specifier: ^2.2.52
+    version: 2.2.52
   mobiletto-orm-scan:
     specifier: ^1.0.19
     version: 1.0.19
   mobiletto-orm-scan-typedef:
-    specifier: ^1.0.14
-    version: 1.0.14
+    specifier: ^1.0.15
+    version: 1.0.15
   mobiletto-orm-typedef:
-    specifier: ^2.4.14
-    version: 2.4.14
+    specifier: ^2.4.16
+    version: 2.4.16
   nuxt-icon:
     specifier: ^0.4.2
     version: 0.4.2(vue@3.3.4)
@@ -90,11 +90,11 @@ dependencies:
     specifier: ^1.1.8
     version: 1.1.8
   yuebing-messages:
-    specifier: ^2.1.18
-    version: 2.1.18
+    specifier: ^2.1.22
+    version: 2.1.22
   yuebing-model:
-    specifier: ^2.7.49
-    version: 2.7.49
+    specifier: ^2.7.54
+    version: 2.7.54
   yuebing-server-util:
     specifier: ^1.0.2
     version: 1.0.2
@@ -6777,23 +6777,23 @@ packages:
       - aws-crt
     dev: false
 
-  /mobiletto-orm-scan-typedef@1.0.14:
-    resolution: {integrity: sha512-myvzwwBPDgw2EEOX1pQvm0vDok5Baz73PX+5tCwhpmrOuCmzoQT7VyYBoaq8vjUsMXkofii9qhcBVvrL1TMTog==}
+  /mobiletto-orm-scan-typedef@1.0.15:
+    resolution: {integrity: sha512-ePoyW6FvrQT+8Qim5zNMF1OPHTjF7sgp5VTdbOrP+XT24161uFkcTfjP0KTmk6ANWFctSpo/hZAtJivlo052ag==}
     dev: false
 
   /mobiletto-orm-scan@1.0.19:
     resolution: {integrity: sha512-ItFPXWW1f8p/BxayQGnjYyR4Y404SV63eExU9cJm4PdHcZpDKpoJ4i9h583/SnGTs6hlLh7T/LKgy6AQEDgBQA==}
     dev: false
 
-  /mobiletto-orm-typedef@2.4.14:
-    resolution: {integrity: sha512-M+7MW+vlXTzkKaglbvGvW9JzQHP6VdN6x5PfMcvwqw/DuTo797+k2CenAy0Rj6tbfwrg7vWEfM5KKraYFTySTg==}
+  /mobiletto-orm-typedef@2.4.16:
+    resolution: {integrity: sha512-yBaYtaQpNCO9aY8t56+QVlTBtcFDaf9L3/4bGTyus2dsLUEe9iv9Ahs3KpOa6saRhDxmo5pOylBTBwqu5YaU+A==}
     dependencies:
       shasum: 1.0.2
       uuid: 9.0.0
     dev: false
 
-  /mobiletto-orm@2.2.50:
-    resolution: {integrity: sha512-Sd0n4tnqfHdRC8W/Ev3SP0lGFS+0d5+HlzEEDSciDQf3XPvnBY8U/PcXDxyYWlSScip8NNYPucvTxaXB5od8+Q==}
+  /mobiletto-orm@2.2.52:
+    resolution: {integrity: sha512-QTQE+fCI0iYGx8P8PCMJwvqqrdNj9qUl8VpUoPfYxFMMyTMkEBW0Mc2FvWdGXWN553A6ntAU7eAsjGBlALoiJQ==}
     dev: false
 
   /mri@1.2.0:
@@ -9767,14 +9767,14 @@ packages:
     resolution: {integrity: sha512-zTxGJ2BDlnJXSRZmmn+mv8E0KLXrjI7w/uCSy+ipDXxzipNL5gpIUqmrntDl1gX8IKlnu4ObwL0KtMAndfiyPg==}
     dev: false
 
-  /yuebing-messages@2.1.18:
-    resolution: {integrity: sha512-BQcQkkt60aw7JlWT8JFa/FYNFoqnpPKDf65V3uaYe9utR31AsehjQj8JCeebhRbjmpQrhDp7iyjkfZgMvR/L3w==}
+  /yuebing-messages@2.1.22:
+    resolution: {integrity: sha512-FwNXw7ANEAxN/eNi+eb91jkyOmtYDzl9v+mI685frTrQa0FhxRPI62m8XP9PNzVHXOBrsiwrqSlaaiYaBqEd0w==}
     dependencies:
       hokey-runtime: 1.0.9
     dev: false
 
-  /yuebing-model@2.7.49:
-    resolution: {integrity: sha512-kqGEdcH7iJ7jkk7DZcLI4FZe0aHpFc28kfJbpYxCyKi+fS90U466lk5ScI18nj3SK9ZravnTsKR1Cz4awVqhwQ==}
+  /yuebing-model@2.7.54:
+    resolution: {integrity: sha512-+u+qy9iivEGvzGbj0wVlT3JH5IZL0csd7i1KUwGDWN6TzOyVizBFiDyFCGbHuY9XvC0QhB/6jLlpW5+OSssMmw==}
     dev: false
 
   /yuebing-server-util@1.0.2:

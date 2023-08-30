@@ -128,15 +128,18 @@
                 <tbody>
                 <tr v-for="(obj, objIndex) in mediaProfileList" :key="objIndex">
                   <td v-for="(fieldName, fieldIndex) in tableFields" :key="fieldIndex">
-                  <OrmFieldDisplay v-if="mediaProfileTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaProfileTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
+                    <OrmFieldDisplay v-if="mediaProfileTypeDef.fields[fieldName] || fieldName.startsWith('_meta')" :field="fieldName.startsWith('_meta') ? metaField(fieldName) : mediaProfileTypeDef.fields[fieldName]" :value="deepGet(obj, fieldName)" />
                   </td>
                   <td v-if="Object.keys(actionConfigs).length > 0">
-                  <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
-                  <NuxtLink
-                    v-if="actionEnabled(obj, action)"
-                    :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaProfileTypeDef.idField(obj) as string)}` }"
-                    >
-                      <v-btn>
+                    <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
+                      <NuxtLink
+                        v-if="actionEnabled(obj, action)"
+                        :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaProfileTypeDef.idField(obj) as string)}` }"
+                        >
+                        <v-btn v-if="actionConfig(action).icon">
+                          <Icon :name="actionConfig(action).icon" :tooltip="messages[actionConfig(action).message]" />
+                        </v-btn>
+                        <v-btn v-else>
                           {{ messages[actionConfig(action).message] }}
                         </v-btn>
                       </NuxtLink>
@@ -169,7 +172,7 @@
     </v-row>
     <v-row v-else>
       <v-col>
-        <Icon name="material-symbols:clock-outline" />
+        <Icon name="LoadingIcon" />
       </v-col>
     </v-row>
   </v-container>
@@ -190,15 +193,10 @@
   import { useSessionStore } from "~/stores/sessionStore";
   import { useMediaProfileStore } from "~/stores/model/mediaProfileStore";
   import { useMediaStore } from "~/stores/model/mediaStore";
-  import { deepUpdate } from "~/utils/model/adminHelper";
+  import { ActionConfig, deepUpdate } from "~/utils/model/adminHelper";
   import { MobilettoOrmFindApiOpts } from "~/utils/model/storeHelper";
   const successSnackbar = ref("");
   const errorSnackbar = ref("");
-  type ActionConfig = {
-    path: string;
-    message: string;
-    when: (obj: MobilettoOrmObject) => boolean;
-  };
   const props = withDefaults(
     defineProps<{
       labelPrefixes: string[];
