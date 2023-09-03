@@ -134,7 +134,7 @@
                     <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
                       <NuxtLink
                         v-if="actionEnabled(obj, action)"
-                        :to="{ path: `${actionConfig(action).path}/${deepGet(obj, mediaProfileTypeDef.idField(obj) as string)}` }"
+                        :to="{ path: `${actionConfig(action).path.replace(/\[id]/g, deepGet(obj, mediaProfileTypeDef.idField(obj) as string))}` }"
                         >
                         <v-btn v-if="actionConfig(action).icon">
                           <Icon :name="actionConfig(action).icon" :tooltip="messages[actionConfig(action).message]" />
@@ -514,7 +514,10 @@
     }
   });
   watch(mediaProfileList, (newList) => {
-    if (newList && Array.isArray(newList) && newList.length === 0 && searchTerms.value && searchTerms.value.length === 0) {
+    if (newList && Array.isArray(newList) &&
+        (!newList.length || newList.length === 0) &&
+        (!searchTerms.value || !searchTerms.value.length || (searchTerms.value && searchTerms.value.length === 0))
+    ) {
       if (navigating.value) return;
       navigating.value = true;
       navigateTo("/admin/mediaProfile/setup");

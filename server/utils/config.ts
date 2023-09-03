@@ -1,10 +1,16 @@
 import * as crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import { rand } from "mobiletto-orm";
-import { DEFAULT_BCRYPT_TIME_TARGET, PrivateConfigType, PublicConfigType } from "yuebing-model";
+import {
+  DEFAULT_BCRYPT_TIME_TARGET,
+  LocalConfigType,
+  LocalConfigTypeDef,
+  PrivateConfigType,
+  PublicConfigType,
+} from "yuebing-model";
 import { Cached } from "~/server/utils/cached";
-import { privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
-import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG } from "~/server/utils/default";
+import { localConfigRepository, privateConfigRepository, publicConfigRepository } from "~/server/utils/repo/configRepo";
+import { DEFAULT_PUBLIC_CONFIG, DEFAULT_PRIVATE_CONFIG, systemName } from "~/server/utils/default";
 
 export const HAS_ADMIN: Cached<boolean> = new Cached(
   async (): Promise<boolean> => {
@@ -68,5 +74,21 @@ export const bcryptRounds = async (): Promise<number> => {
       bcryptDurations[rounds] = Date.now() - start;
     }
     if (bcryptDurations[rounds] >= target) return rounds + 1;
+  }
+};
+
+let defaultLocalConfig: LocalConfigType = LocalConfigTypeDef.newFullInstance() as LocalConfigType;
+let creatingDefaultLocalConfig = false;
+
+export const getLocalConfig = async (): Promise<LocalConfigType> => {
+  try {
+    const singleton = await localConfigRepository().findSingleton();
+    return singleton;
+  } catch (e) {
+    if (creatingDefaultLocalConfig) return defaultLocalConfig;
+    creatingDefaultLocalConfig = true;
+    defaultLocalConfig.systemName = systemName();
+    defaultLocalConfig = await localConfigRepository().create(defaultLocalConfig);
+    return defaultLocalConfig;
   }
 };

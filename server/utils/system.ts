@@ -15,8 +15,12 @@ import {
 } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { connectVolume, VolumeConnectResult } from "yuebing-server-util";
+import { DEFAULT_STORAGE_NAME, isDefaultStorage } from "~/utils/config";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
+import { initializeScanner } from "~/server/utils/scan";
+import { initializeMediaPlugins, mediaPluginsInitialized } from "~/server/utils/media";
+import { mediaProfileRepository, mediaRepository } from "~/server/utils/repo/mediaRepo";
 
 const MOBILETTO_INIT = new Cached<boolean>(
   (): Promise<boolean> => {
@@ -33,20 +37,26 @@ type YuebingConnection = {
   name: string;
   type: string;
   connection: MobilettoConnection;
+  default?: boolean;
 };
 
 type SystemStoragesType = {
   storages: YuebingConnection[];
+  defaultStorage: YuebingConnection | null;
   loadTime: number;
   refreshInterval: number;
 };
 const SYSTEM_STORAGE: SystemStoragesType = {
   storages: [],
+  defaultStorage: null,
   loadTime: 0,
   refreshInterval: 60 * 60 * 1000, // every hour
 };
 
-const initializeStorage = async (): Promise<YuebingConnection> => {
+const bootstrapDefaultStorage = async (): Promise<YuebingConnection> => {
+  // Skip bootstrap if already done
+  if (SYSTEM_STORAGE.defaultStorage) return SYSTEM_STORAGE.defaultStorage;
+
   // register mobiletto drivers
   await MOBILETTO_INIT.get();
 
@@ -56,16 +66,26 @@ const initializeStorage = async (): Promise<YuebingConnection> => {
   if (!fstat) {
     fs.mkdirSync(ybDir);
   } else if (!fstat.isDirectory()) {
-    throw new Error(`initializeStorage: default storage location already exists and is not a directory: ${ybDir}`);
+    throw new Error(
+      `bootstrapDefaultStorage: default storage location already exists and is not a directory: ${ybDir}`,
+    );
   }
-  return {
-    name: "~default~",
+  SYSTEM_STORAGE.defaultStorage = {
+    name: DEFAULT_STORAGE_NAME,
     type: "local",
     connection: await mobiletto("local", ybDir),
   };
+  logger.info(`bootstrapDefaultStorage: initialized default storage: ${DEFAULT_STORAGE_NAME} dir=${ybDir}`);
+  return SYSTEM_STORAGE.defaultStorage;
 };
 
-const currentConnections = (): MobilettoConnection[] => SYSTEM_STORAGE.storages.map((s) => s.connection);
+const currentConnections = (): MobilettoConnection[] => connectionsForStorages(currentStorages());
+
+const connectionsForStorages = (ybConns: YuebingConnection[]): MobilettoConnection[] =>
+  ybConns.map((s) => s.connection);
+
+const currentStorages = (): YuebingConnection[] =>
+  SYSTEM_STORAGE.defaultStorage ? [SYSTEM_STORAGE.defaultStorage, ...SYSTEM_STORAGE.storages] : SYSTEM_STORAGE.storages;
 
 export const getStorages: MobilettoOrmStorageResolver = () => systemStorage();
 
@@ -89,18 +109,30 @@ export const ybRepo = <T extends MobilettoOrmObject>(typeDef: MobilettoOrmTypeDe
   return REPOS[typeDef.typeName];
 };
 
+const initSubsystems = () => {
+  if (!mediaPluginsInitialized()) {
+    setTimeout(() => {
+      initializeMediaPlugins(mediaRepository(), mediaProfileRepository())
+        .then(() =>
+          initializeScanner().catch((e) => {
+            logger.error(`initializeScanner failed: error=${e}`);
+          }),
+        )
+        .catch((e2) => {
+          logger.error(`initializeMediaPlugins failed: error=${e2}`);
+        });
+    }, 1000);
+  }
+};
+
 const systemStorage = async (): Promise<MobilettoConnection[]> => {
-  if (SYSTEM_STORAGE.storages.length === 0) {
-    logger.info(`systemStorage[refresh] initializing storage`);
-    const initialStorage = await initializeStorage();
-    if (SYSTEM_STORAGE.storages.length === 0) {
-      SYSTEM_STORAGE.storages.push(initialStorage);
-    }
-    logger.info(`systemStorage[refresh] initialized storage: ${initialStorage.name}, type: ${initialStorage.type}`);
+  if (!SYSTEM_STORAGE.defaultStorage) {
+    await bootstrapDefaultStorage();
   }
   if (Date.now() - SYSTEM_STORAGE.loadTime > SYSTEM_STORAGE.refreshInterval) {
     // create a new volume repository with the current storages
-    const factory = repositoryFactory(currentConnections());
+    const storages = currentStorages();
+    const factory = repositoryFactory(connectionsForStorages(storages));
     const repository = factory.repository<DestinationType>(DestinationTypeDef);
 
     // find all volumes
@@ -130,6 +162,7 @@ const systemStorage = async (): Promise<MobilettoConnection[]> => {
         return null;
       })
       .filter((r: YuebingConnection | null) => !!r) as YuebingConnection[];
+
     if (connections.length === 0) {
       logger.error(
         `systemStorage[refresh] no connections! retaining current set of ${SYSTEM_STORAGE.storages.length} connections`,
@@ -137,6 +170,7 @@ const systemStorage = async (): Promise<MobilettoConnection[]> => {
     } else {
       SYSTEM_STORAGE.storages.splice(0, SYSTEM_STORAGE.storages.length);
       SYSTEM_STORAGE.storages.push(...connections);
+      initSubsystems();
     }
   }
   return currentConnections();

@@ -23,7 +23,7 @@ const { account } = storeToRefs(sessionStore);
 
 const actionConfigs: Record<string, ActionConfig> = {
   startScan: {
-    path: '/admin/library/scan',
+    path: '/admin/library/[id]/scan',
     message: 'admin_label_library_action_scan',
     icon: 'ScanIcon'
   }

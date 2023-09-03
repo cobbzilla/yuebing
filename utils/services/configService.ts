@@ -1,5 +1,5 @@
-import { PublicConfigTypeDef, PrivateConfigTypeDef } from "yuebing-model";
-import * as a from "./api.js";
+import { PublicConfigType, PrivateConfigType } from "yuebing-model";
+import * as a from "../model/serviceHelper.js";
 
 export const configService = {
   browserHeaders,
@@ -10,9 +10,9 @@ export const configService = {
 function browserHeaders(): Promise<Record<string, string>> {
   return $fetch("/api/config/headers", { method: "GET" }).then(a.handleJsonResponse<Record<string, string>>);
 }
-function loadPublicConfig(): Promise<PublicConfigTypeDef> {
-  return $fetch("/api/config/public", { method: "GET" }).then(a.handleJsonResponse<PublicConfigTypeDef>);
+function loadPublicConfig(): Promise<PublicConfigType> {
+  return $fetch("/api/config/public", { method: "GET" }).then(a.handleJsonResponse<PublicConfigType>);
 }
-function loadPrivateConfig(): Promise<PrivateConfigTypeDef> {
-  return $fetch("/api/config/private", { method: "GET" }).then(a.handleJsonResponse<PrivateConfigTypeDef>);
+function loadPrivateConfig(): Promise<PrivateConfigType> {
+  return $fetch("/api/config/private", { method: "GET" }).then(a.handleJsonResponse<PrivateConfigType>);
 }

@@ -3,7 +3,7 @@ import { AccountType, AuthAccountType, RegistrationType, UsernameAndPasswordType
 import { Ref } from "vue";
 import { MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import * as auth from "../auth.js";
-import * as a from "./api.js";
+import * as a from "../model/serviceHelper.js";
 
 export const authService = {
   login,

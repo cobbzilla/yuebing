@@ -1,5 +1,5 @@
 import { AuthAccountType } from "yuebing-model";
-import * as a from "~/utils/services/api";
+import * as a from "~/utils/model/serviceHelper";
 
 export const sessionService = {
   getAccount,
@@ -8,8 +8,8 @@ export const sessionService = {
 function getAccount(): Promise<AuthAccountType> {
   return $fetch("/api/account", a.authGet())
     .then(a.handleJsonResponse<AuthAccountType>)
-    .catch((_e) => {
-      // console.log(`getAccount error: ${e}, returning empty object`);
+    .catch((e) => {
+      console.log(`getAccount error: ${e}, returning empty object`);
       return {};
     });
 }

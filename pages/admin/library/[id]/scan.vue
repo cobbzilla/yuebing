@@ -1,6 +1,6 @@
 <template>
   <div>
-    this is the new scan page
+    this is the new scan page for a library by [id]
   </div>
 </template>
 

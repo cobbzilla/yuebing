@@ -43,3 +43,7 @@ export const configCiphers = (
         ],
       };
 };
+
+export const DEFAULT_STORAGE_NAME = "~default~";
+
+export const isDefaultStorage = (name: string) => name && DEFAULT_STORAGE_NAME === name;
