@@ -20,7 +20,6 @@ export const loadScanConfig = async (): Promise<YbScanConfig> => {
   const localConfigRepo = localConfigRepository();
   const localConfig = await getLocalConfig();
   const sourceRepo = sourceRepository();
-  console.log(`returning scan config.... localConfig=${JSON.stringify(localConfig, null, 2)}`);
   return {
     systemName: localConfig.systemName,
     logger,

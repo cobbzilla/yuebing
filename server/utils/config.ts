@@ -82,8 +82,7 @@ let creatingDefaultLocalConfig = false;
 
 export const getLocalConfig = async (): Promise<LocalConfigType> => {
   try {
-    const singleton = await localConfigRepository().findSingleton();
-    return singleton;
+    return await localConfigRepository().findSingleton();
   } catch (e) {
     if (creatingDefaultLocalConfig) return defaultLocalConfig;
     creatingDefaultLocalConfig = true;
