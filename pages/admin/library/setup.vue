@@ -49,6 +49,7 @@ import { useSessionStore } from "~/stores/sessionStore";
 import { useLibraryStore } from "~/stores/model/libraryStore";
 import { useSourceStore } from "~/stores/model/sourceStore";
 import { useDestinationStore } from "~/stores/model/destinationStore";
+import { useMediaStore } from "~/stores/model/mediaStore";
 
 const sessionStore = useSessionStore();
 const { localeMessages } = storeToRefs(sessionStore);
@@ -64,6 +65,8 @@ const typeDefSources = ref({} as MobilettoOrmFieldDefConfig);
 const sourcesLoaded = ref(false);
 const typeDefDestinations = ref({} as MobilettoOrmFieldDefConfig);
 const destinationsLoaded = ref(false);
+const typeDefMedias = ref({} as MobilettoOrmFieldDefConfig);
+const mediasLoaded = ref(false);
 
 const libraryObject = ref({} as LibraryType);
 const createLibraryServerErrors = ref({} as MobilettoOrmValidationErrors);
@@ -74,11 +77,15 @@ const { sourceList } = storeToRefs(sourceStore);
 const destinationStore = useDestinationStore();
 const { destinationList } = storeToRefs(destinationStore);
 
+const mediaStore = useMediaStore();
+const { mediaList } = storeToRefs(mediaStore);
+
 const initLibTypeDef = () => {
   const typeDef = LibraryTypeDef.extend({
     fields: {
       sources: { ...typeDefSources.value, control: "hidden" },
-      destinations: { ...typeDefDestinations.value, control: "hidden" }
+      destinations: { ...typeDefDestinations.value, control: "hidden" },
+      media: { ...typeDefMedias.value },
     }
   });
   libTypeDefFields.value = typeDef.tabIndexedFields();
@@ -98,7 +105,7 @@ watch(sourceList, (newSources) => {
       rawLabel: true,
     }));
     sourcesLoaded.value = true;
-    if (destinationsLoaded.value) {
+    if (destinationsLoaded.value && mediasLoaded.value) {
       initLibTypeDef()
     }
   }
@@ -116,7 +123,25 @@ watch(destinationList, (newDestinations) => {
       rawLabel: true,
     }));
     destinationsLoaded.value = true;
-    if (sourcesLoaded.value) {
+    if (sourcesLoaded.value && mediasLoaded.value) {
+      initLibTypeDef()
+    }
+  }
+});
+
+watch(mediaList, (newMedias) => {
+  if (newMedias && newMedias.length === 0) {
+    navigateTo("/admin/source/setup"); // source will navigateTo media/setup if needed
+  } else if (newMedias && newMedias.length > 0) {
+    typeDefMedias.value.values = newMedias.map((s) => s.name);
+    typeDefMedias.value.items = newMedias.map((s) => ({
+      label: s.name,
+      value: s.name,
+      title: s.name,
+      rawLabel: true,
+    }));
+    mediasLoaded.value = true;
+    if (sourcesLoaded.value && destinationsLoaded.value) {
       initLibTypeDef()
     }
   }
@@ -144,6 +169,7 @@ libraryStore.search().then((libs) => {
   if (libs.length === 0) {
     sourceStore.search();
     destinationStore.search();
+    mediaStore.search();
   }
 });
 </script>

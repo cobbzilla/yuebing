@@ -54,6 +54,10 @@ const destTypeDef = DestinationTypeDef.extend({
       control: "hidden",
       default: true,
     },
+    assets: {
+      control: "hidden",
+      default: true,
+    },
   },
 });
 const destFields = () => destTypeDef.tabIndexedFields().filter((f) => f.name !== "system");

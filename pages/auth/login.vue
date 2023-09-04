@@ -68,7 +68,11 @@ const onLoginSubmitted = (login: UsernameAndPasswordType) =>
 
 watch(account, (newAccount) => {
   if (Object.keys(newAccount).length) {
-    navigateTo(newAccount.admin ? "/admin" : "/home");
+    if (!newAccount.invalidSession) {
+      navigateTo(newAccount.admin ? "/admin" : "/home");
+    }
   }
 });
+
+sessionStore.getAccount();
 </script>

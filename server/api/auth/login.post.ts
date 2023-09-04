@@ -1,3 +1,5 @@
+import * as bcrypt from "bcrypt";
+import { FIND_NOREDACT } from "mobiletto-orm";
 import {
   AccountType,
   AccountTypeDef,
@@ -7,11 +9,18 @@ import {
   UsernameAndPasswordType,
   UsernameAndPasswordTypeDef,
 } from "yuebing-model";
-import * as bcrypt from "bcrypt";
 import { accountRepository, AccountRepositoryType } from "~/server/utils/repo/accountRepo";
 import { sessionRepository } from "~/server/utils/repo/sessionRepo";
 import { filterErrors, notFound } from "~/server/utils/filter/errorFilter";
-import { FIND_NOREDACT } from "mobiletto-orm";
+
+async function checkPassword(passwordProvided: string, accountPassword: string) {
+  try {
+    return await bcrypt.compare(passwordProvided, accountPassword);
+  } catch (e) {
+    logger.error(`checkPassword: bcrypt error=${e}`);
+    return false;
+  }
+}
 
 export default defineEventHandler((event) =>
   filterErrors(event, "logout", async (event) => {
@@ -30,7 +39,7 @@ export default defineEventHandler((event) =>
     }
 
     // note: account.password is the bcrypt'd password
-    const match = await bcrypt.compare(password, account.password);
+    const match = await checkPassword(password, account.password);
     if (!match) {
       throw notFound("usernameOrEmail");
     }
