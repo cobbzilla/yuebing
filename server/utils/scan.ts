@@ -27,7 +27,7 @@ export const loadScanConfig = async (): Promise<YbScanConfig> => {
     mediaRepo: () => mediaRepository(),
     mediaProfileRepo: () => mediaProfileRepository(),
     libraryRepo: () => libraryRepository(),
-    libraryScanRepo: () => libraryScanRepository(),
+    libraryScanRepo: () => libraryScanRepository(DEFAULT_CLOCK),
     sourceScanRepo: () => sourceScanRepository(),
     sourceRepo: () => sourceRepo,
     destinationRepo: () => destinationRepository(),

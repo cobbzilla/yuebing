@@ -15,7 +15,7 @@ import {
 } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { connectVolume, VolumeConnectResult } from "yuebing-server-util";
-import { DEFAULT_STORAGE_NAME, isDefaultStorage } from "~/utils/config";
+import { DEFAULT_STORAGE_NAME } from "~/utils/config";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
 import { initializeScanner } from "~/server/utils/scan";

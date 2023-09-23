@@ -1,3 +1,4 @@
+import { ZillaClock } from "zilla-util";
 import {
   LibraryScanType,
   LibraryScanTypeDef,
@@ -12,7 +13,19 @@ import {
 } from "yuebing-model";
 import { ybRepo } from "~/server/utils/system";
 
-export const libraryScanRepository = () => ybRepo<LibraryScanType>(LibraryScanTypeDef);
+export const ServerLibraryScanType = (clock: ZillaClock) =>
+  LibraryScanTypeDef.extend({
+    fields: {
+      scheduled: {
+        test: {
+          message: "scheduled_must_be_in_future",
+          valid: (v) => typeof v.scheduled === "number" && v.scheduled > clock.now(),
+        },
+      },
+    },
+  });
+
+export const libraryScanRepository = (clock: ZillaClock) => ybRepo<LibraryScanType>(ServerLibraryScanType(clock));
 
 export const sourceScanRepository = () => ybRepo<SourceScanType>(SourceScanTypeDef);
 

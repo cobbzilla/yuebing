@@ -14,16 +14,33 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
+import { timestampAsYYYYMMDDHHmmSS } from "zilla-util";
+import {MobilettoOrmObject, MobilettoOrmValidationErrors} from "mobiletto-orm-typedef";
+import { LibraryScanType } from "yuebing-model";
 import { useSessionStore } from "~/stores/sessionStore";
+import { useLibraryScanStore } from "~/stores/model/libraryScanStore";
 import ModelLibraryAdmin from "~/components/model/library/ModelLibraryAdmin.vue";
 import { ActionConfig } from "~/utils/model/adminHelper";
 
 const sessionStore = useSessionStore();
 const { account } = storeToRefs(sessionStore);
 
+const libraryScanStore = useLibraryScanStore();
+const libraryScanServerErrors = ref({} as MobilettoOrmValidationErrors);
+
 const actionConfigs: Record<string, ActionConfig> = {
   startScan: {
-    path: '/admin/library/[id]/scan',
+    func: async (obj: MobilettoOrmObject) => {
+      console.log(`scan action func called with obj=${JSON.stringify(obj)}`);
+      const scheduledTime = Date.now() + 5000;
+      const scan: LibraryScanType = {
+        scanId: `${timestampAsYYYYMMDDHHmmSS(scheduledTime)}-${obj.name}`,
+        library: obj.name,
+        status: "pending",
+        scheduled: scheduledTime,
+      };
+      await libraryScanStore.create(scan, libraryScanServerErrors);
+    },
     message: 'admin_label_library_action_scan',
     icon: 'ScanIcon'
   }

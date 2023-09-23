@@ -4,7 +4,8 @@ import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-
 import { errMatch, errMatchStart, normalizeMsg, fieldErrorMessage } from "hokey-runtime";
 
 export type ActionConfig = {
-    path: string;
+    path?: string;
+    func?: (obj: MobilettoOrmObject) => unknown;
     message: string;
     icon?: string;
     when?: (obj: MobilettoOrmObject) => boolean;

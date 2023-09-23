@@ -103,17 +103,26 @@
                   </td>
                   <td v-if="Object.keys(actionConfigs).length > 0">
                     <div v-for="(action, actionIndex) in Object.keys(actionConfigs)" :key="actionIndex">
-                      <NuxtLink
-                        v-if="actionEnabled(obj, action)"
-                        :to="{ path: `${actionConfig(action).path.replace(/\[id]/g, deepGet(obj, sourceScanTypeDef.idField(obj) as string))}` }"
-                        >
-                        <v-btn v-if="actionConfig(action).icon">
+                      <div v-if="actionEnabled(obj, action) && actionConfig(action).path">
+                        <NuxtLink
+                          :to="{ path: `${actionConfig(action).path.replace(/\[id]/g, deepGet(obj, sourceScanTypeDef.idField(obj) as string))}` }"
+                          >
+                          <v-btn v-if="actionConfig(action).icon">
+                            <Icon :name="actionConfig(action).icon" :tooltip="messages[actionConfig(action).message]" />
+                          </v-btn>
+                          <v-btn v-else>
+                            {{ messages[actionConfig(action).message] }}
+                          </v-btn>
+                        </NuxtLink>
+                      </div>
+                      <div v-else-if="actionEnabled(obj, action) && actionConfig(action).func">
+                        <v-btn v-if="actionConfig(action).icon" @click.stop="actionConfig(action).func(obj)">
                           <Icon :name="actionConfig(action).icon" :tooltip="messages[actionConfig(action).message]" />
                         </v-btn>
-                        <v-btn v-else>
+                        <v-btn v-else @click.stop="actionConfig(action).func(obj)">
                           {{ messages[actionConfig(action).message] }}
                         </v-btn>
-                      </NuxtLink>
+                      </div>
                     </div>
                   </td>
                   <td>
