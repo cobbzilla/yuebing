@@ -4,7 +4,7 @@
       <v-col v-if="account">
         <ModelLibraryScanAdmin
           :can-add="() => false"
-          :can-delete="() => false"
+          :can-delete="(obj) => obj && obj.status && obj.status == 'pending'"
           delete-confirmation-message=""
           :label-prefixes="['admin_label_libraryScan_', 'label_libraryScan_', 'label_scan_', 'label_']"
         />

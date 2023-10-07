@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { timestampAsYYYYMMDDHHmmSS } from "zilla-util";
-import {MobilettoOrmObject, MobilettoOrmValidationErrors} from "mobiletto-orm-typedef";
+import { MobilettoOrmObject, MobilettoOrmValidationErrors } from "mobiletto-orm-typedef";
 import { LibraryScanType } from "yuebing-model";
 import { useSessionStore } from "~/stores/sessionStore";
 import { useLibraryScanStore } from "~/stores/model/libraryScanStore";
@@ -40,6 +40,7 @@ const actionConfigs: Record<string, ActionConfig> = {
         scheduled: scheduledTime,
       };
       await libraryScanStore.create(scan, libraryScanServerErrors);
+      navigateTo("/admin/libraryScan/admin");
     },
     message: 'admin_label_library_action_scan',
     icon: 'ScanIcon'

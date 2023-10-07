@@ -15,12 +15,14 @@ import {
 } from "mobiletto-orm";
 import { DestinationType, DestinationTypeDef } from "yuebing-model";
 import { connectVolume, VolumeConnectResult } from "yuebing-server-util";
+import { YbScanConfig, YbScanner } from "yuebing-scan";
 import { DEFAULT_STORAGE_NAME } from "~/utils/config";
 import { logger } from "~/server/utils/logger";
 import { Cached } from "~/server/utils/cached";
-import { initializeScanner } from "~/server/utils/scan";
+import { initializeScanner, loadScanConfig } from "~/server/utils/scan";
 import { initializeMediaPlugins, mediaPluginsInitialized } from "~/server/utils/media";
 import { mediaProfileRepository, mediaRepository } from "~/server/utils/repo/mediaRepo";
+import { libraryRepository } from "~/server/utils/repo/libraryRepo";
 
 const MOBILETTO_INIT = new Cached<boolean>(
   (): Promise<boolean> => {
@@ -70,10 +72,12 @@ const bootstrapDefaultStorage = async (): Promise<YuebingConnection> => {
       `bootstrapDefaultStorage: default storage location already exists and is not a directory: ${ybDir}`,
     );
   }
+  const conn = await mobiletto("local", ybDir);
+  conn.name = DEFAULT_STORAGE_NAME;
   SYSTEM_STORAGE.defaultStorage = {
     name: DEFAULT_STORAGE_NAME,
     type: "local",
-    connection: await mobiletto("local", ybDir),
+    connection: conn,
   };
   logger.info(`bootstrapDefaultStorage: initialized default storage: ${DEFAULT_STORAGE_NAME} dir=${ybDir}`);
   return SYSTEM_STORAGE.defaultStorage;
@@ -109,18 +113,42 @@ export const ybRepo = <T extends MobilettoOrmObject>(typeDef: MobilettoOrmTypeDe
   return REPOS[typeDef.typeName];
 };
 
-const initSubsystems = () => {
+export type ScanConfigWrapper = {
+  scanConfig: null | YbScanConfig;
+  awaken: () => unknown;
+};
+
+export const SCAN_CONFIG: ScanConfigWrapper = {
+  scanConfig: null,
+  awaken: () => {
+    if (
+      SCAN_CONFIG.scanConfig &&
+      SCAN_CONFIG.scanConfig.napAlarm &&
+      typeof SCAN_CONFIG.scanConfig.napAlarm.wake === "boolean"
+    ) {
+      logger.info("SCAN_CONFIG.awaken: setting napAlarm.wake = true");
+      SCAN_CONFIG.scanConfig.napAlarm.wake = true;
+    } else {
+      logger.warn("SCAN_CONFIG.awaken: scanConfig.napAlarm not defined, cannot awaken");
+    }
+  },
+};
+
+export const initSubsystems = () => {
   if (!mediaPluginsInitialized()) {
     setTimeout(() => {
-      initializeMediaPlugins(mediaRepository(), mediaProfileRepository())
-        .then(() =>
-          initializeScanner().catch((e) => {
-            logger.error(`initializeScanner failed: error=${e}`);
-          }),
-        )
-        .catch((e2) => {
-          logger.error(`initializeMediaPlugins failed: error=${e2}`);
-        });
+      loadScanConfig().then((scanConfig: YbScanConfig) => {
+        SCAN_CONFIG.scanConfig = scanConfig;
+        initializeMediaPlugins(mediaRepository(), mediaProfileRepository())
+          .then(() =>
+            initializeScanner(scanConfig).catch((e) => {
+              logger.error(`initializeScanner failed: error=${e}`);
+            }),
+          )
+          .catch((e2) => {
+            logger.error(`initializeMediaPlugins failed: error=${e2}`);
+          });
+      });
     }, 1000);
   }
 };

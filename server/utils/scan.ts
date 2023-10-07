@@ -20,24 +20,34 @@ export const loadScanConfig = async (): Promise<YbScanConfig> => {
   const localConfigRepo = localConfigRepository();
   const localConfig = await getLocalConfig();
   const sourceRepo = sourceRepository();
+  const mediaRepo = mediaRepository();
+  const mediaProfileRepo = mediaProfileRepository();
+  const libraryRepo = libraryRepository();
+  const libraryScanRepo = libraryScanRepository(DEFAULT_CLOCK);
+  const sourceScanRepo = sourceScanRepository();
+  const destinationRepo = destinationRepository();
+  const sourceAssetRepo = sourceAssetRepository();
+  const profileJobRepo = profileJobRepository();
+  const uploadJobRepo = uploadJobRepository();
   return {
     systemName: localConfig.systemName,
     logger,
     localConfigRepo: () => localConfigRepo,
-    mediaRepo: () => mediaRepository(),
-    mediaProfileRepo: () => mediaProfileRepository(),
-    libraryRepo: () => libraryRepository(),
-    libraryScanRepo: () => libraryScanRepository(DEFAULT_CLOCK),
-    sourceScanRepo: () => sourceScanRepository(),
+    mediaRepo: () => mediaRepo,
+    mediaProfileRepo: () => mediaProfileRepo,
+    libraryRepo: () => libraryRepo,
+    libraryScanRepo: () => libraryScanRepo,
+    sourceScanRepo: () => sourceScanRepo,
     sourceRepo: () => sourceRepo,
-    destinationRepo: () => destinationRepository(),
-    sourceAssetRepo: () => sourceAssetRepository(),
-    profileJobRepo: () => profileJobRepository(),
-    uploadJobRepo: () => uploadJobRepository(),
+    destinationRepo: () => destinationRepo,
+    sourceAssetRepo: () => sourceAssetRepo,
+    profileJobRepo: () => profileJobRepo,
+    uploadJobRepo: () => uploadJobRepo,
     connectSource: async (name: string) => (await connectVolume(await sourceRepo.findById(name))).connection!,
     downloadDir: localConfig.downloadDir,
     assetDir: localConfig.assetDir,
     clock: DEFAULT_CLOCK,
+    napAlarm: { wake: false },
     scanPollInterval: localConfig.scanPollInterval,
     analyzerPollInterval: localConfig.analyzerPollInterval,
     transformerPollInterval: localConfig.transformerPollInterval,
@@ -58,9 +68,9 @@ export const SCANNER: SCANNER_TYPE = {
   instance: null,
 };
 
-export const initializeScanner = async (): Promise<YbScanner> => {
+export const initializeScanner = async (scanConfig: YbScanConfig): Promise<YbScanner> => {
   if (!SCANNER.instance) {
-    SCANNER.instance = new YbScanner(await loadScanConfig());
+    SCANNER.instance = new YbScanner(scanConfig);
   }
   return SCANNER.instance;
 };
