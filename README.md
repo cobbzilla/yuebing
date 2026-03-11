@@ -10,7 +10,7 @@ Yuebing can use either Amazon S3 or Backblaze B2 for backend storage, and has ma
 ### Source
 * [yuebing on GitHub](https://github.com/cobbzilla/yuebing)
 * [yuebing on npm](https://www.npmjs.com/package/yuebing)
-* [yuebing on DockerHub](https://hub.docker.com/repository/docker/cobbzilla/yuebing)
+* [yuebing on DockerHub](https://hub.docker.com/r/cobbzilla/yuebing)
 
 # Read this in another language
 This README.md document has been translated, via [hokeylization](https://github.com/cobbzilla/hokeylization), into
