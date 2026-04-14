@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=cobbzilla&project=yuebing&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 Yuebing 🥮
 ==========
 Yuebing is open-source software for running video hosting sites.
